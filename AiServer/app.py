@@ -31,9 +31,7 @@ def hello_world():  # put application's code here
     # client = OpenAI()
     # defaults to getting the key using os.environ.get("OPENAI_API_KEY")
     # if you saved the key under a different environment variable name, you can do something like:
-    client = OpenAI(
-      api_key="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"
-    )
+    client = OpenAI(os.environ.get("OPENAI_API_KEY"))
 
     testClass = ["cat", "dog", "wolf"]
     testImages = [
