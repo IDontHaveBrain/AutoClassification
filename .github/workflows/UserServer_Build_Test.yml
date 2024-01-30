@@ -32,6 +32,5 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2
         with:
-          gradle-version: '8.5'
-          working-directory: UserServer
+          build-root-directory: ./UserServer
           arguments: build --build-cache --parallel
