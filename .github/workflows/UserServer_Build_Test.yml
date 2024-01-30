@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: 'Build Test'
+    name: 'UserServer Build Test'
     runs-on: ubuntu-latest
 
     steps:
@@ -33,4 +33,4 @@ jobs:
         uses: gradle/gradle-build-action@v2
         with:
           arguments: build --build-cache --parallel
-          working-directory: UserServer
+          gradle-executable: './UserServer/gradlew'
