@@ -50,6 +50,10 @@ dependencies {
     // querydsl
     implementation "com.querydsl:querydsl-jpa:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+
+    // mapping library
+    implementation 'org.modelmapper:modelmapper:3.1.1'
+
 }
 
 tasks.named('test') {
@@ -62,14 +66,13 @@ tasks.named('asciidoctor') {
     dependsOn test
 }
 
-def generated = 'src/main/generated'
 
+// 어노테이션 프로세서 생성파일 위치 지정
+def generated = 'src/main/generated'
 tasks.withType(JavaCompile) {
     options.getGeneratedSourceOutputDirectory().set(file(generated))
 }
-
 sourceSets.main.java.srcDirs += generated
-
 clean.doLast {
     file(generated).deleteDir()
 }
