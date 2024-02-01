@@ -15,6 +15,7 @@ import java.util.Collection;
 @Entity
 @DynamicUpdate
 @Getter
+@Table(indexes = {@Index(name = "index_email",  columnList="email", unique = true)})
 public class Member implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
