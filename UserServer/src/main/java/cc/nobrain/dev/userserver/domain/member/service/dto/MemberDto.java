@@ -2,9 +2,9 @@ package cc.nobrain.dev.userserver.domain.member.service.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@Builder
 public class MemberDto {
     private Long id;
     private String email;

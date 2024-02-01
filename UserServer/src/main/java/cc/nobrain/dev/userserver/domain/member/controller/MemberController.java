@@ -1,5 +1,6 @@
 package cc.nobrain.dev.userserver.domain.member.controller;
 
+import cc.nobrain.dev.userserver.domain.member.service.dto.MemberDto;
 import cc.nobrain.dev.userserver.domain.member.service.dto.MemberReq;
 import cc.nobrain.dev.userserver.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +16,8 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/register")
-    public void register(MemberReq.Register req) {
-        memberService.register(req);
+    public MemberDto register(MemberReq.Register req) {
+        return memberService.register(req);
     }
 
     @GetMapping("/duplicate")
