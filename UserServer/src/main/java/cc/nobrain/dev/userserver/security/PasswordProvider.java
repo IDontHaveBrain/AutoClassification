@@ -3,6 +3,7 @@ package cc.nobrain.dev.userserver.security;
 import cc.nobrain.dev.userserver.domain.member.entity.Member;
 import cc.nobrain.dev.userserver.domain.member.service.dto.MemberDto;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.*;
@@ -54,10 +55,11 @@ public class PasswordProvider implements AuthenticationProvider {
         if (!customUserDetailService.matches(password, userDetails.getPassword())) {
             throw new OAuth2AuthenticationException("invalid");
         }
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
 
         DefaultOAuth2TokenContext.Builder tokenContext = DefaultOAuth2TokenContext.builder()
                 .registeredClient(registeredClient)
-                .principal(clientPrincipal)
+                .principal(usernamePasswordAuthenticationToken)
                 .authorizationServerContext(AuthorizationServerContextHolder.getContext())
                 .authorizationGrantType(passwordAuthenticationToken.getGrantType())
                 .authorizationGrant(passwordAuthenticationToken);
@@ -86,6 +88,7 @@ public class PasswordProvider implements AuthenticationProvider {
         if (generatedAccessToken instanceof ClaimAccessor) {
             authorizationBuilder.token(accessToken, (metadata) -> {
                 metadata.put(OAuth2Authorization.Token.CLAIMS_METADATA_NAME, ((ClaimAccessor) generatedAccessToken).getClaims());
+                metadata.put(OAuth2Authorization.Token.INVALIDATED_METADATA_NAME, false);
             }).refreshToken(refreshToken);
         } else {
             authorizationBuilder.accessToken(accessToken).refreshToken(refreshToken);

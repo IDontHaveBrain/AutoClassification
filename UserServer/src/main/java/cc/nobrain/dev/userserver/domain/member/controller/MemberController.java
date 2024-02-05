@@ -5,6 +5,8 @@ import cc.nobrain.dev.userserver.domain.member.service.dto.MemberReq;
 import cc.nobrain.dev.userserver.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -23,11 +25,6 @@ public class MemberController {
     @GetMapping("/duplicate")
     public Boolean duplicate(@RequestParam String email) {
         return memberService.duplicate(email);
-    }
-
-    @PostMapping("/login")
-    public Object login() {
-        return null;
     }
 
     @DeleteMapping("/logout")
