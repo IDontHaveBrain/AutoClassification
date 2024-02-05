@@ -21,6 +21,10 @@ public class ReactiveRedisHelper {
 
     private final Long DEFAULT_EXPIRE_TIME = 3600L;
 
+    public ReactiveRedisTemplate<String, Object> getTemplate() {
+        return reactiveRedisTemplate;
+    }
+
     public Mono<Boolean> put(String key, Object value, Long expirationTime) {
         try {
             return reactiveRedisTemplate.opsForValue().set(key, value, Duration.ofSeconds(expirationTime));

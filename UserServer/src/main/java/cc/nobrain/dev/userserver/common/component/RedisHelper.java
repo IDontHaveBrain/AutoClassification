@@ -22,6 +22,10 @@ public class RedisHelper {
 
     private final Long DEFAULT_EXPIRE_TIME = 3600L;
 
+    public RedisTemplate<String, Object> getTemplate() {
+        return redisTemplate;
+    }
+
     public void put(String key, Object value, Long expirationTime) {
         try {
             redisTemplate.opsForValue().set(key, value, expirationTime, TimeUnit.SECONDS);
