@@ -25,3 +25,7 @@ spring:
       signKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqYax/fm+JNcHv6qcPYxk8S+iWyTnnRWCz/Fz17cuGnUVQX92QGVdLK+3Us4VgPa9Ff46nhDPubR8FZ4zc5LgwZ3Hb3oHZ2ydf75cod4jQ1xNiMybY6tvbU5Ieki9EzDDeC0ES3y/sd2cGw33uHXYD9rLIJtXbZ4aaNCnKWPxSUOxA/ANrkrk8XO6bzb88A5wZmw/YCx10nqN9/KkIHRvrGLqY3kxJWlWLpu1sYdIXhW6Pu4Fki9UuBgFyzHvlslqDz19cOWGK0hgEgb/PFg99GHyDlrQB0ceBCWtclngNo2JqyyDCjQDoM4Yre7/vzcRrCKXag8NpczsvtqX5mvdaQIDAQAB
       accessTokenValiditySeconds: 86400 # 86400
       refreshTokenValiditySeconds: 86400 # 172800
+
+logging:
+  level:
+    root: debug

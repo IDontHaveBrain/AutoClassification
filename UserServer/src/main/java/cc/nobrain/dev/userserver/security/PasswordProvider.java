@@ -3,10 +3,8 @@ package cc.nobrain.dev.userserver.security;
 import cc.nobrain.dev.userserver.domain.member.entity.Member;
 import cc.nobrain.dev.userserver.domain.member.service.dto.MemberDto;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.*;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
@@ -16,23 +14,21 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContextHolder;
 import org.springframework.security.oauth2.server.authorization.token.DefaultOAuth2TokenContext;
-import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class PasswordAuthProvider implements AuthenticationProvider {
+public class PasswordProvider implements AuthenticationProvider {
 
     private final OAuth2AuthorizationService authorizationService;
     private final OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator;
     private final CustomUserDetailService customUserDetailService;
 
-    public PasswordAuthProvider(OAuth2AuthorizationService authorizationService, OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator, CustomUserDetailService customUserDetailService) {
+    public PasswordProvider(OAuth2AuthorizationService authorizationService, OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator, CustomUserDetailService customUserDetailService) {
         Assert.notNull(authorizationService, "authorizationService cannot be null");
         Assert.notNull(tokenGenerator, "tokenGenerator cannot be null");
         Assert.notNull(customUserDetailService, "customUserDetailService cannot be null");
@@ -43,7 +39,7 @@ public class PasswordAuthProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        PasswordAuthToken passwordAuthenticationToken = (PasswordAuthToken) authentication;
+        PasswordToken passwordAuthenticationToken = (PasswordToken) authentication;
         OAuth2ClientAuthenticationToken clientPrincipal = getAuthenticatedClientElseThrowInvalidClient(passwordAuthenticationToken);
         RegisteredClient registeredClient = clientPrincipal.getRegisteredClient();
 
@@ -55,7 +51,7 @@ public class PasswordAuthProvider implements AuthenticationProvider {
         }
 
         Member userDetails = (Member) customUserDetailService.loadUserByUsername(username);
-        if (!PasswordConfig.passwordEncoder.matches(password, userDetails.getPassword())) {
+        if (!customUserDetailService.matches(password, userDetails.getPassword())) {
             throw new OAuth2AuthenticationException("invalid");
         }
 
@@ -108,7 +104,7 @@ public class PasswordAuthProvider implements AuthenticationProvider {
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return PasswordAuthToken.class.isAssignableFrom(authentication);
+        return PasswordToken.class.isAssignableFrom(authentication);
     }
 
     private OAuth2ClientAuthenticationToken getAuthenticatedClientElseThrowInvalidClient(Authentication authentication) {

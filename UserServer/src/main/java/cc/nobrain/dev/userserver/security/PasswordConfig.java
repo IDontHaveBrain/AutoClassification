@@ -2,10 +2,14 @@ package cc.nobrain.dev.userserver.security;
 
 import lombok.Getter;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-@Getter
+@Configuration
 public class PasswordConfig {
-    public static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(10);
+    }
 }

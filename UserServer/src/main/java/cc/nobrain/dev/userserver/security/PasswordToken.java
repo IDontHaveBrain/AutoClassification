@@ -6,9 +6,9 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 
 import java.util.Map;
 
-public class PasswordAuthToken extends OAuth2AuthorizationGrantAuthenticationToken {
+public class PasswordToken extends OAuth2AuthorizationGrantAuthenticationToken {
 
-    public PasswordAuthToken(Authentication clientPrincipal, Map<String, Object> additionalParameters) {
+    public PasswordToken(Authentication clientPrincipal, Map<String, Object> additionalParameters) {
         super(AuthorizationGrantType.PASSWORD, clientPrincipal, additionalParameters);
     }
 }

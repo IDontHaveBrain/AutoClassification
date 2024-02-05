@@ -6,14 +6,13 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -33,7 +32,6 @@ import org.springframework.security.oauth2.server.authorization.settings.TokenSe
 import org.springframework.security.oauth2.server.authorization.token.*;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2RefreshTokenAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
@@ -64,57 +62,85 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(
             HttpSecurity http, OAuth2AuthorizationService authorizationService, OAuth2TokenGenerator tokenGenerator,
-            CustomUserDetailService customUserDetailService) throws Exception {
+            CustomUserDetailService customUserDetailService, AuthorizationServerSettings authorizationServerSettings,
+            RegisteredClientRepository registeredClientRepository) throws Exception {
+
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .tokenGenerator(tokenGenerator)
-                .tokenEndpoint(tokenEndpoint ->
-                        tokenEndpoint
-                                .accessTokenRequestConverters(converters -> {
-                                    converters.add(new PasswordAuthConverter());
-                                    converters.add(new OAuth2RefreshTokenAuthenticationConverter());
-                                })
-                                .authenticationProviders(providers -> {
-                                    providers.add(new PasswordAuthProvider(authorizationService, tokenGenerator, customUserDetailService));
-                                    providers.add(new OAuth2RefreshTokenAuthenticationProvider(authorizationService, tokenGenerator));
-                                })
-//                                .accessTokenResponseHandler(accessTokenResponseHandler)
-//                                .errorResponseHandler(errorResponseHandler)
-                );
+                .clientAuthentication(clientAuth -> clientAuth
+                        .authenticationConverters(converters -> {
+//                            converters.clear();
+                        })
+                )
+                .tokenEndpoint(tokenEndpoint -> tokenEndpoint
+                        .accessTokenRequestConverters(converters -> {
+                            converters.add(new PasswordConverter());
+                            converters.add(new OAuth2RefreshTokenAuthenticationConverter());
+                        })
+                        .authenticationProviders(providers -> {
+                            providers.add(new PasswordProvider(authorizationService, tokenGenerator, customUserDetailService));
+                            providers.add(new OAuth2RefreshTokenAuthenticationProvider(authorizationService, tokenGenerator));
+                        })
+                )
+                .registeredClientRepository(registeredClientRepository)
+                .authorizationServerSettings(authorizationServerSettings)
+                .authorizationService(authorizationService);
 
         return http.build();
     }
 
 //    @Bean
+//    @Order(2)
 //    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//                .authorizeRequests((authorizeRequests) -> authorizeRequests
-//                        .anyRequest().authenticated()
+//        http.cors(AbstractHttpConfigurer::disable).csrf(AbstractHttpConfigurer::disable)
+//                .sessionManagement((session) -> session
+//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 //                )
-//                .formLogin(Customizer.withDefaults());
+//                .securityMatcher("/token").authorizeRequests((authorize) -> authorize
+//                        .anyRequest().permitAll()
+//                )
+//        ;
 //
 //        return http.build();
 //    }
 
     @Bean
-    public OAuth2AuthorizationService authorizationService() {
-        // TODO: REDIS 기반으로 변경
-        return new InMemoryOAuth2AuthorizationService();
-    }
+    public RegisteredClientRepository registeredClientRepository(PasswordEncoder passwordEncoder) {
+        String secret = passwordEncoder.encode("123123");
 
-    @Bean
-    public RegisteredClientRepository registeredClientRepository() {
-        RegisteredClient userServer = RegisteredClient.withId("user-server")
-                .clientId("user-server")
-                .clientName("user-server")
-                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
-                .authorizationGrantType(AuthorizationGrantType.PASSWORD)
-                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+        RegisteredClient registeredClientRepository = RegisteredClient.withId("public")
+                .clientId("public")
+                .clientName("public")
+                .clientSecret("$2a$10$d5nJ4FfbF0yLD2sgQ3EbpOqOBEQJn5rX2v/Fv/nGHPjfurbGl9tXy")
+                .clientAuthenticationMethods(methods -> {
+//                    methods.add(ClientAuthenticationMethod.NONE);
+                    methods.add(ClientAuthenticationMethod.CLIENT_SECRET_POST);
+                })
+                .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
+                .authorizationGrantTypes(grant -> {
+                    grant.add(new AuthorizationGrantType("client_password"));
+                    grant.add(AuthorizationGrantType.PASSWORD);
+                    grant.add(AuthorizationGrantType.REFRESH_TOKEN);
+                    grant.add(AuthorizationGrantType.AUTHORIZATION_CODE);
+                })
+                .redirectUris(uris -> uris.add("http://client/oauth/callback"))
+                .scopes(scopes -> {
+                    scopes.add("user");
+                    scopes.add("admin");
+                })
                 .tokenSettings(tokenSettings())
                 .build();
 
-        return new InMemoryRegisteredClientRepository(userServer);
+        return new InMemoryRegisteredClientRepository(registeredClientRepository);
+    }
+
+    @Bean
+    public OAuth2AuthorizationService authorizationService() {
+        // TODO: REDIS 기반으로 변경
+//        OAuth2AuthorizationService authorizationService = new InMemoryOAuth2AuthorizationService();
+        return new InMemoryOAuth2AuthorizationService();
     }
 
     @Bean
@@ -160,9 +186,19 @@ public class SecurityConfig {
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
-                .tokenEndpoint("/oauth2/token")
+                .authorizationEndpoint("/authorize")
+                .tokenEndpoint("/token")
+                .issuer("https://dev.nobrain.cc")
                 .build();
     }
+
+//    @Bean
+//    public AuthenticationManager customAuthenticationManager(OAuth2AuthorizationService authorizationService, OAuth2TokenGenerator tokenGenerator, CustomUserDetailService customUserDetailService) {
+//        return new ProviderManager(Arrays.asList(
+//                new PasswordAuthProvider(authorizationService, tokenGenerator, customUserDetailService),
+//                new OAuth2RefreshTokenAuthenticationProvider(authorizationService, tokenGenerator)
+//        ));
+//    }
 
     private TokenSettings tokenSettings() {
         return TokenSettings.builder()

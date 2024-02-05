@@ -1,14 +1,11 @@
 package cc.nobrain.dev.userserver.security;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationGrantAuthenticationToken;
 import org.springframework.security.web.authentication.AuthenticationConverter;
-import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -16,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class PasswordAuthConverter implements AuthenticationConverter {
+public class PasswordConverter implements AuthenticationConverter {
     @Override
     public Authentication convert(HttpServletRequest request) {
         Map<String, String[]> parameterMap = request.getParameterMap();
@@ -47,6 +44,6 @@ public class PasswordAuthConverter implements AuthenticationConverter {
 
         Authentication clientPrincipal = SecurityContextHolder.getContext().getAuthentication();
 
-        return new PasswordAuthToken(clientPrincipal, additionalParameters);
+        return new PasswordToken(clientPrincipal, additionalParameters);
     }
 }
