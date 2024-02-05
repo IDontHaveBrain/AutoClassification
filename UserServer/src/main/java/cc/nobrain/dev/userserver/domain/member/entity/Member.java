@@ -1,5 +1,6 @@
 package cc.nobrain.dev.userserver.domain.member.entity;
 
+import cc.nobrain.dev.userserver.common.converter.BCryptoConverter;
 import cc.nobrain.dev.userserver.common.validation.Name;
 import cc.nobrain.dev.userserver.common.validation.Password;
 import jakarta.persistence.*;
@@ -7,10 +8,14 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Entity
 @DynamicUpdate
@@ -29,16 +34,23 @@ public class Member implements UserDetails {
     @NotNull
     @Password
     @Column
+    @Convert(converter = BCryptoConverter.class)
     private String password;
 
     @NotNull
     @Name
-    @Column(length = 30)
+    @Column(length = 30, nullable = false)
     private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "group_id")
+    private MemberGroup memberGroup;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_MEMBER"));
+        return authorities;
     }
 
     @Override
