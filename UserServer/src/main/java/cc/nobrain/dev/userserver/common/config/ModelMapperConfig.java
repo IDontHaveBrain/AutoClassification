@@ -1,4 +1,4 @@
-package cc.nobrain.dev.userserver.common.component;
+package cc.nobrain.dev.userserver.common.config;
 
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
