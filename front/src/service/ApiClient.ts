@@ -12,7 +12,7 @@ const checkToken = async (config: InternalAxiosRequestConfig) => {
   const access_token = sessionStorage.getItem(CONSTANT.ACCESS_TOKEN);
 
   if(access_token && config) {
-    config.headers = config.headers || {};
+    // config.headers = config.headers || {};
     config.headers.Authorization = 'Bearer ' + access_token;
   }
 
