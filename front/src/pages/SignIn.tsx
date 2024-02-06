@@ -10,8 +10,9 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { Link } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
+import {LoginData, signIn} from "../service/authApi";
+import CONSTANT from "../utils/constant/constant";
 
 function Copyright(props: any) {
   return (
@@ -24,13 +25,30 @@ function Copyright(props: any) {
 }
 
 export default function SignIn() {
+  const navigate = useNavigate();
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log({
-      email: data.get('email'),
+      email: data.get('username'),
       password: data.get('password'),
     });
+
+    const params: LoginData = {
+      username: data.get('username') as string,
+      password: data.get('password') as string
+    }
+
+    signIn(params).then(res => {
+      console.log(res);
+      if (res.data.access_token) {
+        sessionStorage.setItem(CONSTANT.ACCESS_TOKEN, res.data.access_token);
+        navigate('/');
+      }
+    }).catch(err => {
+      console.log(err);
+    })
   };
 
   return (
@@ -56,9 +74,9 @@ export default function SignIn() {
               margin="normal"
               required
               fullWidth
-              id="email"
+              id="username"
               label="Email Address"
-              name="email"
+              name="username"
               autoComplete="email"
               autoFocus
             />
