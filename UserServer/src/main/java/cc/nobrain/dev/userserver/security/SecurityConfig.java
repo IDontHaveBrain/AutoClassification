@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -33,6 +34,7 @@ import org.springframework.security.oauth2.server.authorization.settings.TokenSe
 import org.springframework.security.oauth2.server.authorization.token.*;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2RefreshTokenAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
@@ -64,10 +66,12 @@ public class SecurityConfig {
     public SecurityFilterChain authorizationServerSecurityFilterChain(
             HttpSecurity http, OAuth2AuthorizationService authorizationService, OAuth2TokenGenerator tokenGenerator,
             CustomUserDetailService customUserDetailService, AuthorizationServerSettings authorizationServerSettings,
-            RegisteredClientRepository registeredClientRepository) throws Exception {
+            RegisteredClientRepository registeredClientRepository, CorsConfigurationSource corsConfigurationSource) throws Exception {
 
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
+//        OAuth2AuthorizationServerConfigurer oAuth2AuthorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
+//        http.with(oAuth2AuthorizationServerConfigurer, Customizer.withDefaults());
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .tokenGenerator(tokenGenerator)
                 .clientAuthentication(clientAuth -> clientAuth
@@ -89,13 +93,17 @@ public class SecurityConfig {
                 .authorizationServerSettings(authorizationServerSettings)
                 .authorizationService(authorizationService);
 
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .csrf(csrf -> csrf.disable());
+
         return http.build();
     }
 
     @Bean
-    @Order(2)
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
-        http.cors(cors -> cors.disable()).csrf(csrf -> csrf.disable())
+    @Order(1)
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder,
+                                                          CorsConfigurationSource corsConfigurationSource) throws Exception {
+        http
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -105,12 +113,11 @@ public class SecurityConfig {
                         )
                 )
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/token").permitAll()
+                        .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/authorize").permitAll()
                         .anyRequest().authenticated()
                 )
         ;
-
         return http.build();
     }
 
@@ -125,6 +132,7 @@ public class SecurityConfig {
                 .clientAuthenticationMethods(methods -> {
 //                    methods.add(ClientAuthenticationMethod.NONE);
                     methods.add(ClientAuthenticationMethod.CLIENT_SECRET_POST);
+                    methods.add(ClientAuthenticationMethod.NONE);
                 })
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
                 .authorizationGrantTypes(grant -> {
@@ -195,7 +203,7 @@ public class SecurityConfig {
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
                 .authorizationEndpoint("/authorize")
-                .tokenEndpoint("/token")
+                .tokenEndpoint("/auth/token")
                 .issuer("https://dev.nobrain.cc")
                 .build();
     }

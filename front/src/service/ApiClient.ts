@@ -1,6 +1,13 @@
 import axios, {AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig} from "axios";
 import CONSTANT from "../utils/constant/constant";
 
+export const authApi: AxiosInstance = axios.create({
+  baseURL: CONSTANT.AUTH_API_URL,
+  headers:{
+    Accept: "application/json"
+  }
+});
+
 export const baseApi: AxiosInstance = axios.create({
   baseURL: CONSTANT.API_URL,
   headers:{
@@ -11,7 +18,7 @@ export const baseApi: AxiosInstance = axios.create({
 const checkToken = async (config: InternalAxiosRequestConfig) => {
   const access_token = sessionStorage.getItem(CONSTANT.ACCESS_TOKEN);
 
-  if(access_token && config) {
+  if(access_token) {
     // config.headers = config.headers || {};
     config.headers.Authorization = 'Bearer ' + access_token;
   }
@@ -19,6 +26,7 @@ const checkToken = async (config: InternalAxiosRequestConfig) => {
   return config;
 }
 
+axios.defaults.withCredentials = true;
 baseApi.interceptors.request.use(checkToken);
 baseApi.interceptors.response.use(
   (response) => {

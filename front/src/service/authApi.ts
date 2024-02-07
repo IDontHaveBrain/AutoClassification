@@ -1,4 +1,4 @@
-import {baseApi} from "./ApiClient";
+import {authApi, baseApi} from "./ApiClient";
 import {AxiosPromise} from "axios";
 
 
@@ -17,5 +17,12 @@ export const signIn = (loginData: LoginData): AxiosPromise => {
     client_secret: 'public',
     grant_type: 'password'
   }
-  return baseApi.post('/token', loginData);
+  const formData = new FormData();
+  formData.append('client_id', params.client_id);
+  formData.append('client_secret', params.client_secret);
+  formData.append('grant_type', params.grant_type);
+  formData.append('username', params.username);
+  formData.append('password', params.password);
+
+  return authApi.post('/token', formData);
 }
