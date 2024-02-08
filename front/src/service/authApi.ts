@@ -26,3 +26,7 @@ export const signIn = (loginData: LoginData): AxiosPromise => {
 
   return authApi.post('/token', formData);
 }
+
+export const getPublicKey = (): AxiosPromise => {
+  return authApi.get('/public');
+}

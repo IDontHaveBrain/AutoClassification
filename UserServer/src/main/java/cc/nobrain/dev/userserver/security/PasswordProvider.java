@@ -1,5 +1,6 @@
 package cc.nobrain.dev.userserver.security;
 
+import cc.nobrain.dev.userserver.common.component.RsaHelper;
 import cc.nobrain.dev.userserver.domain.member.entity.Member;
 import cc.nobrain.dev.userserver.domain.member.service.dto.MemberDto;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -28,14 +29,17 @@ public class PasswordProvider implements AuthenticationProvider {
     private final OAuth2AuthorizationService authorizationService;
     private final OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator;
     private final CustomUserDetailService customUserDetailService;
+    private final RsaHelper rsaHelper;
 
-    public PasswordProvider(OAuth2AuthorizationService authorizationService, OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator, CustomUserDetailService customUserDetailService) {
+    public PasswordProvider(OAuth2AuthorizationService authorizationService, OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator,
+                            CustomUserDetailService customUserDetailService, RsaHelper rsaHelper) {
         Assert.notNull(authorizationService, "authorizationService cannot be null");
         Assert.notNull(tokenGenerator, "tokenGenerator cannot be null");
         Assert.notNull(customUserDetailService, "customUserDetailService cannot be null");
         this.authorizationService = authorizationService;
         this.tokenGenerator = tokenGenerator;
         this.customUserDetailService = customUserDetailService;
+        this.rsaHelper = rsaHelper;
     }
 
     @Override
@@ -52,7 +56,7 @@ public class PasswordProvider implements AuthenticationProvider {
         }
 
         Member userDetails = (Member) customUserDetailService.loadUserByUsername(username);
-        if (!customUserDetailService.matches(password, userDetails.getPassword())) {
+        if (!customUserDetailService.matches(rsaHelper.decrypt(password), userDetails.getPassword())) {
             throw new OAuth2AuthenticationException("invalid");
         }
         UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());

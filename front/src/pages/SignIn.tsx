@@ -11,8 +11,10 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import {Link, useNavigate} from 'react-router-dom';
-import {LoginData, signIn} from "../service/authApi";
+import {getPublicKey, LoginData, signIn} from "../service/authApi";
 import CONSTANT from "../utils/constant/constant";
+import {useEffect, useState} from "react";
+import AuthUtils from "../utils/authUtils";
 
 function Copyright(props: any) {
   return (
@@ -25,7 +27,17 @@ function Copyright(props: any) {
 }
 
 export default function SignIn() {
+  const [publicKey, setPublicKey] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getPublicKey().then(res => {
+      console.log(res);
+      setPublicKey(res.data);
+    }).catch(err => {
+      console.log(err);
+    })
+  }, [])
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -35,20 +47,26 @@ export default function SignIn() {
       password: data.get('password'),
     });
 
-    const params: LoginData = {
-      username: data.get('username') as string,
-      password: data.get('password') as string
-    }
+    AuthUtils.encrypt(data.get('password') as string, publicKey)
+        .then(res => {
+          console.log(res);
+          const params: LoginData = {
+            username: data.get('username') as string,
+            password: res as string,
+          }
 
-    signIn(params).then(res => {
-      console.log(res);
-      if (res.data.access_token) {
-        sessionStorage.setItem(CONSTANT.ACCESS_TOKEN, res.data.access_token);
-        navigate('/');
-      }
-    }).catch(err => {
-      console.log(err);
-    })
+          signIn(params).then(res => {
+            console.log(res);
+            if (res.data.access_token) {
+              sessionStorage.setItem(CONSTANT.ACCESS_TOKEN, res.data.access_token);
+              navigate('/');
+            }
+          }).catch(err => {
+            console.log(err);
+          })
+        }).catch(err => {
+          console.log(err);
+        })
   };
 
   return (

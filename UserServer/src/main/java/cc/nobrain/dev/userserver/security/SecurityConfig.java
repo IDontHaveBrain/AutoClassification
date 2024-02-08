@@ -1,5 +1,6 @@
 package cc.nobrain.dev.userserver.security;
 
+import cc.nobrain.dev.userserver.common.component.RsaHelper;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -66,7 +66,8 @@ public class SecurityConfig {
     public SecurityFilterChain authorizationServerSecurityFilterChain(
             HttpSecurity http, OAuth2AuthorizationService authorizationService, OAuth2TokenGenerator tokenGenerator,
             CustomUserDetailService customUserDetailService, AuthorizationServerSettings authorizationServerSettings,
-            RegisteredClientRepository registeredClientRepository, CorsConfigurationSource corsConfigurationSource) throws Exception {
+            RegisteredClientRepository registeredClientRepository, CorsConfigurationSource corsConfigurationSource,
+            RsaHelper rsaHelper) throws Exception {
 
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
@@ -82,11 +83,11 @@ public class SecurityConfig {
                 .tokenEndpoint(tokenEndpoint -> tokenEndpoint
                         .accessTokenRequestConverters(converters -> {
                             converters.add(new PasswordConverter());
-                            converters.add(new OAuth2RefreshTokenAuthenticationConverter());
+//                            converters.add(new OAuth2RefreshTokenAuthenticationConverter());
                         })
                         .authenticationProviders(providers -> {
-                            providers.add(new PasswordProvider(authorizationService, tokenGenerator, customUserDetailService));
-                            providers.add(new OAuth2RefreshTokenAuthenticationProvider(authorizationService, tokenGenerator));
+                            providers.add(new PasswordProvider(authorizationService, tokenGenerator, customUserDetailService, rsaHelper));
+//                            providers.add(new OAuth2RefreshTokenAuthenticationProvider(authorizationService, tokenGenerator));
                         })
                 )
                 .registeredClientRepository(registeredClientRepository)
@@ -103,7 +104,7 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder,
                                                           CorsConfigurationSource corsConfigurationSource) throws Exception {
-        http
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
