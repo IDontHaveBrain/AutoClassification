@@ -29,3 +29,9 @@ spring:
 logging:
   level:
     root: debug
+
+app:
+
+  storege:
+    path: c:/work/upload
+    maxFileSize: 10MB

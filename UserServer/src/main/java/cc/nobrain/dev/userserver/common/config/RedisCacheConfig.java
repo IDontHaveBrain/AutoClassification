@@ -22,7 +22,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 public class RedisCacheConfig {
 
     @Bean
-    public RedisCacheManager redisCacheManager(@Qualifier("redisConnectionFactory") RedisConnectionFactory redisConnectionFactory) {
+    public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
         RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig();
 
         RedisCacheManager redisCacheManager = RedisCacheManager.builder(redisConnectionFactory)

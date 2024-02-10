@@ -2,26 +2,24 @@ package cc.nobrain.dev.userserver.domain.base.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.DiscriminatorOptions;
 import org.hibernate.annotations.DynamicUpdate;
 
-@Builder
 @Entity
 @Getter
 @DynamicUpdate
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "dtype", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorColumn(name = "DTYPE", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorOptions(force=true)
 public abstract class File extends BaseCU {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, updatable = false)
+    @Column(insertable = false, updatable = false)
     private String dtype;
 
     @Column(nullable = false)

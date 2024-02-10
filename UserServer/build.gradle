@@ -72,10 +72,16 @@ tasks.named('asciidoctor') {
     dependsOn test
 }
 
+task buildWithoutTest(type: Task) {
+    dependsOn 'clean'
+    dependsOn 'build'
+    tasks.test.enabled = false
+}
 
 // 어노테이션 프로세서 생성파일 위치 지정
 def generated = 'src/main/generated'
 tasks.withType(JavaCompile) {
+    dependsOn 'clean'
     options.getGeneratedSourceOutputDirectory().set(file(generated))
 }
 sourceSets.main.java.srcDirs += generated

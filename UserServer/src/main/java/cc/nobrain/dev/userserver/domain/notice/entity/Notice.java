@@ -32,6 +32,7 @@ public class Notice extends BaseCU {
 
     @Max(5)
     @OneToMany(mappedBy = "ownerIndex", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<NoticeFile> attachedFiles = new ArrayList<>();
 
     public void update(String title, String content) {
