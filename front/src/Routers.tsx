@@ -7,56 +7,56 @@ import {Home} from "./pages/Home";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 
 export interface MenuInfo {
-  name: string;
-  path?: string;
-  icon?: React.ReactNode;
-  subMenu?: MenuInfo[];
+    name: string;
+    path?: string;
+    icon?: React.ReactNode;
+    subMenu?: MenuInfo[];
 }
 
 export const MenuItems: MenuInfo[] = [
-  {
-    name: "Home", path: "/", icon: <AssignmentIcon/>
-  },
-  {
-    name: "Sign In",
-    path: "/sign-in",
-  },
-  {
-    name: "Sign Up",
-    path: "/sign-up",
-  },
-  {
-    name: "My Page",
-    subMenu: [
-      {
-        name: "Not Found",
-        path: "/not-found",
-      }
-    ]
-  }
+    {
+        name: "Home", path: "/", icon: <AssignmentIcon/>
+    },
+    {
+        name: "Sign In",
+        path: "/sign-in",
+    },
+    {
+        name: "Sign Up",
+        path: "/sign-up",
+    },
+    {
+        name: "My Page",
+        subMenu: [
+            {
+                name: "Not Found",
+                path: "/not-found",
+            }
+        ]
+    }
 ];
 
 export const baseRouters = createBrowserRouter([
-  {
-    path: "/sign-in",
-    element: <SignIn/>,
-  },
-  {
-    path: "/sign-up",
-    element: <SignUp/>,
-  },
-  {
-    path: "/",
-    element: <Layout/>,
-    children: [
-      {
-        index: true,
-        element: <Home/>,
-      },
-    ]
-  },
-  {
-    path: "*",
-    element: <NotFound/>,
-  }
+    {
+        path: "/sign-in",
+        element: <SignIn/>,
+    },
+    {
+        path: "/sign-up",
+        element: <SignUp/>,
+    },
+    {
+        path: "/",
+        element: <Layout/>,
+        children: [
+            {
+                index: true,
+                element: <Home/>,
+            },
+        ]
+    },
+    {
+        path: "*",
+        element: <NotFound/>,
+    }
 ])

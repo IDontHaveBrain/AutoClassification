@@ -1,10 +1,10 @@
-import { configureStore } from "@reduxjs/toolkit";
+import {configureStore} from "@reduxjs/toolkit";
 import userInfoReducer from "./rootSlice";
 
 const rootStore = configureStore({
-  reducer: {
-    userInfo: userInfoReducer,
-  }
+    reducer: {
+        userInfo: userInfoReducer,
+    }
 })
 
 export default rootStore;
