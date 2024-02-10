@@ -6,35 +6,20 @@ import { RouterProvider } from 'react-router-dom';
 import {baseRouters} from "./Routers";
 import {Loading} from "./pages/Loading";
 import {createTheme, ThemeProvider} from "@mui/material/styles";
+import {Provider} from "react-redux";
+import rootStore from "./store/rootStore";
 
 const defaultTheme = createTheme();
 
 function App() {
 
   return (
-      <ThemeProvider theme={defaultTheme}>
-        <RouterProvider router={baseRouters} fallbackElement={<Loading/>} />
-      </ThemeProvider>
+      <Provider store={rootStore}>
+          <ThemeProvider theme={defaultTheme}>
+              <RouterProvider router={baseRouters} fallbackElement={<Loading/>}/>
+          </ThemeProvider>
+      </Provider>
   );
 }
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         {/*<img src={logo} className="App-logo" alt="logo" />*/}
-//         {/*<p>*/}
-//         {/*  Edit <code>src/App.tsx</code> and save to reload.*/}
-//         {/*</p>*/}
-//         {/*<a*/}
-//         {/*  className="App-link"*/}
-//         {/*  href="https://reactjs.org"*/}
-//         {/*  target="_blank"*/}
-//         {/*  rel="noopener noreferrer"*/}
-//         {/*>*/}
-//         {/*  Learn React*/}
-//         {/*</a>*/}
-//       </header>
-//     </div>
-//   );
-// }
 
 export default App;

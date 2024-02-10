@@ -15,6 +15,9 @@ import {getPublicKey, LoginData, signIn} from "../service/authApi";
 import CONSTANT from "../utils/constant/constant";
 import {useEffect, useState} from "react";
 import AuthUtils from "../utils/authUtils";
+import {useDispatch} from "react-redux";
+import {setUserInfo} from "../store/rootSlice";
+import {useAppDispatch} from "../store/rootHook";
 
 function Copyright(props: any) {
   return (
@@ -29,6 +32,7 @@ function Copyright(props: any) {
 export default function SignIn() {
   const [publicKey, setPublicKey] = useState('');
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     getPublicKey().then(res => {
@@ -59,6 +63,7 @@ export default function SignIn() {
             console.log(res);
             if (res.data.access_token) {
               sessionStorage.setItem(CONSTANT.ACCESS_TOKEN, res.data.access_token);
+              dispatch(setUserInfo(res.data));
               navigate('/');
             }
           }).catch(err => {

@@ -3,6 +3,8 @@ import Typography from "@mui/material/Typography";
 import MuiAppBar from "@mui/material/AppBar";
 import MenuIcon from "@mui/icons-material/Menu";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import {useEffect} from "react";
+import {useAppSelector} from "../store/rootHook";
 
 interface MyAppBarProps extends AppBarProps {
   open?: boolean;
@@ -17,6 +19,14 @@ interface TopBarProps {
 }
 
 const TopBar = ({open, openMenu, width=240, children}: TopBarProps) => {
+  const user = useAppSelector(state => state.userInfo.user);
+
+  useEffect(() => {
+    const tokenCheck = sessionStorage.getItem('access_token');
+    if (!tokenCheck || !user) {
+      window.location.href = '/sign-in';
+    }
+  }, [user]);
 
   return (
       <AppBar position={"absolute"} open={open} drawerWidth={width}>
@@ -27,7 +37,7 @@ const TopBar = ({open, openMenu, width=240, children}: TopBarProps) => {
             <MenuIcon />
           </IconButton>
           <Typography component={"h1"} variant={"h6"} color={"inherit"} noWrap sx={{flexGrow: 1}}>
-            Main
+            {user.name}
           </Typography>
           <IconButton color="inherit">
             <Badge badgeContent={4} color="secondary">

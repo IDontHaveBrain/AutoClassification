@@ -104,7 +104,7 @@ public class PasswordProvider implements AuthenticationProvider {
         MemberDto memberDto = new MemberDto(0L, userDetails.getUsername(), userDetails.getName());
 
         Map<String, Object> additional = new HashMap<>();
-        additional.put("info", memberDto);
+        additional.put("user", memberDto);
 
         return new OAuth2AccessTokenAuthenticationToken(registeredClient, clientPrincipal, accessToken, refreshToken, additional);
     }
