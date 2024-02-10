@@ -1,16 +1,13 @@
-import {Outlet, Link, useNavigation} from "react-router-dom";
+import {Outlet, useNavigation} from "react-router-dom";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
-import {AppBarProps, IconButton, MenuItem, styled, Toolbar} from "@mui/material";
-import MuiAppBar from "@mui/material/AppBar";
+import {Toolbar} from "@mui/material";
 import {useState} from "react";
-import Typography from "@mui/material/Typography";
 import TopBar from "./TopBar";
 import LeftBar from "./LeftBar";
-import {MenuItems, MenuInfo} from "../Routers";
+import {MenuInfo, MenuItems} from "../Routers";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
-import BackGround from "./BackGround";
 
 export const Layout = () => {
     const navigation = useNavigation();

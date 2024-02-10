@@ -5,7 +5,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import {useEffect} from "react";
 import {useAppSelector} from "../store/rootHook";
 import Notification from "../component/Notification/Notification";
-import {useAlert} from "../component/Modal/AlertModal";
+import {Alert, useAlert} from "../component/Modal/AlertModal";
 
 interface MyAppBarProps extends AppBarProps {
     open?: boolean;
@@ -31,7 +31,8 @@ const TopBar = ({open, openMenu, width = 240, children}: TopBarProps) => {
     }, [user]);
 
     useEffect(() => {
-        alert('Hello');
+        // alert('Hello');
+        Alert('Hello');
     }, []);
 
     return (

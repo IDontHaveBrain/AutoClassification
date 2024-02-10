@@ -19,15 +19,22 @@ const style = {
 };
 
 const AlertModal = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const alert = useAppSelector(state => state.alert);
 
-    // useEffect(() => {
-    //     window.addEventListener("alert", handler as any);
-    //     return () => {
-    //         window.removeEventListener("alert", handler as any);
-    //     };
-    // }, [handler]);
+    const handler = useCallback(({ detail }) => {
+        if (detail.callback) {
+            dispatch(onAlert({message: detail.message, callback: detail.callback}));
+        }
+        dispatch(onAlert({message: detail.message}));
+    }, [dispatch]);
+
+    useEffect(() => {
+        window.addEventListener("Alert", handler as any);
+        return () => {
+            window.removeEventListener("Alert", handler as any);
+        };
+    }, [handler]);
 
     const onClose = () => {
         if (alert && alert.open && alert.callback) {
@@ -77,6 +84,17 @@ export const useAlert = () => {
         dispatch(onAlert({message, callback}));
     }, [dispatch]);
     return alert;
+};
+
+export const Alert = (message: string, callback?: any) => {
+    const doAlert = (detail) => {
+        window.dispatchEvent(
+            new CustomEvent("Alert", {
+                detail
+            })
+        );
+    }
+    doAlert({message, callback});
 };
 
 const ModalContent = styled('div')(
