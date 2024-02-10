@@ -13,7 +13,7 @@ export const Layout = () => {
     const navigation = useNavigation();
     const [open, setOpen] = useState(true);
     const [menu, setMenu] = useState<MenuInfo[]>(MenuItems);
-    // const width = 240;
+    const [baseWidth, setBaseWidth] = useState(240);
 
     const openMenu = () => {
         setOpen(!open);
@@ -22,8 +22,8 @@ export const Layout = () => {
     return (
         <Box sx={{display: 'flex'}}>
             <CssBaseline/>
-            <TopBar open={open} openMenu={openMenu}/>
-            <LeftBar open={open} openMenu={openMenu} menu={menu}>
+            <TopBar open={open} openMenu={openMenu} width={baseWidth}/>
+            <LeftBar open={open} openMenu={openMenu} menu={menu} width={baseWidth}>
                 Main
             </LeftBar>
             <Box

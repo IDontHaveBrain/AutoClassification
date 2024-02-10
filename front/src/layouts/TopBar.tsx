@@ -30,11 +30,6 @@ const TopBar = ({open, openMenu, width = 240, children}: TopBarProps) => {
         }
     }, [user]);
 
-    useEffect(() => {
-        // alert('Hello');
-        onAlert('Hello');
-    }, []);
-
     return (
         <AppBar position={"absolute"} open={open} drawerWidth={width}>
             <Toolbar sx={{pr: '20px'}}>

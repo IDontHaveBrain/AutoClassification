@@ -1,22 +1,10 @@
-import {
-    Divider,
-    DrawerProps,
-    IconButton,
-    List,
-    ListItemButton,
-    ListItemIcon, ListItemText, Menu,
-    MenuItem,
-    MenuList,
-    styled,
-    Toolbar
-} from "@mui/material";
+import {Divider, DrawerProps, IconButton, List, styled, Toolbar} from "@mui/material";
 import MuiDrawer from "@mui/material/Drawer";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import {MenuInfo} from "../Routers";
 import {useNavigate} from "react-router-dom";
-import MenuIcon from "@mui/icons-material/Menu";
-import AssignmentIcon from "@mui/icons-material/Assignment";
 import {useState} from "react";
+import {MenuInfo} from "../../Routers";
+import RenderMenu from "./renderMenu";
 
 interface MenuBarProps extends DrawerProps {
     drawerWidth?: number;
@@ -31,31 +19,20 @@ interface LeftBarProps {
 }
 
 const LeftBar = ({open, openMenu, width = 240, menu, children}: LeftBarProps) => {
-    const [menuList, setMenuList] = useState<MenuInfo[]>(menu);
-    const [openMenuList, setOpenMenuList] = useState<MenuInfo[]>();
+    const [openSubMenu, setOpenSubMenu] = useState({});
+
     const navigate = useNavigate();
 
-    const movePage = (path: string) => {
-        navigate(path);
-    }
-
     const onClickMenu = (menu: MenuInfo) => {
-        if (menu?.subMenu?.length) {
-            if (openMenuList.some(openMenu => openMenu.name === menu.name)) {
-                setOpenMenuList(openMenuList.filter(openMenu => openMenu.name !== menu.name));
+        if (!(menu?.subMenu?.length) && menu?.path) {
+            if (openSubMenu === menu.name) {
+                setOpenSubMenu(null);
             } else {
-                setOpenMenuList([...openMenuList, menu]);
+                setOpenSubMenu(menu.name);
             }
         } else if (menu?.path) {
-            movePage(menu.path);
+            navigate(menu.path);
         }
-    }
-
-    const menuRender = () => {
-
-        // return (
-        //
-        // );
     }
 
     return (
@@ -74,15 +51,9 @@ const LeftBar = ({open, openMenu, width = 240, menu, children}: LeftBarProps) =>
                 </IconButton>
             </Toolbar>
             <Divider/>
-            <List component="nav">
-                <List component={"nav"}>
-                    {menu?.map((item, index) => (
-                        <ListItemButton key={index} onClick={() => onClickMenu(item)}>
-                            <ListItemIcon>{item.icon ? item.icon : <AssignmentIcon/>}</ListItemIcon>
-                            <ListItemText primary={item.name}/>
-                        </ListItemButton>
-                    ))}
-                </List>
+            <List>
+                {menu?.map((menu) =>
+                    <RenderMenu item={menu} open={open} openSubMenus={openSubMenu} setOpenSubMenus={setOpenSubMenu} />)}
             </List>
         </MenuBar>
     );

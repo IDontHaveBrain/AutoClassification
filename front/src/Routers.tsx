@@ -31,6 +31,20 @@ export const MenuItems: MenuInfo[] = [
             {
                 name: "Not Found",
                 path: "/not-found",
+            },
+            {
+                name: "Test Submenu2",
+                subMenu: [
+                    {
+                        name: "Test Submenu3",
+                        subMenu: [
+                            {
+                                name: "Test Submenu4",
+                                path: "/test-submenu4",
+                            }
+                        ]
+                    }
+                ]
             }
         ]
     }

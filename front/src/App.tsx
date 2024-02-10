@@ -16,7 +16,7 @@ function App() {
     return (
         <ThemeProvider theme={defaultTheme}>
             <Provider store={rootStore}>
-                <PersistGate persistor={persistor}>
+                <PersistGate persistor={persistor} loading={<Loading/>}>
                     <RouterProvider router={baseRouters} fallbackElement={<Loading/>}/>
                     <BackGround/>
                 </PersistGate>
