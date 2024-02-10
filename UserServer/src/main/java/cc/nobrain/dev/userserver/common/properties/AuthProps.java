@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Getter
 @RequiredArgsConstructor
-@ConfigurationProperties("spring.security.jwt")
+@ConfigurationProperties(prefix = "spring.security.jwt")
 public class AuthProps {
 
     private final String privateKey;

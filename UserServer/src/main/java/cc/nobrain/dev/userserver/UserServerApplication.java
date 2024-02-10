@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @EntityScan(basePackages = {"cc.nobrain.dev.userserver"})
-@ConfigurationPropertiesScan
+@ConfigurationPropertiesScan(basePackages = {"cc.nobrain.dev.userserver.common"})
 public class UserServerApplication {
 
     public static void main(String[] args) {

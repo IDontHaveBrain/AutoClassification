@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,6 +51,7 @@ import java.util.UUID;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     @Value("${spring.security.jwt.privateKey}")
@@ -61,13 +63,14 @@ public class SecurityConfig {
     @Value("${spring.security.jwt.refreshTokenValiditySeconds:86400}")
     private Integer refreshTokenValiditySeconds;
 
+    private final CorsConfigurationSource corsConfigurationSource;
+
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(
             HttpSecurity http, OAuth2AuthorizationService authorizationService, OAuth2TokenGenerator tokenGenerator,
             CustomUserDetailService customUserDetailService, AuthorizationServerSettings authorizationServerSettings,
-            RegisteredClientRepository registeredClientRepository, CorsConfigurationSource corsConfigurationSource,
-            RsaHelper rsaHelper) throws Exception {
+            RegisteredClientRepository registeredClientRepository, RsaHelper rsaHelper) throws Exception {
 
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
@@ -102,8 +105,7 @@ public class SecurityConfig {
 
     @Bean
     @Order(1)
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder,
-                                                          CorsConfigurationSource corsConfigurationSource) throws Exception {
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

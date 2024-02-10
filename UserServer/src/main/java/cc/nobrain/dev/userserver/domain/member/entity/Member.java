@@ -3,10 +3,14 @@ package cc.nobrain.dev.userserver.domain.member.entity;
 import cc.nobrain.dev.userserver.common.converter.BCryptoConverter;
 import cc.nobrain.dev.userserver.common.validation.Name;
 import cc.nobrain.dev.userserver.common.validation.Password;
+import cc.nobrain.dev.userserver.domain.base.entity.BaseCU;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,8 +24,11 @@ import java.util.List;
 @Entity
 @DynamicUpdate
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(indexes = {@Index(name = "index_email",  columnList="email", unique = true)})
-public class Member implements UserDetails {
+public class Member extends BaseCU implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
