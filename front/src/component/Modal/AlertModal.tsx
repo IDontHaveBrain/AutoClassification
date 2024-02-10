@@ -1,6 +1,6 @@
 import {forwardRef, useCallback, useEffect} from "react";
 import {useAppDispatch, useAppSelector} from "../../store/rootHook";
-import {closeAlert, onAlert} from "../../store/rootSlice";
+import {closeAlert, openAlert} from "../../store/rootSlice";
 import {AlertDetail} from "../../model/GlobalModel";
 import {Modal as BaseModal} from '@mui/base/Modal';
 import {animated, useSpring} from '@react-spring/web';
@@ -24,9 +24,9 @@ const AlertModal = () => {
 
     const handler = useCallback(({ detail }) => {
         if (detail.callback) {
-            dispatch(onAlert({message: detail.message, callback: detail.callback}));
+            dispatch(openAlert({message: detail.message, callback: detail.callback}));
         }
-        dispatch(onAlert({message: detail.message}));
+        dispatch(openAlert({message: detail.message}));
     }, [dispatch]);
 
     useEffect(() => {
@@ -81,12 +81,12 @@ export default AlertModal;
 export const useAlert = () => {
     const dispatch = useAppDispatch();
     const alert = useCallback((message: string, callback?: () => void) => {
-        dispatch(onAlert({message, callback}));
+        dispatch(openAlert({message, callback}));
     }, [dispatch]);
     return alert;
 };
 
-export const Alert = (message: string, callback?: any) => {
+export const onAlert = (message: string, callback?: any) => {
     const doAlert = (detail) => {
         window.dispatchEvent(
             new CustomEvent("Alert", {

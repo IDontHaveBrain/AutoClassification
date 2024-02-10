@@ -36,7 +36,7 @@ const alertSlice = createSlice({
         callback: null,
     },
     reducers: {
-        onAlert: (state, action: PayloadAction<AlertDetail>) => {
+        openAlert: (state, action: PayloadAction<AlertDetail>) => {
             state.message = action.payload.message;
             state.open = true;
             state.callback = action.payload?.callback;
@@ -51,7 +51,7 @@ const alertSlice = createSlice({
 });
 
 export const {setUserInfo, resetUserInfo} = userInfoSlice.actions;
-export const {onAlert, closeAlert} = alertSlice.actions;
+export const {openAlert, closeAlert} = alertSlice.actions;
 
 export const userInfoReducer = userInfoSlice.reducer;
 export const alertReducer = alertSlice.reducer;

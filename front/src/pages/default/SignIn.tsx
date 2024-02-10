@@ -18,6 +18,8 @@ import AuthUtils from "../../utils/authUtils";
 import {useDispatch} from "react-redux";
 import {setUserInfo} from "../../store/rootSlice";
 import {useAppDispatch} from "../../store/rootHook";
+import {onAlert} from "../../component/Modal/AlertModal";
+import {Strings} from "../../utils/strings";
 
 function Copyright(props: any) {
     return (
@@ -31,6 +33,8 @@ function Copyright(props: any) {
 
 export default function SignIn() {
     const [publicKey, setPublicKey] = useState('');
+    const [email, setEmail] = useState(localStorage.getItem(CONSTANT.REMEMBER_ME));
+    const [rememberMe, setRememberMe] = useState(localStorage.getItem(CONSTANT.REMEMBER_ME) ? true : false);
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
@@ -64,15 +68,38 @@ export default function SignIn() {
                     if (res.data.access_token) {
                         sessionStorage.setItem(CONSTANT.ACCESS_TOKEN, res.data.access_token);
                         dispatch(setUserInfo(res.data));
+                        onAlert(Strings.loginSuccess);
+                        if (rememberMe) {
+                            localStorage.setItem(CONSTANT.REMEMBER_ME, res.data.email);
+                        } else {
+                            localStorage.removeItem(CONSTANT.REMEMBER_ME);
+                        }
                         navigate('/');
                     }
                 }).catch(err => {
                     console.log(err);
+                    onAlert(Strings.loginFailed);
                 })
             }).catch(err => {
             console.log(err);
         })
     };
+
+    const onChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setEmail(e.target.value);
+        if (rememberMe) {
+            localStorage.setItem(CONSTANT.REMEMBER_ME, e.target.value);
+        }
+    }
+
+    const changeRememberMe = (e) => {
+        setRememberMe(e.target.checked);
+        if (e.target.checked) {
+            localStorage.setItem(CONSTANT.REMEMBER_ME, email);
+        } else {
+            localStorage.removeItem(CONSTANT.REMEMBER_ME);
+        }
+    }
 
     return (
         <>
@@ -102,6 +129,8 @@ export default function SignIn() {
                             name="username"
                             autoComplete="email"
                             autoFocus
+                            value={email}
+                            onChange={onChangeEmail}
                         />
                         <TextField
                             margin="normal"
@@ -114,7 +143,10 @@ export default function SignIn() {
                             autoComplete="current-password"
                         />
                         <FormControlLabel
-                            control={<Checkbox value="remember" color="primary"/>}
+                            control={
+                                <Checkbox value="remember" color="primary" checked={rememberMe ? true : false}
+                                          onChange={changeRememberMe}/>
+                            }
                             label="Remember me"
                         />
                         <Button
