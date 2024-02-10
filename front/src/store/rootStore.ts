@@ -1,9 +1,10 @@
 import {configureStore} from "@reduxjs/toolkit";
-import userInfoReducer from "./rootSlice";
+import {alertReducer, userInfoReducer} from "./rootSlice";
 
 const rootStore = configureStore({
     reducer: {
         userInfo: userInfoReducer,
+        alert: alertReducer,
     }
 })
 

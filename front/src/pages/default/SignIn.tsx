@@ -11,13 +11,13 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import {Link, useNavigate} from 'react-router-dom';
-import {getPublicKey, LoginData, signIn} from "../service/authApi";
-import CONSTANT from "../utils/constant/constant";
+import {getPublicKey, LoginData, signIn} from "../../service/authApi";
+import CONSTANT from "../../utils/constant/constant";
 import {useEffect, useState} from "react";
-import AuthUtils from "../utils/authUtils";
+import AuthUtils from "../../utils/authUtils";
 import {useDispatch} from "react-redux";
-import {setUserInfo} from "../store/rootSlice";
-import {useAppDispatch} from "../store/rootHook";
+import {setUserInfo} from "../../store/rootSlice";
+import {useAppDispatch} from "../../store/rootHook";
 
 function Copyright(props: any) {
     return (

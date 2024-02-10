@@ -12,3 +12,5 @@ const Notification = () => {
         </IconButton>
     )
 }
+
+export default Notification;

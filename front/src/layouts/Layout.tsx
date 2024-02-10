@@ -10,6 +10,7 @@ import LeftBar from "./LeftBar";
 import {MenuItems, MenuInfo} from "../Routers";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
+import BackGround from "./BackGround";
 
 export const Layout = () => {
     const navigation = useNavigation();

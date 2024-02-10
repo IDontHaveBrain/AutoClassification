@@ -1,3 +1,10 @@
+
+export interface AlertDetail {
+    message: string;
+    open?: boolean;
+    callback?: () => any;
+}
+
 export interface User {
     id?: number;
     email: string;

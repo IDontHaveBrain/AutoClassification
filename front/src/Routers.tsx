@@ -1,9 +1,9 @@
 import {createBrowserRouter} from "react-router-dom";
-import SignIn from "./pages/SignIn";
-import SignUp from "./pages/SignUp";
+import SignIn from "./pages/default/SignIn";
+import SignUp from "./pages/default/SignUp";
 import {Layout} from "./layouts/Layout";
-import {NotFound} from "./pages/NotFound";
-import {Home} from "./pages/Home";
+import {NotFound} from "./pages/default/NotFound";
+import {Home} from "./pages/default/Home";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 
 export interface MenuInfo {

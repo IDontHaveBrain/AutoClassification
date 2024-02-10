@@ -1,10 +1,11 @@
-import {AppBarProps, Badge, IconButton, styled, Toolbar} from "@mui/material";
+import {AppBarProps, IconButton, styled, Toolbar} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import MuiAppBar from "@mui/material/AppBar";
 import MenuIcon from "@mui/icons-material/Menu";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import {useEffect} from "react";
 import {useAppSelector} from "../store/rootHook";
+import Notification from "../component/Notification/Notification";
+import {useAlert} from "../component/Modal/AlertModal";
 
 interface MyAppBarProps extends AppBarProps {
     open?: boolean;
@@ -20,6 +21,7 @@ interface TopBarProps {
 
 const TopBar = ({open, openMenu, width = 240, children}: TopBarProps) => {
     const user = useAppSelector(state => state.userInfo.user);
+    const alert = useAlert();
 
     useEffect(() => {
         const tokenCheck = sessionStorage.getItem('access_token');
@@ -27,6 +29,10 @@ const TopBar = ({open, openMenu, width = 240, children}: TopBarProps) => {
             window.location.href = '/sign-in';
         }
     }, [user]);
+
+    useEffect(() => {
+        alert('Hello');
+    }, []);
 
     return (
         <AppBar position={"absolute"} open={open} drawerWidth={width}>
@@ -39,11 +45,7 @@ const TopBar = ({open, openMenu, width = 240, children}: TopBarProps) => {
                 <Typography component={"h1"} variant={"h6"} color={"inherit"} noWrap sx={{flexGrow: 1}}>
                     {user.name}
                 </Typography>
-                <IconButton color="inherit">
-                    <Badge badgeContent={4} color="secondary">
-                        <NotificationsIcon/>
-                    </Badge>
-                </IconButton>
+                <Notification/>
             </Toolbar>
         </AppBar>
     )

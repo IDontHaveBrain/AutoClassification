@@ -1,5 +1,5 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {User, UserInfo} from "../model/GlobalModel";
+import {AlertDetail, User, UserInfo} from "../model/GlobalModel";
 
 const userInfoSlice = createSlice({
     name: 'userInfo',
@@ -28,6 +28,30 @@ const userInfoSlice = createSlice({
     }
 });
 
-export const {setUserInfo} = userInfoSlice.actions;
+const alertSlice = createSlice({
+    name: 'alert',
+    initialState: {
+        message: '',
+        open: false,
+        callback: null,
+    },
+    reducers: {
+        onAlert: (state, action: PayloadAction<AlertDetail>) => {
+            state.message = action.payload.message;
+            state.open = true;
+            state.callback = action.payload?.callback;
+        },
+        closeAlert: (state) => {
+            state.message = '';
+            state.open = false;
+            state.callback = null;
+        },
+    }
 
-export default userInfoSlice.reducer;
+});
+
+export const {setUserInfo, resetUserInfo} = userInfoSlice.actions;
+export const {onAlert, closeAlert} = alertSlice.actions;
+
+export const userInfoReducer = userInfoSlice.reducer;
+export const alertReducer = alertSlice.reducer;
