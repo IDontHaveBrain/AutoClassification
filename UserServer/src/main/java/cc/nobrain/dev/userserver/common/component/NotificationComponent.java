@@ -17,15 +17,18 @@ import java.util.concurrent.*;
 @Component
 public class NotificationComponent {
 
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private final Map<Long, Instant> lastResponse = new ConcurrentHashMap<>();
-    private final Map<Long, Sinks.Many<ServerSentEvent<String>>> processors = new ConcurrentHashMap<>();
-    private ScheduledFuture<?> heartbeatTask;
-    private ScheduledFuture<?> removalTask;
+    public final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    public final Map<Long, Instant> lastResponse = new ConcurrentHashMap<>();
+    public final Map<Long, Sinks.Many<ServerSentEvent<String>>> processors = new ConcurrentHashMap<>();
+    public ScheduledFuture<?> heartbeatTask;
+    public ScheduledFuture<?> removalTask;
+
+    private final Long EXPIRATION_TIME = 60L;
+    private final Long HEARTBEAT_INTERVAL = 10L;
 
     public NotificationComponent() {
-        this.heartbeatTask = this.scheduler.scheduleAtFixedRate(this::sendHeartbeat, 0, 1, TimeUnit.MINUTES);
-        this.removalTask = this.scheduler.scheduleAtFixedRate(this::removeInactiveUsers, 0, 30, TimeUnit.SECONDS);
+        this.heartbeatTask = this.scheduler.scheduleAtFixedRate(this::sendHeartbeat, 0, HEARTBEAT_INTERVAL, TimeUnit.SECONDS);
+        this.removalTask = this.scheduler.scheduleAtFixedRate(this::removeInactiveUsers, 0, 10, TimeUnit.SECONDS);
     }
 
     public void sendHeartbeat() {
@@ -36,13 +39,17 @@ public class NotificationComponent {
     }
 
     public void updateLastResponse(Long memberId, Instant time) {
-        lastResponse.put(memberId, time);
+        if(processors.containsKey(memberId)) {
+            lastResponse.put(memberId, time);
+        } else {
+            throw new IllegalArgumentException("Expired Connection");
+        }
     }
 
     public synchronized void removeInactiveUsers() {
         Instant now = Instant.now();
         lastResponse.entrySet().stream()
-                .filter(entry -> Duration.between(entry.getValue(), now).getSeconds() > 30)
+                .filter(entry -> Duration.between(entry.getValue(), now).getSeconds() > EXPIRATION_TIME)
                 .forEach(entry -> {
                     removeSubscriber(entry.getKey());
                 });

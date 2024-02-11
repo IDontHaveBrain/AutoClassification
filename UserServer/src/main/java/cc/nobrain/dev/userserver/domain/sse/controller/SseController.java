@@ -23,17 +23,18 @@ public class SseController {
 
     @GetMapping("/ok")
     public void heartBeat(@AuthenticationPrincipal Member member) {
-        notificationComponent.updateLastResponse(member.getId(), Instant.now());
+        Member membertest = Member.builder().id(1L).email("test@test.com").password("123123").build();
+        notificationComponent.updateLastResponse(membertest.getId(), Instant.now());
     }
 
     @GetMapping("/subscribe")
     public Flux<ServerSentEvent<String>> subscribe(@AuthenticationPrincipal Member member) {
-        notificationComponent.addSubscriber(member.getId());
-        return notificationComponent.subscribe(member.getId())
-                .doOnCancel(() -> notificationComponent.removeSubscriber(member.getId()))
-                .doOnComplete(() -> notificationComponent.removeSubscriber(member.getId()))
-                .doOnNext(event -> notificationComponent.updateLastResponse(member.getId(), Instant.now()))
-                .timeout(Duration.ofSeconds(30), Flux.just(ServerSentEvent.builder("timeout").build()))
-                .doOnTerminate(() -> notificationComponent.removeSubscriber(member.getId()));
+        Member membertest = Member.builder().id(1L).email("test@test.com").password("123123").build();
+        notificationComponent.addSubscriber(membertest.getId());
+        return notificationComponent.subscribe(membertest.getId())
+                .doOnCancel(() -> notificationComponent.removeSubscriber(membertest.getId()))
+                .doOnComplete(() -> notificationComponent.removeSubscriber(membertest.getId()))
+                .doOnNext(event -> notificationComponent.updateLastResponse(membertest.getId(), Instant.now()))
+                .doOnTerminate(() -> notificationComponent.removeSubscriber(membertest.getId()));
     }
 }
