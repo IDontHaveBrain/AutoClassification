@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -72,11 +73,13 @@ public class SecurityConfig {
             CustomUserDetailService customUserDetailService, AuthorizationServerSettings authorizationServerSettings,
             RegisteredClientRepository registeredClientRepository, RsaHelper rsaHelper) throws Exception {
 
-        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+//        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
-//        OAuth2AuthorizationServerConfigurer oAuth2AuthorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
-//        http.with(oAuth2AuthorizationServerConfigurer, Customizer.withDefaults());
-        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+//        http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
+        OAuth2AuthorizationServerConfigurer oAuth2AuthorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
+        http.apply(oAuth2AuthorizationServerConfigurer);
+//        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+        oAuth2AuthorizationServerConfigurer
                 .tokenGenerator(tokenGenerator)
                 .clientAuthentication(clientAuth -> clientAuth
                         .authenticationConverters(converters -> {
@@ -104,7 +107,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Order(1)
+    @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .sessionManagement((session) -> session
@@ -118,6 +121,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/authorize").permitAll()
+                        .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
         ;

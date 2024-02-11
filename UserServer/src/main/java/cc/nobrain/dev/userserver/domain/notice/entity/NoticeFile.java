@@ -26,6 +26,6 @@ public class NoticeFile extends File {
             throw new IllegalArgumentException("Invalid owner entity");
         }
         this.ownerIndex = owner;
-        owner.getAttachedFiles().add(this);
+        owner.getAttachments().add(this);
     }
 }

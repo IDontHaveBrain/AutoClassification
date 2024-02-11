@@ -30,10 +30,14 @@ public class Notice extends BaseCU {
     @Column(columnDefinition = "TEXT", length = 2000)
     private String content;
 
+    @Column(columnDefinition = "boolean default false")
+    @Builder.Default
+    private Boolean sticky = false;
+
     @Max(5)
     @OneToMany(mappedBy = "ownerIndex", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<NoticeFile> attachedFiles = new ArrayList<>();
+    private List<NoticeFile> attachments = new ArrayList<>();
 
     public void update(String title, String content) {
         this.title = title;
@@ -41,9 +45,9 @@ public class Notice extends BaseCU {
     }
 
     public void addFile(NoticeFile file) {
-        if (Objects.isNull(attachedFiles)) {
-            attachedFiles = new ArrayList<>();
-        } else if (attachedFiles.contains(file)) {
+        if (Objects.isNull(attachments)) {
+            attachments = new ArrayList<>();
+        } else if (attachments.contains(file)) {
             return;
         }
         file.setRelation(this);

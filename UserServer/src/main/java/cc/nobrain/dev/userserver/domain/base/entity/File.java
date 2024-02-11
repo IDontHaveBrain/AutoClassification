@@ -12,7 +12,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "DTYPE", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorColumn(discriminatorType = DiscriminatorType.STRING)
 @DiscriminatorOptions(force=true)
 public abstract class File extends BaseCU {
     @Id
