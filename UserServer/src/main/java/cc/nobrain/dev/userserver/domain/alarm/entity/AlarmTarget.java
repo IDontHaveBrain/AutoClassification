@@ -25,7 +25,7 @@ public abstract class AlarmTarget extends BaseCU {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(insertable = false, updatable = false)
     @Enumerated(EnumType.STRING)
     private AlarmTargetType targetType;
 
