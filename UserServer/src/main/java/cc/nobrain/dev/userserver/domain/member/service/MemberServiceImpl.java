@@ -1,5 +1,6 @@
 package cc.nobrain.dev.userserver.domain.member.service;
 
+import cc.nobrain.dev.userserver.common.utils.GlobalUtil;
 import cc.nobrain.dev.userserver.domain.member.entity.Member;
 import cc.nobrain.dev.userserver.domain.member.repository.MemberRepository;
 import cc.nobrain.dev.userserver.domain.member.service.dto.MemberDto;
@@ -33,5 +34,11 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Boolean duplicate(String email) {
         return memberRepository.existsByEmail(email);
+    }
+
+    @Override
+    public MemberDto getMyInfo() {
+        Member member = GlobalUtil.getCurrentMember();
+        return modelMapper.map(member, MemberDto.class);
     }
 }

@@ -17,10 +17,12 @@ public class CustomUserDetailService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public Member loadUserByUsername(String email) throws UsernameNotFoundException {
         Member member = memberRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("user is not exists"));
         return member;
     }
+
+
 
     public boolean matches(String rawPw, String encodedPw) {
         return this.passwordEncoder.matches(rawPw, encodedPw);

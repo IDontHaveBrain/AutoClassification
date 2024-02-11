@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Pattern;
 
 import java.lang.annotation.*;
 
-@Pattern(regexp="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=\\S+$).{8,}$")
+@Pattern(regexp="^(?=.*[0-9])(?=\\S+$).{6,}$")
 @ReportAsSingleViolation
 @Documented
 @Constraint(validatedBy = {})
@@ -15,7 +15,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Password {
 
-    String message() default "비밀번호는 최소 8자이며, 최소 하나의 대문자, 소문자, 숫자를 포함해야 합니다.";
+    String message() default "비밀번호는 최소 6자이며, 최소 하나의 숫자 또는 특수 문자를 포함해야 합니다.";
 
     Class<?>[] groups() default {};
 

@@ -1,6 +1,7 @@
 package cc.nobrain.dev.userserver.security;
 
 import cc.nobrain.dev.userserver.common.component.RsaHelper;
+import cc.nobrain.dev.userserver.domain.member.entity.Member;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -12,16 +13,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2RefreshTokenAuthenticationProvider;
@@ -35,6 +41,7 @@ import org.springframework.security.oauth2.server.authorization.settings.ClientS
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.*;
 import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2RefreshTokenAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -47,8 +54,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Duration;
-import java.util.Base64;
-import java.util.UUID;
+import java.util.*;
 
 @Configuration
 @EnableWebSecurity
@@ -65,40 +71,48 @@ public class SecurityConfig {
     private Integer refreshTokenValiditySeconds;
 
     private final CorsConfigurationSource corsConfigurationSource;
+    private final CustomUserDetailService customUserDetailService;
 
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(
             HttpSecurity http, OAuth2AuthorizationService authorizationService, OAuth2TokenGenerator tokenGenerator,
-            CustomUserDetailService customUserDetailService, AuthorizationServerSettings authorizationServerSettings,
-            RegisteredClientRepository registeredClientRepository, RsaHelper rsaHelper) throws Exception {
+            AuthorizationServerSettings authorizationServerSettings, RegisteredClientRepository registeredClientRepository,
+            RsaHelper rsaHelper, JwtDecoder jwtDecoder) throws Exception {
 
-//        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
+        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
 //        http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
-        OAuth2AuthorizationServerConfigurer oAuth2AuthorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
-        http.apply(oAuth2AuthorizationServerConfigurer);
-//        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-        oAuth2AuthorizationServerConfigurer
+//        OAuth2AuthorizationServerConfigurer oAuth2AuthorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
+//        http.apply(oAuth2AuthorizationServerConfigurer);
+        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .tokenGenerator(tokenGenerator)
                 .clientAuthentication(clientAuth -> clientAuth
-                        .authenticationConverters(converters -> {
+                                .authenticationConverters(converters -> {
 //                            converters.clear();
+                                })
+                )
+                .authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint
+                        .authorizationRequestConverters(test -> {
+                        })
+                        .authenticationProviders(providers -> {
                         })
                 )
                 .tokenEndpoint(tokenEndpoint -> tokenEndpoint
-                        .accessTokenRequestConverters(converters -> {
-                            converters.add(new PasswordConverter());
+                                .accessTokenRequestConverters(converters -> {
+                                    converters.add(new PasswordConverter());
 //                            converters.add(new OAuth2RefreshTokenAuthenticationConverter());
-                        })
-                        .authenticationProviders(providers -> {
-                            providers.add(new PasswordProvider(authorizationService, tokenGenerator, customUserDetailService, rsaHelper));
+                                })
+                                .authenticationProviders(providers -> {
+                                    providers.add(new PasswordProvider(authorizationService, tokenGenerator, customUserDetailService, rsaHelper));
 //                            providers.add(new OAuth2RefreshTokenAuthenticationProvider(authorizationService, tokenGenerator));
-                        })
+                                })
                 )
                 .registeredClientRepository(registeredClientRepository)
                 .authorizationServerSettings(authorizationServerSettings)
-                .authorizationService(authorizationService);
+                .authorizationService(authorizationService)
+        ;
+
 
         http.cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(csrf -> csrf.disable());
@@ -109,20 +123,23 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, JwtDecoder jwtDecoder) throws Exception {
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource))
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource)).csrf(csrf -> csrf.disable())
+                .httpBasic(httpBasic -> httpBasic.disable())
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .oauth2ResourceServer((oauth2) ->
-                        oauth2.jwt(jwt ->
-                                jwt.decoder(jwtDecoder)
-                        )
-                )
+                .userDetailsService(customUserDetailService)
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/authorize").permitAll()
                         .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/authorize").permitAll()
                         .anyRequest().authenticated()
+                ).oauth2ResourceServer(
+                        oauth2 -> oauth2.jwt(jwt -> {
+                                    jwt.decoder(jwtDecoder);
+                                    jwt.jwtAuthenticationConverter(new CustomJwtAuthenticationConverter(customUserDetailService));
+                                }
+                        )
                 )
         ;
         return http.build();
@@ -196,14 +213,25 @@ public class SecurityConfig {
 
             JWKSet jwkSet = new JWKSet(rsaKey);
             return new ImmutableJWKSet<>(jwkSet);
-        } catch(NoSuchAlgorithmException | InvalidKeySpecException ex) {
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
             throw new IllegalStateException(ex);
         }
     }
 
     @Bean
     public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
-        return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
+        OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
+        try {
+            byte[] signDecodedKey = Base64.getDecoder().decode(signKey.getBytes(StandardCharsets.UTF_8));
+            X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(signDecodedKey);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            RSAPublicKey publicKey = (RSAPublicKey) keyFactory.generatePublic(publicKeySpec);
+
+
+            return NimbusJwtDecoder.withPublicKey(publicKey).signatureAlgorithm(SignatureAlgorithm.RS256).build();
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 
     @Bean
@@ -216,7 +244,7 @@ public class SecurityConfig {
     }
 
 //    @Bean
-//    public AuthenticationManager customAuthenticationManager(OAuth2AuthorizationService authorizationService, OAuth2TokenGenerator tokenGenerator, CustomUserDetailService customUserDetailService) {
+//    public AuthenticationManager customAuthenticationManager(OAuth2AuthorizationService authorizationService, OAuth2TokenGenerator tokenGenerator) {
 //        return new ProviderManager(Arrays.asList(
 //                new PasswordAuthProvider(authorizationService, tokenGenerator, customUserDetailService),
 //                new OAuth2RefreshTokenAuthenticationProvider(authorizationService, tokenGenerator)

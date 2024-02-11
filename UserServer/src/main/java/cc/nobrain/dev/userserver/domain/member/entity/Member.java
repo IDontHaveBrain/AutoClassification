@@ -35,7 +35,7 @@ public class Member extends BaseCU implements UserDetails {
 
     @NotNull
     @Email
-    @Column(unique = true, length = 40)
+    @Column(unique = true, length = 50)
     private String email;
 
     @NotNull

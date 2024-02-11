@@ -17,14 +17,14 @@ import java.util.concurrent.*;
 @Component
 public class NotificationComponent {
 
-    public final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    public final Map<Long, Instant> lastResponse = new ConcurrentHashMap<>();
-    public final Map<Long, Sinks.Many<ServerSentEvent<String>>> processors = new ConcurrentHashMap<>();
-    public ScheduledFuture<?> heartbeatTask;
-    public ScheduledFuture<?> removalTask;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final Map<String, Instant> lastResponse = new ConcurrentHashMap<>();
+    private final Map<String, Sinks.Many<ServerSentEvent<String>>> processors = new ConcurrentHashMap<>();
+    private ScheduledFuture<?> heartbeatTask;
+    private ScheduledFuture<?> removalTask;
 
     private final Long EXPIRATION_TIME = 60L;
-    private final Long HEARTBEAT_INTERVAL = 10L;
+    private final Long HEARTBEAT_INTERVAL = 30L;
 
     public NotificationComponent() {
         this.heartbeatTask = this.scheduler.scheduleAtFixedRate(this::sendHeartbeat, 0, HEARTBEAT_INTERVAL, TimeUnit.SECONDS);
@@ -38,9 +38,9 @@ public class NotificationComponent {
                 .subscribe();
     }
 
-    public void updateLastResponse(Long memberId, Instant time) {
-        if(processors.containsKey(memberId)) {
-            lastResponse.put(memberId, time);
+    public void updateLastResponse(String id, Instant time) {
+        if(processors.containsKey(id)) {
+            lastResponse.put(id, time);
         } else {
             throw new IllegalArgumentException("Expired Connection");
         }
@@ -55,24 +55,24 @@ public class NotificationComponent {
                 });
     }
 
-    public synchronized void addSubscriber(Long memberId) {
-        processors.put(memberId, Sinks.many().replay().latest());
-        lastResponse.put(memberId, Instant.now());
+    public synchronized void addSubscriber(String id) {
+        processors.put(id, Sinks.many().replay().latest());
+        lastResponse.put(id, Instant.now());
     }
 
-    public Flux<ServerSentEvent<String>> subscribe(Long memberId) {
-        processors.putIfAbsent(memberId, Sinks.many().replay().latest());
-        lastResponse.putIfAbsent(memberId, Instant.now());
-        return processors.get(memberId).asFlux();
+    public Flux<ServerSentEvent<String>> subscribe(String id) {
+        processors.putIfAbsent(id, Sinks.many().replay().latest());
+        lastResponse.putIfAbsent(id, Instant.now());
+        return processors.get(id).asFlux();
     }
 
-    public synchronized void removeSubscriber(Long memberId) {
-        processors.remove(memberId);
-        lastResponse.remove(memberId);
+    public synchronized void removeSubscriber(String id) {
+        processors.remove(id);
+        lastResponse.remove(id);
     }
 
-    public void sendMessage(Long memberId, String message) {
-        Sinks.Many<ServerSentEvent<String>> processor = processors.get(memberId);
+    public void sendMessage(String id, String message) {
+        Sinks.Many<ServerSentEvent<String>> processor = processors.get(id);
         if (processor != null)
             processor.emitNext(ServerSentEvent.builder(message).build(), Sinks.EmitFailureHandler.FAIL_FAST);
     }

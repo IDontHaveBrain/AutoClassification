@@ -7,4 +7,6 @@ public interface MemberService {
     MemberDto register(MemberReq.Register req);
 
     Boolean duplicate(String email);
+
+    MemberDto getMyInfo();
 }

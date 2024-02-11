@@ -1,6 +1,7 @@
 package cc.nobrain.dev.userserver.domain.base.entity;
 
 import cc.nobrain.dev.userserver.common.utils.GlobalUtil;
+import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -14,7 +15,9 @@ import java.time.OffsetDateTime;
 @MappedSuperclass
 @Getter
 public abstract class BaseCU {
+    @Column(updatable = false)
     private String createMember;
+    @Column(updatable = false)
     private OffsetDateTime createDateTime;
     private String updateMember;
     private OffsetDateTime updateDateTime;
@@ -22,7 +25,9 @@ public abstract class BaseCU {
     @PrePersist
     protected void onCreate() {
         createDateTime = OffsetDateTime.now();
+        updateDateTime = OffsetDateTime.now();
         createMember = GlobalUtil.getCurrentUserEmail();
+        updateMember = GlobalUtil.getCurrentUserEmail();
     }
 
     @PreUpdate
