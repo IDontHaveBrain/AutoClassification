@@ -7,14 +7,18 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 
+import java.time.Duration;
+import java.util.Map;
+
 @Configuration
 @EnableCaching
 @ConditionalOnProperty(
-        value="app.redis.cacheInit",
+        value = "app.redis.cacheInit",
         havingValue = "true",
         matchIfMissing = false)
 @RequiredArgsConstructor
@@ -22,11 +26,18 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 public class RedisCacheConfig {
 
     @Bean
-    public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
+    @Primary
+    public RedisCacheManager redisCacheManager(@Qualifier("redisConnectionFactory") RedisConnectionFactory redisConnectionFactory) {
         RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig();
 
+        Map<String, RedisCacheConfiguration> cacheConfigurations = Map.of(
+                "member", RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(30)),
+                "default", RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(5))
+        );
+
         RedisCacheManager redisCacheManager = RedisCacheManager.builder(redisConnectionFactory)
-                .cacheDefaults(redisCacheConfiguration)
+//                .cacheDefaults(redisCacheConfiguration)
+                .withInitialCacheConfigurations(cacheConfigurations)
                 .build();
 
         return redisCacheManager;

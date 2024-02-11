@@ -1,6 +1,8 @@
 package cc.nobrain.dev.userserver.domain.member.repository;
 
 import cc.nobrain.dev.userserver.domain.member.entity.Member;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -12,5 +14,5 @@ public interface MemberRepository extends JpaRepository<Member, Long>, JpaSpecif
 
     long deleteByEmail(String email);
 
-    Optional<Member> findByEmail(String email);
+    Member findByEmail(String email);
 }

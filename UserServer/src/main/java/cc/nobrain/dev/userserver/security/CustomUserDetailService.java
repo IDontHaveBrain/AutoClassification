@@ -2,6 +2,7 @@ package cc.nobrain.dev.userserver.security;
 
 import cc.nobrain.dev.userserver.domain.member.entity.Member;
 import cc.nobrain.dev.userserver.domain.member.repository.MemberRepository;
+import cc.nobrain.dev.userserver.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -9,16 +10,21 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailService implements UserDetailsService {
 
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public Member loadUserByUsername(String email) throws UsernameNotFoundException {
-        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("user is not exists"));
+        Member member = memberService.findMemberByEmail(email);
+        if (Objects.isNull(member)) {
+            throw new UsernameNotFoundException("User not found");
+        }
         return member;
     }
 

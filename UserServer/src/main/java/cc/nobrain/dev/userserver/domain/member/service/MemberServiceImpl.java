@@ -8,6 +8,8 @@ import cc.nobrain.dev.userserver.domain.member.service.dto.MemberReq;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "member", key = "#req.email")
     public MemberDto register(MemberReq.Register req) {
         log.info("register: {}", req);
 
@@ -39,6 +42,12 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberDto getMyInfo() {
         Member member = GlobalUtil.getCurrentMember();
+        member = findMemberByEmail(member.getEmail());
         return modelMapper.map(member, MemberDto.class);
+    }
+
+    @Cacheable(value = "member", key = "#email")
+    public Member findMemberByEmail(String email) {
+        return memberRepository.findByEmail(email);
     }
 }
