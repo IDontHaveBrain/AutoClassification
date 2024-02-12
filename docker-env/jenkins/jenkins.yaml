@@ -1,0 +1,38 @@
+jenkins:
+  systemMessage: "Jenkins configured automatically by Jenkins Configuration as Code plugin\n\n"
+  numExecutors: 4
+  scmCheckoutRetryCount: 2
+  mode: NORMAL
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "admin"
+
+tool:
+  git:
+    installations:
+      - name: git
+        home: /usr/local/bin/git
+jobs:
+  - script: >
+      pipelineJob('MyJob') {
+          definition {
+              cpsScm {
+                  scm {
+                    git {
+                      remote {
+                        url 'git://github.com/your-org/your-repo.git'
+                      }
+                      branches('main')
+                      scriptPath('docker-env/jenkins/Jenkinsfile')
+                  }
+              }
+          }
+      }

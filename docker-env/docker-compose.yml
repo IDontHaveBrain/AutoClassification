@@ -1,0 +1,60 @@
+version: '3'
+services:
+  base-img:
+    image: nobrain/base
+    build:
+      context: ./jdk-base
+      dockerfile: Dockerfile
+
+  redis:
+    image: redis:alpine
+    container_name: autoclassify-redis
+    restart: always
+    networks:
+      - inner-net
+    volumes:
+      - /data/docker/redis:/data
+      - /data/docker/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - 6379:6379
+
+  postgresql:
+    image: postgres:alpine
+    command: postgres -c 'max_connections=100'
+    container_name: autoclassify_postgres
+    restart: always
+    volumes:
+      - /data/docker/nobrain_postgres:/var/lib/postgresql/data
+    ports:
+      - 5433:5432
+    networks:
+      - inner-net
+    environment:
+      POSTGRES_USER: "eliga_test"
+      POSTGRES_PASSWORD: "Sqi2@24"
+      TZ: "Asia/Seoul"
+
+  jenkins:
+    container_name: autoclassify-jenkins
+    build:
+      context: ./jenkins
+      dockerfile: Dockerfile
+    restart: always
+    user: root
+    networks:
+      - inner-net
+    volumes:
+        - /data/docker/jenkins:/var/jenkins_home
+#        - /home/jenkins/.ssh:/jenkins/.ssh
+        - /var/run/docker.sock:/var/run/docker.sock
+#        - /data/docker/jenkins/jenkins.yaml:/var/jenkins_home/casc_configs/jenkins.yaml
+    ports:
+      - 8088:8080
+      - 50000:50000
+    environment:
+      TZ: "Asia/Seoul"
+      CASC_JENKINS_CONFIG: /app/jenkins/casc_configs/jenkins.yaml
+
+networks:
+  inner-net:
+  external-net:
