@@ -1,0 +1,71 @@
+pipeline {
+    agent any
+    environment {
+        USER_SERVER_DIR = 'UserServer'
+    }
+    stages {
+        stage('Setup') {
+            steps {
+//                 cleanupWorkspace()
+//                 checkoutGitRepo('https://github.com/IDontHaveBrain/AutoClassification.git')
+                sh 'ls -al'
+                grantExecutePermission("${USER_SERVER_DIR}/gradlew")
+            }
+        }
+        stage('Build with Gradle') {
+            steps {
+                dir(USER_SERVER_DIR) {
+                    gradleBuild()
+                    listArtifacts('build/libs')
+                }
+            }
+        }
+        stage('Build Docker image') {
+            steps {
+                dockerComposeBuild(USER_SERVER_DIR)
+            }
+        }
+        stage('Clean up old images') {
+                    steps {
+                        cleanUpDockerImages()
+                    }
+                }
+        stage('Run Docker image') {
+            steps {
+                dockerComposeUp(USER_SERVER_DIR)
+            }
+        }
+    }
+}
+
+def cleanupWorkspace(){
+    deleteDir()
+}
+
+def checkoutGitRepo(gitUrl){
+    git gitUrl
+}
+
+def grantExecutePermission(path){
+    sh "chmod +x ${path}"
+}
+
+def gradleBuild(){
+    sh './gradlew build'
+}
+
+def listArtifacts(path){
+    sh "ls -la ${path}"
+}
+
+def dockerComposeBuild(service){
+    sh "docker compose build ${service}"
+}
+
+def cleanUpDockerImages(){
+    sh 'docker image prune -f'
+}
+
+def dockerComposeUp(service){
+    sh "docker compose up -d ${service}"
+}

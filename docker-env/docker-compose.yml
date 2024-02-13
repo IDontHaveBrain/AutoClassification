@@ -11,7 +11,7 @@ services:
     container_name: autoclassify-redis
     restart: always
     networks:
-      - inner-net
+      - shared-net
     volumes:
       - /data/docker/redis:/data
       - /data/docker/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
@@ -28,7 +28,7 @@ services:
     ports:
       - 5433:5432
     networks:
-      - inner-net
+      - shared-net
     environment:
       POSTGRES_USER: "eliga_test"
       POSTGRES_PASSWORD: "Sqi2@24"
@@ -41,20 +41,39 @@ services:
       dockerfile: Dockerfile
     restart: always
     user: root
-    networks:
-      - inner-net
+#    networks:
+#      - shared-net
     volumes:
         - /data/docker/jenkins:/var/jenkins_home
 #        - /home/jenkins/.ssh:/jenkins/.ssh
         - /var/run/docker.sock:/var/run/docker.sock
-#        - /data/docker/jenkins/jenkins.yaml:/var/jenkins_home/casc_configs/jenkins.yaml
+        - /data/docker/nginx/html:/usr/share/nginx/html
     ports:
-      - 8088:8080
+      - 8088:8088
       - 50000:50000
     environment:
       TZ: "Asia/Seoul"
       CASC_JENKINS_CONFIG: /app/jenkins/casc_configs/jenkins.yaml
+      JENKINS_OPTS: "--httpPort=8088"
+
+  nginx:
+    container_name: autoclassify-nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - /data/docker/nginx/log:/var/log/nginx
+      - /data/docker/nginx/html:/usr/share/nginx/html
+    networks:
+      - shared-net
+    expose:
+      - 8087
+#    ports:
+#      - 8087:8087
+    environment:
+      TZ: "Asia/Seoul"
 
 networks:
-  inner-net:
-  external-net:
+  shared-net:
+    external: true

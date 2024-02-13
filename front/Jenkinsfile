@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+
+    environment {
+            FRONT_SRC_DIR = 'front'
+        }
+
+    tools {
+        nodejs 'nodejs'
+    }
+
+    stages {
+        stage('Setup') {
+            steps {
+                sh 'npm install -g yarn'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                dir(FRONT_SRC_DIR) {
+                    sh 'yarn install'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                dir(FRONT_SRC_DIR) {
+                    sh 'yarn build'
+                }
+            }
+        }
+
+        stage('Copy Built Files') {
+            steps {
+                sh '''
+                    mkdir -p /usr/share/nginx/html
+                    cp -r front/build/* /usr/share/nginx/html/
+                '''
+            }
+        }
+    }
+}

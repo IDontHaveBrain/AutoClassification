@@ -1,13 +1,7 @@
 version: '3'
 services:
-# base:
-#  extends:
-#   file: docker-env/docker-compose.yml
-#   service: base-img
 
  UserServer:
-#  depends_on:
-#    - base
   build:
    context: ./UserServer
    dockerfile: Dockerfile
@@ -19,6 +13,10 @@ services:
   ports:
    - 8080:8080
   networks:
-   - inner-net
+   - shared-net
   environment:
    TZ: "Asia/Seoul"
+
+networks:
+ shared-net:
+  external: true

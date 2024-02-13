@@ -19,20 +19,45 @@ tool:
   git:
     installations:
       - name: git
-        home: /usr/local/bin/git
+        home: /usr/bin/git
+  nodejs:
+    installations:
+      - name: "nodejs"
+        home: "/usr/local/nodejs"
+        properties:
+          - installSource:
+              installers:
+                - nodeJSInstaller:
+                    id: "20.11.0"
+
 jobs:
   - script: >
-      pipelineJob('MyJob') {
+      pipelineJob('UserServer') {
           definition {
               cpsScm {
                   scm {
-                    git {
-                      remote {
-                        url 'git://github.com/your-org/your-repo.git'
+                      git {
+                          remote {
+                              url 'https://github.com/IDontHaveBrain/AutoClassification.git'
+                          }
                       }
-                      branches('main')
-                      scriptPath('docker-env/jenkins/Jenkinsfile')
                   }
+                  scriptPath 'UserServer/Jenkinsfile'
+              }
+          }
+      }
+  - script: >
+      pipelineJob('UserFront') {
+          definition {
+              cpsScm {
+                  scm {
+                      git {
+                          remote {
+                              url 'https://github.com/IDontHaveBrain/AutoClassification.git'
+                          }
+                      }
+                  }
+                  scriptPath 'front/Jenkinsfile'
               }
           }
       }
