@@ -2,14 +2,15 @@ import {AppBarProps, IconButton, styled, Toolbar} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import MuiAppBar from "@mui/material/AppBar";
 import MenuIcon from "@mui/icons-material/Menu";
-import {useEffect} from "react";
-import {useAppSelector} from "../store/rootHook";
+import {useEffect, useState} from "react";
+import {useAppDispatch, useAppSelector} from "../store/rootHook";
 import Notification from "../component/Notification/Notification";
-import {onAlert, useAlert} from "../component/Modal/AlertModal";
+import SseClient from "../service/SseClient";
+import {resetSseClient, setSseClient} from "../store/rootSlice";
 
 interface MyAppBarProps extends AppBarProps {
     open?: boolean;
-    drawerWidth?: number;
+    menuWidth?: number;
 }
 
 interface TopBarProps {
@@ -21,7 +22,20 @@ interface TopBarProps {
 
 const TopBar = ({open, openMenu, width = 240, children}: TopBarProps) => {
     const user = useAppSelector(state => state.userInfo.user);
-    const alert = useAlert();
+    const sseClient = useAppSelector(state => state.sse.sseClient);
+    const dispatch = useAppDispatch();
+
+    useEffect(() => {
+        // if (sseClient) {
+        //     return;
+        // }
+        // const client = new SseClient();
+        // dispatch(setSseClient(client));
+        // return () => {
+        //     sseClient?.disconnect();
+        //     dispatch(resetSseClient());
+        // }
+    }, [sseClient]);
 
     useEffect(() => {
         const tokenCheck = sessionStorage.getItem('access_token');
@@ -31,7 +45,7 @@ const TopBar = ({open, openMenu, width = 240, children}: TopBarProps) => {
     }, [user]);
 
     return (
-        <AppBar position={"absolute"} open={open} drawerWidth={width}>
+        <AppBar position={"absolute"} open={open} menuWidth={width}>
             <Toolbar sx={{pr: '20px'}}>
                 <IconButton edge="start" color="inherit" aria-label="open drawer" onClick={openMenu}
                             sx={{marginRight: '36px', ...(open && {display: 'none'})}}
@@ -47,17 +61,17 @@ const TopBar = ({open, openMenu, width = 240, children}: TopBarProps) => {
     )
 }
 
-const AppBar = styled(MuiAppBar, {
-    shouldForwardProp: (prop) => prop !== 'open',
-})<MyAppBarProps>(({theme, open, drawerWidth}) => ({
+const AppBar = styled(({...otherProps}) => (
+    <MuiAppBar {...otherProps} />
+))<MyAppBarProps>(({ theme, open, menuWidth }) => ({
     zIndex: theme.zIndex.drawer + 1,
     transition: theme.transitions.create(['width', 'margin'], {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
     }),
     ...(open && {
-        marginLeft: drawerWidth,
-        width: `calc(100% - ${drawerWidth}px)`,
+        marginLeft: menuWidth,
+        width: `calc(100% - ${menuWidth}px)`,
         transition: theme.transitions.create(['width', 'margin'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.enteringScreen,

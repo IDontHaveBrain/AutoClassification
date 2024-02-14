@@ -5,4 +5,4 @@ RUN rm /etc/nginx/conf.d/*
 
 COPY *.conf /etc/nginx/conf.d/
 
-EXPOSE 8087
+EXPOSE 7081

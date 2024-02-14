@@ -1,6 +1,6 @@
 import {combineReducers, configureStore} from "@reduxjs/toolkit";
 import {persistReducer, persistStore} from "redux-persist";
-import {alertReducer, userInfoReducer} from "./rootSlice";
+import {alertReducer, sseReducer, userInfoReducer} from "./rootSlice";
 import sessionStorage from "redux-persist/es/storage/session";
 import errorMiddleware from "./rootMiddleware";
 
@@ -13,6 +13,7 @@ const persistConfig = {
 const reducers = combineReducers({
     userInfo: userInfoReducer,
     alert: alertReducer,
+    sse: sseReducer,
 })
 
 const persistedReducer = persistReducer(persistConfig, reducers)
