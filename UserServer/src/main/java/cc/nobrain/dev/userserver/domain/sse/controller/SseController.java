@@ -7,6 +7,7 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
@@ -16,12 +17,12 @@ import java.time.Instant;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/sse")
+@RequestMapping("/api/sse")
 public class SseController {
 
     private final NotificationComponent notificationComponent;
 
-    @GetMapping("/ok")
+    @PostMapping("/ok")
     public void heartBeat(@AuthenticationPrincipal Member member) {
         notificationComponent.updateLastResponse(member.getUsername(), Instant.now());
     }
