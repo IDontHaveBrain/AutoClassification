@@ -1,6 +1,4 @@
-import URLS from "../utils/constant/urlInfo";
 import {sendOk} from "./GlobalApi";
-import {isValidUrl} from "@reduxjs/toolkit/dist/query/utils";
 
 type MessageHandler = (data: any) => void;
 type ErrorHandler = (err: Event) => void;
@@ -19,7 +17,7 @@ class SseClient {
 
     connect(url: string, messageHandler: MessageHandler, errorHandler: ErrorHandler): void {
         this.disconnect(); // Ensure we're not already connected
-        if (!isValidUrl(url)) {
+        if (!this.isValidUrl(url)) {
             console.error('Invalid URL', url);
             errorHandler(new ErrorEvent('error', { error: new Error('Invalid URL: ' + url) }));
             return;
@@ -95,6 +93,16 @@ class SseClient {
 
     retrySendHeartbeat(maxRetries: number, retryCount = 0): void {
         setTimeout(() => this.sendHeartbeat(maxRetries, retryCount), RETRY_DELAY);
+    }
+
+    isValidUrl(string: string) {
+        try {
+            new URL(string)
+        } catch (_) {
+            return false
+        }
+
+        return true
     }
 }
 

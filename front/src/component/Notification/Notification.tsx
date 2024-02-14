@@ -2,7 +2,7 @@ import {Badge, IconButton} from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SseClient from "../../service/SseClient";
 import {useEffect} from "react";
-import { CONSTANT, URL } from "../../utils/constant";
+import {URLS} from "../../utils/constant";
 
 interface Props {
     sseClient: SseClient;
@@ -20,7 +20,7 @@ const Notification = ({sseClient}: Props) => {
     }
 
     useEffect(() => {
-        sseClient.connect(URL.API.SSE.SUBSCRIBE, handleSseMessage, handleSseError);
+        sseClient.connect(URLS.API.SSE.SUBSCRIBE, handleSseMessage, handleSseError);
     }, [sseClient]);
 
     return (
