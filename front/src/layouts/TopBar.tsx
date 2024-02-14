@@ -24,10 +24,11 @@ const TopBar = ({open, openMenu, width = 240, children}: TopBarProps) => {
     const [sseClient, setSseClient] = useState<SseClient>();
 
     useEffect(() => {
-        setSseClient(new SseClient());
+        const client = new SseClient();
+        setSseClient(client);
 
         return () => {
-            sseClient?.disconnect();
+            client.disconnect();
         }
     }, []);
 
