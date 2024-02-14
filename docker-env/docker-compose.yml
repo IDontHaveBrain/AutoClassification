@@ -13,10 +13,10 @@ services:
     networks:
       - shared-net
     volumes:
-      - /data/docker/redis:/data
-      - /data/docker/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - /data/docker/toy/redis:/data
+      - /data/docker/toy/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
     ports:
-      - 6379:6379
+      - 6378:6379
 
   postgresql:
     image: postgres:alpine
@@ -24,14 +24,14 @@ services:
     container_name: autoclassify_postgres
     restart: always
     volumes:
-      - /data/docker/nobrain_postgres:/var/lib/postgresql/data
+      - /data/docker/toy/postgres:/var/lib/postgresql/data
     ports:
       - 5433:5432
     networks:
       - shared-net
     environment:
-      POSTGRES_USER: "eliga_test"
-      POSTGRES_PASSWORD: "Sqi2@24"
+      POSTGRES_USER: "jnj"
+      POSTGRES_PASSWORD: "sqisoft"
       TZ: "Asia/Seoul"
 
   jenkins:
@@ -44,13 +44,13 @@ services:
 #    networks:
 #      - shared-net
     volumes:
-        - /data/docker/jenkins:/var/jenkins_home
+        - /data/docker/toy/jenkins:/var/jenkins_home
 #        - /home/jenkins/.ssh:/jenkins/.ssh
         - /var/run/docker.sock:/var/run/docker.sock
-        - /data/docker/nginx/html:/usr/share/nginx/html
+        - /data/docker/toy/nginx/html:/usr/share/nginx/html
     ports:
-      - 8088:8088
-      - 50000:50000
+      - 8085:8085
+      - 50001:50000
     environment:
       TZ: "Asia/Seoul"
       CASC_JENKINS_CONFIG: /app/jenkins/casc_configs/jenkins.yaml
@@ -63,12 +63,12 @@ services:
       dockerfile: Dockerfile
     restart: always
     volumes:
-      - /data/docker/nginx/log:/var/log/nginx
-      - /data/docker/nginx/html:/usr/share/nginx/html
+      - /data/docker/toy/nginx/log:/var/log/nginx
+      - /data/docker/toy/nginx/html:/usr/share/nginx/html
     networks:
       - shared-net
     expose:
-      - 8087
+      - 7080
 #    ports:
 #      - 8087:8087
     environment:

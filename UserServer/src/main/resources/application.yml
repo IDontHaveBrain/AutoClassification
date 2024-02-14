@@ -2,8 +2,8 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://dev.nobrain.cc:5433/postgres
-    username: postgres
-    password: zktldk
+    username: jnj
+    password: sqisoft
 
   jpa:
     hibernate:
@@ -17,14 +17,14 @@ spring:
   data:
     redis:
       host: dev.nobrain.cc
-      port: 6379
+      port: 6378
 
   security:
     jwt:
       privateKey: MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCphrH9+b4k1we/qpw9jGTxL6JbJOedFYLP8XPXty4adRVBf3ZAZV0sr7dSzhWA9r0V/jqeEM+5tHwVnjNzkuDBncdvegdnbJ1/vlyh3iNDXE2IzJtjq29tTkh6SL0TMMN4LQRLfL+x3ZwbDfe4ddgP2ssgm1dtnhpo0KcpY/FJQ7ED8A2uSuTxc7pvNvzwDnBmbD9gLHXSeo338qQgdG+sYupjeTElaVYum7Wxh0heFbo+7gWSL1S4GAXLMe+WyWoPPX1w5YYrSGASBv88WD30YfIOWtAHRx4EJa1yWeA2jYmrLIMKNAOgzhit7v+/NxGsIpdqDw2lzOy+2pfma91pAgMBAAECggEABtR1yZgVHm4Y4nKU2KB2RSbQhVhJahFeq7LMQl+/kGKQ9Ip2eM30qOsb6U7C/EcEk3UihrGB8vcH7EWLSF/dpQNOsImzsGmmd0nzuLRGyq0WdRlcNdHne3mEz0NstbAYYfg7VPC91uRJKKhhh3mc9rePiTzk8vZElV45q9/aTeOm003yEKz5izk2+579jRsaJlPxNGGBf0Z9tH3iPXUO0BZr5PNlnVfYRoKAJ8xxbH2nIK5SJHY0aCH0M50bOBKZDRsKzbfOYyVjrFZfLg1mc+Y+ksKBFRg/h4lzlkA8g9MuQJus4zEKKuc+zEv2IgLoPPKegb5B9h1RNijqwQHKYQKBgQDffZBY0+aiW/2IcRJJ9TtlBYnVMZKJnXusPRKTd8lqOue0+09VHqR7soYqM7dlKP2SrYCGVSQ7Y0DCXBlilIfIP8EzbkZHyn3ltxHiyDMzS31UT/FElyk9sbXX0GORGt2Z5txhlK0G586uzRyP9L7jNbkZzuPKCnybatJ9EdOjSQKBgQDCL5WKsJNVzFmcEPrJDVozUadH1yaeGAf8Qt8fG8xuyK669sUBwWBuljxJeMj4UFf592f2ovJdG3Tbav5v+jb0dTLH9HrmM4i/SxB/4JHsMtq0gPiYHhJymdKPWznG1KXoAbFwQsQL9l38l7p7uBepc/1p1yi5MLU6tBDvp/RJIQKBgEYPte2y2C1zyyI32DTpNOpxdwknljmf7gJLzwP93F16A+NfmTok9gl1KMwYFFkZJY0S6SSzkj0v20BS4P5fc8WZ/vYhjtS4rQkTf/7pJevhsXN58DfBb4NQr6HtSRlXI7s4fUP1+NweVVPFJzwVzLWrxNBLZGuVKAUM0tm0efVJAoGAPlszZS7gkRum5uPY9HjyLyqYUgx33SqQXeRHa+DsW+LboTQe/TpQshJSV7GOr5Z1OdLFssCOnXF0rAUGoYSy4vtDjEworwV7cxoyuS2vDi8iZfZIXejCOcTFhb1gp0Wf5QmuJgN6mvDJK5S5kIMELikOBk/ORvGqMKikC6FeY6ECgYANem9aZXoLqw0+OqwPvxt3LNLFASf2A+x2kM4V2BsUy8al0fizHOFKOOyNOuRoj5qwzJ0M4bUbc0BsXAijEHhPKvu+oNtVV9u/XA78JWZl+HXYwVWNmIB/DJk92VJb9dtK3PibKZbWDdqenEo6j0PqaDElBsLjrxa8F2ik8jli/A==
       signKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAqYax/fm+JNcHv6qcPYxk8S+iWyTnnRWCz/Fz17cuGnUVQX92QGVdLK+3Us4VgPa9Ff46nhDPubR8FZ4zc5LgwZ3Hb3oHZ2ydf75cod4jQ1xNiMybY6tvbU5Ieki9EzDDeC0ES3y/sd2cGw33uHXYD9rLIJtXbZ4aaNCnKWPxSUOxA/ANrkrk8XO6bzb88A5wZmw/YCx10nqN9/KkIHRvrGLqY3kxJWlWLpu1sYdIXhW6Pu4Fki9UuBgFyzHvlslqDz19cOWGK0hgEgb/PFg99GHyDlrQB0ceBCWtclngNo2JqyyDCjQDoM4Yre7/vzcRrCKXag8NpczsvtqX5mvdaQIDAQAB
       accessTokenValiditySeconds: 86400 # 86400
-      refreshTokenValiditySeconds: 86400 # 172800
+      refreshTokenValiditySeconds: 172800 # 172800
 
 logging:
   level:

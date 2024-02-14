@@ -5,7 +5,7 @@ services:
   build:
    context: ./UserServer
    dockerfile: Dockerfile
-  image: nobrain/userserver
+  image: nobrain/user-server
   container_name: UserServer
   restart: always
   volumes:
