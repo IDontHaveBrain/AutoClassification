@@ -1,8 +1,18 @@
 import {Badge, IconButton} from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import SseClient from "../../service/SseClient";
+import {useEffect} from "react";
+
+interface Props {
+    sseClient: SseClient;
+}
+
+const Notification = ({sseClient}: Props) => {
 
 
-const Notification = () => {
+    useEffect(() => {
+
+    }, [sseClient]);
 
     return (
         <IconButton color="inherit">

@@ -2,10 +2,10 @@ import {AppBarProps, IconButton, styled, Toolbar} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import MuiAppBar from "@mui/material/AppBar";
 import MenuIcon from "@mui/icons-material/Menu";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {useAppSelector} from "../store/rootHook";
 import Notification from "../component/Notification/Notification";
-import {onAlert, useAlert} from "../component/Modal/AlertModal";
+import SseClient from "../service/SseClient";
 
 interface MyAppBarProps extends AppBarProps {
     open?: boolean;
@@ -21,7 +21,15 @@ interface TopBarProps {
 
 const TopBar = ({open, openMenu, width = 240, children}: TopBarProps) => {
     const user = useAppSelector(state => state.userInfo.user);
-    const alert = useAlert();
+    const [sseClient, setSseClient] = useState<SseClient>();
+
+    useEffect(() => {
+        setSseClient(new SseClient());
+
+        return () => {
+            sseClient?.disconnect();
+        }
+    }, []);
 
     useEffect(() => {
         const tokenCheck = sessionStorage.getItem('access_token');
@@ -41,7 +49,7 @@ const TopBar = ({open, openMenu, width = 240, children}: TopBarProps) => {
                 <Typography component={"h1"} variant={"h6"} color={"inherit"} noWrap sx={{flexGrow: 1}}>
                     {user.name}
                 </Typography>
-                <Notification/>
+                <Notification sseClient={sseClient}/>
             </Toolbar>
         </AppBar>
     )
