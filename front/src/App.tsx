@@ -18,7 +18,6 @@ function App() {
             <Provider store={rootStore}>
                 <PersistGate persistor={persistor} loading={<Loading/>}>
                     <RouterProvider router={baseRouters} fallbackElement={<Loading/>}/>
-                    <BackGround/>
                 </PersistGate>
             </Provider>
         </ThemeProvider>

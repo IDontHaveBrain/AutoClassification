@@ -1,5 +1,7 @@
 package cc.nobrain.dev.userserver.common.component;
 
+import cc.nobrain.dev.userserver.domain.sse.enums.SseEventType;
+import cc.nobrain.dev.userserver.domain.sse.service.dto.SseMessageDto;
 import jakarta.annotation.PreDestroy;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Component;
@@ -32,7 +34,12 @@ public class NotificationComponent {
     }
 
     public void sendHeartbeat() {
-        Mono.just("Heartbeat")
+        SseMessageDto msg = SseMessageDto.builder()
+                .id("Heartbeat")
+                .type(SseEventType.HEARTBEAT)
+                .message("Heartbeat")
+                .build();
+        Mono.just(msg.toString())
                 .publishOn(Schedulers.boundedElastic())
                 .doOnNext(this::sendMessageToAll)
                 .subscribe();
@@ -81,6 +88,7 @@ public class NotificationComponent {
         Flux.fromIterable(processors.entrySet())
                 .publishOn(Schedulers.boundedElastic())
                 .doOnNext(entry -> {
+
                     entry.getValue().emitNext(
                             ServerSentEvent.builder(message).build(),
                             Sinks.EmitFailureHandler.FAIL_FAST);

@@ -1,5 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {AlertDetail, User, UserInfo} from "../model/GlobalModel";
+import SseClient from "../service/SseClient";
 
 const userInfoSlice = createSlice({
     name: 'userInfo',
@@ -47,8 +48,25 @@ const alertSlice = createSlice({
             state.callback = null;
         },
     }
-
 });
+
+const sseSlice = createSlice({
+    name: 'sse',
+    initialState: {
+        sseClient: new SseClient() as SseClient | null,
+    },
+    reducers: {
+        setSseClient: (state, action: PayloadAction<SseClient>) => {
+            state.sseClient = action.payload;
+        },
+        resetSseClient: (state) => {
+            state.sseClient = null;
+        }
+    }
+});
+
+export const {setSseClient, resetSseClient} = sseSlice.actions;
+export const sseReducer = sseSlice.reducer;
 
 export const {setUserInfo, resetUserInfo} = userInfoSlice.actions;
 export const {openAlert, closeAlert} = alertSlice.actions;
