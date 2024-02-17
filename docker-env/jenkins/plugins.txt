@@ -1,5 +1,4 @@
 configuration-as-code
-configuration-as-code-support
 configuration-as-code-groovy
 git
 github
@@ -19,3 +18,4 @@ ws-cleanup
 build-timeout
 timestamper
 nodejs
+generic-webhook-trigger
