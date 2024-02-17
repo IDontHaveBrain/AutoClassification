@@ -5,8 +5,6 @@ import MenuIcon from "@mui/icons-material/Menu";
 import {useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "../store/rootHook";
 import Notification from "../component/Notification/Notification";
-import SseClient from "../service/SseClient";
-import {resetSseClient, setSseClient} from "../store/rootSlice";
 
 interface MyAppBarProps extends AppBarProps {
     open?: boolean;
@@ -22,20 +20,7 @@ interface TopBarProps {
 
 const TopBar = ({open, openMenu, width = 240, children}: TopBarProps) => {
     const user = useAppSelector(state => state.userInfo.user);
-    const sseClient = useAppSelector(state => state.sse.sseClient);
     const dispatch = useAppDispatch();
-
-    useEffect(() => {
-        // if (sseClient) {
-        //     return;
-        // }
-        // const client = new SseClient();
-        // dispatch(setSseClient(client));
-        // return () => {
-        //     sseClient?.disconnect();
-        //     dispatch(resetSseClient());
-        // }
-    }, [sseClient]);
 
     useEffect(() => {
         const tokenCheck = sessionStorage.getItem('access_token');

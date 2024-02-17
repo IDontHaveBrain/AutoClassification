@@ -21,6 +21,15 @@ class SseClient {
     private static readonly MAX_RETRIES = 2;
     private static readonly RETRY_DELAY = 5*1000;
 
+    private static instance: SseClient;
+
+    public static getInstance(): SseClient {
+        if (!SseClient.instance) {
+            SseClient.instance = new SseClient();
+        }
+        return SseClient.instance;
+    }
+
     connect(url: string, messageHandler: MessageHandler, errorHandler: ErrorHandler): void {
         this.disconnect(); // Ensure we're not already connected
         if (!this.isValidUrl(url)) {

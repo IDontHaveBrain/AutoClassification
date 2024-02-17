@@ -5,6 +5,7 @@ import {useCallback, useEffect, useState} from "react";
 import {CONSTANT, URLS} from "../../utils/constant";
 import {useAppDispatch, useAppSelector} from "../../store/rootHook";
 import {resetSseClient} from "../../store/rootSlice";
+import {AlarmModel} from "../../model/AlarmModel";
 
 interface Props {
     sse?: SseClient;
@@ -12,23 +13,17 @@ interface Props {
 
 const RECONNECTION_DELAY = 5000; // 재연결 대기 시간
 
-const Notification = ({}: Props) => {
+const Notification = () => {
+    const [alarmList, setAlarmList] = useState<AlarmModel[]>([]);
     const sseClient = useAppSelector(state => state.sse.sseClient);
-    const dispatch = useAppDispatch();
 
     const handleSseMessage = useCallback((event: MessageEvent) => {
         console.log(event);
-    }, [sseClient]);
+    }, []);
 
     const handleSseError = useCallback((event: Event) => {
-        if (sseClient?.isConnected()) {
-            sseClient.disconnect();
-        }
-        // 일정 대기 후에 재연결
-        setTimeout(() => {
-            sseClient.connect(CONSTANT.API_URL + URLS.API.SSE.SUBSCRIBE, handleSseMessage, handleSseError);
-        }, RECONNECTION_DELAY)
-    }, [sseClient]);
+        console.error(event);
+    }, []);
 
     useEffect(() => {
         if (sseClient && !sseClient.isConnected()) {
@@ -37,9 +32,8 @@ const Notification = ({}: Props) => {
 
         return () => {
             sseClient?.disconnect();
-            dispatch(resetSseClient());
         }
-    }, []);
+    }, [sseClient, handleSseError, handleSseMessage]);
 
     return (
         <IconButton color="inherit">
