@@ -52,8 +52,8 @@ const LeftBar = ({open, openMenu, width = 240, menu, children}: LeftBarProps) =>
             </Toolbar>
             <Divider/>
             <List>
-                {menu?.map((menu) =>
-                    <RenderMenu item={menu} open={open} openSubMenus={openSubMenu} setOpenSubMenus={setOpenSubMenu} />)}
+                {menu?.map((menu, index) =>
+                    <RenderMenu key={index} item={menu} open={open} openSubMenus={openSubMenu} setOpenSubMenus={setOpenSubMenu} />)}
             </List>
         </MenuBar>
     );

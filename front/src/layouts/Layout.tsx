@@ -2,18 +2,19 @@ import {Outlet, useNavigation} from "react-router-dom";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import {Toolbar} from "@mui/material";
-import {useState} from "react";
+import React, {useState} from "react";
 import TopBar from "./TopBar";
 import LeftBar from "./LeftBar";
 import {MenuInfo, MenuItems} from "../Routers";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
+import BackGround from "./BackGround";
 
 export const Layout = () => {
     const navigation = useNavigation();
     const [open, setOpen] = useState(true);
     const [menu, setMenu] = useState<MenuInfo[]>(MenuItems);
-    const [baseWidth, setBaseWidth] = useState(240);
+    const [menuWidth, setMenuWidth] = useState(240);
 
     const openMenu = () => {
         setOpen(!open);
@@ -22,8 +23,8 @@ export const Layout = () => {
     return (
         <Box sx={{display: 'flex'}}>
             <CssBaseline/>
-            <TopBar open={open} openMenu={openMenu} width={baseWidth}/>
-            <LeftBar open={open} openMenu={openMenu} menu={menu} width={baseWidth}>
+            <TopBar open={open} openMenu={openMenu} width={menuWidth}/>
+            <LeftBar open={open} openMenu={openMenu} menu={menu} width={menuWidth}>
                 Main
             </LeftBar>
             <Box
@@ -45,6 +46,7 @@ export const Layout = () => {
                     </Grid>
                 </Container>
             </Box>
+            <BackGround/>
         </Box>
     );
 }
