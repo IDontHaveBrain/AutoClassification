@@ -1,0 +1,20 @@
+name: 'Webhook Check'
+
+on:
+  workflow_run:
+    workflows: ["UserServer Build Test", "Front Build Test"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  webhook:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Webhook
+        uses: distributhor/workflow-webhook@v1
+        env:
+          webhook_type: 'json-extended'
+          webhook_url: ${{ secrets.WEBHOOK_URL }}
