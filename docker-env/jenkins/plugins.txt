@@ -1,5 +1,4 @@
 configuration-as-code
-configuration-as-code-support
 configuration-as-code-groovy
 git
 github
@@ -12,10 +11,8 @@ pipeline-stage-view
 docker-workflow
 docker-commons
 docker-plugin
-docker-build-step
-docker-build-publish
-docker-custom-build-environment
 ws-cleanup
 build-timeout
 timestamper
 nodejs
+generic-webhook-trigger
