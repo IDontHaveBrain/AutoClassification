@@ -31,3 +31,5 @@ RUN echo \
 RUN apt-get update
 
 RUN apt-get -y install docker-ce-cli
+
+USER jenkins
