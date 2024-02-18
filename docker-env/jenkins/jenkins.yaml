@@ -15,6 +15,21 @@ jenkins:
         - id: "admin"
           password: "admin"
 
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - string:
+              scope: GLOBAL
+              id: slack
+              secret: '${SLACK_TOKEN}'
+
+unclassified:
+  slackNotifier:
+    teamDomain: autoclassification
+    tokenCredentialId: slack
+    room: '#젠킨스-로그'
+
 security:
   githooks:
     allowedOnAgents: true

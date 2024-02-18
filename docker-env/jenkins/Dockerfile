@@ -29,7 +29,8 @@ RUN echo \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
   tee /etc/apt/sources.list.d/docker.list > /dev/null
 RUN apt-get update
-
 RUN apt-get -y install docker-ce-cli
 
+ENV SLACK_TOKEN zmFB92Yrhj0tEZVSwP1daQoa
 USER jenkins
+ENV SLACK_TOKEN zmFB92Yrhj0tEZVSwP1daQoa

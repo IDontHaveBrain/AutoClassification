@@ -1,2 +1,5 @@
+import {baseApi} from "./ApiClient";
 
-export {};
+const getMyAlarms = () => {
+    return baseApi.get('/alarm');
+}

@@ -4,7 +4,7 @@ git
 github
 github-branch-source
 job-dsl
-workflow-aggregator
+blueocean
 pipeline-model-definition
 pipeline-model-extensions
 pipeline-stage-view
@@ -16,3 +16,5 @@ build-timeout
 timestamper
 nodejs
 generic-webhook-trigger
+slack
+last-changes

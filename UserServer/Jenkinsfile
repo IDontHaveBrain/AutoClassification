@@ -1,3 +1,8 @@
+@NonCPS
+def sendSlackBuildMessage(color, message){
+    slackSend(channel: '젠킨스-로그', color: color, message: message)
+}
+
 pipeline {
     agent any
 
@@ -21,10 +26,15 @@ pipeline {
     }
 
     stages {
+        stage('Check Diff') {
+            steps {
+                slackSend(color: '#0000FF', message: "START: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+//                 git 'https://github.com/IDontHaveBrain/AutoClassification.git'
+//                 lastChanges since: 'LAST_SUCCESSFUL_BUILD', format:'SIDE',matching: 'LINE'
+            }
+        }
         stage('Setup') {
             steps {
-//                 cleanupWorkspace()
-//                 checkoutGitRepo('https://github.com/IDontHaveBrain/AutoClassification.git')
                 sh 'ls -al'
                 grantExecutePermission("${USER_SERVER_DIR}/gradlew")
             }
@@ -43,14 +53,22 @@ pipeline {
             }
         }
         stage('Clean up old images') {
-                    steps {
-                        cleanUpDockerImages()
-                    }
-                }
+            steps {
+                cleanUpDockerImages()
+            }
+        }
         stage('Run Docker image') {
             steps {
                 dockerComposeUp(USER_SERVER_DIR)
             }
+        }
+    }
+    post {
+        success {
+            slackSend(color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+        }
+        failure {
+            slackSend(color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
         }
     }
 }
