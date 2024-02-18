@@ -29,7 +29,7 @@ public class AlarmDslHelper {
         }
 
         BooleanExpression predicate = QAlarm.alarm.alarmTarget.isNotEmpty()
-                .and(QAlarm.alarm.alarmTarget.any().targetType.eq(AlarmTargetType.All))
+                .and(QAlarm.alarm.alarmTarget.any().targetType.eq(AlarmTargetType.ALL))
                 .or(QAlarm.alarm.alarmTarget.any().targetMember.id.eq(memberId));
 
         return predicate;

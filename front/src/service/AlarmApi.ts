@@ -1,5 +1,6 @@
 import {baseApi} from "./ApiClient";
+import {AxiosPromise} from "axios";
 
-const getMyAlarms = () => {
-    return baseApi.get('/alarm');
+export const getMyAlarms = (): AxiosPromise => {
+    return baseApi.get('/alarm/my');
 }

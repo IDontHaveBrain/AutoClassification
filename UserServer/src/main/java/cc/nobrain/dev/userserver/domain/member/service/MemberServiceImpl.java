@@ -1,5 +1,7 @@
 package cc.nobrain.dev.userserver.domain.member.service;
 
+import cc.nobrain.dev.userserver.common.exception.CustomException;
+import cc.nobrain.dev.userserver.common.exception.ErrorInfo;
 import cc.nobrain.dev.userserver.common.utils.GlobalUtil;
 import cc.nobrain.dev.userserver.domain.member.entity.Member;
 import cc.nobrain.dev.userserver.domain.member.repository.MemberRepository;
@@ -41,7 +43,8 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public MemberDto getMyInfo() {
-        Member member = GlobalUtil.getCurrentMember();
+        Member member = GlobalUtil.getCurrentMember().orElseThrow(() ->
+                new CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND));
         member = findMemberByEmail(member.getEmail());
         return modelMapper.map(member, MemberDto.class);
     }

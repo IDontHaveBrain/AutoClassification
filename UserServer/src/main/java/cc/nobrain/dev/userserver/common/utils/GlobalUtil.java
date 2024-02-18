@@ -5,6 +5,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Objects;
+import java.util.Optional;
+
 public class GlobalUtil {
     public static String getCurrentUserEmail() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -15,11 +18,11 @@ public class GlobalUtil {
         return "SYSTEM";
     }
 
-    public static Member getCurrentMember() {
+    public static Optional<Member> getCurrentMember() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof Member) {
-            return (Member) authentication.getPrincipal();
+        if (Objects.nonNull(authentication) && authentication.getPrincipal() instanceof Member) {
+            return Optional.of((Member)authentication.getPrincipal());
         }
-        throw new IllegalStateException("No authenticated member found in security context.");
+        return Optional.empty();
     }
 }

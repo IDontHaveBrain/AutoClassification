@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface AlarmService {
     List<AlarmDto> getMemberAlarmList(Long memberId);
+
+    List<AlarmDto> getMyAlarmList();
 }
