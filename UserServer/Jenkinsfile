@@ -1,20 +1,20 @@
 pipeline {
     agent any
 
-    triggers {
-        GenericTrigger(
-            genericVariables: [
-                [key: 'ref', value: '$.ref'],
-                [key: 'target', value: '$.data.target']
-            ],
-            token: 'asd',
-            causeString: 'Triggered on $ref',
-            regexpFilterText: '$ref $target',
-            regexpFilterExpression: 'refs/heads/main userBe',
-            printContributedVariables: true,
-            printPostContent: true
-        )
-    }
+//     triggers {
+//         GenericTrigger(
+//             genericVariables: [
+//                 [key: 'ref', value: '$.ref'],
+//                 [key: 'target', value: '$.data.target']
+//             ],
+//             token: 'asd',
+//             causeString: 'Triggered on $ref',
+//             regexpFilterText: '$ref $target',
+//             regexpFilterExpression: 'refs/heads/main userBe',
+//             printContributedVariables: true,
+//             printPostContent: true
+//         )
+//     }
 
     environment {
         USER_SERVER_DIR = 'UserServer'
