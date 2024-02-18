@@ -1,6 +1,21 @@
 pipeline {
     agent any
 
+//     triggers {
+//         GenericTrigger(
+//             genericVariables: [
+//                 [key: 'ref', value: '$.ref'],
+//                 [key: 'target', value: '$.data.target']
+//             ],
+//             token: 'asd',
+//             causeString: 'Triggered on $ref',
+//             regexpFilterText: '$ref $target',
+//             regexpFilterExpression: 'refs/heads/main userFe',
+//             printContributedVariables: true,
+//             printPostContent: true
+//         )
+//     }
+
     environment {
             FRONT_SRC_DIR = 'front'
         }

@@ -37,3 +37,13 @@ jobs:
         with:
           build-root-directory: ./UserServer
           arguments: build --build-cache --parallel
+
+      - if: github.ref == 'refs/heads/main'
+        name: 'Deploy'
+        uses: distributhor/workflow-webhook@v3
+        with:
+          webhook_url: ${{ secrets.WEBHOOK_URL }}
+          data: '{ "target": "${{ secrets.BETARGET }}" }'
+          webhook_type: 'json-extended'
+          verbose: true
+          verify_ssl: false

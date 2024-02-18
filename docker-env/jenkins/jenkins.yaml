@@ -15,6 +15,11 @@ jenkins:
         - id: "admin"
           password: "admin"
 
+security:
+  githooks:
+    allowedOnAgents: true
+    allowedOnController: true
+
 tool:
   git:
     installations:
@@ -33,6 +38,26 @@ tool:
 jobs:
   - script: >
       pipelineJob('UserServer') {
+          triggers {
+              genericTrigger {
+                  genericVariables {
+                      genericVariable {
+                          key 'ref'
+                          value '\$.ref'
+                      }
+                      genericVariable {
+                          key 'target'
+                          value '\$.data.target'
+                      }
+                  }
+                  token('asd')
+                  printContributedVariables(true)
+                  printPostContent(true)
+                  regexpFilterText '\$ref \$target'
+                  regexpFilterExpression 'refs/heads/main userBe'
+              }
+          }
+          
           definition {
               cpsScm {
                   scm {
@@ -48,6 +73,26 @@ jobs:
       }
   - script: >
       pipelineJob('UserFront') {
+          triggers {
+              genericTrigger {
+                  genericVariables {
+                      genericVariable {
+                          key 'ref'
+                          value '\$.ref'
+                      }
+                      genericVariable {
+                          key 'target'
+                          value '\$.data.target'
+                      }
+                  }
+                  token('asd')
+                  printContributedVariables(true)
+                  printPostContent(true)
+                  regexpFilterText '\$ref \$target'
+                  regexpFilterExpression 'refs/heads/main userFe'
+              }
+          }
+      
           definition {
               cpsScm {
                   scm {
