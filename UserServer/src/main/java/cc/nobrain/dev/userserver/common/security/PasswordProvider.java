@@ -1,4 +1,4 @@
-package cc.nobrain.dev.userserver.security;
+package cc.nobrain.dev.userserver.common.security;
 
 import cc.nobrain.dev.userserver.common.component.RsaHelper;
 import cc.nobrain.dev.userserver.domain.member.entity.Member;

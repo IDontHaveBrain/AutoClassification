@@ -1,4 +1,4 @@
-package cc.nobrain.dev.userserver.security;
+package cc.nobrain.dev.userserver.common.security;
 
 import lombok.Getter;
 import org.springframework.context.annotation.Bean;

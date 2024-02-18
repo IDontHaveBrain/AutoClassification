@@ -17,8 +17,8 @@ class SseClient {
     private eventSource: EventSource | null = null;
     private heartbeatInterval: NodeJS.Timeout | null = null;
     private reconnectCount: number = 0;
-    private static readonly INITIAL_DELAY = 5000;
-    private static readonly MAX_RETRIES = 2;
+    private static readonly INITIAL_DELAY = 25000;
+    private static readonly MAX_RETRIES = 5;
     private static readonly RETRY_DELAY = 5*1000;
 
     private static instance: SseClient;
@@ -73,6 +73,9 @@ class SseClient {
             }
         };
 
+        if (this.heartbeatInterval) {
+            clearInterval(this.heartbeatInterval)
+        };
         this.heartbeatInterval = setInterval(() => this.sendHeartbeat(), SseClient.INITIAL_DELAY);
     }
 

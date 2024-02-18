@@ -1,7 +1,6 @@
-package cc.nobrain.dev.userserver.security;
+package cc.nobrain.dev.userserver.common.security;
 
 import cc.nobrain.dev.userserver.common.component.RsaHelper;
-import cc.nobrain.dev.userserver.domain.member.entity.Member;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -13,16 +12,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -30,7 +24,6 @@ import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
-import org.springframework.security.oauth2.server.authorization.authentication.OAuth2RefreshTokenAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -40,8 +33,6 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.*;
-import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2RefreshTokenAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -55,6 +46,8 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Duration;
 import java.util.*;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -82,9 +75,9 @@ public class SecurityConfig {
 
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
-//        http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
 //        OAuth2AuthorizationServerConfigurer oAuth2AuthorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
 //        http.apply(oAuth2AuthorizationServerConfigurer);
+
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .tokenGenerator(tokenGenerator)
                 .clientAuthentication(clientAuth -> clientAuth
@@ -129,18 +122,21 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .userDetailsService(customUserDetailService)
-                .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/**").permitAll()
-                        .requestMatchers("/authorize").permitAll()
-                        .anyRequest().authenticated()
-                ).oauth2ResourceServer(
+                .oauth2ResourceServer(
                         oauth2 -> oauth2.jwt(jwt -> {
                                     jwt.decoder(jwtDecoder);
                                     jwt.jwtAuthenticationConverter(new CustomJwtAuthenticationConverter(customUserDetailService));
                                 }
                         )
                 )
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/authorize").permitAll()
+//                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
+                )
+                .formLogin(withDefaults())
         ;
         return http.build();
     }
@@ -241,6 +237,11 @@ public class SecurityConfig {
                 .tokenEndpoint("/auth/token")
                 .issuer("https://dev.nobrain.cc")
                 .build();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return customUserDetailService;
     }
 
 //    @Bean

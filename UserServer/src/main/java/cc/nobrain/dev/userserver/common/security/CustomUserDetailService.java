@@ -1,9 +1,10 @@
-package cc.nobrain.dev.userserver.security;
+package cc.nobrain.dev.userserver.common.security;
 
 import cc.nobrain.dev.userserver.domain.member.entity.Member;
 import cc.nobrain.dev.userserver.domain.member.repository.MemberRepository;
 import cc.nobrain.dev.userserver.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
-@Service
+@Configuration
 @RequiredArgsConstructor
 public class CustomUserDetailService implements UserDetailsService {
 
