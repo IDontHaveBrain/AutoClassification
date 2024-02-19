@@ -21,7 +21,7 @@ const AlarmDetail = ({handleClose, alarmList}: Props) => {
 
     return (
         <>
-            <List sx={{minWidth: '300px', minHeight: '300px', maxHeight: '400px', overflow: 'auto'}}>
+            <List sx={{minWidth: '300px', maxWdith: '400px', minHeight: '300px', maxHeight: '400px', overflow: 'auto'}}>
                 {alarmList?.map((alarm, index) => (
                     <Fragment key={index}>
                         <ListItem>
