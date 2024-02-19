@@ -1,15 +1,5 @@
-import {
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle, Divider,
-    List,
-    ListItem,
-    ListItemText
-} from "@mui/material";
+import {Divider, List, ListItem, ListItemText} from "@mui/material";
 import {AlarmModel} from "../../model/AlarmModel";
-import Button from "@mui/material/Button";
 import {Fragment} from "react";
 
 interface Props {

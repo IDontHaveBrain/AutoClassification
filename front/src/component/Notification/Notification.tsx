@@ -1,10 +1,8 @@
-import {Badge, Dialog, IconButton, Popover} from "@mui/material";
+import {Badge, IconButton, Popover} from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SseClient from "../../service/SseClient";
-import {useCallback, useEffect, useState} from "react";
-import {CONSTANT, URLS} from "../../utils/constant";
-import {useAppDispatch, useAppSelector} from "../../store/rootHook";
-import {resetSseClient} from "../../store/rootSlice";
+import {useEffect, useState} from "react";
+import {useAppSelector} from "../../store/rootHook";
 import {AlarmModel} from "../../model/AlarmModel";
 import {getMyAlarms} from "../../service/AlarmApi";
 import AlarmDetail from "./AlarmDetail";
@@ -21,7 +19,7 @@ const Notification = () => {
 
     useEffect(() => {
         getMyAlarms().then((response) => {
-            setAlarmList(response.data);
+            setAlarmList(prevAlarmList => [...prevAlarmList, ...response.data]);
         }).catch((error) => {
             console.error(error);
         });
@@ -29,7 +27,7 @@ const Notification = () => {
 
     useEffect(() => {
         setAlarmList(prevAlarmList => {
-            const combinedList = [...alarmList, ...newEvents];
+            const combinedList = [...prevAlarmList, ...newEvents];
             const uniqueList = Array.from(new Set(combinedList.map(a => a.id)))
                 .map(id => {
                     return combinedList.find(a => a.id === id)
