@@ -20,7 +20,6 @@ export const baseApi: AxiosInstance = axios.create({
 
 const checkToken = async (config: InternalAxiosRequestConfig) => {
   const access_token = sessionStorage.getItem(CONSTANT.ACCESS_TOKEN);
-  console.log(access_token);
 
   if(access_token) {
     // config.headers = config.headers || {};

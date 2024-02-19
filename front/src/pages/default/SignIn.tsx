@@ -40,31 +40,24 @@ export default function SignIn() {
 
     useEffect(() => {
         getPublicKey().then(res => {
-            console.log(res);
             setPublicKey(res.data);
         }).catch(err => {
-            console.log(err);
+            console.error(err);
         })
     }, [])
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get('username'),
-            password: data.get('password'),
-        });
 
         AuthUtils.encrypt(data.get('password') as string, publicKey)
             .then(res => {
-                console.log(res);
                 const params: LoginData = {
                     username: data.get('username') as string,
                     password: res as string,
                 }
 
                 signIn(params).then(res => {
-                    console.log(res);
                     if (res.data.access_token) {
                         sessionStorage.setItem(CONSTANT.ACCESS_TOKEN, res.data.access_token);
                         dispatch(setUserInfo(res.data));
@@ -77,11 +70,12 @@ export default function SignIn() {
                         navigate('/');
                     }
                 }).catch(err => {
-                    console.log(err);
+                    console.error(err);
                     onAlert(Strings.loginFailed);
                 })
             }).catch(err => {
-            console.log(err);
+            console.error(err);
+            onAlert(Strings.loginFailed);
         })
     };
 

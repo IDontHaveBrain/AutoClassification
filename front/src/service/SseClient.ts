@@ -30,6 +30,11 @@ class SseClient {
         return SseClient.instance;
     }
 
+    public static resetInstance(): SseClient {
+        SseClient.instance = new SseClient();
+        return SseClient.instance;
+    }
+
     connect(url: string, messageHandler: MessageHandler, errorHandler: ErrorHandler): void {
         this.disconnect(); // Ensure we're not already connected
         if (!this.isValidUrl(url)) {
@@ -73,10 +78,10 @@ class SseClient {
             }
         };
 
-        if (this.heartbeatInterval) {
-            clearInterval(this.heartbeatInterval)
-        };
-        this.heartbeatInterval = setInterval(() => this.sendHeartbeat(), SseClient.INITIAL_DELAY);
+        // if (this.heartbeatInterval) {
+        //     clearInterval(this.heartbeatInterval)
+        // };
+        // this.heartbeatInterval = setInterval(() => this.sendHeartbeat(), SseClient.INITIAL_DELAY);
     }
 
     reconnect(url: string, messageHandler: MessageHandler, errorHandler: ErrorHandler): void {

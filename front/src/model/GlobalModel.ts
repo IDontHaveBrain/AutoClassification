@@ -17,3 +17,16 @@ export interface UserInfo {
     expires_in: number;
     user: User;
 }
+
+export enum SseType {
+    HEARTBEAT = 'HEARTBEAT',
+    ALARM = 'ALARM',
+    NOTICE = 'NOTICE',
+    MESSAGE = 'MESSAGE',
+}
+
+export interface SseEvent {
+    id: string;
+    type: SseType;
+    message: string;
+}

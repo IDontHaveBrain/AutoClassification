@@ -35,7 +35,7 @@ public class NotificationComponent {
 
     public void sendHeartbeat() {
         SseMessageDto msg = SseMessageDto.builder()
-                .id("Heartbeat")
+                .id("ping")
                 .type(SseEventType.HEARTBEAT)
                 .message("Heartbeat")
                 .build();

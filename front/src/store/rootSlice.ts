@@ -1,6 +1,7 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {AlertDetail, User, UserInfo} from "../model/GlobalModel";
 import SseClient from "../service/SseClient";
+import {AlarmModel} from "../model/AlarmModel";
 
 const userInfoSlice = createSlice({
     name: 'userInfo',
@@ -54,16 +55,20 @@ const sseSlice = createSlice({
     name: 'sse',
     initialState: {
         sseClient: SseClient.getInstance(),
+        sseEvents: [] as AlarmModel[],
     },
     reducers: {
         resetSseClient: (state) => {
             state.sseClient.disconnect();
-            state.sseClient = null;
+            state.sseClient = SseClient.resetInstance();
+        },
+        newSseEvent: (state, action: PayloadAction<AlarmModel>) => {
+            state.sseEvents.push(action.payload);
         }
     }
 });
 
-export const {resetSseClient} = sseSlice.actions;
+export const {resetSseClient, newSseEvent} = sseSlice.actions;
 export const sseReducer = sseSlice.reducer;
 
 export const {setUserInfo, resetUserInfo} = userInfoSlice.actions;

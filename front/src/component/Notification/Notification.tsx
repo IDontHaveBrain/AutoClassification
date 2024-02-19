@@ -1,4 +1,4 @@
-import {Badge, IconButton} from "@mui/material";
+import {Badge, Dialog, IconButton, Popover} from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SseClient from "../../service/SseClient";
 import {useCallback, useEffect, useState} from "react";
@@ -7,31 +7,68 @@ import {useAppDispatch, useAppSelector} from "../../store/rootHook";
 import {resetSseClient} from "../../store/rootSlice";
 import {AlarmModel} from "../../model/AlarmModel";
 import {getMyAlarms} from "../../service/AlarmApi";
+import AlarmDetail from "./AlarmDetail";
 
 interface Props {
     sse?: SseClient;
 }
 
-const RECONNECTION_DELAY = 5000; // 재연결 대기 시간
-
 const Notification = () => {
     const [alarmList, setAlarmList] = useState<AlarmModel[]>([]);
+    const [target, setTarget] = useState(null);
+    const [open, setOpen] = useState(false);
+    const newEvents = useAppSelector(state => state.sse.sseEvents);
 
     useEffect(() => {
         getMyAlarms().then((response) => {
-            console.log(response.data);
             setAlarmList(response.data);
         }).catch((error) => {
             console.error(error);
         });
     }, []);
 
-    return (
-        <IconButton color="inherit">
-            <Badge badgeContent={alarmList.length} color="secondary">
-                <NotificationsIcon/>
-            </Badge>
-        </IconButton>
+    useEffect(() => {
+        setAlarmList(prevAlarmList => {
+            const combinedList = [...alarmList, ...newEvents];
+            const uniqueList = Array.from(new Set(combinedList.map(a => a.id)))
+                .map(id => {
+                    return combinedList.find(a => a.id === id)
+                });
+            return uniqueList;
+        });
+    }, [newEvents]);
+
+    const handleDetail = (event) => {
+        setOpen(!open);
+        setTarget(event.currentTarget);
+    }
+
+    const handleClose = () => {
+        setOpen(false);
+    }
+
+    return (<>
+            <IconButton color="inherit" onClick={handleDetail}>
+                <Badge badgeContent={alarmList.length} color="secondary">
+                    <NotificationsIcon/>
+                </Badge>
+            </IconButton>
+            <Popover
+                open={open}
+                anchorEl={target}
+                onClose={handleClose}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'center',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                }}
+            >
+                <AlarmDetail handleClose={handleClose} alarmList={alarmList}/>
+            </Popover>
+        </>
     )
 }
 
