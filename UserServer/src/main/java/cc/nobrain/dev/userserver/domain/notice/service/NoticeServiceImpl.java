@@ -11,6 +11,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,10 +35,16 @@ public class NoticeServiceImpl implements NoticeService {
                 .and(NoticeDslHelper.contentLike(search.getContent()))
                 .and(NoticeDslHelper.createMemberLike(search.getCreateMember()));
 
-        List<Notice> rst = noticeRepository.findAll(where, NoticeDslHelper.orderByUpdateTime());
+        Page<Notice> rst = noticeRepository.findAll(where, pageable);
 
         return rst.stream()
                 .map(notice -> modelMapper.map(notice, NoticeRes.class))
                 .toList();
+    }
+
+    @Override
+    public void createNotice(NoticeReq.Create create) {
+        Notice notice = modelMapper.map(create, Notice.class);
+        noticeRepository.save(notice);
     }
 }

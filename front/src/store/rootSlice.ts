@@ -1,6 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {AlertDetail, User, UserInfo} from "../model/GlobalModel";
-import SseClient from "../service/SseClient";
+import SseClient from "../service/commons/SseClient";
 import {AlarmModel} from "../model/AlarmModel";
 
 const userInfoSlice = createSlice({

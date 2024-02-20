@@ -11,7 +11,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import {Link, useNavigate} from 'react-router-dom';
-import {getPublicKey, LoginData, signIn} from "../../service/AuthApi";
+import {getPublicKey, LoginData, signIn} from "../../service/commons/AuthApi";
 import CONSTANT from "../../utils/constant/constant";
 import {useEffect, useState} from "react";
 import AuthUtils from "../../utils/authUtils";

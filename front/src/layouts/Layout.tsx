@@ -5,10 +5,10 @@ import {Toolbar} from "@mui/material";
 import React, {useState} from "react";
 import TopBar from "./TopBar";
 import LeftBar from "./LeftBar";
-import {MenuInfo, MenuItems} from "../Routers";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import BackGround from "./BackGround";
+import {MenuInfo, MenuItems} from "../service/commons/MenuItem";
 
 export const Layout = () => {
     const navigation = useNavigation();

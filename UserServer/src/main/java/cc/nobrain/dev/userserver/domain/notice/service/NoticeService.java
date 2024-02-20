@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface NoticeService {
     List<NoticeRes> searchNoticeList(NoticeReq.Search search, Pageable pageable);
+
+    void createNotice(NoticeReq.Create create);
 }

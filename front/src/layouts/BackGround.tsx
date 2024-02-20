@@ -3,7 +3,7 @@ import {useAppDispatch, useAppSelector} from "../store/rootHook";
 import {useCallback, useEffect} from "react";
 import {CONSTANT, URLS} from "../utils/constant";
 import {SseEvent, SseType} from "../model/GlobalModel";
-import SseClient from "../service/SseClient";
+import SseClient from "../service/commons/SseClient";
 
 
 const BackGround = () => {

@@ -1,56 +1,20 @@
-import {createBrowserRouter} from "react-router-dom";
+import {createBrowserRouter, RouteObject} from "react-router-dom";
 import SignIn from "./pages/default/SignIn";
 import SignUp from "./pages/default/SignUp";
 import {Layout} from "./layouts/Layout";
 import {NotFound} from "./pages/default/NotFound";
-import {Home} from "./pages/default/Home";
-import AssignmentIcon from "@mui/icons-material/Assignment";
+import {MenuInfo, MenuItems} from "./service/commons/MenuItem";
 
-export interface MenuInfo {
-    name: string;
-    path?: string;
-    icon?: React.ReactNode;
-    subMenu?: MenuInfo[];
-}
+const createRouteFromMenu = (menu: MenuInfo): RouteObject => {
+    return {
+        path: menu.path || '/',
+        element: menu.element
+    };
+};
 
-export const MenuItems: MenuInfo[] = [
-    {
-        name: "Home", path: "/", icon: <AssignmentIcon/>
-    },
-    {
-        name: "Sign In",
-        path: "/sign-in",
-    },
-    {
-        name: "Sign Up",
-        path: "/sign-up",
-    },
-    {
-        name: "My Page",
-        subMenu: [
-            {
-                name: "Not Found",
-                path: "/not-found",
-            },
-            {
-                name: "Test Submenu2",
-                subMenu: [
-                    {
-                        name: "Test Submenu3",
-                        subMenu: [
-                            {
-                                name: "Test Submenu4",
-                                path: "/test-submenu4",
-                            }
-                        ]
-                    }
-                ]
-            }
-        ]
-    }
-];
+const childRoutes: RouteObject[] = MenuItems.map(menu => createRouteFromMenu(menu));
 
-export const baseRouters = createBrowserRouter([
+const routes: RouteObject[] = [
     {
         path: "/sign-in",
         element: <SignIn/>,
@@ -63,14 +27,13 @@ export const baseRouters = createBrowserRouter([
         path: "/",
         element: <Layout/>,
         children: [
-            {
-                index: true,
-                element: <Home/>,
-            },
+            ...childRoutes
         ]
     },
     {
         path: "*",
         element: <NotFound/>,
     }
-])
+];
+
+export const baseRouter = createBrowserRouter(routes);

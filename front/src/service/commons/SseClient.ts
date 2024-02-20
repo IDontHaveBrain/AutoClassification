@@ -1,5 +1,5 @@
 import {sendOk} from "./GlobalApi";
-import CONSTANT from "../utils/constant/constant";
+import CONSTANT from "../../utils/constant/constant";
 import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
 
 type MessageHandler = (data: any) => void;

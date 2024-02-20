@@ -1,5 +1,5 @@
 import {baseApi} from "./ApiClient";
-import {URLS} from "../utils/constant";
+import {URLS} from "../../utils/constant";
 import {AxiosPromise} from "axios";
 
 export const sendOk = (): AxiosPromise => {

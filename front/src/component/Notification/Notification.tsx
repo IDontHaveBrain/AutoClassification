@@ -1,6 +1,6 @@
 import {Badge, IconButton, Popover} from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import SseClient from "../../service/SseClient";
+import SseClient from "../../service/commons/SseClient";
 import {useEffect, useState} from "react";
 import {useAppSelector} from "../../store/rootHook";
 import {AlarmModel} from "../../model/AlarmModel";
