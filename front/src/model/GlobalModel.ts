@@ -1,3 +1,9 @@
+export interface AlarmModel {
+    id: number;
+    title: string;
+    content: string;
+    createDateTime: string;
+}
 
 export interface AlertDetail {
     message: string;

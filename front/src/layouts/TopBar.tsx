@@ -1,9 +1,9 @@
 import {AppBarProps, IconButton, styled, Toolbar} from "@mui/material";
 import Typography from "@mui/material/Typography";
 import MuiAppBar from "@mui/material/AppBar";
+import { useAppDispatch, useAppSelector } from "../stores/rootHook";
+import { useEffect } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
-import {useEffect, useState} from "react";
-import {useAppDispatch, useAppSelector} from "../store/rootHook";
 import Notification from "../component/Notification/Notification";
 
 interface MyAppBarProps extends AppBarProps {

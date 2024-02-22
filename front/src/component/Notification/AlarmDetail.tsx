@@ -1,6 +1,6 @@
 import {Divider, List, ListItem, ListItemText} from "@mui/material";
-import {AlarmModel} from "../../model/AlarmModel";
-import {Fragment} from "react";
+import { AlarmModel } from "../../model/GlobalModel";
+import { Fragment } from "react";
 
 interface Props {
     handleClose: () => void;

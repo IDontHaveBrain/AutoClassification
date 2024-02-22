@@ -1,8 +1,8 @@
 import axios, {AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig} from "axios";
 import CONSTANT from "../../utils/constant/constant";
 import {useDispatch} from "react-redux";
-import {useAppDispatch} from "../../store/rootHook";
-import {resetUserInfo} from "../../store/rootSlice";
+import {useAppDispatch} from "../../stores/rootHook";
+import {resetUserInfo} from "../../stores/rootSlice";
 
 export const authApi: AxiosInstance = axios.create({
   baseURL: CONSTANT.AUTH_API_URL,

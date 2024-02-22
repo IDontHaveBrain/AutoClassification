@@ -1,9 +1,9 @@
-import AlertModal from "../component/Modal/AlertModal";
-import {useAppDispatch, useAppSelector} from "../store/rootHook";
 import {useCallback, useEffect} from "react";
-import {CONSTANT, URLS} from "../utils/constant";
-import {SseEvent, SseType} from "../model/GlobalModel";
+import { useAppDispatch } from "../stores/rootHook";
+import { SseEvent, SseType } from "../model/GlobalModel";
 import SseClient from "../service/commons/SseClient";
+import { CONSTANT, URLS } from "../utils/constant";
+import AlertModal from "../component/Modal/AlertModal";
 
 
 const BackGround = () => {

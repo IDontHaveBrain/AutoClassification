@@ -1,15 +1,16 @@
 import AssignmentIcon from "@mui/icons-material/Assignment";
-import {Home} from "../../pages/default/Home";
+import { ReactNode } from "react";
+import { Home } from "../../pages/default/Home";
 import SignIn from "../../pages/default/SignIn";
 import SignUp from "../../pages/default/SignUp";
-import TextEditor from "../../component/TextEditor/TextEditor";
-import {NotFound} from "../../pages/default/NotFound";
+import NoticeEditor from "../../pages/contents/notice/NoticeEditor";
+import { NotFound } from "../../pages/default/NotFound";
 
 export interface MenuInfo {
     name: string;
     path?: string;
-    icon?: React.ReactNode;
-    element?: React.ReactNode;
+    icon?: ReactNode;
+    element?: ReactNode;
     subMenu?: MenuInfo[];
 }
 
@@ -29,6 +30,11 @@ export const MenuItems: MenuInfo[] = [
         name: "Sign Up",
         path: "/sign-up",
         element: <SignUp/>,
+    },
+    {
+        name: "공지사항",
+        path: "/notice",
+        element: <NoticeEditor/>
     },
     {
         name: "My Page",
