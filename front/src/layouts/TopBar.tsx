@@ -7,18 +7,18 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Notification from "../component/Notification/Notification";
 
 interface MyAppBarProps extends AppBarProps {
-    open?: boolean;
-    menuWidth?: number;
+    open: boolean;
+    menuWidth: number;
 }
 
 interface TopBarProps {
     open: boolean;
     openMenu: () => void;
-    width?: number;
+    width: number;
     children?: React.ReactNode;
 }
 
-const TopBar = ({open, openMenu, width = 240, children}: TopBarProps) => {
+const TopBar = ({open, openMenu, width, children}: TopBarProps) => {
     const user = useAppSelector(state => state.userInfo.user);
     const dispatch = useAppDispatch();
 

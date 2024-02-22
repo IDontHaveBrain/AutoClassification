@@ -7,18 +7,18 @@ import RenderMenu from "./renderMenu";
 import {MenuInfo} from "../../service/commons/MenuItem";
 
 interface MenuBarProps extends DrawerProps {
-    drawerWidth?: number;
+    drawerWidth: number;
 }
 
 interface LeftBarProps {
     open: boolean;
     openMenu: () => void;
-    width?: number;
+    width: number;
     menu?: MenuInfo[];
     children?: React.ReactNode;
 }
 
-const LeftBar = ({open, openMenu, width = 240, menu, children}: LeftBarProps) => {
+const LeftBar = ({open, openMenu, width, menu, children}: LeftBarProps) => {
     const [openSubMenu, setOpenSubMenu] = useState({});
 
     const navigate = useNavigate();
