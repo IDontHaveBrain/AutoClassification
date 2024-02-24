@@ -7,14 +7,14 @@ import {useAppDispatch, useAppSelector} from "stores/rootHook";
 import Notification from "component/notification/Notification";
 
 interface MyAppBarProps extends AppBarProps {
-    open?: boolean;
-    menuWidth?: number;
+    open: boolean;
+    menuWidth: number;
 }
 
 interface TopBarProps {
     open: boolean;
     openMenu: () => void;
-    width?: number;
+    width: number;
     children?: React.ReactNode;
 }
 

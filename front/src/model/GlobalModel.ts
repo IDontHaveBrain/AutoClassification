@@ -36,3 +36,11 @@ export interface SseEvent {
     type: SseType;
     message: string;
 }
+
+export interface NoticeModel {
+    id: number;
+    title: string;
+    content: string;
+    createDateTime: string;
+    updateDateTime: string;
+}

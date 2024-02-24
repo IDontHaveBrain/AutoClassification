@@ -7,13 +7,13 @@ import {MenuInfo} from "service/commons/MenuItem";
 import RenderMenu from "layouts/LeftBar/renderMenu";
 
 interface MenuBarProps extends DrawerProps {
-    drawerWidth?: number;
+    drawerWidth: number;
 }
 
 interface LeftBarProps {
     open: boolean;
     openMenu: () => void;
-    width?: number;
+    width: number;
     menu?: MenuInfo[];
     children?: React.ReactNode;
 }

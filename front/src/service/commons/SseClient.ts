@@ -1,4 +1,4 @@
-import {sendOk} from "./GlobalApi";
+import {sendOk} from "service/GlobalApi";
 import { CONSTANT } from "../../utils/constant";
 import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
 

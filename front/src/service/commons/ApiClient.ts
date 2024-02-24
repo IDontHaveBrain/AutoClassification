@@ -1,17 +1,15 @@
-import axios, {AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig} from "axios";
-import CONSTANT from "../../utils/constant/constant";
-import {useDispatch} from "react-redux";
-import {useAppDispatch} from "../../stores/rootHook";
-import {resetUserInfo} from "../../stores/rootSlice";
+import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
+import {CONSTANT} from "utils/constant";
+
 
 export const authApi: AxiosInstance = axios.create({
-  baseURL: CONSTANT.AUTH_API_URL,
-  headers:{
-    Accept: "application/json"
-  }
+    baseURL: CONSTANT.AUTH_API_URL,
+    headers: {
+        Accept: "application/json",
+    },
 });
 
-export const baseApi: AxiosInstance = axios.create({
+export const UserApi: AxiosInstance = axios.create({
   baseURL: CONSTANT.API_URL,
   headers:{
     Accept: "application/json"
@@ -30,8 +28,8 @@ const checkToken = async (config: InternalAxiosRequestConfig) => {
 }
 
 axios.defaults.withCredentials = true;
-baseApi.interceptors.request.use(checkToken);
-baseApi.interceptors.response.use(
+UserApi.interceptors.request.use(checkToken);
+UserApi.interceptors.response.use(
   (response) => {
     return response;
   },

@@ -1,10 +1,12 @@
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import { ReactNode } from "react";
-import { Home } from "../../pages/default/Home";
-import SignIn from "../../pages/default/SignIn";
-import SignUp from "../../pages/default/SignUp";
-import NoticeEditor from "../../pages/contents/notice/NoticeEditor";
-import { NotFound } from "../../pages/default/NotFound";
+import {Home} from "pages/default/Home";
+import SignIn from "pages/default/SignIn";
+import SignUp from "pages/default/SignUp";
+import NoticeEditor from "pages/contents/notice/NoticeEditor";
+import {NotFound} from "pages/default/NotFound";
+import NoticeList from "pages/contents/notice/NoticeList";
+
 
 export interface MenuInfo {
     name: string;
@@ -34,7 +36,7 @@ export const MenuItems: MenuInfo[] = [
     {
         name: "공지사항",
         path: "/notice",
-        element: <NoticeEditor/>
+        element: <NoticeList/>
     },
     {
         name: "My Page",
@@ -61,3 +63,20 @@ export const MenuItems: MenuInfo[] = [
         ]
     }
 ];
+
+export const findMenuPath = (menus: MenuInfo[], path: string): MenuInfo[] => {
+    for (const menu of menus) {
+        if (menu.path === path) {
+            return [menu];
+        }
+
+        if (menu.subMenu) {
+            const found = findMenuPath(menu.subMenu, path);
+            if (found.length > 0) {
+                return [menu, ...found];
+            }
+        }
+    }
+
+    return [];
+}
