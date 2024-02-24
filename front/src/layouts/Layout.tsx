@@ -8,7 +8,7 @@ import LeftBar from "./LeftBar";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import BackGround from "./BackGround";
-import {MenuInfo, MenuItems} from "../service/commons/MenuItem";
+import {MenuInfo, MenuItems} from "service/commons/MenuItem";
 
 export const Layout = () => {
     const navigation = useNavigation();

@@ -2,7 +2,7 @@ import {forwardRef, useState} from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import {Divider} from "@mui/material";
-import TextEditor from "../TextEditor/TextEditor";
+import TextEditor from "component/textEditor/TextEditor";
 
 const BaseBoard = (ref) => {
     const [title, setTitle] = useState<string>('');

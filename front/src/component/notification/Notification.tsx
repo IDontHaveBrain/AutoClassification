@@ -1,11 +1,11 @@
 import {Badge, IconButton, Popover} from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import SseClient from "../../service/SseClient";
+import SseClient from "service/commons/SseClient";
 import {useEffect, useState} from "react";
-import {useAppSelector} from "../../store/rootHook";
-import {AlarmModel} from "../../model/AlarmModel";
-import {getMyAlarms} from "../../service/AlarmApi";
-import AlarmDetail from "./AlarmDetail";
+import {AlarmModel} from "model/GlobalModel";
+import {useAppSelector} from "stores/rootHook";
+import {getMyAlarms} from "service/AlarmApi";
+import AlarmDetail from "component/notification/AlarmDetail";
 
 interface Props {
     sse?: SseClient;

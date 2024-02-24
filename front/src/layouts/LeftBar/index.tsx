@@ -3,8 +3,8 @@ import MuiDrawer from "@mui/material/Drawer";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import {useNavigate} from "react-router-dom";
 import {useState} from "react";
-import RenderMenu from "./renderMenu";
-import {MenuInfo} from "../../service/commons/MenuItem";
+import {MenuInfo} from "service/commons/MenuItem";
+import RenderMenu from "layouts/LeftBar/renderMenu";
 
 interface MenuBarProps extends DrawerProps {
     drawerWidth?: number;

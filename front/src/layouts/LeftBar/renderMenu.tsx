@@ -3,7 +3,7 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import {useNavigate} from "react-router-dom";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import {MenuInfo} from "../../service/commons/MenuItem";
+import {MenuInfo} from "service/commons/MenuItem";
 
 
 interface RenderMenuProps {

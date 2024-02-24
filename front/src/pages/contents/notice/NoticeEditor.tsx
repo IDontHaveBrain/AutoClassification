@@ -1,4 +1,4 @@
-import BaseBoard from "../../../component/BaseBoard/BaseBoard";
+import BaseBoard from "../../../component/baseBoard/BaseBoard";
 
 
 const NoticeEditor = () => {

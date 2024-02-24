@@ -1,11 +1,10 @@
-import "./App.css";
 import { RouterProvider } from "react-router-dom";
 import {createTheme, ThemeProvider} from "@mui/material/styles";
 import {Provider} from "react-redux";
 import {PersistGate} from "redux-persist/integration/react";
-import { persistor, rootStore } from "./stores/rootStore";
-import { Loading } from "./pages/default/Loading";
-import { baseRouter } from "./Routers";
+import {persistor, rootStore} from "stores/rootStore";
+import {Loading} from "pages/default/Loading";
+import {baseRouter} from "Routers";
 
 const defaultTheme = createTheme();
 
