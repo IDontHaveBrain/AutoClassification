@@ -7,12 +7,25 @@ import {MenuInfo, MenuItems} from "./service/commons/MenuItem";
 
 const createRouteFromMenu = (menu: MenuInfo): RouteObject => {
     return {
-        path: menu.path || '/',
+        path: menu.path,
         element: menu.element
     };
 };
 
-const childRoutes: RouteObject[] = MenuItems.map(menu => createRouteFromMenu(menu));
+const childRoutes: RouteObject[] = [];
+MenuItems.forEach(menu => {
+    if (menu.path && menu.element) {
+        childRoutes.push(createRouteFromMenu(menu));
+    }
+    if (menu.subMenu) {
+        menu.subMenu.forEach(subMenu => {
+            if (subMenu.path && subMenu.element) {
+                childRoutes.push(createRouteFromMenu(subMenu));
+            }
+        });
+    }
+});
+console.log(childRoutes);
 
 const routes: RouteObject[] = [
     {

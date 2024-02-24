@@ -11,6 +11,7 @@ import NoticeList from "pages/contents/notice/NoticeList";
 export interface MenuInfo {
     name: string;
     path?: string;
+    invisible?: boolean;
     icon?: ReactNode;
     element?: ReactNode;
     subMenu?: MenuInfo[];
@@ -36,7 +37,21 @@ export const MenuItems: MenuInfo[] = [
     {
         name: "공지사항",
         path: "/notice",
-        element: <NoticeList/>
+        element: <NoticeList/>,
+        subMenu: [
+            {
+                name: "공지사항 상세",
+                path: "/notice/:id",
+                element: <></>,
+                invisible: true,
+            },
+            {
+                name: "공지사항 작성",
+                path: "/notice/write",
+                element: <NoticeEditor/>,
+                invisible: true,
+            }
+        ]
     },
     {
         name: "My Page",

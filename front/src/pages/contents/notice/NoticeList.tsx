@@ -9,6 +9,7 @@ import BaseField from "component/BaseField";
 import BaseTable from "component/baseBoard/BaseTable";
 import { NoticeModel } from "model/GlobalModel";
 import { GridColDef } from "@mui/x-data-grid";
+import {useNavigate, useNavigation} from "react-router-dom";
 
 const NoticeList = () => {
     const [search, setSearch] = useState({
@@ -16,6 +17,7 @@ const NoticeList = () => {
         title: "",
     });
     const [noticeList, setNoticeList] = useState<NoticeModel[]>([]);
+    const navigate = useNavigate();
 
     const handleSearch = (e) => {
         setSearch({
@@ -31,7 +33,7 @@ const NoticeList = () => {
     ];
 
     useEffect(() => {
-        getNoticeList(search)
+        getNoticeList()
             .then((response) => {
                 console.log(response);
                 setNoticeList(response.data);
@@ -47,6 +49,10 @@ const NoticeList = () => {
         { field: "writer", headerName: "작성자", width: 130 },
         { field: "createdAt", headerName: "작성일", width: 130 },
     ];
+
+    const onClickWrite = () => {
+        navigate("/notice/write");
+    }
 
     return (
         <Box>
@@ -67,7 +73,7 @@ const NoticeList = () => {
                     />
                     <Button variant={"contained"}>검색</Button>
                 </Box>
-                <Button color={"success"} variant={"contained"}>
+                <Button color={"success"} variant={"contained"} onClick={onClickWrite}>
                     작성하기
                 </Button>
             </BaseSearch>
