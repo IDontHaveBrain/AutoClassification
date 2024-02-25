@@ -61,7 +61,7 @@ export const Layout = () => {
             >
                 <Toolbar />
                 <Card
-                    sx={{ flex: 1, minHeight: "30vh", overflow: "auto", m: 1 }}
+                    sx={{ flex: 1, minHeight: "50vh", overflow: "auto", m: 1 }}
                 >
                     <ContentPath sx={{ m: 1 }} path={currentMenuPath} />
                     <Divider />
