@@ -19,6 +19,7 @@ import BackGround from "./BackGround";
 import { findMenuPath, MenuInfo, MenuItems } from "service/commons/MenuItem";
 import ContentPath from "layouts/ContentPath";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
+import SubTabBar from "layouts/SubTabBar";
 
 export const Layout = () => {
     const navigation = useNavigation();
@@ -33,6 +34,8 @@ export const Layout = () => {
     };
 
     const currentMenuPath = findMenuPath(MenuItems, location.pathname);
+    const subTabMenu = currentMenuPath?.filter((menu) => menu.path === location.pathname)
+        .flatMap((menu) => menu.subTabMenu);
 
     return (
         <Box sx={{ display: "flex" }}>
@@ -51,7 +54,7 @@ export const Layout = () => {
                 sx={{
                     backgroundColor: (theme) =>
                         theme.palette.mode === "light"
-                            ? theme.palette.grey[100]
+                            ? theme.palette.common.white
                             : theme.palette.grey[900],
                     flexGrow: 1,
                     height: "100vh",
@@ -60,15 +63,12 @@ export const Layout = () => {
                 }}
             >
                 <Toolbar />
-                <Card
-                    sx={{ flex: 1, minHeight: "50vh", overflow: "auto", m: 1 }}
-                >
-                    <ContentPath sx={{ m: 1 }} path={currentMenuPath} />
-                    <Divider />
-                    <Grid sx={{ m: 1 }}>
-                        <Outlet />
-                    </Grid>
-                </Card>
+                <SubTabBar subTabMenu={subTabMenu} />
+                <ContentPath sx={{ m: 1 }} path={currentMenuPath} />
+                <Divider />
+                <Box sx={{ m: 1 }}>
+                    <Outlet />
+                </Box>
             </Box>
             <BackGround />
         </Box>

@@ -17,7 +17,7 @@ const BaseEditor = (props, ref) => {
 
     return (
         <EditorContext.Provider value={{ editor, setEditor }}>
-            <Grid container spacing={2}>
+            <Grid container spacing={1}>
                 <Grid item xs={12}>
                     <BaseInputField label={Strings.title + ":"} />
                 </Grid>

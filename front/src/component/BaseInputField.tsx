@@ -14,8 +14,8 @@ interface BaseInputFieldProps {
 const BaseInputField = ({ label, value, onChange }: BaseInputFieldProps) => {
     return (
         <Box>
-            <Grid container spacing={1} md justifyContent={"space-between"} alignItems={"center"}>
-                <Grid item xs={11} container spacing={1} direction={"row"} alignItems={"center"}>
+            <Grid container>
+                <Grid item xs={11} container spacing={1}>
                     <Grid item>
                         <Typography variant="h6">{label}</Typography>
                     </Grid>
@@ -30,7 +30,7 @@ const BaseInputField = ({ label, value, onChange }: BaseInputFieldProps) => {
                     </Grid>
                 </Grid>
                 <Grid item xs={1}>
-                    <Button variant="contained" color="success" size={"small"} sx={{minHeight: "30px"}}>
+                    <Button variant="contained" color="success" size={"small"} sx={{minHeight: "30px", alignItems: "flex-end"}}>
                         Save
                     </Button>
                 </Grid>

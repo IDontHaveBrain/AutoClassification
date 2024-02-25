@@ -15,6 +15,7 @@ export interface MenuInfo {
     icon?: ReactNode;
     element?: ReactNode;
     subMenu?: MenuInfo[];
+    subTabMenu?: MenuInfo[];
 }
 
 export const MenuItems: MenuInfo[] = [
@@ -23,16 +24,18 @@ export const MenuItems: MenuInfo[] = [
         path: "/",
         icon: <AssignmentIcon/>,
         element: <Home/>,
-    },
-    {
-        name: "Sign In",
-        path: "/sign-in",
-        element: <SignIn/>,
-    },
-    {
-        name: "Sign Up",
-        path: "/sign-up",
-        element: <SignUp/>,
+        subTabMenu: [
+            {
+                name: "Sign In",
+                path: "/sign-in",
+                element: <SignIn/>,
+            },
+            {
+                name: "Sign Up",
+                path: "/sign-up",
+                element: <SignUp/>,
+            },
+        ]
     },
     {
         name: "공지사항",
@@ -89,6 +92,23 @@ export const findMenuPath = (menus: MenuInfo[], path: string): MenuInfo[] => {
             const found = findMenuPath(menu.subMenu, path);
             if (found.length > 0) {
                 return [menu, ...found];
+            }
+        }
+    }
+
+    return [];
+}
+
+export const findSubTabs = (menus: MenuInfo[], path: string): MenuInfo[] => {
+    for (const menu of menus) {
+        if (menu.path === path) {
+            return menu.subTabMenu ?? [];
+        }
+
+        if (menu.subMenu) {
+            const found = findSubTabs(menu.subMenu, path);
+            if (found.length > 0) {
+                return found;
             }
         }
     }
