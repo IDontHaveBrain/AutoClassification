@@ -1,9 +1,9 @@
 import {Divider, Tab, Tabs} from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
-import {MenuInfo} from "service/commons/MenuItem";
+import {findMenuPath, findSubTabs, getCurrentMenuInfo, MenuInfo, MenuItems} from "service/commons/MenuItem";
 
 interface SubTabBarProps {
-    subTabMenu: MenuInfo[];
+    subTabMenu?: MenuInfo[];
 }
 
 const SubTabBar = ({ subTabMenu }: SubTabBarProps) => {
@@ -14,6 +14,8 @@ const SubTabBar = ({ subTabMenu }: SubTabBarProps) => {
         navigate(newValue);
     };
 
+    const currentMenuPath = getCurrentMenuInfo(MenuItems, location.pathname);
+
     return (
         <Tabs
             value={location.pathname}
@@ -23,16 +25,25 @@ const SubTabBar = ({ subTabMenu }: SubTabBarProps) => {
             variant="scrollable"
             scrollButtons="auto"
             sx={{
-                borderBottom: '1px solid #e8e8e8',
-                borderRight: '2px solid #e8e8e8',
+                borderBottom: "1px solid #e8e8e8",
+                borderRight: "2px solid #e8e8e8",
             }}
         >
-            {subTabMenu?.map((tab, index) => (
-                <>
-                    <Tab key={index} label={tab?.name} value={tab?.path ?? ''} />
-                    {index !== subTabMenu.length && <Divider orientation="vertical" flexItem />}
-                </>
-            ))}
+            {currentMenuPath && (
+                <Tab
+                    label={currentMenuPath?.name}
+                    value={currentMenuPath?.path ?? ""}
+                />
+            )}
+            {subTabMenu?.map((tab, index) => {
+                return (
+                    <Tab
+                        key={index}
+                        label={tab?.name}
+                        value={tab?.path}
+                    />
+                );
+            })}
             <Divider />
         </Tabs>
     );

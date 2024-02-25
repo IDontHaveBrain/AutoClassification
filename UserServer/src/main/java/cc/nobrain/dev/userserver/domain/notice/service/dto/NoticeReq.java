@@ -1,16 +1,22 @@
 package cc.nobrain.dev.userserver.domain.notice.service.dto;
 
 import cc.nobrain.dev.userserver.domain.base.dto.FileDto;
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.*;
 
 import java.util.List;
 
+@Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class NoticeReq {
 
     @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Search {
         private String title;
-        private String content;
         private String createMember;
     }
 

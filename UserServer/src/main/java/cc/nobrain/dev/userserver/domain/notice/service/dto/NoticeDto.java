@@ -1,5 +1,6 @@
 package cc.nobrain.dev.userserver.domain.notice.service.dto;
 
+import cc.nobrain.dev.userserver.domain.base.dto.BaseDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -13,7 +14,7 @@ import java.io.Serializable;
 @Data
 @Accessors(chain = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NoticeDto implements Serializable {
+public class NoticeDto extends BaseDto implements Serializable {
     private Long id;
     @NotNull
     private String title;

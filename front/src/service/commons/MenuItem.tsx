@@ -115,3 +115,20 @@ export const findSubTabs = (menus: MenuInfo[], path: string): MenuInfo[] => {
 
     return [];
 }
+
+export const getCurrentMenuInfo = (menus: MenuInfo[], path: string): MenuInfo | undefined => {
+    for (const menu of menus) {
+        if (menu.path === path) {
+            return menu;
+        }
+
+        if (menu.subMenu || menu.subTabMenu) {
+            const found = getCurrentMenuInfo(menu.subMenu ?? menu.subTabMenu, path);
+            if (found) {
+                return found;
+            }
+        }
+    }
+
+    return undefined;
+}

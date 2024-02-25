@@ -25,7 +25,6 @@ MenuItems.forEach(menu => {
         });
     }
 });
-console.log(childRoutes);
 
 const routes: RouteObject[] = [
     {

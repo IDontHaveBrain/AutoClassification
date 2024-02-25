@@ -32,7 +32,7 @@ public class NoticeServiceImpl implements NoticeService {
     public List<NoticeRes> searchNoticeList(NoticeReq.Search search, Pageable pageable) {
         BooleanBuilder where = new BooleanBuilder();
         where.and(NoticeDslHelper.titleLike(search.getTitle()))
-                .and(NoticeDslHelper.contentLike(search.getContent()))
+//                .and(NoticeDslHelper.contentLike(search.getContent()))
                 .and(NoticeDslHelper.createMemberLike(search.getCreateMember()));
 
         Page<Notice> rst = noticeRepository.findAll(where, pageable);

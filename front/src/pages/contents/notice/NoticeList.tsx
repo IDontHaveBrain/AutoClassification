@@ -10,11 +10,13 @@ import BaseTable from "component/baseBoard/BaseTable";
 import { NoticeModel } from "model/GlobalModel";
 import { GridColDef } from "@mui/x-data-grid";
 import {useNavigate, useNavigation} from "react-router-dom";
+import {GridSortModel} from "@mui/x-data-grid/models/gridSortModel";
+import qs from "qs";
 
 const NoticeList = () => {
     const [search, setSearch] = useState({
-        writer: "",
         title: "",
+        createMember: "",
     });
     const [noticeList, setNoticeList] = useState<NoticeModel[]>([]);
     const navigate = useNavigate();
@@ -26,14 +28,12 @@ const NoticeList = () => {
         });
     };
 
-    const rows = [
-        { id: 1, title: "Snow", firstName: "Jon", age: 35 },
-        { id: 2, title: "Lannister", firstName: "Cersei", age: 42 },
-        { id: 3, title: "Lannister", firstName: "Jaime", age: 45 },
-    ];
+    const onSearch = (e) => {
+        const params = {
+            search: {title: search.title, createMember: search.createMember},
+        }
 
-    useEffect(() => {
-        getNoticeList()
+        getNoticeList(params)
             .then((response) => {
                 console.log(response);
                 setNoticeList(response.data);
@@ -41,13 +41,27 @@ const NoticeList = () => {
             .catch((error) => {
                 console.error(error);
             });
-    }, []);
+    }
+
+    const loadRows = async (page: number, pageSize: number, sortModel: GridSortModel) => {
+        const params = {
+            // search: search,
+            search: {title: search.title, createMember: search.createMember},
+            page: page,
+            size: pageSize,
+        }
+
+        const response = await getNoticeList(params);
+        return response.data;
+    }
 
     const columns: GridColDef[] = [
         { field: "id", headerName: "ID", width: 70 },
         { field: "title", headerName: "제목", width: 130 },
-        { field: "writer", headerName: "작성자", width: 130 },
-        { field: "createdAt", headerName: "작성일", width: 130 },
+        { field: "createMember", headerName: "작성자", width: 130 },
+        { field: "createDateTime", headerName: "작성일", width: 130 },
+        { field: "updateMember", headerName: "수정자", width: 130 },
+        { field: "updateDateTime", headerName: "수정일", width: 130 },
     ];
 
     const onClickWrite = () => {
@@ -60,25 +74,27 @@ const NoticeList = () => {
             <BaseSearch>
                 <Box>
                     <BaseField
-                        value={search.writer}
+                        name={"createMember"}
+                        value={search.createMember}
                         onChange={handleSearch}
                         size={"small"}
                         label={"작성자"}
                     />
                     <BaseField
+                        name={"title"}
                         value={search.title}
                         onChange={handleSearch}
                         size={"small"}
                         label={"제목"}
                     />
-                    <Button variant={"contained"}>검색</Button>
+                    <Button variant={"contained"} onClick={onSearch}>검색</Button>
                 </Box>
                 <Button color={"success"} variant={"contained"} onClick={onClickWrite}>
                     작성하기
                 </Button>
             </BaseSearch>
             <Divider sx={{ mt: 2, mb: 2 }} />
-            <BaseTable columns={columns} rows={rows} />
+            <BaseTable columns={columns} loadRows={loadRows} />
         </Box>
     );
 };
