@@ -51,7 +51,7 @@ export const Layout = () => {
                 sx={{
                     backgroundColor: (theme) =>
                         theme.palette.mode === "light"
-                            ? theme.palette.grey[100]
+                            ? theme.palette.common.white
                             : theme.palette.grey[900],
                     flexGrow: 1,
                     height: "100vh",
@@ -60,15 +60,11 @@ export const Layout = () => {
                 }}
             >
                 <Toolbar />
-                <Card
-                    sx={{ flex: 1, minHeight: "50vh", overflow: "auto", m: 1 }}
-                >
-                    <ContentPath sx={{ m: 1 }} path={currentMenuPath} />
-                    <Divider />
-                    <Grid sx={{ m: 1 }}>
-                        <Outlet />
-                    </Grid>
-                </Card>
+                <ContentPath sx={{ m: 1 }} path={currentMenuPath} />
+                <Divider />
+                <Box sx={{m: 1}}>
+                <Outlet />
+                </Box>
             </Box>
             <BackGround />
         </Box>
