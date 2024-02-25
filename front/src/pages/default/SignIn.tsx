@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -11,15 +10,14 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import {Link, useNavigate} from 'react-router-dom';
-import {getPublicKey, LoginData, signIn} from "../../service/AuthApi";
-import CONSTANT from "../../utils/constant/constant";
 import {useEffect, useState} from "react";
+import { CONSTANT } from "../../utils/constant";
+import { useAppDispatch } from "../../stores/rootHook";
+import { getPublicKey, LoginData, signIn } from "service/AuthApi";
 import AuthUtils from "../../utils/authUtils";
-import {useDispatch} from "react-redux";
-import {setUserInfo} from "../../store/rootSlice";
-import {useAppDispatch} from "../../store/rootHook";
-import {onAlert} from "../../component/Modal/AlertModal";
-import {Strings} from "../../utils/strings";
+import { setUserInfo } from "../../stores/rootSlice";
+import { onAlert } from "../../component/modal/AlertModal";
+import { Strings } from "../../utils/strings";
 
 function Copyright(props: any) {
     return (

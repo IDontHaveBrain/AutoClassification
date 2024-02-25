@@ -1,52 +1,76 @@
-import {Outlet, useNavigation} from "react-router-dom";
+import { Outlet, useLocation, useNavigation } from "react-router-dom";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
-import {Toolbar} from "@mui/material";
-import React, {useState} from "react";
+import {
+    Card,
+    css,
+    Divider,
+    keyframes,
+    makeStyles,
+    styled,
+    Toolbar,
+} from "@mui/material";
+import React, { useEffect, useState } from "react";
 import TopBar from "./TopBar";
 import LeftBar from "./LeftBar";
-import {MenuInfo, MenuItems} from "../Routers";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import BackGround from "./BackGround";
+import { findMenuPath, MenuInfo, MenuItems } from "service/commons/MenuItem";
+import ContentPath from "layouts/ContentPath";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
+import SubTabBar from "layouts/SubTabBar";
 
 export const Layout = () => {
     const navigation = useNavigation();
+    const location = useLocation();
     const [open, setOpen] = useState(true);
     const [menu, setMenu] = useState<MenuInfo[]>(MenuItems);
     const [menuWidth, setMenuWidth] = useState(240);
+    const [isEntering, setIsEntering] = useState(true);
 
     const openMenu = () => {
         setOpen(!open);
-    }
+    };
+
+    const currentMenuPath = findMenuPath(MenuItems, location.pathname);
+    const subTabMenu = currentMenuPath?.filter((menu) => menu.path === location.pathname)
+        .flatMap((menu) => menu.subTabMenu);
 
     return (
-        <Box sx={{display: 'flex'}}>
-            <CssBaseline/>
-            <TopBar open={open} openMenu={openMenu} width={menuWidth}/>
-            <LeftBar open={open} openMenu={openMenu} menu={menu} width={menuWidth}>
+        <Box sx={{ display: "flex" }}>
+            <CssBaseline />
+            <TopBar open={open} openMenu={openMenu} width={menuWidth} />
+            <LeftBar
+                open={open}
+                openMenu={openMenu}
+                menu={menu}
+                width={menuWidth}
+            >
                 Main
             </LeftBar>
             <Box
                 component="main"
                 sx={{
                     backgroundColor: (theme) =>
-                        theme.palette.mode === 'light'
-                            ? theme.palette.grey[100]
+                        theme.palette.mode === "light"
+                            ? theme.palette.common.white
                             : theme.palette.grey[900],
                     flexGrow: 1,
-                    height: '100vh',
-                    overflow: 'auto',
+                    height: "100vh",
+                    // width: "100vw",
+                    overflow: "auto",
                 }}
             >
-                <Toolbar/>
-                <Container maxWidth="lg" sx={{mt: 3, mb: 3, ml: 3, mr: 3}}>
-                    <Grid container spacing={3}>
-                        <Outlet/>
-                    </Grid>
-                </Container>
+                <Toolbar />
+                <SubTabBar subTabMenu={subTabMenu} />
+                <ContentPath sx={{ m: 1 }} path={currentMenuPath} />
+                <Divider />
+                <Box sx={{ m: 1 }}>
+                    <Outlet />
+                </Box>
             </Box>
-            <BackGround/>
+            <BackGround />
         </Box>
     );
-}
+};

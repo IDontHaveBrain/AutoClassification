@@ -1,7 +1,7 @@
-import {baseApi} from "./ApiClient";
-import {URLS} from "../utils/constant";
+import {UserApi} from "service/commons/ApiClient";
+import {URLS} from "utils/constant";
 import {AxiosPromise} from "axios";
 
 export const sendOk = (): AxiosPromise => {
-    return baseApi.post(URLS.API.SSE.HEARTBEAT);
+    return UserApi.post(URLS.API.SSE.HEARTBEAT);
 }

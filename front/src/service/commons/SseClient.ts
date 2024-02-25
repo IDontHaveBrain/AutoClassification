@@ -1,5 +1,5 @@
-import {sendOk} from "./GlobalApi";
-import CONSTANT from "../utils/constant/constant";
+import {sendOk} from "service/GlobalApi";
+import { CONSTANT } from "../../utils/constant";
 import { NativeEventSource, EventSourcePolyfill } from 'event-source-polyfill';
 
 type MessageHandler = (data: any) => void;
@@ -9,9 +9,9 @@ const INITIAL_DELAY = 5000;
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 5*1000;
 
-const EventSource = NativeEventSource || EventSourcePolyfill;
+const EventSource = EventSourcePolyfill || NativeEventSource;
 // OR: may also need to set as global property
-global.EventSource =  NativeEventSource || EventSourcePolyfill;
+global.EventSource =  EventSourcePolyfill || NativeEventSource;
 
 class SseClient {
     private eventSource: EventSource | null = null;

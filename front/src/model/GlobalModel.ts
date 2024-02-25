@@ -1,3 +1,9 @@
+export interface AlarmModel {
+    id: number;
+    title: string;
+    content: string;
+    createDateTime: string;
+}
 
 export interface AlertDetail {
     message: string;
@@ -29,4 +35,12 @@ export interface SseEvent {
     id: string;
     type: SseType;
     message: string;
+}
+
+export interface NoticeModel {
+    id: number;
+    title: string;
+    content: string;
+    createDateTime: string;
+    updateDateTime: string;
 }

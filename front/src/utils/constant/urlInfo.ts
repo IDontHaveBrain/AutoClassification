@@ -13,6 +13,12 @@ const URLS = {
             PUT: '/member',
             DELETE: '/member',
         },
+        NOTICE: {
+            GET: '/notice',
+            POST: '/notice',
+            PUT: '/notice',
+            DELETE: '/notice',
+        },
     },
 }
 
