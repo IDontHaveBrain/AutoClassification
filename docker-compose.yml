@@ -13,10 +13,10 @@ services:
   ports:
    - 8080:8080
   networks:
-   - shared-net
+   - share-net
   environment:
    TZ: "Asia/Seoul"
 
 networks:
- shared-net:
+ share-net:
   external: true

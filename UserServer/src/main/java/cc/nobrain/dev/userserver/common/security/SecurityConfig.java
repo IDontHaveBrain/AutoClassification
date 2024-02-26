@@ -136,7 +136,7 @@ public class SecurityConfig {
 //                        .anyRequest().permitAll()
                         .anyRequest().authenticated()
                 )
-                .formLogin(withDefaults())
+                .formLogin(form -> form.disable())
         ;
         return http.build();
     }

@@ -1,15 +1,15 @@
 import {forwardRef, useCallback, useEffect} from "react";
-import {useAppDispatch, useAppSelector} from "../../stores/rootHook";
-import {closeAlert, openAlert} from "../../stores/rootSlice";
 import {Modal as BaseModal} from '@mui/base/Modal';
 import {animated, useSpring} from '@react-spring/web';
 import {Backdrop, css, styled} from "@mui/material";
 import {blue, grey} from "@mui/material/colors";
 import Button from "@mui/material/Button";
-import {Strings} from "../../utils/strings";
+import {useAppDispatch, useAppSelector} from "stores/rootHook";
+import {closeAlert, openAlert} from "stores/rootSlice";
+import {Strings} from "utils/strings";
 
 const style = {
-    position: 'absolute' as const,
+    position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',

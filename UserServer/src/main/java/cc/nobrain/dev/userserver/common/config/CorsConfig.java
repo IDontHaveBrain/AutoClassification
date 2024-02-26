@@ -14,14 +14,14 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 //        configuration.addAllowedOrigin("http://localhost:3000");
-        configuration.addAllowedOrigin("*");
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost**", "http://dev.nobrain.cc**", "*"));
+        configuration.setAllowedMethods(Arrays.asList("*"));
         configuration.addAllowedHeader("*");
 //        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/api/**", configuration);
-//        configuration.setAllowCredentials(false);
-//        configuration.addAllowedOrigin("*");
+        // source.registerCorsConfiguration("/api/**", configuration);
+        // configuration.setAllowCredentials(false);
+        // configuration.addAllowedOrigin("*");
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }

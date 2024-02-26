@@ -1,4 +1,4 @@
-import {authApi, baseApi} from "./ApiClient";
+import {authApi, UserApi} from "service/commons/ApiClient";
 import {AxiosPromise} from "axios";
 
 

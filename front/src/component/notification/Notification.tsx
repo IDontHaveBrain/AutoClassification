@@ -1,11 +1,11 @@
 import {Badge, IconButton, Popover} from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import { AlarmModel } from "../../model/GlobalModel";
-import SseClient from "../../service/commons/SseClient";
-import { useAppSelector } from "../../stores/rootHook";
-import React, { useEffect, useState } from "react";
-import { getMyAlarms } from "../../service/AlarmApi";
-import AlarmDetail from "./AlarmDetail";
+import SseClient from "service/commons/SseClient";
+import {useEffect, useState} from "react";
+import {AlarmModel} from "model/GlobalModel";
+import {useAppSelector} from "stores/rootHook";
+import {getMyAlarms} from "service/AlarmApi";
+import AlarmDetail from "component/notification/AlarmDetail";
 
 interface Props {
     sse?: SseClient;
@@ -45,11 +45,10 @@ const Notification = () => {
         setOpen(false);
     }
 
-    return (
-        <>
+    return (<>
             <IconButton color="inherit" onClick={handleDetail}>
                 <Badge badgeContent={alarmList.length} color="secondary">
-                    <NotificationsIcon />
+                    <NotificationsIcon/>
                 </Badge>
             </IconButton>
             <Popover
@@ -57,18 +56,18 @@ const Notification = () => {
                 anchorEl={target}
                 onClose={handleClose}
                 anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "center",
+                    vertical: 'bottom',
+                    horizontal: 'center',
                 }}
                 transformOrigin={{
-                    vertical: "top",
-                    horizontal: "center",
+                    vertical: 'top',
+                    horizontal: 'center',
                 }}
             >
-                <AlarmDetail handleClose={handleClose} alarmList={alarmList} />
+                <AlarmDetail handleClose={handleClose} alarmList={alarmList}/>
             </Popover>
         </>
-    );
+    )
 }
 
 export default Notification;

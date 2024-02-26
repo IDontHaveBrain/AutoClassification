@@ -36,3 +36,31 @@ export interface SseEvent {
     type: SseType;
     message: string;
 }
+
+export interface BaseDto {
+    createMember?: string;
+    updateMember?: string;
+    createDateTime?: string;
+    updateDateTime?: string;
+
+}
+
+export interface NoticeModel extends BaseDto{
+    id: number;
+    title: string;
+    content: string;
+}
+
+export interface Pageable {
+    page: number;
+    pageSize: number;
+    sort?: any;
+}
+
+export const initPageable = (size: number): Pageable => {
+    return {
+        page: 0,
+        pageSize: size,
+        sort: "id,desc",
+    }
+}

@@ -1,9 +1,9 @@
 import {useCallback, useEffect} from "react";
-import { useAppDispatch } from "../stores/rootHook";
-import { SseEvent, SseType } from "../model/GlobalModel";
-import SseClient from "../service/commons/SseClient";
-import { CONSTANT, URLS } from "../utils/constant";
-import AlertModal from "../component/Modal/AlertModal";
+import {useAppDispatch} from "stores/rootHook";
+import {SseEvent, SseType} from "model/GlobalModel";
+import SseClient from "service/commons/SseClient";
+import {CONSTANT, URLS} from "utils/constant";
+import AlertModal from "component/modal/AlertModal";
 
 
 const BackGround = () => {

@@ -25,8 +25,8 @@ public class NotificationComponent {
     private ScheduledFuture<?> heartbeatTask;
     private ScheduledFuture<?> removalTask;
 
-    private final Long EXPIRATION_TIME = 60L;
-    private final Long HEARTBEAT_INTERVAL = 30L;
+    private final Long EXPIRATION_TIME = 120L;
+    private final Long HEARTBEAT_INTERVAL = 60L;
 
     public NotificationComponent() {
         this.heartbeatTask = this.scheduler.scheduleAtFixedRate(this::sendHeartbeat, 0, HEARTBEAT_INTERVAL, TimeUnit.SECONDS);

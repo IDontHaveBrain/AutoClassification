@@ -11,7 +11,7 @@ services:
     container_name: autoclassify-redis
     restart: always
     networks:
-      - shared-net
+      - share-net
     volumes:
       - /data/docker/toy/redis:/data
       - /data/docker/toy/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
@@ -28,7 +28,7 @@ services:
     ports:
       - 5433:5432
     networks:
-      - shared-net
+      - share-net
     environment:
       POSTGRES_USER: "jnj"
       POSTGRES_PASSWORD: "sqisoft"
@@ -42,7 +42,7 @@ services:
     restart: always
     user: root
 #    networks:
-#      - shared-net
+#      - share-net
     volumes:
         - /data/docker/toy/jenkins:/var/jenkins_home
 #        - /home/jenkins/.ssh:/jenkins/.ssh
@@ -66,7 +66,7 @@ services:
       - /data/docker/toy/nginx/log:/var/log/nginx
       - /data/docker/toy/nginx/html:/usr/share/nginx/html
     networks:
-      - shared-net
+      - share-net
     expose:
       - 7081
 #    ports:
@@ -75,5 +75,5 @@ services:
       TZ: "Asia/Seoul"
 
 networks:
-  shared-net:
+  share-net:
     external: true

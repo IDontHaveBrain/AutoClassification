@@ -3,7 +3,7 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import {useNavigate} from "react-router-dom";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import {MenuInfo} from "../../service/commons/MenuItem";
+import {MenuInfo} from "service/commons/MenuItem";
 
 
 interface RenderMenuProps {
@@ -18,15 +18,16 @@ const RenderMenu = ({open, item, openSubMenus, setOpenSubMenus, level = 1}: Rend
     const isSubMenuOpen = openSubMenus[item.name];
     const navigate = useNavigate();
 
+    if (item.invisible) return null;
+
     const handleOnClickMenuItem = () => {
-        if (item.subMenu?.length) {
+        if (item.path && item.element) {
+            navigate(item.path);
+        }
+        else if (item.subMenu?.length) {
             const newOpenSubMenusState = {...openSubMenus};
             newOpenSubMenusState[item.name] = !isSubMenuOpen;
             setOpenSubMenus(newOpenSubMenusState);
-        }
-
-        if (item?.path) {
-            navigate(item.path);
         }
     }
 
@@ -44,7 +45,8 @@ const RenderMenu = ({open, item, openSubMenus, setOpenSubMenus, level = 1}: Rend
                         style: {textOverflow: 'ellipsis', overflow: 'hidden', display: open ? 'block' : 'none'}
                     }}/>
                 </Tooltip>
-                {item.subMenu?.length && open ? (isSubMenuOpen ? <ExpandLessIcon/> : <ExpandMoreIcon/>) : null}
+                {item.subMenu?.length && open && !(item.path && item.element) ?
+                    (isSubMenuOpen ? <ExpandLessIcon/> : <ExpandMoreIcon/>) : null}
             </ListItemButton>
 
             {item.subMenu?.length ? (

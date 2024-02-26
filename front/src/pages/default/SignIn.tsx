@@ -13,10 +13,10 @@ import {Link, useNavigate} from 'react-router-dom';
 import {useEffect, useState} from "react";
 import { CONSTANT } from "../../utils/constant";
 import { useAppDispatch } from "../../stores/rootHook";
-import { getPublicKey, LoginData, signIn } from "../../service/commons/AuthApi";
+import { getPublicKey, LoginData, signIn } from "service/AuthApi";
 import AuthUtils from "../../utils/authUtils";
 import { setUserInfo } from "../../stores/rootSlice";
-import { onAlert } from "../../component/Modal/AlertModal";
+import { onAlert } from "../../component/modal/AlertModal";
 import { Strings } from "../../utils/strings";
 
 function Copyright(props: any) {
