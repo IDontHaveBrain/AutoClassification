@@ -6,6 +6,8 @@ import SignUp from "pages/default/SignUp";
 import NoticeEditor from "pages/contents/notice/NoticeEditor";
 import {NotFound} from "pages/default/NotFound";
 import NoticeList from "pages/contents/notice/NoticeList";
+import FileDropzone from "component/FileDropzone";
+import Classfiy from "../../pages/contents/classfiy/Classfiy";
 
 
 export interface MenuInfo {
@@ -55,6 +57,16 @@ export const MenuItems: MenuInfo[] = [
                 invisible: true,
             }
         ]
+    },
+    {
+        name: "Service",
+        subMenu: [
+            {
+                name: "Classfiy",
+                path: "/classfiy",
+                element: <Classfiy />,
+            }
+        ],
     },
     {
         name: "My Page",

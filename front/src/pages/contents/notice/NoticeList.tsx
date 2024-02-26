@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { getNoticeList } from "service/NoticeApi";
 import Box from "@mui/material/Box";
-import BaseTitle from "component/baseBoard/BaseTitle";
-import BaseSearch from "component/baseBoard/BaseSearch";
+import BaseTitle from "../../../component/baseBoard/BaseTitle";
+import BaseSearch from "../../../component/baseBoard/BaseSearch";
 import Button from "@mui/material/Button";
 import { Divider } from "@mui/material";
 import BaseField from "component/BaseField";
-import BaseTable from "component/baseBoard/BaseTable";
+import BaseTable from "../../../component/baseBoard/BaseTable";
 import { NoticeModel } from "model/GlobalModel";
 import { GridColDef } from "@mui/x-data-grid";
 import {useNavigate, useNavigation} from "react-router-dom";
