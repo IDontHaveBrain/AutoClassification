@@ -1,7 +1,8 @@
 import Box from "@mui/material/Box";
-import FileDropzone from "../../../component/FileDropzone";
+import FileDropzone from "component/FileDropzone";
 import Grid from "@mui/material/Grid";
 import { useCallback, useState } from "react";
+import { List, ListItem, ListItemText } from "@mui/material";
 
 const Classfiy = () => {
     const [files, setFiles] = useState([]);
@@ -16,6 +17,13 @@ const Classfiy = () => {
             <Grid item md={12}>
                 <FileDropzone onDrop={onDrop} />
             </Grid>
+            <List>
+                {files.map((file, index) => (
+                    <ListItem key={index}>
+                        <ListItemText primary={file.name} />
+                    </ListItem>
+                ))}
+            </List>
         </Box>
     );
 };
