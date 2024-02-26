@@ -1,6 +1,7 @@
 package cc.nobrain.dev.userserver.domain.alarm.service;
 
 import cc.nobrain.dev.userserver.common.exception.CustomException;
+import cc.nobrain.dev.userserver.common.exception.ErrorInfo;
 import cc.nobrain.dev.userserver.common.utils.GlobalUtil;
 import cc.nobrain.dev.userserver.domain.alarm.entity.Alarm;
 import cc.nobrain.dev.userserver.domain.alarm.repository.AlarmRepository;
@@ -27,7 +28,7 @@ public class AlarmServiceImpl implements AlarmService {
     @Override
     public List<AlarmDto> getMyAlarmList() {
         Member member = GlobalUtil.getCurrentMember().orElseThrow(() ->
-                new CustomException("로그인 사용자를 찾을 수 없습니다."));
+                new CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND));
         Specification<Alarm> spec = AlarmSpecs.findAlarmByMemberId(member.getId());
         List<Alarm> alarmList = alarmRepository.findAll(spec);
         return alarmList.stream().map(alarm -> modelMapper.map(alarm, AlarmDto.class)).toList();

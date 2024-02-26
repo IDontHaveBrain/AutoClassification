@@ -4,6 +4,7 @@ import cc.nobrain.dev.userserver.common.converter.BCryptoConverter;
 import cc.nobrain.dev.userserver.common.validation.Name;
 import cc.nobrain.dev.userserver.common.validation.Password;
 import cc.nobrain.dev.userserver.domain.base.entity.BaseCU;
+import cc.nobrain.dev.userserver.domain.train.entity.TrainFile;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -12,7 +13,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -52,6 +52,9 @@ public class Member extends BaseCU implements UserDetails {
     @ManyToOne
     @JoinColumn(name = "group_id")
     private MemberGroup memberGroup;
+
+    @OneToMany(mappedBy = "ownerIndex")
+    private List<TrainFile> trainFiles = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

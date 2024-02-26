@@ -28,7 +28,7 @@ spring:
 
 logging:
   level:
-    root: error
+    root: info
 
 app:
   storege:
