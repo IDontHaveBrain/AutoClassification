@@ -2,8 +2,8 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://dev.nobrain.cc:5433/postgres
-    username: jnj
-    password: sqisoft
+    username: ENC(6aKtMRnd5GebEPCt5+jVMQ==)
+    password: ENC(aMOduL5xVmfJ8LPlNY863w==)
 
   jpa:
     hibernate:
@@ -34,3 +34,7 @@ app:
   storege:
     path: c:/work/upload
     maxFileSize: 10MB
+
+jasypt:
+  encryptor:
+    password: testKey
