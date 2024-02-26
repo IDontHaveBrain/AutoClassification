@@ -7,14 +7,14 @@ const Classfiy = () => {
     const [files, setFiles] = useState([]);
 
     const onDrop = useCallback((files) => {
-        console.log('files : ', files);
+        console.log("files : ", files);
         setFiles(files);
     }, [setFiles]);
 
     return (
         <Box>
             <Grid item md={12}>
-                    <FileDropzone onDrop={onDrop} />
+                <FileDropzone onDrop={onDrop} />
             </Grid>
         </Box>
     );
