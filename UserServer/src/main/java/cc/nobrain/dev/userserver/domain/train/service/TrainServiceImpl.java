@@ -20,7 +20,7 @@ public class TrainServiceImpl implements TrainService {
         Member member = GlobalUtil.getCurrentMember()
                 .orElseThrow(() -> new CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND));
 
-        fileComponent.uploadFiles(files, Member.class);
+        fileComponent.uploadFiles(files, Member);
 
         return null;
     }
