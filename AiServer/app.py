@@ -1,6 +1,6 @@
 from flask import Flask
 from openai import OpenAI
-import os, json
+import os, json, requests
 
 app = Flask(__name__)
 
@@ -18,16 +18,26 @@ def check_inclusion(labels, class_list):
 def set_labels(labels, images):
     for label, image in zip(labels, images):
         dir_path = os.path.join(base_dir, label)
-        os.makedirs(dir_path, exist_ok=True)  # Make a directory if it doesn't exist
+        os.makedirs(dir_path, exist_ok=True)
         file_path = os.path.join(dir_path, label + '.txt')
+
+        response = requests.get(image)
+        image_path = os.path.join(dir_path, label + '.jpg')
+        with open(image_path, 'wb') as img_file:
+            img_file.write(response.content)
+
         with open(file_path, 'a') as file:
-            data = {"name": label, "image": image}
+            data = {"name": label, "image": image_path}
             file.write(json.dumps(data) + '\n')
+
+        # with open(file_path, 'a') as file:
+        #     data = {"name": label, "image": image}
+        #     file.write(json.dumps(data) + '\n')
 
     return {"labels": labels, "images": images}
 
 @app.route('/')
-def hello_world():  # put application's code here
+def hello_world():
     # client = OpenAI()
     # defaults to getting the key using os.environ.get("OPENAI_API_KEY")
     # if you saved the key under a different environment variable name, you can do something like:
