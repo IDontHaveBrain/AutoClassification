@@ -9,5 +9,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @RequiredArgsConstructor
 public class AppProps {
     private final String path;
+    private final String resourcePath;
     private final Long maxFileSize;
 }

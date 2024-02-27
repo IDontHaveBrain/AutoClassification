@@ -60,7 +60,7 @@ public class FileComponent {
             sourceMap.put("size", size);
             sourceMap.put("contentType", contentType);
             sourceMap.put("fileName", filename);
-            sourceMap.put("url", appProps.getPath() + filename);
+            sourceMap.put("url", appProps.getResourcePath() + filename);
 
 
             T uploadedFile = modelMapper.map(sourceMap, clazz);

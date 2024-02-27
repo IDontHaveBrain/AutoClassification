@@ -38,6 +38,7 @@ logging:
 app:
   storage:
     path: C:/Work/test/public/
+    resourcePath: public/
     maxFileSize: 10485760
 
 jasypt:
