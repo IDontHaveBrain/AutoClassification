@@ -6,7 +6,9 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.Objects;
@@ -15,6 +17,7 @@ import java.util.Objects;
 @DynamicUpdate
 @DiscriminatorValue("TRAIN_FILE")
 @Getter
+@NoArgsConstructor
 public class TrainFile extends File {
     @ManyToOne
     @JoinColumn(name = "owner_index")
