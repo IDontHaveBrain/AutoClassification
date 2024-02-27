@@ -49,7 +49,7 @@ public class MemberServiceImpl implements MemberService {
         return modelMapper.map(member, MemberDto.class);
     }
 
-    @Cacheable(value = "member", key = "#email")
+//    @Cacheable(value = "member", key = "#email")
     public Member findMemberByEmail(String email) {
         return memberRepository.findByEmail(email);
     }

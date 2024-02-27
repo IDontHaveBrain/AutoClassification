@@ -14,7 +14,6 @@ import org.hibernate.annotations.DynamicUpdate;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(discriminatorType = DiscriminatorType.STRING)
 @DiscriminatorOptions(force=true)
-@Builder
 public abstract class File extends BaseCU {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

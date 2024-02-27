@@ -108,7 +108,9 @@ public class SecurityConfig {
 
 
         http.cors(cors -> cors.configurationSource(corsConfigurationSource))
-                .csrf(csrf -> csrf.disable());
+                .csrf(csrf -> csrf.disable())
+                .formLogin(form -> form.disable())
+                .httpBasic(httpBasic -> httpBasic.disable());
 
         return http.build();
     }
@@ -130,11 +132,11 @@ public class SecurityConfig {
                         )
                 )
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/**").permitAll()
-                        .requestMatchers("/authorize").permitAll()
+                                .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/api/**").permitAll()
+                                .requestMatchers("/authorize").permitAll()
 //                        .anyRequest().permitAll()
-                        .anyRequest().authenticated()
+                                .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())
         ;
