@@ -1,5 +1,6 @@
 package cc.nobrain.dev.userserver.domain.base.controller;
 
+import cc.nobrain.dev.userserver.common.component.FileComponent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,15 +16,10 @@ import java.net.http.HttpResponse;
 @RequestMapping("/api")
 public class GlobalController {
 
+    private final FileComponent fileComponent;
+
     @GetMapping("/health")
     public ResponseEntity health() {
         return ResponseEntity.ok().build();
     }
-
-    @PostMapping("/file-upload")
-    public ResponseEntity fileUpload(MultipartFile[] files) {
-
-        return ResponseEntity.ok().build();
-    }
-
 }

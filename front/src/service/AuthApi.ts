@@ -28,5 +28,5 @@ export const signIn = (loginData: LoginData): AxiosPromise => {
 }
 
 export const getPublicKey = (): AxiosPromise => {
-  return authApi.get('/public');
+  return authApi.get('/key');
 }

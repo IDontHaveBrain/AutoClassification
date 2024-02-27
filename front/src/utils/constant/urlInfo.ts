@@ -19,6 +19,9 @@ const URLS = {
             PUT: '/notice',
             DELETE: '/notice',
         },
+        TRAIN: {
+            POST: '/train/upload',
+        }
     },
 }
 

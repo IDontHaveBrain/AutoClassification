@@ -14,8 +14,12 @@ export const UserApi: AxiosInstance = axios.create({
     headers: {
         Accept: "application/json",
     },
-    paramsSerializer: function (params) {
-        return qs.stringify(params, { arrayFormat: "brackets" });
+});
+
+export const PublicApi: AxiosInstance = axios.create({
+    baseURL: CONSTANT.PUBLIC_FILES_URL,
+    headers: {
+        Accept: "application/json",
     },
 });
 

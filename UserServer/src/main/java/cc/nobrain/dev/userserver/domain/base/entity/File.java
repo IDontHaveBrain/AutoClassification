@@ -34,7 +34,7 @@ public abstract class File extends BaseCU {
     private Long size;
 
     @Column
-    private String mimeType;
+    private String contentType;
 
     @Column(nullable = false)
     private String path;

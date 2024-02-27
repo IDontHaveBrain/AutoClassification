@@ -16,7 +16,6 @@ public class TrainController {
 
     @PostMapping("/upload")
     public Long uploadTrainData(MultipartFile[] files) {
-        trainService.uploadTrainData(files);
-        return 0L;
+        return trainService.uploadTrainData(files);
     }
 }

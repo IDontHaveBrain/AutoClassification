@@ -135,6 +135,7 @@ public class SecurityConfig {
                                 .requestMatchers("/auth/**").permitAll()
                                 .requestMatchers("/api/**").permitAll()
                                 .requestMatchers("/authorize").permitAll()
+                                .requestMatchers("/public/*").permitAll()
 //                        .anyRequest().permitAll()
                                 .anyRequest().authenticated()
                 )

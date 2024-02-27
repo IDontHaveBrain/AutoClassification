@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @DynamicUpdate
@@ -55,6 +56,12 @@ public class Member extends BaseCU implements UserDetails {
 
     @OneToMany(mappedBy = "ownerIndex")
     private List<TrainFile> trainFiles = new ArrayList<>();
+
+    public void initTrainFiles() {
+        if (Objects.isNull(this.trainFiles)) {
+            this.trainFiles = new ArrayList<>();
+        }
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

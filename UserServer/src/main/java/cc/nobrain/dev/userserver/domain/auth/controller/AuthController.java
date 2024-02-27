@@ -15,7 +15,7 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @GetMapping("/public")
+    @GetMapping("/key")
     public String getPublicKey() {
         return authService.getPublicKey();
     }

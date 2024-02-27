@@ -1,5 +1,6 @@
 package cc.nobrain.dev.userserver.domain.train.entity;
 
+import cc.nobrain.dev.userserver.common.utils.CommonUtil;
 import cc.nobrain.dev.userserver.domain.base.entity.File;
 import cc.nobrain.dev.userserver.domain.member.entity.Member;
 import jakarta.persistence.DiscriminatorValue;
@@ -29,6 +30,10 @@ public class TrainFile extends File {
             throw new IllegalArgumentException("Invalid owner entity");
         }
         this.ownerIndex = owner;
+
+        if (CommonUtil.isEmpty(owner.getTrainFiles())) {
+            owner.initTrainFiles();
+        }
         owner.getTrainFiles().add(this);
     }
 }

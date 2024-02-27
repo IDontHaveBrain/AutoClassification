@@ -26,13 +26,18 @@ spring:
       accessTokenValiditySeconds: 86400 # 86400
       refreshTokenValiditySeconds: 172800 # 172800
 
+  web:
+    resources:
+      static-locations:
+        - file:C:/Work/test/
+
 logging:
   level:
     root: info
 
 app:
   storage:
-    path: c:/work/upload
+    path: C:/Work/test/public/
     maxFileSize: 10485760
 
 jasypt:

@@ -3,9 +3,12 @@ package cc.nobrain.dev.userserver.common.component;
 import cc.nobrain.dev.userserver.common.properties.AppProps;
 import cc.nobrain.dev.userserver.domain.base.entity.File;
 import cc.nobrain.dev.userserver.domain.base.repository.FileRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -22,7 +25,9 @@ public class FileComponent {
     private final ModelMapper modelMapper;
     private final FileRepository fileRepository;
     private final AppProps appProps;
+    private final HttpServletRequest request;
 
+    @Transactional
     public <T extends File> List<T> uploadFile(MultipartFile[] files, Class<T> clazz, Object ownerEntity) {
         List<T> result = new ArrayList<>();
         if (Objects.isNull(files) || files.length < 1) {
@@ -32,10 +37,11 @@ public class FileComponent {
             Optional<T> uploadedFile = uploadFile(file, clazz, ownerEntity);
             uploadedFile.ifPresent(result::add);
         }
-        fileRepository.save(result);
+        result = fileRepository.saveAll(result);
         return result;
     }
 
+    @Transactional
     protected <T extends File> Optional<T> uploadFile(MultipartFile file, Class<T> clazz, Object ownerEntity) {
         try {
             if (file.isEmpty() || file.getSize() > appProps.getMaxFileSize()) {
@@ -52,8 +58,10 @@ public class FileComponent {
             Map<String, Object> sourceMap = new HashMap<>();
             sourceMap.put("path", filePath.toString());
             sourceMap.put("size", size);
-            sourceMap.put("mimeType", contentType);
+            sourceMap.put("contentType", contentType);
             sourceMap.put("fileName", filename);
+            sourceMap.put("url", appProps.getPath() + filename);
+
 
             T uploadedFile = modelMapper.map(sourceMap, clazz);
             uploadedFile.setRelation(ownerEntity);
@@ -64,4 +72,12 @@ public class FileComponent {
             return Optional.empty();
         }
     }
+
+    @Transactional
+    public Resource downloadFile(String fileId) {
+
+        return null;
+    }
+
+
 }
