@@ -31,9 +31,9 @@ logging:
     root: info
 
 app:
-  storege:
+  storage:
     path: c:/work/upload
-    maxFileSize: 10MB
+    maxFileSize: 10485760
 
 jasypt:
   encryptor:

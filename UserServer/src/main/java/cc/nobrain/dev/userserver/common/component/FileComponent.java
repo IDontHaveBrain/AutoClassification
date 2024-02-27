@@ -1,5 +1,6 @@
 package cc.nobrain.dev.userserver.common.component;
 
+import cc.nobrain.dev.userserver.common.properties.AppProps;
 import cc.nobrain.dev.userserver.domain.base.entity.File;
 import cc.nobrain.dev.userserver.domain.base.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +21,13 @@ public class FileComponent {
 
     private final ModelMapper modelMapper;
     private final FileRepository fileRepository;
-    private final String uploadPath = "/path/to/your/upload/directory/";
+    private final AppProps appProps;
 
     public <T extends File> List<T> uploadFile(MultipartFile[] files, Class<T> clazz, Object ownerEntity) {
         List<T> result = new ArrayList<>();
+        if (Objects.isNull(files) || files.length < 1) {
+            return result;
+        }
         for (MultipartFile file : files) {
             Optional<T> uploadedFile = uploadFile(file, clazz, ownerEntity);
             uploadedFile.ifPresent(result::add);
@@ -32,26 +36,27 @@ public class FileComponent {
         return result;
     }
 
-    private <T extends File> Optional<T> uploadFile(MultipartFile file, Class<T> clazz, Object ownerEntity) {
+    protected <T extends File> Optional<T> uploadFile(MultipartFile file, Class<T> clazz, Object ownerEntity) {
         try {
+            if (file.isEmpty() || file.getSize() > appProps.getMaxFileSize()) {
+                return Optional.empty();
+            }
+
             String filename = file.getOriginalFilename();
             long size = file.getSize();
             String contentType = file.getContentType();
 
-            Path filePath = Paths.get(uploadPath + filename);
+            Path filePath = Paths.get(appProps.getPath() + filename);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            //Preparing a source map with file details
             Map<String, Object> sourceMap = new HashMap<>();
             sourceMap.put("path", filePath.toString());
             sourceMap.put("size", size);
             sourceMap.put("mimeType", contentType);
             sourceMap.put("fileName", filename);
 
-            //Using ModelMapper to map the source map to the instance of File
             T uploadedFile = modelMapper.map(sourceMap, clazz);
             uploadedFile.setRelation(ownerEntity);
-//            fileRepository.save(uploadedFile);
 
             return Optional.ofNullable(uploadedFile);
         } catch (IOException e) {
