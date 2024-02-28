@@ -29,6 +29,12 @@ public abstract class File extends BaseCU {
     @Column(nullable = false)
     private String fileName;
 
+    @Column(nullable = false)
+    private String originalFileName;
+
+    @Column(nullable = false)
+    private String fileExtension;
+
     @NotNull
     @Column(nullable = false)
     private Long size;

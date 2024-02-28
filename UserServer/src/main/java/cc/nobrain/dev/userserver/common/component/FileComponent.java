@@ -1,6 +1,8 @@
 package cc.nobrain.dev.userserver.common.component;
 
 import cc.nobrain.dev.userserver.common.properties.AppProps;
+import cc.nobrain.dev.userserver.common.utils.CryptoUtil;
+import cc.nobrain.dev.userserver.common.utils.FileUtil;
 import cc.nobrain.dev.userserver.domain.base.entity.File;
 import cc.nobrain.dev.userserver.domain.base.repository.FileRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -48,20 +50,25 @@ public class FileComponent {
                 return Optional.empty();
             }
 
-            String filename = file.getOriginalFilename();
+            String filename = CryptoUtil.encryptSHA256(
+                    FileUtil.getFileName(file.getOriginalFilename())
+            );
+            String originalFilename = file.getOriginalFilename();
             long size = file.getSize();
             String contentType = file.getContentType();
+            String extension = FileUtil.getExtension(originalFilename);
 
-            Path filePath = Paths.get(appProps.getPath() + filename);
+            Path filePath = Paths.get(appProps.getPath()+ appProps.getResourcePath() + filename + extension);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
             Map<String, Object> sourceMap = new HashMap<>();
-            sourceMap.put("path", filePath.toString());
+            sourceMap.put("path", appProps.getPath());
             sourceMap.put("size", size);
             sourceMap.put("contentType", contentType);
             sourceMap.put("fileName", filename);
+            sourceMap.put("originalFileName", originalFilename);
             sourceMap.put("url", appProps.getResourcePath() + filename);
-
+            sourceMap.put("fileExtension", extension);
 
             T uploadedFile = modelMapper.map(sourceMap, clazz);
             uploadedFile.setRelation(ownerEntity);
@@ -78,6 +85,4 @@ public class FileComponent {
 
         return null;
     }
-
-
 }
