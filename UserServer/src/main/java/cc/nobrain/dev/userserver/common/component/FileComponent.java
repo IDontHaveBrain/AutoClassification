@@ -67,7 +67,7 @@ public class FileComponent {
             sourceMap.put("contentType", contentType);
             sourceMap.put("fileName", filename);
             sourceMap.put("originalFileName", originalFilename);
-            sourceMap.put("url", appProps.getResourcePath() + filename);
+            sourceMap.put("url", getBaseUrl() + appProps.getResourcePath() + filename + extension);
             sourceMap.put("fileExtension", extension);
 
             T uploadedFile = modelMapper.map(sourceMap, clazz);
@@ -84,5 +84,14 @@ public class FileComponent {
     public Resource downloadFile(String fileId) {
 
         return null;
+    }
+
+    private String getBaseUrl() {
+        StringBuffer requestURL = request.getRequestURL();
+        String scheme = requestURL.substring(0, requestURL.indexOf(":"));
+        int serverPort = request.getServerPort();
+        String serverName = request.getServerName();
+
+        return scheme + "://" + serverName + (serverPort != 80 && serverPort != 443 ? ":" + serverPort : "") + "/";
     }
 }

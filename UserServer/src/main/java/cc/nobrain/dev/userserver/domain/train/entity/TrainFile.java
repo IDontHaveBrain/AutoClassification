@@ -22,9 +22,9 @@ import java.util.Objects;
 public class TrainFile extends File {
     @ManyToOne
     @JoinColumn(name = "owner_index")
-    private Member ownerIndex;
+    protected Member ownerIndex;
 
-    @Override
+    @Override@JoinColumn
     public <T> void setRelation(T ownerEntity) {
         if (!(ownerEntity instanceof Member owner) || Objects.isNull(ownerEntity)) {
             throw new IllegalArgumentException("Invalid owner entity");
