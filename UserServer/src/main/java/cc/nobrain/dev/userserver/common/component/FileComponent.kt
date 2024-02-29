@@ -1,97 +1,85 @@
-package cc.nobrain.dev.userserver.common.component;
+package cc.nobrain.dev.userserver.common.component
 
-import cc.nobrain.dev.userserver.common.properties.AppProps;
-import cc.nobrain.dev.userserver.common.utils.CryptoUtil;
-import cc.nobrain.dev.userserver.common.utils.FileUtil;
-import cc.nobrain.dev.userserver.domain.base.entity.File;
-import cc.nobrain.dev.userserver.domain.base.repository.FileRepository;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.*;
+import cc.nobrain.dev.userserver.common.properties.AppProps
+import cc.nobrain.dev.userserver.common.utils.CryptoUtil
+import cc.nobrain.dev.userserver.common.utils.FileUtil
+import cc.nobrain.dev.userserver.domain.base.entity.File
+import cc.nobrain.dev.userserver.domain.base.repository.FileRepository
+import jakarta.servlet.http.HttpServletRequest
+import org.modelmapper.ModelMapper
+import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
+import java.util.*
 
 @Component
-@RequiredArgsConstructor
-public class FileComponent {
-
-    private final ModelMapper modelMapper;
-    private final FileRepository fileRepository;
-    private final AppProps appProps;
-    private final HttpServletRequest request;
+class FileComponent(
+        private val modelMapper: ModelMapper,
+        private val fileRepository: FileRepository<File>,
+        private val appProps: AppProps,
+        private val request: HttpServletRequest
+) {
 
     @Transactional
-    public <T extends File> List<T> uploadFile(MultipartFile[] files, Class<T> clazz, Object ownerEntity) {
-        List<T> result = new ArrayList<>();
-        if (Objects.isNull(files) || files.length < 1) {
-            return result;
+    fun <T : File> uploadFile(files: Array<MultipartFile>, clazz: Class<T>, ownerEntity: Any): List<T> {
+        val result = mutableListOf<T>()
+        if (files.isNullOrEmpty()) {
+            return result
         }
-        for (MultipartFile file : files) {
-            Optional<T> uploadedFile = uploadFile(file, clazz, ownerEntity);
-            uploadedFile.ifPresent(result::add);
+        for (file in files) {
+            val uploadedFile = uploadFile(file, clazz, ownerEntity)
+            uploadedFile.ifPresent { uploadedFileResult: T -> result.add(uploadedFileResult) }
         }
-        result = fileRepository.saveAll(result);
-        return result;
+        return fileRepository.saveAll(result)
     }
 
     @Transactional
-    protected <T extends File> Optional<T> uploadFile(MultipartFile file, Class<T> clazz, Object ownerEntity) {
-        try {
-            if (file.isEmpty() || file.getSize() > appProps.getMaxFileSize()) {
-                return Optional.empty();
+    protected fun <T : File> uploadFile(file: MultipartFile, clazz: Class<T>, ownerEntity: Any): Optional<T> {
+        return try {
+            if (file.isEmpty || file.size > appProps.maxFileSize) {
+                Optional.empty()
+            } else {
+                val filename = CryptoUtil.encryptSHA256(FileUtil.getFileName(file.originalFilename ?: ""))
+                val originalFilename = file.originalFilename
+                val size = file.size
+                val contentType = file.contentType
+                val extension = FileUtil.getExtension(originalFilename ?: "")
+
+                val filePath = Paths.get("${appProps.path}${appProps.resourcePath}$filename$extension")
+                Files.copy(file.inputStream, filePath, StandardCopyOption.REPLACE_EXISTING)
+
+                val sourceMap = mapOf(
+                        "path" to appProps.path,
+                        "size" to size,
+                        "contentType" to contentType,
+                        "fileName" to filename,
+                        "originalFileName" to originalFilename,
+                        "url" to "${getBaseUrl()}${appProps.resourcePath}$filename$extension",
+                        "fileExtension" to extension
+                )
+
+                val uploadedFile: T = modelMapper.map(sourceMap, clazz)
+                uploadedFile.setRelation(ownerEntity)
+
+                Optional.ofNullable(uploadedFile)
             }
-
-            String filename = CryptoUtil.encryptSHA256(
-                    FileUtil.getFileName(file.getOriginalFilename())
-            );
-            String originalFilename = file.getOriginalFilename();
-            long size = file.getSize();
-            String contentType = file.getContentType();
-            String extension = FileUtil.getExtension(originalFilename);
-
-            Path filePath = Paths.get(appProps.getPath()+ appProps.getResourcePath() + filename + extension);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            Map<String, Object> sourceMap = new HashMap<>();
-            sourceMap.put("path", appProps.getPath());
-            sourceMap.put("size", size);
-            sourceMap.put("contentType", contentType);
-            sourceMap.put("fileName", filename);
-            sourceMap.put("originalFileName", originalFilename);
-            sourceMap.put("url", getBaseUrl() + appProps.getResourcePath() + filename + extension);
-            sourceMap.put("fileExtension", extension);
-
-            T uploadedFile = modelMapper.map(sourceMap, clazz);
-            uploadedFile.setRelation(ownerEntity);
-
-            return Optional.ofNullable(uploadedFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return Optional.empty();
+        } catch (e: IOException) {
+            e.printStackTrace()
+            Optional.empty()
         }
     }
 
-    @Transactional
-    public Resource downloadFile(String fileId) {
+    private fun getBaseUrl(): String {
+        val requestURL = request.requestURL
+        val scheme = requestURL.substring(0, requestURL.indexOf(":"))
+        val serverPort = request.serverPort
+        val serverName = request.serverName
 
-        return null;
-    }
-
-    private String getBaseUrl() {
-        StringBuffer requestURL = request.getRequestURL();
-        String scheme = requestURL.substring(0, requestURL.indexOf(":"));
-        int serverPort = request.getServerPort();
-        String serverName = request.getServerName();
-
-        return scheme + "://" + serverName + (serverPort != 80 && serverPort != 443 ? ":" + serverPort : "") + "/";
+        return "$scheme://$serverName${if (serverPort != 80 && serverPort != 443) ":$serverPort" else ""}/"
     }
 }

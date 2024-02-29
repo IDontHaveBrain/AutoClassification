@@ -1,14 +1,10 @@
-package cc.nobrain.dev.userserver.common.properties;
+package cc.nobrain.dev.userserver.common.properties
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConfigurationProperties
 
-@Getter
 @ConfigurationProperties(prefix = "app.storage")
-@RequiredArgsConstructor
-public class AppProps {
-    private final String path;
-    private final String resourcePath;
-    private final Long maxFileSize;
-}
+data class AppProps(
+        val path: String,
+        val resourcePath: String,
+        val maxFileSize: Long
+)

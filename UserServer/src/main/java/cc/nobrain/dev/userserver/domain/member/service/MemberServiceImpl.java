@@ -2,7 +2,7 @@ package cc.nobrain.dev.userserver.domain.member.service;
 
 import cc.nobrain.dev.userserver.common.exception.CustomException;
 import cc.nobrain.dev.userserver.common.exception.ErrorInfo;
-import cc.nobrain.dev.userserver.common.utils.GlobalUtil;
+import cc.nobrain.dev.userserver.common.utils.MemberUtil;
 import cc.nobrain.dev.userserver.domain.member.entity.Member;
 import cc.nobrain.dev.userserver.domain.member.repository.MemberRepository;
 import cc.nobrain.dev.userserver.domain.member.service.dto.MemberDto;
@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,7 +42,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public MemberDto getMyInfo() {
-        Member member = GlobalUtil.getCurrentMember().orElseThrow(() ->
+        Member member = MemberUtil.getCurrentMember().orElseThrow(() ->
                 new CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND));
         member = findMemberByEmail(member.getEmail());
         return modelMapper.map(member, MemberDto.class);

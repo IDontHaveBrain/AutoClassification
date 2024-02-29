@@ -3,9 +3,8 @@ package cc.nobrain.dev.userserver.domain.train.service;
 import cc.nobrain.dev.userserver.common.component.FileComponent;
 import cc.nobrain.dev.userserver.common.exception.CustomException;
 import cc.nobrain.dev.userserver.common.exception.ErrorInfo;
-import cc.nobrain.dev.userserver.common.utils.GlobalUtil;
+import cc.nobrain.dev.userserver.common.utils.MemberUtil;
 import cc.nobrain.dev.userserver.domain.base.dto.FileDto;
-import cc.nobrain.dev.userserver.domain.base.repository.FileRepository;
 import cc.nobrain.dev.userserver.domain.member.entity.Member;
 import cc.nobrain.dev.userserver.domain.member.repository.MemberRepository;
 import cc.nobrain.dev.userserver.domain.train.entity.TrainFile;
@@ -32,7 +31,7 @@ public class TrainServiceImpl implements TrainService {
     @Override
     @Transactional
     public Long uploadTrainData(MultipartFile[] files) {
-        Member member = GlobalUtil.getCurrentMember()
+        Member member = MemberUtil.getCurrentMember()
                 .orElseThrow(() -> new CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND));
         member = memberRepository.findById(member.getId())
                 .orElseThrow(() -> new CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND));
@@ -44,7 +43,7 @@ public class TrainServiceImpl implements TrainService {
 
     @Override
     public List<FileDto> getMyImgs() {
-        Member member = GlobalUtil.getCurrentMember()
+        Member member = MemberUtil.getCurrentMember()
                 .orElseThrow(() -> new CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND));
 
         List<TrainFile> files = trainFileRepository.findByOwnerIndexId(member.getId());

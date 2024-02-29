@@ -1,158 +1,140 @@
-package cc.nobrain.dev.userserver.common.component;
+package cc.nobrain.dev.userserver.common.component
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.stereotype.Component;
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.dao.DataAccessException
+import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.core.StringRedisTemplate
+import org.springframework.stereotype.Component
+import java.util.concurrent.TimeUnit
+import org.slf4j.LoggerFactory
 
-import java.util.concurrent.TimeUnit;
-
-@Slf4j
 @Component
-@RequiredArgsConstructor
-public class RedisHelper {
+class RedisHelper(
+        private val redisTemplate: RedisTemplate<String, Any>,
+        private val stringRedisTemplate: StringRedisTemplate,
+        private val objectMapper: ObjectMapper
+) {
 
-    private final RedisTemplate<String, Object> redisTemplate;
-    private final StringRedisTemplate stringRedisTemplate;
-
-    private final ObjectMapper objectMapper;
-
-    private final Long DEFAULT_EXPIRE_TIME = 3600L;
-
-    public RedisTemplate<String, Object> getTemplate() {
-        return redisTemplate;
+    companion object {
+        private val log = LoggerFactory.getLogger(RedisHelper::class.java)
+        private const val DEFAULT_EXPIRE_TIME = 3600L
     }
 
-    public void put(String key, Object value, Long expirationTime) {
+    fun getTemplate(): RedisTemplate<String, Any> {
+        return redisTemplate
+    }
+
+    fun put(key: String, value: Any, expirationTime: Long) {
         try {
-            redisTemplate.opsForValue().set(key, value, expirationTime, TimeUnit.SECONDS);
-        } catch (DataAccessException e) {
-            log.error("Redis put error", e);
+            redisTemplate.opsForValue().set(key, value, expirationTime, TimeUnit.SECONDS)
+        } catch (e: DataAccessException) {
+            log.error("Redis put error", e)
         }
     }
 
-    public void put(String key, Object value) {
+    fun put(key: String, value: Any) {
         try {
-            this.put(key, value, DEFAULT_EXPIRE_TIME);
-        } catch (DataAccessException e) {
-            log.error("Redis put error", e);
+            this.put(key, value, DEFAULT_EXPIRE_TIME)
+        } catch (e: DataAccessException) {
+            log.error("Redis put error", e)
         }
     }
 
-    public void put(String key, Object value, Boolean noExpiration) {
+    fun put(key: String, value: Any, noExpiration: Boolean) {
         try {
             if (noExpiration) {
-                redisTemplate.opsForValue().set(key, value);
+                redisTemplate.opsForValue().set(key, value)
             } else {
-                this.put(key, value, DEFAULT_EXPIRE_TIME);
+                this.put(key, value, DEFAULT_EXPIRE_TIME)
             }
-        } catch (DataAccessException e) {
-            log.error("Redis put error", e);
+        } catch (e: DataAccessException) {
+            log.error("Redis put error", e)
         }
     }
 
-    public <T> T get(String key, Class<T> type) {
-        T result = null;
+    fun <T> get(key: String, type: Class<T>): T? {
+        var result: T? = null
         try {
-            result = objectMapper.convertValue(redisTemplate.opsForValue().get(key), type);
-        } catch (DataAccessException e) {
-            log.error("Redis get error", e);
+            result = objectMapper.convertValue(redisTemplate.opsForValue().get(key), type)
+        } catch (e: DataAccessException) {
+            log.error("Redis get error", e)
         }
 
-        return result;
+        return result
     }
 
-//    public void put(String key, String value, Long expirationTime) {
-//        try {
-//            stringRedisTemplate.opsForValue().set(key, value, expirationTime, TimeUnit.SECONDS);
-//        } catch (DataAccessException e) {
-//            log.error("Redis put error", e);
-//        }
-//    }
-//
-//    public void put(String key, String value) {
-//        try {
-//            this.put(key, value, DEFAULT_EXPIRE_TIME);
-//        } catch (DataAccessException e) {
-//            log.error("Redis put error", e);
-//        }
-//    }
-
-    public void put(String key, String value, Boolean noExpiration) {
+    fun put(key: String, value: String, noExpiration: Boolean) {
         try {
             if (noExpiration) {
-                stringRedisTemplate.opsForValue().set(key, value);
+                stringRedisTemplate.opsForValue().set(key, value)
             } else {
-                this.put(key, value, DEFAULT_EXPIRE_TIME);
+                this.put(key, value, DEFAULT_EXPIRE_TIME)
             }
-        } catch (DataAccessException e) {
-            log.error("Redis put error", e);
+        } catch (e: DataAccessException) {
+            log.error("Redis put error", e)
         }
     }
 
-    public String getString(String key) {
-        String rst = null;
+    fun getString(key: String): String? {
+        var rst: String? = null
         try {
-            rst = objectMapper.convertValue(redisTemplate.opsForValue().get(key), String.class);
-        } catch (DataAccessException e) {
-            log.error("Redis get error", e);
+            rst = objectMapper.convertValue(redisTemplate.opsForValue().get(key), String::class.java)
+        } catch (e: DataAccessException) {
+            log.error("Redis get error", e)
         }
 
-        return rst;
+        return rst
     }
 
-    public void delete(String key) {
+    fun delete(key: String) {
         try {
-            redisTemplate.delete(key);
-        } catch (DataAccessException e) {
-            log.error("Redis delete error", e);
-        }
-    }
-
-    public Boolean hasKey(String key) {
-        try {
-            return redisTemplate.hasKey(key);
-        } catch (DataAccessException e) {
-            log.error("Redis hasKey error", e);
-            return false;
+            redisTemplate.delete(key)
+        } catch (e: DataAccessException) {
+            log.error("Redis delete error", e)
         }
     }
 
-    public Long increment(String key, Long value) {
-        try {
-            return redisTemplate.opsForValue().increment(key, value);
-        } catch (DataAccessException e) {
-            log.error("Redis increment error", e);
-            return 0L;
+    fun hasKey(key: String): Boolean {
+        return try {
+            redisTemplate.hasKey(key) ?: false
+        } catch (e: DataAccessException) {
+            log.error("Redis hasKey error", e)
+            false
         }
     }
 
-    public Long decrement(String key, Long value) {
-        try {
-            return redisTemplate.opsForValue().decrement(key, value);
-        } catch (DataAccessException e) {
-            log.error("Redis decrement error", e);
-            return 0L;
+    fun increment(key: String, value: Long): Long {
+        return try {
+            redisTemplate.opsForValue().increment(key, value) ?: 0L
+        } catch (e: DataAccessException) {
+            log.error("Redis increment error", e)
+            0L
         }
     }
 
-    public void expire(String key, Long expirationTime) {
-        try {
-            redisTemplate.expire(key, expirationTime, TimeUnit.SECONDS);
-        } catch (DataAccessException e) {
-            log.error("Redis expire error", e);
+    fun decrement(key: String, value: Long): Long {
+        return try {
+            redisTemplate.opsForValue().decrement(key, value) ?: 0L
+        } catch (e: DataAccessException) {
+            log.error("Redis decrement error", e)
+            0L
         }
     }
 
-    public Boolean persist(String key) {
+    fun expire(key: String, expirationTime: Long) {
         try {
-            return redisTemplate.persist(key);
-        } catch (DataAccessException e) {
-            log.error("Redis persist error", e);
-            return false;
+            redisTemplate.expire(key, expirationTime, TimeUnit.SECONDS)
+        } catch (e: DataAccessException) {
+            log.error("Redis expire error", e)
+        }
+    }
+
+    fun persist(key: String): Boolean {
+        return try {
+            redisTemplate.persist(key) ?: false
+        } catch (e: DataAccessException) {
+            log.error("Redis persist error", e)
+            false
         }
     }
 }

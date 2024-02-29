@@ -16,16 +16,16 @@ public class GenTestMember {
     @Autowired
     private MemberService memberService;
 
-    @Test
-    @Transactional
-    @Rollback(false)
-    public void testAccount() {
-        log.info("testAccount");
-
-        MemberReq.Register req = new MemberReq.Register("test@test.com", "123123!", "test");
-
-        memberService.register(req);
-
-    }
+//    @Test
+//    @Transactional
+//    @Rollback(false)
+//    public void testAccount() {
+//        log.info("testAccount");
+//
+//        MemberReq.Register req = new MemberReq.Register("test@test.com", "123123!", "test");
+//
+//        memberService.register(req);
+//
+//    }
 
 }

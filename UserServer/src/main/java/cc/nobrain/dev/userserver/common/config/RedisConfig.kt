@@ -19,18 +19,17 @@ import java.util.Objects;
 
 @Configuration
 @ConditionalOnProperty(
-        value="app.redis.defaultInit",
+        value= ["app.redis.defaultInit"],
         havingValue = "true",
         matchIfMissing = true)
-@RequiredArgsConstructor
-public class RedisConfig {
+class RedisConfig(
+        private val redisProperties: RedisProperties,
+        private val objectMapper: ObjectMapper
+) {
 
-    private final RedisProperties redisProperties;
-    private final ObjectMapper objectMapper;
-
-    @Bean(name = "redisConnectionFactory")
-    public RedisConnectionFactory redisConnectionFactory() {
-        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
+    @Bean(name = ["redisConnectionFactory"])
+    fun redisConnectionFactory(): RedisConnectionFactory {
+        val redisStandaloneConfiguration: RedisStandaloneConfiguration = RedisStandaloneConfiguration()
         redisStandaloneConfiguration.setHostName(redisProperties.getHost());
         redisStandaloneConfiguration.setPort(redisProperties.getPort());
         redisStandaloneConfiguration.setDatabase(redisProperties.getDatabase());
@@ -48,7 +47,7 @@ public class RedisConfig {
 //        LettuceClientConfiguration.LettuceClientConfigurationBuilder lettuceConfigBuilder = LettuceClientConfiguration.builder();
 //        return new LettuceConnectionFactory(redisStandaloneConfiguration, lettuceConfigBuilder.build());
 
-        return new LettuceConnectionFactory(redisStandaloneConfiguration);
+        return LettuceConnectionFactory(redisStandaloneConfiguration);
     }
 
     /**
@@ -56,18 +55,17 @@ public class RedisConfig {
      * 커스터마이징 필요시 하단 코드 사용.
      */
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(@Qualifier("redisConnectionFactory") RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate();
-        redisTemplate.setConnectionFactory(redisConnectionFactory);
+    fun redisTemplate(@Qualifier("redisConnectionFactory") redisConnectionFactory: RedisConnectionFactory): RedisTemplate<String, Any> {
+        val stringRedisSerializer = StringRedisSerializer()
+        val genericJackson2JsonRedisSerializer = GenericJackson2JsonRedisSerializer(objectMapper)
 
-        StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
-        GenericJackson2JsonRedisSerializer genericJackson2JsonRedisSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
-        redisTemplate.setKeySerializer(stringRedisSerializer);
-        redisTemplate.setHashKeySerializer(stringRedisSerializer);
-        redisTemplate.setValueSerializer(genericJackson2JsonRedisSerializer);
-        redisTemplate.setHashValueSerializer(genericJackson2JsonRedisSerializer);
-
-        return redisTemplate;
+        return RedisTemplate<String, Any>().apply {
+            setConnectionFactory(redisConnectionFactory)
+            keySerializer = stringRedisSerializer
+            hashKeySerializer = stringRedisSerializer
+            valueSerializer = genericJackson2JsonRedisSerializer
+            hashValueSerializer = genericJackson2JsonRedisSerializer
+        }
     }
 
     /**
@@ -75,9 +73,9 @@ public class RedisConfig {
      * 커스터마이징 필요시 하단 코드 사용.
      */
     @Bean
-    public StringRedisTemplate stringRedisTemplate(@Qualifier("redisConnectionFactory") RedisConnectionFactory redisConnectionFactory) {
-        StringRedisTemplate stringRedisTemplate = new StringRedisTemplate();
-        stringRedisTemplate.setConnectionFactory(redisConnectionFactory);
-        return stringRedisTemplate;
+    fun stringRedisTemplate(@Qualifier("redisConnectionFactory") redisConnectionFactory: RedisConnectionFactory): StringRedisTemplate {
+        return StringRedisTemplate().apply {
+            setConnectionFactory(redisConnectionFactory)
+        }
     }
 }

@@ -1,27 +1,21 @@
-package cc.nobrain.dev.userserver.common.exception;
+package cc.nobrain.dev.userserver.common.exception
 
-import lombok.Getter;
+open class CustomException : RuntimeException {
+    val code: String
+    val status: Int
 
-@Getter
-public class CustomException extends RuntimeException {
-    private final String code;
-    private final int status;
-
-    public CustomException(String message, String code, int status) {
-        super(message);
-        this.code = code;
-        this.status = status;
+    constructor(message: String, code: String, status: Int) : super(message) {
+        this.code = code
+        this.status = status
     }
 
-    public CustomException(String message) {
-        super(message);
-        this.code = "X000";
-        this.status = 500;
+    constructor(message: String) : super(message) {
+        this.code = "X000"
+        this.status = 500
     }
 
-    public CustomException(ErrorInfo errorInfo) {
-        super(errorInfo.getMessage());
-        this.code = errorInfo.getCode();
-        this.status = errorInfo.getStatus();
+    constructor(errorInfo: ErrorInfo) : super(errorInfo.message) {
+        this.code = errorInfo.code
+        this.status = errorInfo.status
     }
 }

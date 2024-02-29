@@ -18,24 +18,24 @@ import java.util.Map;
 @Configuration
 @EnableCaching
 @ConditionalOnProperty(
-        value = "app.redis.cacheInit",
+        value = ["app.redis.cacheInit"],
         havingValue = "true",
         matchIfMissing = false)
 @RequiredArgsConstructor
 @Lazy
-public class RedisCacheConfig {
+class RedisCacheConfig {
 
     @Bean
     @Primary
-    public RedisCacheManager redisCacheManager(@Qualifier("redisConnectionFactory") RedisConnectionFactory redisConnectionFactory) {
-        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig();
+    fun redisCacheManager(@Qualifier("redisConnectionFactory") redisConnectionFactory: RedisConnectionFactory): RedisCacheManager {
+        val redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig();
 
-        Map<String, RedisCacheConfiguration> cacheConfigurations = Map.of(
+        val cacheConfigurations = Map.of(
                 "member", RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(30)),
                 "default", RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(5))
         );
 
-        RedisCacheManager redisCacheManager = RedisCacheManager.builder(redisConnectionFactory)
+        val redisCacheManager = RedisCacheManager.builder(redisConnectionFactory)
 //                .cacheDefaults(redisCacheConfiguration)
                 .withInitialCacheConfigurations(cacheConfigurations)
                 .build();

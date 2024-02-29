@@ -1,105 +1,105 @@
-package cc.nobrain.dev.userserver.common.component;
+package cc.nobrain.dev.userserver.common.component
 
-import cc.nobrain.dev.userserver.domain.sse.enums.SseEventType;
-import cc.nobrain.dev.userserver.domain.sse.service.dto.SseMessageDto;
-import jakarta.annotation.PreDestroy;
-import org.springframework.http.codec.ServerSentEvent;
-import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxProcessor;
-import reactor.core.publisher.Mono;
-import reactor.core.publisher.Sinks;
-import reactor.core.scheduler.Schedulers;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Map;
-import java.util.concurrent.*;
+import cc.nobrain.dev.userserver.domain.sse.enums.SseEventType
+import cc.nobrain.dev.userserver.domain.sse.service.dto.SseMessageDto
+import jakarta.annotation.PreDestroy
+import org.springframework.http.codec.ServerSentEvent
+import org.springframework.stereotype.Component
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
+import reactor.core.publisher.Sinks
+import reactor.core.scheduler.Schedulers
+import java.time.Duration
+import java.time.Instant
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 
 @Component
-public class NotificationComponent {
+class NotificationComponent {
 
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    private final Map<String, Instant> lastResponse = new ConcurrentHashMap<>();
-    private final Map<String, Sinks.Many<ServerSentEvent<String>>> processors = new ConcurrentHashMap<>();
-    private ScheduledFuture<?> heartbeatTask;
-    private ScheduledFuture<?> removalTask;
+    private val scheduler = Executors.newScheduledThreadPool(1)
+    private val lastResponse = ConcurrentHashMap<String, Instant>()
+    private val processors = ConcurrentHashMap<String, Sinks.Many<ServerSentEvent<String>>>()
+    private var heartbeatTask: ScheduledFuture<*>? = null
+    private var removalTask: ScheduledFuture<*>? = null
 
-    private final Long EXPIRATION_TIME = 120L;
-    private final Long HEARTBEAT_INTERVAL = 60L;
+    private val EXPIRATION_TIME = 120L
+    private val HEARTBEAT_INTERVAL = 60L
 
-    public NotificationComponent() {
-        this.heartbeatTask = this.scheduler.scheduleAtFixedRate(this::sendHeartbeat, 0, HEARTBEAT_INTERVAL, TimeUnit.SECONDS);
-        this.removalTask = this.scheduler.scheduleAtFixedRate(this::removeInactiveUsers, 0, 10, TimeUnit.SECONDS);
+    init {
+        heartbeatTask = scheduler.scheduleAtFixedRate(::sendHeartbeat, 0, HEARTBEAT_INTERVAL, TimeUnit.SECONDS)
+        removalTask = scheduler.scheduleAtFixedRate(::removeInactiveUsers, 0, 10, TimeUnit.SECONDS)
     }
 
-    public void sendHeartbeat() {
-        SseMessageDto msg = SseMessageDto.builder()
-                .id("ping")
-                .type(SseEventType.HEARTBEAT)
-                .message("Heartbeat")
-                .build();
+    fun sendHeartbeat() {
+        val msg = SseMessageDto(
+                id = "ping",
+                type = SseEventType.HEARTBEAT,
+                message = "Heartbeat"
+        )
         Mono.just(msg.toString())
                 .publishOn(Schedulers.boundedElastic())
-                .doOnNext(this::sendMessageToAll)
-                .subscribe();
+                .doOnNext(::sendMessageToAll)
+            .subscribe()
     }
 
-    public void updateLastResponse(String id, Instant time) {
-        if(processors.containsKey(id)) {
-            lastResponse.put(id, time);
+    fun updateLastResponse(id: String, time: Instant) {
+        if (processors.containsKey(id)) {
+            lastResponse[id] = time
         } else {
-            throw new IllegalArgumentException("Expired Connection");
+            throw IllegalArgumentException("Expired Connection")
         }
     }
 
-    public synchronized void removeInactiveUsers() {
-        Instant now = Instant.now();
-        lastResponse.entrySet().stream()
-                .filter(entry -> Duration.between(entry.getValue(), now).getSeconds() > EXPIRATION_TIME)
-                .forEach(entry -> {
-                    removeSubscriber(entry.getKey());
-                });
+    @Synchronized
+    fun removeInactiveUsers() {
+        val now = Instant.now()
+        lastResponse.entries.removeIf { entry ->
+                Duration.between(entry.value, now).seconds > EXPIRATION_TIME
+        }
     }
 
-    public synchronized void addSubscriber(String id) {
-        processors.put(id, Sinks.many().replay().latest());
-        lastResponse.put(id, Instant.now());
+    @Synchronized
+    fun addSubscriber(id: String) {
+        processors[id] = Sinks.many().replay().latest()
+        lastResponse[id] = Instant.now()
     }
 
-    public Flux<ServerSentEvent<String>> subscribe(String id) {
-        processors.putIfAbsent(id, Sinks.many().replay().latest());
-        lastResponse.putIfAbsent(id, Instant.now());
-        return processors.get(id).asFlux();
+    fun subscribe(id: String): Flux<ServerSentEvent<String>> {
+        processors.putIfAbsent(id, Sinks.many().replay().latest())
+        lastResponse.putIfAbsent(id, Instant.now())
+        return processors[id]!!.asFlux()
     }
 
-    public synchronized void removeSubscriber(String id) {
-        processors.remove(id);
-        lastResponse.remove(id);
+    @Synchronized
+    fun removeSubscriber(id: String) {
+        processors.remove(id)
+        lastResponse.remove(id)
     }
 
-    public void sendMessage(String id, String message) {
-        Sinks.Many<ServerSentEvent<String>> processor = processors.get(id);
-        if (processor != null)
-            processor.emitNext(ServerSentEvent.builder(message).build(), Sinks.EmitFailureHandler.FAIL_FAST);
+    fun sendMessage(id: String, message: String) {
+        val processor = processors[id]
+        processor?.emitNext(ServerSentEvent.builder(message).build(), Sinks.EmitFailureHandler.FAIL_FAST)
     }
 
-    public void sendMessageToAll(String message) {
-        Flux.fromIterable(processors.entrySet())
+    fun sendMessageToAll(message: String) {
+        Flux.fromIterable(processors.entries)
                 .publishOn(Schedulers.boundedElastic())
-                .doOnNext(entry -> {
-
-                    entry.getValue().emitNext(
-                            ServerSentEvent.builder(message).build(),
-                            Sinks.EmitFailureHandler.FAIL_FAST);
-                })
-                .subscribe();
+                .doOnNext { entry ->
+                entry.value.emitNext(
+                        ServerSentEvent.builder(message).build(),
+                        Sinks.EmitFailureHandler.FAIL_FAST
+                )
+        }
+            .subscribe()
     }
 
     @PreDestroy
-    public void shutdown() {
-        this.heartbeatTask.cancel(true);
-        this.removalTask.cancel(true);
-        this.scheduler.shutdown();
+    fun shutdown() {
+        heartbeatTask?.cancel(true)
+        removalTask?.cancel(true)
+        scheduler.shutdown()
     }
 }

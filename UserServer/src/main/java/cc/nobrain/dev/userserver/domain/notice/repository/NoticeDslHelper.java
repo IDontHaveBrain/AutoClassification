@@ -1,11 +1,8 @@
 package cc.nobrain.dev.userserver.domain.notice.repository;
 
 import cc.nobrain.dev.userserver.common.utils.CommonUtil;
-import cc.nobrain.dev.userserver.domain.notice.entity.Notice;
 import cc.nobrain.dev.userserver.domain.notice.entity.QNotice;
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 
 public class NoticeDslHelper {

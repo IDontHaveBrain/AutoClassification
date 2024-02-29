@@ -20,17 +20,15 @@ import java.util.Objects;
 
 @Configuration
 @ConditionalOnProperty(
-        value="app.redis.reactiveInit",
+        value=["app.redis.reactiveInit"],
         havingValue = "true",
         matchIfMissing = true)
-@RequiredArgsConstructor
-public class ReactiveRedisConfig {
-
-    private final RedisProperties redisProperties;
-
-    @Bean(name = "reactiveRedisConnectionFactory")
-    public ReactiveRedisConnectionFactory reactiveRedisConnectionFactory() {
-        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
+class ReactiveRedisConfig(
+        private val redisProperties: RedisProperties,
+) {
+    @Bean(name = ["reactiveRedisConnectionFactory"])
+    fun reactiveRedisConnectionFactory(): ReactiveRedisConnectionFactory {
+        val redisStandaloneConfiguration = RedisStandaloneConfiguration();
         redisStandaloneConfiguration.setHostName(redisProperties.getHost());
         redisStandaloneConfiguration.setPort(redisProperties.getPort());
         redisStandaloneConfiguration.setDatabase(redisProperties.getDatabase());
@@ -48,7 +46,7 @@ public class ReactiveRedisConfig {
 //        LettuceClientConfiguration.LettuceClientConfigurationBuilder lettuceConfigBuilder = LettuceClientConfiguration.builder();
 //        return new LettuceConnectionFactory(redisStandaloneConfiguration, lettuceConfigBuilder.build());
 
-        return new LettuceConnectionFactory(redisStandaloneConfiguration);
+        return LettuceConnectionFactory(redisStandaloneConfiguration);
     }
 
     /**
@@ -56,12 +54,13 @@ public class ReactiveRedisConfig {
      * 커스터마이징 필요시 하단 코드 사용.
      */
     @Bean
-    public ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(@Qualifier("reactiveRedisConnectionFactory") ReactiveRedisConnectionFactory reactiveRedisConnectionFactory, ResourceLoader resourceLoader) {
-        Jackson2JsonRedisSerializer<Object> jsonSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
-        RedisSerializationContext.RedisSerializationContextBuilder<String, Object> builder =
-                RedisSerializationContext.newSerializationContext(new StringRedisSerializer());
-        RedisSerializationContext<String, Object> context = builder.value(jsonSerializer).build();
-        return new ReactiveRedisTemplate<>(reactiveRedisConnectionFactory, context);
+    fun reactiveRedisTemplate(
+            @Qualifier("reactiveRedisConnectionFactory") reactiveRedisConnectionFactory: ReactiveRedisConnectionFactory,
+            resourceLoader: ResourceLoader): ReactiveRedisTemplate<String, Any> {
+        val jsonSerializer = Jackson2JsonRedisSerializer(Any::class.java)
+        val builder = RedisSerializationContext.newSerializationContext<String, Any>(StringRedisSerializer())
+        val context = builder.value(jsonSerializer).build()
+        return ReactiveRedisTemplate(reactiveRedisConnectionFactory, context)
     }
 
     /**
@@ -69,7 +68,8 @@ public class ReactiveRedisConfig {
      * 커스터마이징 필요시 하단 코드 사용.
      */
     @Bean
-    public ReactiveStringRedisTemplate reactiveStringRedisTemplate(@Qualifier("reactiveRedisConnectionFactory") ReactiveRedisConnectionFactory reactiveRedisConnectionFactory) {
-        return new ReactiveStringRedisTemplate(reactiveRedisConnectionFactory);
+    fun reactiveStringRedisTemplate(
+            @Qualifier("reactiveRedisConnectionFactory") reactiveRedisConnectionFactory: ReactiveRedisConnectionFactory): ReactiveStringRedisTemplate {
+        return ReactiveStringRedisTemplate(reactiveRedisConnectionFactory);
     }
 }

@@ -1,106 +1,108 @@
-package cc.nobrain.dev.userserver.common.utils;
+package cc.nobrain.dev.userserver.common.utils
 
-import org.springframework.util.ReflectionUtils;
+import org.springframework.util.ReflectionUtils
+import java.lang.reflect.Method
+import java.time.DayOfWeek
+import java.time.LocalDate
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-
-public class CommonUtil {
-    public static boolean isWeekend(LocalDate date) {
-        DayOfWeek dayOfWeek = date.getDayOfWeek();
-        return dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY;
+object CommonUtil {
+    @JvmStatic
+    fun isWeekend(date: LocalDate): Boolean {
+        val dayOfWeek = date.dayOfWeek
+        return dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY
     }
 
-    public static boolean isEmpty(String value) {
+    @JvmStatic
+    fun isEmpty(value: String?): Boolean {
         return value == null || value.isEmpty() || value.trim().isEmpty()
-                || value.equals("null") || value.equals("undefined") || value.equals("nan")
-                || value.equals("NULL") || value.equals("UNDEFINED") || value.equals("NAN")
-                || value.equals("Null") || value.equals("Undefined") || value.equals("Nan")
-                || value.equals("NaN")  || value.trim().equals("0");
+                || value.equals("null", ignoreCase = true) || value.equals("undefined", ignoreCase = true) || value.equals("nan", ignoreCase = true)
+                || value.trim().equals("0")
     }
 
-    public static boolean isEmpty(Integer value) {
-        return value == null || value == 0;
+    @JvmStatic
+    fun isEmpty(value: Int?): Boolean {
+        return value == null || value == 0
     }
 
-    public static boolean isEmpty(Long value) {
-        return value == null || value == 0;
+    @JvmStatic
+    fun isEmpty(value: Long?): Boolean {
+        return value == null || value == 0L
     }
 
-    public static boolean isEmpty(List value) {
-        return value == null || value.size() == 0;
+    @JvmStatic
+    fun isEmpty(value: List<*>?): Boolean {
+        return value == null || value.isEmpty()
     }
 
-    public static boolean isStringExclude(String fieldName, String[] excludedFields) {
-        return Arrays.asList(excludedFields).contains(fieldName);
+    @JvmStatic
+    fun isStringExclude(fieldName: String, excludedFields: Array<String>): Boolean {
+        return excludedFields.contains(fieldName)
     }
 
-    public static boolean hasNonNullField(Object dto) {
-        final Field[] declaredFields = dto.getClass().getDeclaredFields();
+    @JvmStatic
+    fun hasNonNullField(dto: Any): Boolean {
+        val declaredFields = dto.javaClass.declaredFields
 
-        for (Field field : declaredFields) {
-            ReflectionUtils.makeAccessible(field);
+        for (field in declaredFields) {
+            ReflectionUtils.makeAccessible(field)
             try {
-                Object value = field.get(dto);
+                val value = field.get(dto)
                 if (value != null) {
-                    return true;
+                    return true
                 }
-            } catch (IllegalAccessException e) {
-                //e.printStackTrace();
-                return false;
+            } catch (e: IllegalAccessException) {
+                return false
             }
         }
 
-        return false;
+        return false
     }
 
-    public static boolean allNullField(Object dto) {
-        return !hasNonNullField(dto);
+    @JvmStatic
+    fun allNullField(dto: Any): Boolean {
+        return !hasNonNullField(dto)
     }
 
-    public static boolean hasNonEmptyField(Object dto) {
-        final Field[] declaredFields = dto.getClass().getDeclaredFields();
+    @JvmStatic
+    fun hasNonEmptyField(dto: Any): Boolean {
+        val declaredFields = dto.javaClass.declaredFields
 
-        for (Field field : declaredFields) {
-            ReflectionUtils.makeAccessible(field);
+        for (field in declaredFields) {
+            ReflectionUtils.makeAccessible(field)
 
             try {
-                Object value = field.get(dto);
+                val value = field.get(dto)
                 if (value != null) {
-                    Method targetMethod = null;
+                    var targetMethod: Method? = null
 
-                    for (Method method : CommonUtil.class.getDeclaredMethods()) {
-                        if ("isEmpty".equals(method.getName()) &&
-                                method.getParameterTypes().length == 1 &&
-                                method.getParameterTypes()[0].isInstance(value)) {
-                            targetMethod = method;
-                            break;
+                    for (method in CommonUtil::class.java.declaredMethods) {
+                        if ("isEmpty" == method.name &&
+                                method.parameterTypes.size == 1 &&
+                                method.parameterTypes[0].isInstance(value)) {
+                            targetMethod = method
+                            break
                         }
                     }
 
                     if (targetMethod == null) {
-                        return true;
+                        return true
                     } else {
-                        Boolean isEmptyResult = (Boolean) targetMethod.invoke(null, value);
+                        val isEmptyResult = targetMethod.invoke(null, value) as Boolean
                         if (!isEmptyResult) {
-                            return true;
+                            return true
                         }
                     }
                 }
-            } catch (Exception e) {
-                //e.printStackTrace();
-                return false;
+            } catch (e: Exception) {
+                return false
             }
         }
 
-        return false;
+        return false
     }
 
-    public static boolean allEmptyField(Object dto) {
-        return !hasNonEmptyField(dto);
+    @JvmStatic
+    fun allEmptyField(dto: Any): Boolean {
+        return !hasNonEmptyField(dto)
     }
 }

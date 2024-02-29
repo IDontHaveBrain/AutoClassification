@@ -1,99 +1,88 @@
-package cc.nobrain.dev.userserver.common.component;
+package cc.nobrain.dev.userserver.common.component
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
-import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.data.redis.core.ReactiveRedisTemplate
+import org.springframework.data.redis.core.ReactiveStringRedisTemplate
+import org.springframework.stereotype.Component
+import reactor.core.publisher.Mono
+import java.time.Duration
 
-import java.time.Duration;
-
-@Slf4j
 @Component
-@RequiredArgsConstructor
-public class ReactiveRedisHelper {
+class ReactiveRedisHelper(
+        private val reactiveRedisTemplate: ReactiveRedisTemplate<String, Any>,
+        private val reactiveStringRedisTemplate: ReactiveStringRedisTemplate,
+        private val objectMapper: ObjectMapper
+) {
 
-    private final ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
-    private final ReactiveStringRedisTemplate reactiveStringRedisTemplate;
-    private final ObjectMapper objectMapper;
-
-    private final Long DEFAULT_EXPIRE_TIME = 3600L;
-
-    public ReactiveRedisTemplate<String, Object> getTemplate() {
-        return reactiveRedisTemplate;
+    companion object {
+        private const val DEFAULT_EXPIRE_TIME = 3600L
     }
 
-    public Mono<Boolean> put(String key, Object value, Long expirationTime) {
-        try {
-            return reactiveRedisTemplate.opsForValue().set(key, value, Duration.ofSeconds(expirationTime));
-        } catch (Exception e) {
-            log.error("ReactiveRedis put error", e);
-            return Mono.error(e);
+    fun getTemplate(): ReactiveRedisTemplate<String, Any> {
+        return reactiveRedisTemplate
+    }
+
+    fun put(key: String, value: Any, expirationTime: Long): Mono<Boolean> {
+        return try {
+            reactiveRedisTemplate.opsForValue().set(key, value, Duration.ofSeconds(expirationTime))
+        } catch (e: Exception) {
+            Mono.error(e)
         }
     }
 
-    public Mono<Boolean> put(String key, Object value) {
-        try {
-            return this.put(key, value, DEFAULT_EXPIRE_TIME);
-        } catch (Exception e) {
-            log.error("ReactiveRedis put error", e);
-            return Mono.error(e);
+    fun put(key: String, value: Any): Mono<Boolean> {
+        return try {
+            this.put(key, value, DEFAULT_EXPIRE_TIME)
+        } catch (e: Exception) {
+            Mono.error(e)
         }
     }
 
-    public Mono<Boolean> put(String key, Object value, Boolean noExpiration) {
-        try {
+    fun put(key: String, value: Any, noExpiration: Boolean): Mono<Boolean> {
+        return try {
             if (noExpiration) {
-                return reactiveRedisTemplate.opsForValue().set(key, value);
+                reactiveRedisTemplate.opsForValue().set(key, value)
             } else {
-                return this.put(key, value, DEFAULT_EXPIRE_TIME);
+                this.put(key, value, DEFAULT_EXPIRE_TIME)
             }
-        } catch (Exception e) {
-            log.error("ReactiveRedis put error", e);
-            return Mono.error(e);
+        } catch (e: Exception) {
+            Mono.error(e)
         }
     }
 
-    public <T> Mono<T> get(String key, Class<T> clazz) {
+    fun <T> get(key: String, clazz: Class<T>): Mono<T> {
         return reactiveRedisTemplate.opsForValue()
                 .get(key)
-                .map(original -> {
+                .map { original ->
                     try {
-                        String jsonString = objectMapper.writeValueAsString(original);
-                        return objectMapper.readValue(jsonString, clazz);
-                    } catch (Exception e) {
-                        log.error("ReactiveRedis get error", e);
-                        return null;
+                        val jsonString = objectMapper.writeValueAsString(original)
+                        objectMapper.readValue(jsonString, clazz)
+                    } catch (e: Exception) {
+                        null
                     }
-                });
+                }
     }
 
-    public Mono<String> getString(String key) {
-        try {
-            return reactiveStringRedisTemplate.opsForValue().get(key)
-                    .map(original -> {
+    fun getString(key: String): Mono<String> {
+        return try {
+            reactiveStringRedisTemplate.opsForValue().get(key)
+                    .map { original ->
                         try {
-                            return objectMapper.readValue(original, String.class);
-                        } catch (Exception e) {
-                            log.error("ReactiveRedis getString error", e);
-                            return null;
+                            objectMapper.readValue(original, String::class.java)
+                        } catch (e: Exception) {
+                            null
                         }
-                    });
-        } catch (Exception e) {
-            log.error("ReactiveRedis getString error", e);
-            return Mono.error(e);
+                    }
+        } catch (e: Exception) {
+            Mono.error(e)
         }
     }
 
-    public Mono<Long> delete(String key) {
-        try {
-            return reactiveStringRedisTemplate.delete(key);
-        } catch (Exception e) {
-            log.error("ReactiveRedis delete error", e);
-            return Mono.error(e);
+    fun delete(key: String): Mono<Long> {
+        return try {
+            reactiveStringRedisTemplate.delete(key)
+        } catch (e: Exception) {
+            Mono.error(e)
         }
     }
-
 }

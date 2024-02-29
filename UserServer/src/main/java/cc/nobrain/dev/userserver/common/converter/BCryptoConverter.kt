@@ -1,28 +1,20 @@
-package cc.nobrain.dev.userserver.common.converter;
+package cc.nobrain.dev.userserver.common.converter
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Convert;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.Optional;
+import jakarta.persistence.AttributeConverter
+import jakarta.persistence.Convert
+import org.springframework.security.crypto.password.PasswordEncoder
+import java.util.Optional
 
 @Convert
-@RequiredArgsConstructor
-public class BCryptoConverter implements AttributeConverter<String, String> {
+class BCryptoConverter(private val passwordEncoder: PasswordEncoder) : AttributeConverter<String, String> {
 
-    private final PasswordEncoder passwordEncoder;
-
-    @Override
-    public String convertToDatabaseColumn(String plainText) {
+    override fun convertToDatabaseColumn(plainText: String?): String? {
         return Optional.ofNullable(plainText)
                 .map(passwordEncoder::encode)
-                .orElse(null);
+                .orElse(null)
     }
 
-    @Override
-    public String convertToEntityAttribute(String encrypted) {
-        return encrypted;
+    override fun convertToEntityAttribute(encrypted: String?): String? {
+        return encrypted
     }
-
 }

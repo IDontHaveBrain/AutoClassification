@@ -6,18 +6,16 @@ import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.constraints.Size;
 
 import java.lang.annotation.*;
+import kotlin.reflect.KClass
 
-@Size(min=2)
+@Size(min = 2)
 @ReportAsSingleViolation
-@Documented
-@Constraint(validatedBy = {})
-@Target({ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Name {
-
-    String message() default "이름은 최소 2글자 이상이어야 합니다.";
-
-    Class<?>[] groups() default {};
-
-    Class<? extends Payload>[] payload() default {};
-}
+@MustBeDocumented
+@Constraint(validatedBy = [])
+@Target(AnnotationTarget.FIELD, AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.LOCAL_VARIABLE)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Name(
+        val message: String = "이름은 최소 2글자 이상이어야 합니다.",
+        val groups: Array<KClass<*>> = [],
+        val payload: Array<KClass<out Payload>> = []
+)

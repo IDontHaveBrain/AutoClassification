@@ -1,31 +1,32 @@
-package cc.nobrain.dev.userserver.common.config;
+package cc.nobrain.dev.userserver.common.config
 
-import org.jasypt.encryption.StringEncryptor;
-import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
-import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.jasypt.encryption.StringEncryptor
+import org.jasypt.encryption.pbe.PooledPBEStringEncryptor
+import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 
 @Configuration
-public class JasyptConfigAES {
+class JasyptConfigAES {
 
     // TODO: 추후 환경변수로 변경
 
-    @Value("${jasypt.encryptor.password}")
-    private String PASSWORD_KEY;
+    @Value("\${jasypt.encryptor.password}")
+    private lateinit var PASSWORD_KEY: String
 
     @Bean("jasyptStringEncryptor")
-    public StringEncryptor stringEncryptor(){
-        PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
-        SimpleStringPBEConfig config = new SimpleStringPBEConfig();
-        config.setPassword(PASSWORD_KEY);
-        config.setPoolSize("1");
-        config.setAlgorithm("PBEWithMD5AndDES");
-        config.setStringOutputType("base64");
-        config.setKeyObtentionIterations("1000");
-        config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
-        encryptor.setConfig(config);
-        return encryptor;
+    fun stringEncryptor(): StringEncryptor{
+        val encryptor = PooledPBEStringEncryptor()
+        val config = SimpleStringPBEConfig().apply {
+            password = PASSWORD_KEY
+            algorithm = "PBEWithMD5AndDES"
+            keyObtentionIterations = 1000
+            poolSize = 1
+            stringOutputType = "base64"
+            setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator")
+        }
+        encryptor.setConfig(config)
+        return encryptor
     }
 }

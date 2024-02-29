@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
-import static cc.nobrain.dev.userserver.domain.alarm.entity.QAlarm.alarm;
+import cc.nobrain.dev.userserver.domain.alarm.entity.QAlarm;
 
 @RequiredArgsConstructor
 public class AlarmRepositoryImpl implements AlarmRepositoryCustom {
@@ -19,10 +19,10 @@ public class AlarmRepositoryImpl implements AlarmRepositoryCustom {
 
     @Override
     public List<Alarm> getMemberAlarmList(Long memberId) {
-        return factory.selectFrom(alarm)
-                .join(alarm.alarmTarget.any().targetMember, QMember.member)
+        return factory.selectFrom(QAlarm.alarm)
+                .join(QAlarm.alarm.alarmTarget.any().targetMember, QMember.member)
                 .where(AlarmDslHelper.memberAlarm(memberId)
-                        .or(alarm.alarmTarget.any().targetGroup.id.eq(QMemberGroup.memberGroup.id))
+                        .or(QAlarm.alarm.alarmTarget.any().targetGroup.id.eq(QMemberGroup.memberGroup.id))
                 ).fetch();
     }
 }

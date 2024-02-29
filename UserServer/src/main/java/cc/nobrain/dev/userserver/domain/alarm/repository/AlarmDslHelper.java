@@ -3,9 +3,6 @@ package cc.nobrain.dev.userserver.domain.alarm.repository;
 import cc.nobrain.dev.userserver.common.utils.CommonUtil;
 import cc.nobrain.dev.userserver.domain.alarm.entity.QAlarm;
 import cc.nobrain.dev.userserver.domain.alarm.enums.AlarmTargetType;
-import cc.nobrain.dev.userserver.domain.member.entity.QMember;
-import cc.nobrain.dev.userserver.domain.member.entity.QMemberGroup;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 
 public class AlarmDslHelper {
