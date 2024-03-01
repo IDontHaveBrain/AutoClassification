@@ -7,7 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class JasyptConfigTest {
+public class
+JasyptConfigTest {
 
     @Value("${jasypt.encryptor.password}")
     private String PASSWORD_KEY;

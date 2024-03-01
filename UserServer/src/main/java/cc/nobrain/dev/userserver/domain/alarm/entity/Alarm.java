@@ -6,6 +6,7 @@ import cc.nobrain.dev.userserver.domain.alarm.enums.AlarmTargetType;
 import cc.nobrain.dev.userserver.domain.base.entity.BaseCU;
 import cc.nobrain.dev.userserver.domain.member.entity.Member;
 import jakarta.persistence.*;
+import lombok.Getter;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @DynamicUpdate
 @Entity
+@Getter
 public class Alarm extends BaseCU {
 
     @Id

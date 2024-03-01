@@ -1,13 +1,9 @@
 package cc.nobrain.dev.userserver.domain.notice.service;
 
 import cc.nobrain.dev.userserver.domain.notice.entity.Notice;
-import cc.nobrain.dev.userserver.domain.notice.repository.NoticeDslHelper;
 import cc.nobrain.dev.userserver.domain.notice.repository.NoticeRepository;
 import cc.nobrain.dev.userserver.domain.notice.service.dto.NoticeReq;
 import cc.nobrain.dev.userserver.domain.notice.service.dto.NoticeRes;
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Predicate;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -15,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.Model;
 
 import java.util.List;
 
@@ -30,21 +25,23 @@ public class NoticeServiceImpl implements NoticeService {
 
     @Override
     public List<NoticeRes> searchNoticeList(NoticeReq.Search search, Pageable pageable) {
-        BooleanBuilder where = new BooleanBuilder();
-        where.and(NoticeDslHelper.titleLike(search.getTitle()))
-//                .and(NoticeDslHelper.contentLike(search.getContent()))
-                .and(NoticeDslHelper.createMemberLike(search.getCreateMember()));
+//        BooleanBuilder where = new BooleanBuilder();
+//        where.and(NoticeDslHelper.titleLike(search.getTitle()))
+////                .and(NoticeDslHelper.contentLike(search.getContent()))
+//                .and(NoticeDslHelper.createMemberLike(search.getCreateMember()));
+//
+//        Page<Notice> rst = noticeRepository.findAll(where, pageable);
+//
+//        return rst.stream()
+//                .map(notice -> modelMapper.map(notice, NoticeRes.class))
+//                .toList();
 
-        Page<Notice> rst = noticeRepository.findAll(where, pageable);
-
-        return rst.stream()
-                .map(notice -> modelMapper.map(notice, NoticeRes.class))
-                .toList();
+        return null;
     }
 
     @Override
     public void createNotice(NoticeReq.Create create) {
-        Notice notice = modelMapper.map(create, Notice.class);
-        noticeRepository.save(notice);
+//        Notice notice = modelMapper.map(create, Notice.class);
+//        noticeRepository.save(notice);
     }
 }

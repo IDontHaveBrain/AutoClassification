@@ -96,7 +96,7 @@ class RedisHelper(
 
     fun hasKey(key: String): Boolean {
         return try {
-            redisTemplate.hasKey(key) ?: false
+            redisTemplate.hasKey(key)
         } catch (e: DataAccessException) {
             log.error("Redis hasKey error", e)
             false
@@ -131,7 +131,7 @@ class RedisHelper(
 
     fun persist(key: String): Boolean {
         return try {
-            redisTemplate.persist(key) ?: false
+            redisTemplate.persist(key)
         } catch (e: DataAccessException) {
             log.error("Redis persist error", e)
             false

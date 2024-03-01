@@ -1,8 +1,6 @@
 package cc.nobrain.dev.userserver.domain.member.entity;
 
 import cc.nobrain.dev.userserver.common.converter.BCryptoConverter;
-import cc.nobrain.dev.userserver.common.validation.Name;
-import cc.nobrain.dev.userserver.common.validation.Password;
 import cc.nobrain.dev.userserver.domain.base.entity.BaseCU;
 import cc.nobrain.dev.userserver.domain.train.entity.TrainFile;
 import jakarta.persistence.*;
@@ -23,12 +21,12 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@DynamicUpdate
 @Getter
+@DynamicUpdate
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(indexes = {@Index(name = "index_email",  columnList="email", unique = true)})
+@Table(indexes = {@Index(name = "index_email", columnList = "email", unique = true)})
 public class Member extends BaseCU implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,13 +38,13 @@ public class Member extends BaseCU implements UserDetails {
     private String email;
 
     @NotNull
-    @Password
+//    @Password()
     @Column
     @Convert(converter = BCryptoConverter.class)
     private String password;
 
     @NotNull
-    @Name
+//    @Name
     @Column(length = 30, nullable = false)
     private String name;
 
@@ -70,9 +68,18 @@ public class Member extends BaseCU implements UserDetails {
         return authorities;
     }
 
+    public String getName() {
+        return this.name;
+    }
+
     @Override
     public String getUsername() {
         return this.email;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
     }
 
     @Override

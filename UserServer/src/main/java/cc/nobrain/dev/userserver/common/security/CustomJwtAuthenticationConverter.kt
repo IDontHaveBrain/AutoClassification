@@ -14,7 +14,6 @@ class CustomJwtAuthenticationConverter(
     override fun convert(jwt: Jwt): AbstractAuthenticationToken {
         val username = jwt.getClaimAsString("sub")
         val member = customUserDetailService.loadUserByUsername(username)
-                ?: throw UsernameNotFoundException("User not found")
 
         return UsernamePasswordAuthenticationToken(member, jwt, member.authorities)
     }
