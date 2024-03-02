@@ -64,3 +64,15 @@ export const initPageable = (size: number): Pageable => {
         sort: "id,desc",
     }
 }
+
+export interface FileModel {
+    id: number;
+    url: string;
+    fileName: string;
+    originalFileName: string;
+    size: number;
+    createMember: string;
+    updateMember: string;
+    createDateTime: string;
+    updateDateTime: string;
+}

@@ -36,6 +36,13 @@ def set_labels(labels, images):
 
     return {"labels": labels, "images": images}
 
+def is_url_image(image_url):
+    image_formats = ("image/png", "image/jpeg", "image/jpg")
+    r = requests.head(image_url)
+    if r.headers["content-type"] in image_formats:
+        return True
+    return False
+
 @app.route('/')
 def hello_world():
     # client = OpenAI()
@@ -47,7 +54,12 @@ def hello_world():
     testImages = [
         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSI3xUdHDZK8vn_GPB43oFN0Lbd3bykTt0DJQ&usqp=CAU",
         "https://image.dongascience.com/Photo/2022/11/0c265e639aabe3a9e3105bc551007009.jpg",
+        "https://i.namu.wiki/i/P0xSGHwdzwhVCQamNmHLVtt1uki2xXA5UxtOk6ESBzEvUjggi2-2IKvjdA5IvKVN0HUZrUsvnWgt4ZfcD2VTcaq4CfXdnfDK9aGjE9p_WdmETsqHHNlqxbb6016Ch4HFU6nLwCtr9bumz0KCYuBLnw.webp",
+        "https://flexible.img.hani.co.kr/flexible/normal/960/960/imgdb/resize/2019/0121/00501111_20190121.JPG",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Golde33443.jpg/420px-Golde33443.jpg",
     ]
+
+    filtered_images = [img for img in testImages if is_url_image(img)]
 
     completion = client.chat.completions.create(
         model="gpt-4-vision-preview",
@@ -67,7 +79,7 @@ def hello_world():
                     #     "image_url": "https://image.dongascience.com/Photo/2022/11/0c265e639aabe3a9e3105bc551007009.jpg"
                     # },
                 ] + [
-                    {"type": "image_url", "image_url": url} for url in testImages
+                    {"type": "image_url", "image_url": url} for url in filtered_images
                 ],
             }
         ],

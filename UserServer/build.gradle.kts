@@ -71,6 +71,8 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testCompileOnly("org.projectlombok:lombok:1.18.30")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
+    testImplementation("com.github.gavlyukovskiy:datasource-proxy-spring-boot-starter:1.9.1")
+
 
     implementation("org.springframework.boot:spring-boot-starter-oauth2-authorization-server")
 

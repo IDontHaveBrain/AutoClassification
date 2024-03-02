@@ -137,7 +137,7 @@ class SecurityConfig(
                 authorize.requestMatchers("/auth/**").permitAll()
                     .requestMatchers("/api/**").permitAll()
                     .requestMatchers("/authorize").permitAll()
-                    .requestMatchers("/public/*").permitAll()
+                    .requestMatchers("/public/**").permitAll()
                     .requestMatchers("/swagger-ui/**").permitAll()
                     .requestMatchers("/v3/api-docs/**").permitAll()
                     .requestMatchers("/swagger-resources/**").permitAll()

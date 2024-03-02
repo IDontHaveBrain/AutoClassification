@@ -1,13 +1,15 @@
 import Box from "@mui/material/Box";
 import FileDropzone from "component/FileDropzone";
 import Grid from "@mui/material/Grid";
-import { useCallback, useState } from "react";
-import { List, ListItem, ListItemText } from "@mui/material";
+import {useCallback, useEffect, useState} from "react";
+import {Divider, List, ListItem, ListItemText} from "@mui/material";
 import Button from "@mui/material/Button";
-import { uploadImg } from "service/Apis/TrainApi";
+import {getMyTrainImgs, uploadImg} from "service/Apis/TrainApi";
+import {FileModel} from "model/GlobalModel";
 
 const Classfiy = () => {
     const [files, setFiles] = useState([]);
+    const [uploadedFiles, setUploadedFiles] = useState<FileModel[]>([]);
 
     const onDrop = useCallback((files) => {
         console.log("files : ", files);
@@ -38,6 +40,15 @@ const Classfiy = () => {
         });
     }
 
+    useEffect(() => {
+        getMyTrainImgs().then((res) => {
+            console.log("res : ", res);
+            setUploadedFiles(res.data);
+        }).catch((err) => {
+            console.log("err : ", err);
+        });
+    }, []);
+
     const images = files.map(file => (
         <div key={file.name}>
             <img src={file.preview} style={{width: '200px'}} alt='preview' />
@@ -62,6 +73,14 @@ const Classfiy = () => {
                     </ListItem>
                 ))}
             </List>
+            <Divider />
+            <aside style={{display: 'flex', flexWrap: 'wrap', marginTop: '15px'}}>
+                {uploadedFiles.map((file, index) => (
+                    <div key={file.id}>
+                        <img src={file.url} style={{width: '200px'}} alt='preview' />
+                    </div>
+                ))}
+            </aside>
         </Box>
     );
 };
