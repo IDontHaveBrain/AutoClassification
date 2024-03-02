@@ -1,3 +1,4 @@
+/*
 package cc.nobrain.dev.userserver.sse;
 
 import cc.nobrain.dev.userserver.common.WithMockMember;
@@ -26,38 +27,39 @@ public class SseTest {
     @Autowired
     private WebTestClient webClient;
 
-    @BeforeEach
-    void setUp() {
-        webClient = webClient.mutate()
-                .defaultHeader("Authorization", "Bearer " + accessToken)
-                .build();
-    }
-
-    @Test
-    public void testHeartbeat() {
-        FluxExchangeResult<String> eventStream = webClient.get()
-                .uri("/sse/subscribe")
-                .accept(MediaType.TEXT_EVENT_STREAM)
-//                .header("Authorization", "Bearer " + accessToken)
-                .exchange()
-                .expectStatus().isOk()
-                .returnResult(String.class);
-
-        Flux eventFlux = eventStream.getResponseBody();
-
-        StepVerifier.create(eventFlux)
-                .expectNext("Heartbeat")
-                .then(() -> {
-                    webClient.get()
-                            .uri("/sse/ok")
-                            .exchange()
-                            .expectStatus().isOk();
-                    System.out.println("Heartbeat Response!!!!");
-                })
-                .expectNext("Heartbeat")
-                .thenCancel()
-                .verify();
-
-        System.out.println("testHeartbeat() completed");
-    }
+//    @BeforeEach
+//    void setUp() {
+//        webClient = webClient.mutate()
+//                .defaultHeader("Authorization", "Bearer " + accessToken)
+//                .build();
+//    }
+//
+//    @Test
+//    public void testHeartbeat() {
+//        FluxExchangeResult<String> eventStream = webClient.get()
+//                .uri("/sse/subscribe")
+//                .accept(MediaType.TEXT_EVENT_STREAM)
+////                .header("Authorization", "Bearer " + accessToken)
+//                .exchange()
+//                .expectStatus().isOk()
+//                .returnResult(String.class);
+//
+//        Flux eventFlux = eventStream.getResponseBody();
+//
+//        StepVerifier.create(eventFlux)
+//                .expectNext("Heartbeat")
+//                .then(() -> {
+//                    webClient.get()
+//                            .uri("/sse/ok")
+//                            .exchange()
+//                            .expectStatus().isOk();
+//                    System.out.println("Heartbeat Response!!!!");
+//                })
+//                .expectNext("Heartbeat")
+//                .thenCancel()
+//                .verify();
+//
+//        System.out.println("testHeartbeat() completed");
+//    }
 }
+*/

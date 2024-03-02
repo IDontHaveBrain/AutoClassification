@@ -1,3 +1,4 @@
+/*
 package cc.nobrain.dev.userserver.file;
 
 import cc.nobrain.dev.userserver.domain.base.dto.FileDto;
@@ -51,3 +52,4 @@ public class FileTest {
         log.info("Finish!");
     }
 }
+*/

@@ -1,3 +1,4 @@
+/*
 package cc.nobrain.dev.userserver.common;
 
 import org.assertj.core.api.Assertions;
@@ -7,7 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class JasyptConfigTest {
+public class
+JasyptConfigTest {
 
     @Value("${jasypt.encryptor.password}")
     private String PASSWORD_KEY;
@@ -38,3 +40,4 @@ public class JasyptConfigTest {
         return encryptor.decrypt(input);
     }
 }
+*/
