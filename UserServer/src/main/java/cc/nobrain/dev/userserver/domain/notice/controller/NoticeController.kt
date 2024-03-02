@@ -22,4 +22,16 @@ class NoticeController(val noticeService: NoticeService) {
         noticeService.createNotice(create)
         return ResponseEntity.ok().build()
     }
+
+    @PutMapping("/{id}")
+    fun updateNotice(@PathVariable id: Long, @RequestBody update: NoticeReq.Create?): ResponseEntity<Unit> {
+        noticeService.updateNotice(id, update)
+        return ResponseEntity.ok().build()
+    }
+
+    @DeleteMapping("/{id}")
+    fun deleteNotice(@PathVariable id: Long): ResponseEntity<Unit> {
+        noticeService.deleteNotice(id)
+        return ResponseEntity.ok().build()
+    }
 }

@@ -8,4 +8,8 @@ interface NoticeService {
     fun searchNoticeList(search: NoticeReq.Search?, pageable: Pageable?): List<NoticeRes>
 
     fun createNotice(create: NoticeReq.Create?)
+
+    fun updateNotice(id: Long, update: NoticeReq.Create?)
+
+    fun deleteNotice(id: Long)
 }
