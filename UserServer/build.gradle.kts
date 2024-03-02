@@ -62,7 +62,7 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
 //    runtimeOnly "org.postgresql:r2dbc-postgresql"
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    kapt("org.springframework.boot:spring-boot-configuration-processor")
     kapt("org.projectlombok:lombok:1.18.30")
     kapt("org.hibernate.orm:hibernate-jpamodelgen")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

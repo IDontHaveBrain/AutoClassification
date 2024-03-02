@@ -1,4 +1,4 @@
-FROM openjdk:21-slim
+FROM openjdk:17-slim
 LABEL authors="nj.jo"
 
 RUN apt-get update

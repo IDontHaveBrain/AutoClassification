@@ -29,14 +29,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          build-root-directory: ./UserServer
+
       - name: Make gradlew executable
         run: chmod +x ./UserServer/gradlew
 
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@v2
-        with:
-          build-root-directory: ./UserServer
-          arguments: build --build-cache --parallel
+        run: ./UserServer/gradlew build
 
       - if: github.ref == 'refs/heads/main'
         name: 'Deploy'
