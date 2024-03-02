@@ -61,8 +61,8 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
 //    runtimeOnly "org.postgresql:r2dbc-postgresql"
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-    annotationProcessor("org.projectlombok:lombok:1.18.30")
-    annotationProcessor("org.hibernate.orm:hibernate-jpamodelgen")
+    kapt("org.projectlombok:lombok:1.18.30")
+    kapt("org.hibernate.orm:hibernate-jpamodelgen")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
@@ -71,6 +71,13 @@ dependencies {
     testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
 
     implementation("org.springframework.boot:spring-boot-starter-oauth2-authorization-server")
+
+    // querydsl
+    implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
+//    annotationProcessor("com.querydsl:querydsl-apt:5.1.0:jakarta")
+    kapt("com.querydsl:querydsl-apt:5.1.0:jakarta")
+    kapt("jakarta.annotation:jakarta.annotation-api")
+    kapt("jakarta.persistence:jakarta.persistence-api")
 
     // mapping library
     implementation("org.modelmapper:modelmapper:3.2.0")
@@ -116,14 +123,12 @@ sourceSets {
     }
 }
 
-//tasks.withType<KotlinCompile> {
-//    kotlinOptions {
-//        freeCompilerArgs += "-Xjsr305=strict"
-//        jvmTarget = "17"
-//        destinationDirectory.set(file(generated))
-//    }
-//    destinationDirectory.set(file(generated))
-//}
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs += "-Xjsr305=strict"
+        jvmTarget = "17"
+    }
+}
 
 tasks.withType<JavaCompile> {
     options.generatedSourceOutputDirectory.set(file(generated))

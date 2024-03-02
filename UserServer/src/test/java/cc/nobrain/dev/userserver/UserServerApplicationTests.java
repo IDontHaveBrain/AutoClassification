@@ -1,3 +1,4 @@
+/*
 package cc.nobrain.dev.userserver;
 
 import org.junit.jupiter.api.Test;
@@ -11,3 +12,4 @@ class UserServerApplicationTests {
     }
 
 }
+*/

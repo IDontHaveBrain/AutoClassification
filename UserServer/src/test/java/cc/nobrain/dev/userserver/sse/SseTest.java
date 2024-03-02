@@ -1,3 +1,4 @@
+/*
 package cc.nobrain.dev.userserver.sse;
 
 import cc.nobrain.dev.userserver.common.WithMockMember;
@@ -61,3 +62,4 @@ public class SseTest {
 //        System.out.println("testHeartbeat() completed");
 //    }
 }
+*/

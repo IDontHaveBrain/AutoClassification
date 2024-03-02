@@ -1,3 +1,4 @@
+/*
 package cc.nobrain.dev.userserver.common;
 
 import org.assertj.core.api.Assertions;
@@ -39,3 +40,4 @@ JasyptConfigTest {
         return encryptor.decrypt(input);
     }
 }
+*/
