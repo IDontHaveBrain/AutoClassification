@@ -36,4 +36,16 @@ class NoticeServiceImpl(
         val notice = modelMapper.map(create, Notice::class.java)
         noticeRepository.save(notice)
     }
+
+    @Transactional
+    override fun updateNotice(id: Long, update: NoticeReq.Create?) {
+        if (update == null) throw CustomException(ErrorInfo.INVALID_DATA)
+        val notice = noticeRepository.findById(id).orElseThrow { CustomException(ErrorInfo.INVALID_DATA) }
+        modelMapper.map(update, notice)
+    }
+
+    @Transactional
+    override fun deleteNotice(id: Long) {
+        noticeRepository.deleteById(id)
+    }
 }
