@@ -13,10 +13,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '21'
+          java-version: '17'
           distribution: 'temurin'
 
       - name: Cache Gradle Packages!
@@ -29,14 +29,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          build-root-directory: ./UserServer
+
       - name: Make gradlew executable
         run: chmod +x ./UserServer/gradlew
 
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@v2
-        with:
-          build-root-directory: ./UserServer
-          arguments: build --build-cache --parallel
+        run: ./UserServer/gradlew build
 
       - if: github.ref == 'refs/heads/main'
         name: 'Deploy'
