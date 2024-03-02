@@ -4,6 +4,7 @@ import cc.nobrain.dev.userserver.domain.base.entity.BaseCU;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,7 +35,7 @@ public class Notice extends BaseCU {
     @Builder.Default
     private Boolean sticky = false;
 
-    @Max(5)
+    @Size(max = 5)
     @OneToMany(mappedBy = "ownerIndex", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private List<NoticeFile> attachments = new ArrayList<>();

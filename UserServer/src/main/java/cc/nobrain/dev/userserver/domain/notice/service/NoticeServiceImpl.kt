@@ -1,5 +1,7 @@
 package cc.nobrain.dev.userserver.domain.notice.service
 
+import cc.nobrain.dev.userserver.common.exception.CustomException
+import cc.nobrain.dev.userserver.common.exception.ErrorInfo
 import cc.nobrain.dev.userserver.domain.notice.entity.Notice
 import cc.nobrain.dev.userserver.domain.notice.repository.NoticeDslHelper
 import cc.nobrain.dev.userserver.domain.notice.repository.NoticeRepository
@@ -28,7 +30,9 @@ class NoticeServiceImpl(
         return rst?.map { notice -> modelMapper.map(notice, NoticeRes::class.java) }?.toList() ?: emptyList()
     }
 
-    override fun createNotice(create: NoticeReq.Create) {
+    @Transactional
+    override fun createNotice(create: NoticeReq.Create?) {
+        if (create == null) throw CustomException(ErrorInfo.INVALID_DATA)
         val notice = modelMapper.map(create, Notice::class.java)
         noticeRepository.save(notice)
     }

@@ -7,5 +7,5 @@ import org.springframework.data.domain.Pageable
 interface NoticeService {
     fun searchNoticeList(search: NoticeReq.Search?, pageable: Pageable?): List<NoticeRes>
 
-    fun createNotice(create: NoticeReq.Create)
+    fun createNotice(create: NoticeReq.Create?)
 }

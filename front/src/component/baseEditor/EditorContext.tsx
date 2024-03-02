@@ -1,4 +1,4 @@
-import {createContext, ReactNode, useState} from "react";
+import {createContext, ReactNode, useContext, useState} from "react";
 
 interface EditorState {
     title: string;
@@ -11,6 +11,14 @@ interface EditorContextType {
 }
 
 export const EditorContext = createContext<EditorContextType | undefined>(undefined);
+
+export const useEditorContext = () => {
+    const context = useContext(EditorContext);
+    if (!context) {
+        throw new Error("useEditorContext must be used within a EditorProvider");
+    }
+    return context;
+};
 
 interface EditorProviderProps {
     children: ReactNode;

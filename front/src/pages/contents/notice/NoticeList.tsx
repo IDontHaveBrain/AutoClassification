@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getNoticeList } from "service/NoticeApi";
+import { getNoticeList } from "service/Apis/NoticeApi";
 import Box from "@mui/material/Box";
 import BaseTitle from "../../../component/baseBoard/BaseTitle";
 import BaseSearch from "../../../component/baseBoard/BaseSearch";

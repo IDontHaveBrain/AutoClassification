@@ -24,7 +24,7 @@ interface Props {
 
 const BaseTable = ({columns, loadRows, onClick, props, children}: Props, ref) => {
     const [page, setPage] = useState(0);
-    const [pageSize, setPageSize] = useState(2);
+    const [pageSize, setPageSize] = useState(10);
     const [sortModel, setSortModel] = useState<GridSortModel>([{ field: 'id', sort: 'asc' }]);
     const [rows, setRows] = useState<any>([]);
 
@@ -67,13 +67,13 @@ const BaseTable = ({columns, loadRows, onClick, props, children}: Props, ref) =>
             <DataGrid rows={rows} columns={columns} {...props}
                       initialState={{
                           pagination: {
-                              paginationModel: { page: 0, pageSize: 2 },
+                              paginationModel: { page: 0, pageSize: 10 },
                           },
                           sorting: {
                               sortModel: [{ field: 'id', sort: 'asc' }] }
                       }}
                       rowCount={3}
-                      pageSizeOptions={[2]}
+                      pageSizeOptions={[10,25,50]}
                       pagination={true}
                       paginationMode={'server'}
                       onRowClick={onCustomClick}

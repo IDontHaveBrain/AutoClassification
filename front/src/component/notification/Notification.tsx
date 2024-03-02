@@ -4,7 +4,7 @@ import SseClient from "service/commons/SseClient";
 import {useEffect, useState} from "react";
 import {AlarmModel} from "model/GlobalModel";
 import {useAppSelector} from "stores/rootHook";
-import {getMyAlarms} from "service/AlarmApi";
+import {getMyAlarms} from "service/Apis/AlarmApi";
 import AlarmDetail from "component/notification/AlarmDetail";
 
 interface Props {

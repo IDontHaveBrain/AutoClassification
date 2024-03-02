@@ -4,7 +4,7 @@ import Grid from "@mui/material/Grid";
 import { useCallback, useState } from "react";
 import { List, ListItem, ListItemText } from "@mui/material";
 import Button from "@mui/material/Button";
-import { uploadImg } from "service/TrainApi";
+import { uploadImg } from "service/Apis/TrainApi";
 
 const Classfiy = () => {
     const [files, setFiles] = useState([]);
