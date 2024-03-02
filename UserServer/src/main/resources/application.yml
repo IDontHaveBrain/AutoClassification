@@ -37,7 +37,7 @@ logging:
 
 app:
   storage:
-    path: C:/Work/test/public/
+    path: C:/Work/test/
     resourcePath: public/
     maxFileSize: 10485760
 

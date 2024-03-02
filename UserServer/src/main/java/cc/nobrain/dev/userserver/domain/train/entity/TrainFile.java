@@ -7,7 +7,6 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
@@ -22,9 +21,9 @@ import java.util.Objects;
 public class TrainFile extends File {
     @ManyToOne
     @JoinColumn(name = "owner_index")
-    private Member ownerIndex;
+    protected Member ownerIndex;
 
-    @Override
+    @Override@JoinColumn
     public <T> void setRelation(T ownerEntity) {
         if (!(ownerEntity instanceof Member owner) || Objects.isNull(ownerEntity)) {
             throw new IllegalArgumentException("Invalid owner entity");

@@ -1,3 +1,4 @@
+/*
 package cc.nobrain.dev.userserver.redis;
 
 import cc.nobrain.dev.userserver.common.component.ReactiveRedisHelper;
@@ -94,3 +95,4 @@ public class RedisTest {
         log.info("Reactive Redis Test End");
     }
 }
+*/

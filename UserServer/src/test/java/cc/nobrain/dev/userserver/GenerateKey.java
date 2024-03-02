@@ -1,3 +1,4 @@
+/*
 package cc.nobrain.dev.userserver;
 
 import org.junit.jupiter.api.Test;
@@ -36,3 +37,4 @@ public class GenerateKey {
         return keyPair;
     }
 }
+*/

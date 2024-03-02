@@ -16,7 +16,11 @@ const Classfiy = () => {
         files.forEach((file, i) => {
             formData.append('files', file);
         });
-        setFiles(files);
+        // setFiles(files)
+
+        setFiles(files.map(file => Object.assign(file, {
+            preview: URL.createObjectURL(file)
+        })));
 
         //headers: { 'Content-Type': 'multipart/form-data' }
     }, [setFiles]);
@@ -34,11 +38,20 @@ const Classfiy = () => {
         });
     }
 
+    const images = files.map(file => (
+        <div key={file.name}>
+            <img src={file.preview} style={{width: '200px'}} alt='preview' />
+        </div>
+    ));
+
     return (
         <Box>
             <Grid item md={12}>
                 <FileDropzone onDrop={onDrop} />
             </Grid>
+            <aside style={{display: 'flex', flexWrap: 'wrap', marginTop: '15px'}}>
+                {images}
+            </aside>
             <Button onClick={onSave}>
                 저장
             </Button>
