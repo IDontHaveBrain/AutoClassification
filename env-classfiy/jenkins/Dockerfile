@@ -1,4 +1,4 @@
-FROM jenkins/jenkins:jdk21
+FROM jenkins/jenkins:jdk17
 LABEL authors="nj.jo"
 
 USER root
