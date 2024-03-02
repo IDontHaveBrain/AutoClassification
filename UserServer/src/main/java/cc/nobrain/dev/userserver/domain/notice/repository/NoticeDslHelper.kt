@@ -7,6 +7,7 @@ import com.querydsl.core.types.dsl.BooleanExpression
 
 object NoticeDslHelper {
 
+    @JvmStatic
     fun titleLike(title: String?): BooleanExpression? {
         if (CommonUtil.isEmpty(title)) {
             return null
@@ -14,6 +15,7 @@ object NoticeDslHelper {
         return QNotice.notice.title.containsIgnoreCase(title)
     }
 
+    @JvmStatic
     fun contentLike(content: String?): BooleanExpression? {
         if (CommonUtil.isEmpty(content)) {
             return null
@@ -21,6 +23,7 @@ object NoticeDslHelper {
         return QNotice.notice.content.containsIgnoreCase(content)
     }
 
+    @JvmStatic
     fun createMemberLike(createMember: String?): BooleanExpression? {
         if (CommonUtil.isEmpty(createMember)) {
             return null
@@ -28,6 +31,7 @@ object NoticeDslHelper {
         return QNotice.notice.createMember.containsIgnoreCase(createMember)
     }
 
+    @JvmStatic
     fun isSticky(sticky: Boolean?): BooleanExpression? {
         if (sticky == null) {
             return null
