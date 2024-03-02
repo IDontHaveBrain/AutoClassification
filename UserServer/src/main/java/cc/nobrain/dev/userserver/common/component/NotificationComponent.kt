@@ -81,7 +81,8 @@ class NotificationComponent {
 
     fun sendMessage(id: String, message: String) {
         val processor = processors[id]
-        processor?.emitNext(ServerSentEvent.builder(message).build(), Sinks.EmitFailureHandler.FAIL_FAST)
+        processor?.emitNext(ServerSentEvent.builder(message)
+            .build(), Sinks.EmitFailureHandler.FAIL_FAST)
     }
 
     fun sendMessageToAll(message: String) {

@@ -23,10 +23,10 @@ class SseController(private val notificationComponent: NotificationComponent) {
     @GetMapping("/subscribe")
     fun subscribe(@AuthenticationPrincipal member: Member): Flux<ServerSentEvent<String>> {
         notificationComponent.addSubscriber(member.username)
+        notificationComponent.sendHeartbeat();
         return notificationComponent.subscribe(member.username)
                 .doOnCancel { notificationComponent.removeSubscriber(member.username) }
-                .doOnComplete { notificationComponent.removeSubscriber(member.username) }
-                .doOnNext { event -> notificationComponent.updateLastResponse(member.username, Instant.now()) }
+                .doOnNext { notificationComponent.updateLastResponse(member.username, Instant.now())}
                 .doOnTerminate { notificationComponent.removeSubscriber(member.username) }
     }
 }
