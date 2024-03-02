@@ -53,8 +53,8 @@ import java.util.*
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-        private val corsConfigurationSource: CorsConfigurationSource,
-        private val customUserDetailService: CustomUserDetailService
+    private val corsConfigurationSource: CorsConfigurationSource,
+    private val customUserDetailService: CustomUserDetailService
 ) {
 
     @Value("\${spring.security.jwt.privateKey}")
@@ -73,36 +73,43 @@ class SecurityConfig(
     @Order(1)
     @Throws(Exception::class)
     fun authorizationServerSecurityFilterChain(
-            http: HttpSecurity,
-            authorizationService: OAuth2AuthorizationService,
-            tokenGenerator: OAuth2TokenGenerator<*>,
-            authorizationServerSettings: AuthorizationServerSettings,
-            registeredClientRepository: RegisteredClientRepository,
-            rsaHelper: RsaHelper,
-            jwtDecoder: JwtDecoder
+        http: HttpSecurity,
+        authorizationService: OAuth2AuthorizationService,
+        tokenGenerator: OAuth2TokenGenerator<*>,
+        authorizationServerSettings: AuthorizationServerSettings,
+        registeredClientRepository: RegisteredClientRepository,
+        rsaHelper: RsaHelper,
+        jwtDecoder: JwtDecoder
     ): SecurityFilterChain {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http)
 
         http.getConfigurer(OAuth2AuthorizationServerConfigurer::class.java)
             .tokenGenerator(tokenGenerator)
-                .clientAuthentication { clientAuth ->
+            .clientAuthentication { clientAuth ->
                 clientAuth.authenticationConverters { }
-        }
+            }
             .authorizationEndpoint { authorizationEndpoint ->
                 authorizationEndpoint.authorizationRequestConverters { }
                     .authenticationProviders { }
-        }
+            }
             .tokenEndpoint { tokenEndpoint ->
                 tokenEndpoint.accessTokenRequestConverters { converters ->
-                converters.add(PasswordConverter())
-        }
+                    converters.add(PasswordConverter())
+                }
                     .authenticationProviders { providers ->
-                    providers.add(PasswordProvider(authorizationService, tokenGenerator, customUserDetailService, rsaHelper))
+                        providers.add(
+                            PasswordProvider(
+                                authorizationService,
+                                tokenGenerator,
+                                customUserDetailService,
+                                rsaHelper
+                            )
+                        )
+                    }
             }
-        }
             .registeredClientRepository(registeredClientRepository)
-                .authorizationServerSettings(authorizationServerSettings)
-                .authorizationService(authorizationService)
+            .authorizationServerSettings(authorizationServerSettings)
+            .authorizationService(authorizationService)
 
         http.cors { cors -> cors.configurationSource(corsConfigurationSource) }
             .csrf { csrf -> csrf.disable() }
@@ -120,19 +127,22 @@ class SecurityConfig(
             .httpBasic { httpBasic -> httpBasic.disable() }
             .sessionManagement { session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .userDetailsService(customUserDetailService)
-                .oauth2ResourceServer { oauth2 ->
+            .oauth2ResourceServer { oauth2 ->
                 oauth2.jwt { jwt ->
-                jwt.decoder(jwtDecoder)
-            jwt.jwtAuthenticationConverter(CustomJwtAuthenticationConverter(customUserDetailService))
-        }
-        }
+                    jwt.decoder(jwtDecoder)
+                    jwt.jwtAuthenticationConverter(CustomJwtAuthenticationConverter(customUserDetailService))
+                }
+            }
             .authorizeHttpRequests { authorize ->
                 authorize.requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/**").permitAll()
-                        .requestMatchers("/authorize").permitAll()
-                        .requestMatchers("/public/*").permitAll()
-                        .anyRequest().authenticated()
-        }
+                    .requestMatchers("/api/**").permitAll()
+                    .requestMatchers("/authorize").permitAll()
+                    .requestMatchers("/public/*").permitAll()
+                    .requestMatchers("/swagger-ui/**").permitAll()
+                    .requestMatchers("/v3/api-docs/**").permitAll()
+                    .requestMatchers("/swagger-resources/**").permitAll()
+                    .anyRequest().authenticated()
+            }
             .formLogin { form -> form.disable() }
 
         return http.build()
@@ -142,27 +152,27 @@ class SecurityConfig(
     fun registeredClientRepository(passwordEncoder: PasswordEncoder): RegisteredClientRepository {
 
         val registeredClientRepository = RegisteredClient.withId("public")
-                .clientId("public")
-                .clientName("public")
-                .clientSecret("\$2a\$10\$d5nJ4FfbF0yLD2sgQ3EbpOqOBEQJn5rX2v/Fv/nGHPjfurbGl9tXy")
-                .clientAuthenticationMethods { methods ->
+            .clientId("public")
+            .clientName("public")
+            .clientSecret("\$2a\$10\$d5nJ4FfbF0yLD2sgQ3EbpOqOBEQJn5rX2v/Fv/nGHPjfurbGl9tXy")
+            .clientAuthenticationMethods { methods ->
                 methods.add(ClientAuthenticationMethod.CLIENT_SECRET_POST)
-            methods.add(ClientAuthenticationMethod.NONE)
-        }
+                methods.add(ClientAuthenticationMethod.NONE)
+            }
             .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
-                .authorizationGrantTypes { grant ->
+            .authorizationGrantTypes { grant ->
                 grant.add(AuthorizationGrantType("client_password"))
-            grant.add(AuthorizationGrantType.PASSWORD)
-            grant.add(AuthorizationGrantType.REFRESH_TOKEN)
-            grant.add(AuthorizationGrantType.AUTHORIZATION_CODE)
-        }
+                grant.add(AuthorizationGrantType.PASSWORD)
+                grant.add(AuthorizationGrantType.REFRESH_TOKEN)
+                grant.add(AuthorizationGrantType.AUTHORIZATION_CODE)
+            }
             .redirectUris { uris -> uris.add("http://client/oauth/callback") }
             .scopes { scopes ->
                 scopes.add("user")
-            scopes.add("admin")
-        }
+                scopes.add("admin")
+            }
             .tokenSettings(tokenSettings())
-                .build()
+            .build()
 
         return InMemoryRegisteredClientRepository(registeredClientRepository)
     }
@@ -179,7 +189,7 @@ class SecurityConfig(
         val accessTokenGenerator = OAuth2AccessTokenGenerator()
         val refreshTokenGenerator = OAuth2RefreshTokenGenerator()
         return DelegatingOAuth2TokenGenerator(
-                jwtGenerator, accessTokenGenerator, refreshTokenGenerator
+            jwtGenerator, accessTokenGenerator, refreshTokenGenerator
         )
     }
 
@@ -196,10 +206,10 @@ class SecurityConfig(
             val rsaPublicKey = keyFactory.generatePublic(publicKeySpec) as RSAPublicKey
 
             val rsaKey = RSAKey.Builder(rsaPublicKey)
-                    .privateKey(rsaPrivateKey)
-                    .keyID(UUID.randomUUID().toString())
-                    .algorithm(JWSAlgorithm.RS256)
-                    .build()
+                .privateKey(rsaPrivateKey)
+                .keyID(UUID.randomUUID().toString())
+                .algorithm(JWSAlgorithm.RS256)
+                .build()
 
             val jwkSet = JWKSet(rsaKey)
             return ImmutableJWKSet(jwkSet)
@@ -230,10 +240,10 @@ class SecurityConfig(
     @Bean
     fun authorizationServerSettings(): AuthorizationServerSettings {
         return AuthorizationServerSettings.builder()
-                .authorizationEndpoint("/authorize")
-                .tokenEndpoint("/auth/token")
-                .issuer("https://dev.nobrain.cc")
-                .build()
+            .authorizationEndpoint("/authorize")
+            .tokenEndpoint("/auth/token")
+            .issuer("https://dev.nobrain.cc")
+            .build()
     }
 
     @Bean
@@ -243,8 +253,8 @@ class SecurityConfig(
 
     private fun tokenSettings(): TokenSettings {
         return TokenSettings.builder()
-                .accessTokenTimeToLive(Duration.ofSeconds(accessTokenValiditySeconds.toLong()))
-                .refreshTokenTimeToLive(Duration.ofSeconds(refreshTokenValiditySeconds.toLong()))
-                .build()
+            .accessTokenTimeToLive(Duration.ofSeconds(accessTokenValiditySeconds.toLong()))
+            .refreshTokenTimeToLive(Duration.ofSeconds(refreshTokenValiditySeconds.toLong()))
+            .build()
     }
 }
