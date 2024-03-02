@@ -13,7 +13,7 @@ import {Link, useNavigate} from 'react-router-dom';
 import {useEffect, useState} from "react";
 import { CONSTANT } from "../../utils/constant";
 import { useAppDispatch } from "../../stores/rootHook";
-import { getPublicKey, LoginData, signIn } from "service/AuthApi";
+import { getPublicKey, LoginData, signIn } from "service/Apis/AuthApi";
 import AuthUtils from "../../utils/authUtils";
 import { setUserInfo } from "../../stores/rootSlice";
 import { onAlert } from "../../component/modal/AlertModal";

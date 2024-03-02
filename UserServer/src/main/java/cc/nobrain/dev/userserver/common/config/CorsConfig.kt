@@ -11,11 +11,10 @@ class CorsConfig {
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration()
-//        configuration.allowedOriginPatterns = listOf("http://localhost**", "http://dev.nobrain.cc**", "*")
         configuration.addAllowedOrigin("*")
-        configuration.allowedMethods = listOf("*")
+        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS") // OPTIONS 메서드 추가
         configuration.addAllowedHeader("*")
-        // configuration.allowCredentials = true
+        configuration.addAllowedHeader("Authorization")
         val source = UrlBasedCorsConfigurationSource()
         source.registerCorsConfiguration("/**", configuration)
         return source

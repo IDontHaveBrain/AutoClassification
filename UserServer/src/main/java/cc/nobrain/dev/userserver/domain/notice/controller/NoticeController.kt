@@ -12,12 +12,13 @@ import org.springframework.web.bind.annotation.*
 class NoticeController(val noticeService: NoticeService) {
 
     @GetMapping
-    fun searchNoticeList(@RequestParam search: NoticeReq.Search, pageable: Pageable): List<NoticeRes> {
+    fun searchNoticeList(search: NoticeReq.Search, pageable: Pageable?): List<NoticeRes> {
         return noticeService.searchNoticeList(search, pageable)
     }
 
+
     @PostMapping
-    fun createNotice(create: NoticeReq.Create): ResponseEntity<Unit> {
+    fun createNotice(@RequestBody create: NoticeReq.Create?): ResponseEntity<Unit> {
         noticeService.createNotice(create)
         return ResponseEntity.ok().build()
     }

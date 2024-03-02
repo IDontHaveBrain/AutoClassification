@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getNoticeList } from "service/NoticeApi";
+import { getNoticeList } from "service/Apis/NoticeApi";
 import Box from "@mui/material/Box";
 import BaseTitle from "../../../component/baseBoard/BaseTitle";
 import BaseSearch from "../../../component/baseBoard/BaseSearch";
@@ -45,8 +45,8 @@ const NoticeList = () => {
 
     const loadRows = async (page: number, pageSize: number, sortModel: GridSortModel) => {
         const params = {
-            // search: search,
-            search: {title: search.title, createMember: search.createMember},
+            title: search.title,
+            createMember: search.createMember,
             page: page,
             size: pageSize,
         }
