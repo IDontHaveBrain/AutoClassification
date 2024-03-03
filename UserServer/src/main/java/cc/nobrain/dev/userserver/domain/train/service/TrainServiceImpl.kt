@@ -24,13 +24,16 @@ class TrainServiceImpl(
 ) : TrainService {
 
     @Transactional
-    override fun uploadTrainData(files: Array<MultipartFile>): Long {
+    override fun uploadTrainData(files: Array<MultipartFile>): List<FileDto> {
         var member = MemberUtil.getCurrentMember()
+            .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
+
+        member = memberRepository.findById(member.id)
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
         val success = fileComponent.uploadFile(files, TrainFile::class.java, member)
 
-        return success.size.toLong()
+        return success.stream().map { file -> modelMapper.map(file, FileDto::class.java) }.toList()
     }
 
     override fun getMyImgs(): List<FileDto> {
@@ -38,6 +41,17 @@ class TrainServiceImpl(
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
         val files = trainFileRepository.findByOwnerIndexId(member.id)
+        return files.stream().map { file -> modelMapper.map(file, FileDto::class.java) }.toList()
+    }
+
+    override fun requestTrain(): List<FileDto> {
+        val member = MemberUtil.getCurrentMember()
+            .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
+
+        val files = trainFileRepository.findByOwnerIndexId(member.id);
+
+//        if ()
+
         return files.stream().map { file -> modelMapper.map(file, FileDto::class.java) }.toList()
     }
 }

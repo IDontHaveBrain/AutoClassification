@@ -10,12 +10,17 @@ import org.springframework.web.multipart.MultipartFile
 class TrainController(private val trainService: TrainService) {
 
     @PostMapping("/upload")
-    fun uploadTrainData(@RequestParam files: Array<MultipartFile>): Long {
-        return trainService.uploadTrainData(files)
+    fun uploadTrainData(@RequestParam files: Array<MultipartFile>): List<FileDto> {
+        return trainService.uploadTrainData(files);
     }
 
     @GetMapping
     fun getMyImgs(): List<FileDto> {
-        return trainService.getMyImgs()
+        return trainService.getMyImgs();
+    }
+
+    @PostMapping("/train")
+    fun requestTrain(): List<FileDto> {
+        return trainService.requestTrain();
     }
 }

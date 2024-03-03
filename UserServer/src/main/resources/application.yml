@@ -44,8 +44,3 @@ app:
 jasypt:
   encryptor:
     password: testKey
-
-decorator:
-  datasource:
-    p6spy:
-      enable-logging: true
