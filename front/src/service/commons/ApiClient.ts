@@ -34,7 +34,7 @@ const checkToken = async (config: InternalAxiosRequestConfig) => {
     return config;
 };
 
-axios.defaults.withCredentials = true;
+// axios.defaults.withCredentials = true;
 UserApi.interceptors.request.use(checkToken);
 UserApi.interceptors.response.use(
     (response) => {

@@ -53,7 +53,7 @@ class FileComponent(
                 Files.copy(file.inputStream, filePath, StandardCopyOption.REPLACE_EXISTING)
 
                 val sourceMap = mapOf(
-                        "path" to appProps.path,
+                        "path" to "${appProps.path}${appProps.resourcePath}",
                         "size" to size,
                         "contentType" to contentType,
                         "fileName" to filename,
