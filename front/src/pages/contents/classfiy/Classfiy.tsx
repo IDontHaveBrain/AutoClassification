@@ -53,7 +53,6 @@ const Classfiy = () => {
 
   const requestTrain = () => {
     console.log("requestTrain");
-
   }
 
   useEffect(() => {
@@ -81,10 +80,20 @@ const Classfiy = () => {
       <aside style={{ display: "flex", flexWrap: "wrap", marginTop: "15px" }}>
         {images}
       </aside>
-      <Button onClick={onSave} color={"secondary"} variant={"contained"}>
-        저장
-      </Button>
-      <Button onClick={}
+      <Grid item xs={12}>
+        <Grid container justifyContent="space-between" alignItems="center">
+          <Grid item>
+            <Button onClick={onSave} color={"secondary"} variant={"contained"}>
+              저장
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button variant={"contained"} color={"success"} onClick={requestTrain}>
+              모델 훈련
+            </Button>
+          </Grid>
+        </Grid>
+      </Grid>
       <List>
         {files.map((file, index) => (
           <ListItem key={index}>
