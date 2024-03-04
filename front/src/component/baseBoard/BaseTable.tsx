@@ -45,9 +45,11 @@ const BaseTable = ({columns, loadRows, onClick, props, children}: Props, ref) =>
         setRows(newRows);
     };
 
-    const handleSortChange = async (model: GridSortModel) => {
-        setSortModel(model);
-        const newRows = await loadRows(page, pageSize, model);
+    const handleSortChange = async (sort: GridSortModel) => {
+        const sortParams = sort.map(sortItem => `${sortItem.field},${sortItem.sort}`).join(',');
+
+        setSortModel(sort);
+        const newRows = await loadRows(page, pageSize, sortParams);
         setRows(newRows);
     };
 

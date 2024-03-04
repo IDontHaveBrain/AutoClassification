@@ -61,13 +61,14 @@ const NoticeList = () => {
   const loadRows = async (
     page: number,
     pageSize: number,
-    sortModel: GridSortModel,
+    sort: GridSortModel,
   ) => {
     const params = {
       title: search.title,
       createMember: search.createMember,
       page: page,
       size: pageSize,
+      sort: sort,
     };
 
     const response = await getNoticeList(params);
@@ -115,9 +116,13 @@ const NoticeList = () => {
         </Button>
       </BaseSearch>
       <Divider sx={{ mt: 2, mb: 2 }} />
-      <BaseTable columns={columns} loadRows={loadRows} onClick={handleRowClick} />
+      <BaseTable
+        columns={columns}
+        loadRows={loadRows}
+        onClick={handleRowClick}
+      />
 
-      <Dialog open={openDetail} onClose={handleClose} >
+      <Dialog open={openDetail} onClose={handleClose}>
         <NoticeDetail handleClose={handleClose} data={selectedData} />
       </Dialog>
     </Box>
