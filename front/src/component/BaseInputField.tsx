@@ -30,7 +30,8 @@ const BaseInputField = ({ label, value, onChange }: BaseInputFieldProps) => {
             id="custom-input"
             variant="outlined"
             onChange={onChange ? onChange : handleTitleChange}
-            value={value}
+            value={editor?.title}
+            defaultValue={value}
             size={"small"}
           />
         </Grid>

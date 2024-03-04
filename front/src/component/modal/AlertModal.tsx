@@ -35,7 +35,7 @@ const AlertModal = () => {
     }, [handler]);
 
     const onClose = () => {
-        if (alert && alert.open && alert.callback) {
+        if (alert && alert.callback) {
             alert.callback();
         }
         dispatch(closeAlert());
