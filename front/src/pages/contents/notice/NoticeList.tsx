@@ -12,6 +12,7 @@ import BaseTitle from "component/baseBoard/BaseTitle";
 import BaseSearch from "component/baseBoard/BaseSearch";
 import BaseTable from "component/baseBoard/BaseTable";
 import NoticeDetail from "./NoticeDetail";
+import dayjs from "dayjs";
 
 const NoticeList = () => {
   const [search, setSearch] = useState({
@@ -76,12 +77,14 @@ const NoticeList = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", width: 70 },
-    { field: "title", headerName: "제목", width: 130 },
-    { field: "createMember", headerName: "작성자", width: 130 },
-    { field: "createDateTime", headerName: "작성일", width: 130 },
-    { field: "updateMember", headerName: "수정자", width: 130 },
-    { field: "updateDateTime", headerName: "수정일", width: 130 },
+    { field: "id", headerName: "ID", flex: 1 },
+    { field: "title", headerName: "제목", flex: 2 },
+    { field: "createMember", headerName: "작성자", flex: 2 },
+    { field: "createDateTime", headerName: "작성일", flex: 2 },
+    { field: "updateMember", headerName: "수정자", flex: 2 },
+    { field: "updateDateTime", headerName: "수정일", flex: 2, valueGetter:
+          (params) => dayjs(params.value).format("YYYY-MM-DD HH:mm:ss")
+    },
   ];
 
   const onClickWrite = () => {

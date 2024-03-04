@@ -67,7 +67,7 @@ const AlertModal = () => {
                                     backgroundColor: 'green',
                                     color: 'white'
                                 }
-                            }}>{Strings.ok}</Button>
+                            }}>{Strings.Common.ok}</Button>
                 </ModalContent>
             </Fade>
         </Modal>

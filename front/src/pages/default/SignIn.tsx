@@ -10,14 +10,15 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import {Link, useNavigate} from 'react-router-dom';
-import {useEffect, useState} from "react";
-import { CONSTANT } from "../../utils/constant";
-import { useAppDispatch } from "../../stores/rootHook";
-import { getPublicKey, LoginData, signIn } from "service/Apis/AuthApi";
-import AuthUtils from "../../utils/authUtils";
-import { setUserInfo } from "../../stores/rootSlice";
-import { onAlert } from "../../component/modal/AlertModal";
-import { Strings } from "../../utils/strings";
+import { useEffect, useState } from "react";
+import { CONSTANT } from 'utils/constant';
+import { useAppDispatch } from "stores/rootHook";
+import { getPublicKey, LoginData, signIn } from "../../service/Apis/AuthApi";
+import AuthUtils from "utils/authUtils";
+import { setUserInfo } from "stores/rootSlice";
+import { onAlert } from "component/modal/AlertModal";
+import { Strings } from "utils/strings";
+
 
 function Copyright(props: any) {
     return (
@@ -59,7 +60,7 @@ export default function SignIn() {
                     if (res.data.access_token) {
                         sessionStorage.setItem(CONSTANT.ACCESS_TOKEN, res.data.access_token);
                         dispatch(setUserInfo(res.data));
-                        onAlert(Strings.loginSuccess);
+                        onAlert(Strings.Common.loginSuccess);
                         if (rememberMe) {
                             localStorage.setItem(CONSTANT.REMEMBER_ME, res.data.email);
                         } else {
@@ -69,11 +70,11 @@ export default function SignIn() {
                     }
                 }).catch(err => {
                     console.error(err);
-                    onAlert(Strings.loginFailed);
+                    onAlert(Strings.Common.loginFailed);
                 })
             }).catch(err => {
             console.error(err);
-            onAlert(Strings.loginFailed);
+            onAlert(Strings.Common.loginFailed);
         })
     };
 

@@ -3,8 +3,7 @@
     "target": "es5",
     "baseUrl": "src",
     "paths": {
-      "@src/*": ["src/*"],
-      "@src/components/*": ["src/components/*"],
+      "*": ["*"]
     },
     "lib": [
       "dom",
@@ -29,6 +28,7 @@
     "src"
   ],
   "exclude": [
-    "build"
+    "build",
+    "node_modules"
   ]
 }
