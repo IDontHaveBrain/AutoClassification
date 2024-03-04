@@ -22,6 +22,7 @@ const URLS = {
         TRAIN: {
             GET: '/train',
             POST: '/train/upload',
+            DELETE: '/train',
         }
     },
 }

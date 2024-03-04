@@ -4,7 +4,7 @@ import Grid from "@mui/material/Grid";
 import { useCallback, useEffect, useState } from "react";
 import { Divider, List, ListItem, ListItemText } from "@mui/material";
 import Button from "@mui/material/Button";
-import { getMyTrainImgs, uploadImg } from "service/Apis/TrainApi";
+import { getMyTrainImgs, removeTrainImg, uploadImg } from "service/Apis/TrainApi";
 import { FileModel } from "model/GlobalModel";
 
 const Classfiy = () => {
@@ -42,8 +42,7 @@ const Classfiy = () => {
     });
     uploadImg(formData)
       .then((res) => {
-        console.log("res : ", res);
-        setUploadedFiles([uploadedFiles, ...res.data]);
+        getMyImgs();
         setFiles([]);
       })
       .catch((err) => {
@@ -51,44 +50,82 @@ const Classfiy = () => {
       });
   };
 
-  const requestTrain = () => {
-    console.log("requestTrain");
+  const onRemove = (index: number) => {
+    const newFiles = files.filter((file, i) => i !== index);
+    setFiles(newFiles);
   }
 
-  useEffect(() => {
+  const onRemoveUploaded = (index: number) => {
+    removeTrainImg(uploadedFiles[index].id).then((res) => {
+        getMyImgs();
+    }).catch((err) => {
+        console.log("err : ", err);
+    });
+  }
+
+  const requestTrain = () => {
+    console.log("requestTrain");
+  };
+
+  const getMyImgs = () => {
     getMyTrainImgs()
       .then((res) => {
-        console.log("res : ", res);
         setUploadedFiles(res.data);
       })
       .catch((err) => {
         console.log("err : ", err);
       });
-  }, []);
+  };
 
-  const images = files.map((file) => (
-    <div key={file.name}>
-      <img src={file.preview} style={{ width: "200px" }} alt="preview" />
-    </div>
-  ));
+    useEffect(() => {
+        getMyImgs();
+    }, []);
 
-  return (
-    <Box>
-      <Grid item md={12}>
-        <FileDropzone onDrop={onDrop} />
-      </Grid>
-      <aside style={{ display: "flex", flexWrap: "wrap", marginTop: "15px" }}>
-        {images}
-      </aside>
-      <Grid item xs={12}>
-        <Grid container justifyContent="space-between" alignItems="center">
-          <Grid item>
-            <Button onClick={onSave} color={"secondary"} variant={"contained"}>
-              저장
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button variant={"contained"} color={"success"} onClick={requestTrain}>
+  const images = files.map((file, index) => (
+      <div
+          key={`${index}-${file.name}`}
+          style={{ position: "relative", display: "inline-block" }}
+      >
+          <img src={file.preview} style={{ width: "200px" }} alt="preview" />
+          <button
+              onClick={() => onRemove(index)}
+              style={{
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  background: "red",
+                  color: "white",
+                  border: "none",
+                  cursor: "pointer"
+              }}
+          >
+              X
+          </button>
+      </div>
+))
+    ;
+
+    return (
+        <Box>
+            <Grid item md={12}>
+                <FileDropzone onDrop={onDrop} />
+            </Grid>
+            <aside style={{ display: "flex", flexWrap: "wrap", marginTop: "15px" }}>
+                {images}
+            </aside>
+            <Grid item xs={12}>
+                <Grid container justifyContent="space-between" alignItems="center">
+                    <Grid item>
+                        <Button onClick={onSave} color={"secondary"} variant={"contained"}>
+                            저장
+                        </Button>
+                    </Grid>
+                    <Grid item>
+                        <Button
+                            variant={"contained"}
+                            color={"success"}
+              onClick={requestTrain}
+            >
               모델 훈련
             </Button>
           </Grid>
@@ -104,13 +141,30 @@ const Classfiy = () => {
       <Divider />
       <aside style={{ display: "flex", flexWrap: "wrap", marginTop: "15px" }}>
         {uploadedFiles.map((file, index) => (
-          <div key={file.id}>
-            <img src={file.url} style={{ width: "200px" }} alt="preview" />
-          </div>
-        ))}
+            <div
+                key={file.id}
+                style={{ position: "relative", display: "inline-block" }}
+            >
+                <img src={file.url} style={{ width: "200px" }} alt="preview" />
+                <button
+                    onClick={() => onRemoveUploaded(index)}
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,
+                        background: 'red',
+                        color: 'white',
+                        border: 'none',
+                        cursor: 'pointer',
+                    }}
+                >
+                    X
+                </button>
+            </div>
+            ))}
       </aside>
     </Box>
-  );
+);
 };
 
 export default Classfiy;

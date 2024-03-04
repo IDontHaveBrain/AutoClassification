@@ -44,6 +44,21 @@ class TrainServiceImpl(
         return files.stream().map { file -> modelMapper.map(file, FileDto::class.java) }.toList()
     }
 
+    @Transactional
+    override fun deleteTrainData(id: Long) {
+        val member = MemberUtil.getCurrentMember()
+            .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
+
+        val file = trainFileRepository.findById(id)
+            .orElseThrow { CustomException(ErrorInfo.FILE_NOT_FOUND) }
+
+        if (file.ownerIndex.id != member.id) {
+            throw CustomException(ErrorInfo.FILE_NOT_FOUND)
+        }
+
+        fileComponent.deleteFile(file)
+    }
+
     override fun requestTrain(): List<FileDto> {
         val member = MemberUtil.getCurrentMember()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }

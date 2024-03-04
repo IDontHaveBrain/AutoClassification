@@ -9,3 +9,7 @@ export const uploadImg = (params): AxiosPromise => {
 export const getMyTrainImgs = (): AxiosPromise => {
     return UserApi.get(URLS.API.TRAIN.GET);
 }
+
+export const removeTrainImg = (id: number): AxiosPromise => {
+    return UserApi.delete(`${URLS.API.TRAIN.DELETE}/${id}`);
+}

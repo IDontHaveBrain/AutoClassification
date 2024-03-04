@@ -6,6 +6,7 @@ import cc.nobrain.dev.userserver.common.utils.FileUtil
 import cc.nobrain.dev.userserver.domain.base.entity.File
 import cc.nobrain.dev.userserver.domain.base.repository.FileRepository
 import jakarta.servlet.http.HttpServletRequest
+import lombok.extern.slf4j.Slf4j
 import org.modelmapper.ModelMapper
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
@@ -23,6 +24,19 @@ class FileComponent(
         private val appProps: AppProps,
         private val request: HttpServletRequest
 ) {
+
+    @Transactional
+    fun <T : File> deleteFile(file: T) {
+        val filePath = Paths.get("${appProps.path}${appProps.resourcePath}${file.fileName}${file.fileExtension}")
+        if (Files.exists(filePath)) {
+            Files.delete(filePath)
+            fileRepository.delete(file)
+        } else {
+            println("File not found")
+            fileRepository.delete(file)
+        }
+        fileRepository.delete(file)
+    }
 
     @Transactional
     fun <T : File> uploadFile(files: Array<MultipartFile>, clazz: Class<T>, ownerEntity: Any): List<T> {
@@ -43,7 +57,7 @@ class FileComponent(
             if (file.isEmpty || file.size > appProps.maxFileSize) {
                 Optional.empty()
             } else {
-                val filename = CryptoUtil.encryptSHA256(FileUtil.getFileName(file.originalFilename ?: ""))
+                val filename = CryptoUtil.encryptSHA256("${file.originalFilename}-${file.size}-${System.currentTimeMillis()}")
                 val originalFilename = file.originalFilename
                 val size = file.size
                 val contentType = file.contentType
