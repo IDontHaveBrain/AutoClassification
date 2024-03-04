@@ -23,4 +23,9 @@ class TrainController(private val trainService: TrainService) {
     fun requestTrain(): List<FileDto> {
         return trainService.requestTrain();
     }
+
+    @DeleteMapping("/{id}")
+    fun deleteTrainData(@PathVariable id: Long) {
+        trainService.deleteTrainData(id);
+    }
 }

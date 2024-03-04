@@ -9,4 +9,6 @@ interface TrainService {
     fun getMyImgs(): List<FileDto>
 
     fun requestTrain(): List<FileDto>
+
+    fun deleteTrainData(id: Long)
 }

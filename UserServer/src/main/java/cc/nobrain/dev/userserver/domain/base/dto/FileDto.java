@@ -22,5 +22,6 @@ public class FileDto extends BaseDto implements Serializable {
     private String originalFileName;
     @NotNull
     private Long size;
-    private String mimeType;
+    private String contentType;
+
 }
