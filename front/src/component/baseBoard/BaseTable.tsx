@@ -72,7 +72,7 @@ const BaseTable = ({columns, loadRows, onClick, props, children}: Props, ref) =>
                           sorting: {
                               sortModel: [{ field: 'id', sort: 'asc' }] }
                       }}
-                      rowCount={3}
+                      rowCount={rows?.length}
                       pageSizeOptions={[10,25,50]}
                       pagination={true}
                       paginationMode={'server'}
