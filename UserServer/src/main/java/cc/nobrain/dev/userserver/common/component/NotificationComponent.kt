@@ -23,7 +23,7 @@ class NotificationComponent {
     private var removalTask: ScheduledFuture<*>? = null
 
     private val EXPIRATION_TIME = 180L
-    private val HEARTBEAT_INTERVAL = 60L
+    private val HEARTBEAT_INTERVAL = 30L
 
     init {
         heartbeatTask = scheduler.scheduleAtFixedRate(::sendHeartbeat, 0, HEARTBEAT_INTERVAL, TimeUnit.SECONDS)
