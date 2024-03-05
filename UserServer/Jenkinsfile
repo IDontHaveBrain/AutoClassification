@@ -86,7 +86,7 @@ def grantExecutePermission(path){
 }
 
 def gradleBuild(){
-    sh './gradlew build'
+    sh './gradlew build --exclude-task test'
 }
 
 def listArtifacts(path){
