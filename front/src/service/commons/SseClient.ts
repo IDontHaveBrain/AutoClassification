@@ -10,7 +10,6 @@ const MAX_RETRIES = 3;
 const RETRY_DELAY = 5*1000;
 
 const EventSource = EventSourcePolyfill || NativeEventSource;
-// OR: may also need to set as global property
 global.EventSource =  EventSourcePolyfill || NativeEventSource;
 
 class SseClient {
@@ -57,10 +56,9 @@ class SseClient {
             throw e;
         }
 
-        this.eventSource.onmessage = (event: any) => {  // Added type any for broad compatibility
+        this.eventSource.onmessage = (event: any) => {
             let receivedData;
 
-            // JSON parse with error handling
             try {
                 receivedData = JSON.parse(event.data);
                 messageHandler(receivedData);
@@ -71,7 +69,7 @@ class SseClient {
             }
         };
 
-        this.eventSource.onerror = (err: any) => {  // Added type any for broad compatibility
+        this.eventSource.onerror = (err: any) => {
             errorHandler(err);
             if (this.eventSource?.readyState === EventSource.CLOSED) {
                 this.reconnect(url, messageHandler, errorHandler);

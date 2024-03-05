@@ -32,7 +32,7 @@ function Copyright(props: any) {
 
 export default function SignIn() {
     const [publicKey, setPublicKey] = useState('');
-    const [email, setEmail] = useState(localStorage.getItem(CONSTANT.REMEMBER_ME));
+    const [email, setEmail] = useState('');
     const [rememberMe, setRememberMe] = useState(localStorage.getItem(CONSTANT.REMEMBER_ME) ? true : false);
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
@@ -42,7 +42,11 @@ export default function SignIn() {
             setPublicKey(res.data);
         }).catch(err => {
             console.error(err);
-        })
+        });
+        setRememberMe(localStorage.getItem(CONSTANT.REMEMBER_ME) ? true : false);
+        if (localStorage.getItem(CONSTANT.REMEMBER_ME)) {
+            setEmail(localStorage.getItem(CONSTANT.REMEMBER_ME));
+        }
     }, [])
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -62,7 +66,7 @@ export default function SignIn() {
                         dispatch(setUserInfo(res.data));
                         onAlert(Strings.Common.loginSuccess);
                         if (rememberMe) {
-                            localStorage.setItem(CONSTANT.REMEMBER_ME, res.data.email);
+                            localStorage.setItem(CONSTANT.REMEMBER_ME, res.data.user.email);
                         } else {
                             localStorage.removeItem(CONSTANT.REMEMBER_ME);
                         }
