@@ -45,12 +45,6 @@ export const MenuItems: MenuInfo[] = [
         element: <NoticeList/>,
         subMenu: [
             {
-                name: "공지사항 상세",
-                path: "/notice/:id",
-                element: <></>,
-                invisible: true,
-            },
-            {
                 name: "공지사항 작성",
                 path: "/notice/write",
                 element: <NoticeEditor/>,

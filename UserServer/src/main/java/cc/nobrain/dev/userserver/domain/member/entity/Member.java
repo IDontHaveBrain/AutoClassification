@@ -3,6 +3,7 @@ package cc.nobrain.dev.userserver.domain.member.entity;
 import cc.nobrain.dev.userserver.common.converter.BCryptoConverter;
 import cc.nobrain.dev.userserver.domain.base.entity.BaseCU;
 import cc.nobrain.dev.userserver.domain.train.entity.TrainFile;
+import cc.nobrain.dev.userserver.domain.workspace.entity.Workspace;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -52,14 +53,8 @@ public class Member extends BaseCU implements UserDetails {
     @JoinColumn(name = "group_id")
     private MemberGroup memberGroup;
 
-    @OneToMany(mappedBy = "ownerIndex")
-    private List<TrainFile> trainFiles = new ArrayList<>();
-
-    public void initTrainFiles() {
-        if (Objects.isNull(this.trainFiles)) {
-            this.trainFiles = new ArrayList<>();
-        }
-    }
+    @ManyToMany(mappedBy = "members")
+    private List<Workspace> workspace = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

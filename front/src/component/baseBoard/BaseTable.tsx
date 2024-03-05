@@ -59,7 +59,7 @@ const BaseTable = ({columns, loadRows, onClick, props, children}: Props, ref) =>
             setRows(initialRows);
         };
         fetchRows();
-    }, [loadRows, page, pageSize, sortModel]);
+    }, [loadRows, page, pageSize]);
 
     useImperativeHandle(ref, () => ({
     }));

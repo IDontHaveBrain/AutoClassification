@@ -9,7 +9,7 @@ interface NoticeService {
 
     fun createNotice(create: NoticeReq.Create?)
 
-    fun updateNotice(id: Long, update: NoticeReq.Create?)
+    fun updateNotice(id: Long, update: NoticeReq.Create)
 
     fun deleteNotice(id: Long)
 }

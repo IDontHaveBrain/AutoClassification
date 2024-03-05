@@ -1,4 +1,4 @@
-import { forwardRef, useContext, useImperativeHandle, useState } from "react";
+import { forwardRef, useContext, useEffect, useImperativeHandle, useState } from "react";
 import { Divider, InputLabel } from "@mui/material";
 import TextEditor from "component/baseEditor/TextEditor";
 import Grid from "@mui/material/Grid";
@@ -12,10 +12,17 @@ import Button from "@mui/material/Button";
 
 interface Props {
     handleSave: () => void;
+    defaultValue?: any;
 }
 
-const BaseEditor = ({ handleSave }: Props, ref) => {
-  const [editor, setEditor] = useState({ title: "", content: "" });
+const BaseEditor = ({ handleSave, defaultValue }: Props, ref) => {
+  const [editor, setEditor] = useState();
+
+  useEffect(() => {
+    if (defaultValue) {
+      setEditor(defaultValue);
+    }
+  }, [defaultValue]);
 
   useImperativeHandle(ref, () => ({
     getEditorState: () => editor,
@@ -25,7 +32,7 @@ const BaseEditor = ({ handleSave }: Props, ref) => {
     <EditorContext.Provider value={{ editor, setEditor }}>
       <Grid container spacing={2} alignItems="flex-end">
         <Grid item xs>
-          <BaseInputField label="Title : " />
+          <BaseInputField label="Title : " value={defaultValue.title} />
         </Grid>
         <Grid item>
           <Button
@@ -39,7 +46,7 @@ const BaseEditor = ({ handleSave }: Props, ref) => {
         </Grid>
         <Divider />
         <Grid item xs={12} style={{ paddingTop: "20px" }}>
-          <TextEditor />
+          <TextEditor value={defaultValue.content} />
         </Grid>
       </Grid>
     </EditorContext.Provider>

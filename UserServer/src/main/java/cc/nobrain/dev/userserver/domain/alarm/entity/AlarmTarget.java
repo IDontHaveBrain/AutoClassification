@@ -6,7 +6,6 @@ import cc.nobrain.dev.userserver.domain.member.entity.Member;
 import cc.nobrain.dev.userserver.domain.member.entity.MemberGroup;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DiscriminatorOptions;

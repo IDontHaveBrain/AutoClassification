@@ -24,7 +24,7 @@ class NoticeController(val noticeService: NoticeService) {
     }
 
     @PutMapping("/{id}")
-    fun updateNotice(@PathVariable id: Long, @RequestBody update: NoticeReq.Create?): ResponseEntity<Unit> {
+    fun updateNotice(@PathVariable id: Long, @RequestBody update: NoticeReq.Create): ResponseEntity<Unit> {
         noticeService.updateNotice(id, update)
         return ResponseEntity.ok().build()
     }

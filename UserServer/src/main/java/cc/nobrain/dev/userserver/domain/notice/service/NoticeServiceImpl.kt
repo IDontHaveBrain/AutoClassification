@@ -38,10 +38,12 @@ class NoticeServiceImpl(
     }
 
     @Transactional
-    override fun updateNotice(id: Long, update: NoticeReq.Create?) {
+    override fun updateNotice(id: Long, update: NoticeReq.Create) {
         if (update == null) throw CustomException(ErrorInfo.INVALID_DATA)
         val notice = noticeRepository.findById(id).orElseThrow { CustomException(ErrorInfo.INVALID_DATA) }
-        modelMapper.map(update, notice)
+        modelMapper.map(update, notice);
+
+        noticeRepository.save(notice);
     }
 
     @Transactional

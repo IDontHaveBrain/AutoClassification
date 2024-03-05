@@ -35,7 +35,7 @@ const AlertModal = () => {
     }, [handler]);
 
     const onClose = () => {
-        if (alert && alert.open && alert.callback) {
+        if (alert && alert.callback) {
             alert.callback();
         }
         dispatch(closeAlert());
@@ -67,7 +67,7 @@ const AlertModal = () => {
                                     backgroundColor: 'green',
                                     color: 'white'
                                 }
-                            }}>{Strings.ok}</Button>
+                            }}>{Strings.Common.ok}</Button>
                 </ModalContent>
             </Fade>
         </Modal>

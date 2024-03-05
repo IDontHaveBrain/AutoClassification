@@ -3,8 +3,6 @@ package cc.nobrain.dev.userserver.domain.member.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.ArrayList;
 import java.util.HashSet;
