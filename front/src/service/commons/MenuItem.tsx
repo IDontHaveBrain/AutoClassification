@@ -8,6 +8,7 @@ import {NotFound} from "pages/default/NotFound";
 import NoticeList from "pages/contents/notice/NoticeList";
 import FileDropzone from "component/FileDropzone";
 import Classfiy from "../../pages/contents/classfiy/Classfiy";
+import WorkspaceList from "../../pages/contents/workspace/WorkspaceList";
 
 
 export interface MenuInfo {
@@ -51,6 +52,13 @@ export const MenuItems: MenuInfo[] = [
                 invisible: true,
             }
         ]
+    },
+    {
+        name: "Workspace",
+        path: "/workspace",
+        element: <WorkspaceList/>,
+        subTabMenu: [
+        ],
     },
     {
         name: "Service",
