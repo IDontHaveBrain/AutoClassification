@@ -23,7 +23,14 @@ const URLS = {
             GET: '/train',
             POST: '/train/upload',
             DELETE: '/train',
-        }
+        },
+        WORKSPACE: {
+            MYLIST: '/workspace/my',
+            GET: '/workspace',
+            POST: '/workspace',
+            PUT: '/workspace',
+            DELETE: '/workspace',
+        },
     },
 }
 
