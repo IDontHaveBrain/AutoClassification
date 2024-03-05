@@ -19,9 +19,9 @@ const FileDropzone = ({ onDrop, accept, style }: Props) => {
         >
             <input {...getInputProps()} accept={Object.keys(accept || {}).join()} style={{display: 'none'}} />
             {isDragActive ? (
-                <p>Drop the files here...</p>
+                <p>Drop the imgs here...</p>
             ) : (
-                <p>Drag & drop some files here, or click to select files</p>
+                <p>Drag & drop some imgs here, or click to select imgs</p>
             )}
         </Box>
     );

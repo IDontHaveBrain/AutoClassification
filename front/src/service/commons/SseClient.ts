@@ -36,7 +36,7 @@ class SseClient {
     }
 
     connect(url: string, messageHandler: MessageHandler, errorHandler: ErrorHandler): void {
-        this.disconnect(); // Ensure we're not already connected
+        this.disconnect();
         if (!this.isValidUrl(url)) {
             const error = new Error('Invalid URL: ' + url);
             console.error('Invalid URL', url);

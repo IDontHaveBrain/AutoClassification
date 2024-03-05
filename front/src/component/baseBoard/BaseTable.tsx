@@ -66,7 +66,7 @@ const BaseTable = ({columns, loadRows, onClick, props, children}: Props, ref) =>
 
     return (
         <Box>
-            <DataGrid rows={rows} columns={columns} {...props}
+            <DataGrid rows={rows} columns={columns} autoHeight {...props}
                       initialState={{
                           pagination: {
                               paginationModel: { page: 0, pageSize: 10 },
