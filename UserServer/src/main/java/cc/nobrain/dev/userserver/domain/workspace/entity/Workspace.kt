@@ -34,5 +34,13 @@ class Workspace (
     )
     var members: MutableList<Member> = ArrayList(),
 ): BaseCU() {
+    fun addMember(member: Member) {
+        members.add(member)
+        member.workspace.add(this)
+    }
 
+    fun removeMember(member: Member) {
+        members.remove(member)
+        member.workspace.remove(this)
+    }
 }

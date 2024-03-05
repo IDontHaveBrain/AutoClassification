@@ -8,6 +8,8 @@ import cc.nobrain.dev.userserver.domain.base.dto.FileDto
 import cc.nobrain.dev.userserver.domain.member.repository.MemberRepository
 import cc.nobrain.dev.userserver.domain.train.entity.TrainFile
 import cc.nobrain.dev.userserver.domain.train.repository.TrainFileRepository
+import cc.nobrain.dev.userserver.domain.workspace.entity.Workspace
+import cc.nobrain.dev.userserver.domain.workspace.service.WorkspaceService
 import org.modelmapper.ModelMapper
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -19,7 +21,8 @@ class TrainServiceImpl(
     private val trainFileRepository: TrainFileRepository,
     private val fileComponent: FileComponent,
     private val memberRepository: MemberRepository,
-    private val modelMapper: ModelMapper
+    private val modelMapper: ModelMapper,
+    private val workspaceService: WorkspaceService,
 ) : TrainService {
 
     @Transactional
@@ -38,6 +41,8 @@ class TrainServiceImpl(
     override fun getMyImgs(): List<FileDto> {
         val member = MemberUtil.getCurrentMember()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
+
+        val workspaces = workspaceService.getMyWorkspace();
 
         val files = trainFileRepository.findByOwnerIndexId(member.id)
         return files.stream().map { file -> modelMapper.map(file, FileDto::class.java) }.toList()

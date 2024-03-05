@@ -42,6 +42,10 @@ class MemberServiceImpl(
         return modelMapper.map(member, MemberDto::class.java)
     }
 
+    override fun findMemberById(id: Long): Member? {
+        return memberRepository.findById(id).orElse(null)
+    }
+
     override fun findMemberByEmail(email: String): Member? {
         return memberRepository.findByEmail(email);
     }

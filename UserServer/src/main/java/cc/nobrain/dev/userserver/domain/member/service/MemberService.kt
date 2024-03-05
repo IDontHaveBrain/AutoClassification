@@ -11,5 +11,7 @@ interface MemberService {
 
     fun getMyInfo(): MemberDto
 
+    fun findMemberById(id: Long): Member?
+
     fun findMemberByEmail(email: String): Member?
 }
