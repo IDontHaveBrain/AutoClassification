@@ -3,10 +3,12 @@ package cc.nobrain.dev.userserver.domain.workspace.service
 import cc.nobrain.dev.userserver.common.exception.CustomException
 import cc.nobrain.dev.userserver.common.exception.ErrorInfo
 import cc.nobrain.dev.userserver.common.utils.MemberUtil
-import cc.nobrain.dev.userserver.domain.member.entity.Member
 import cc.nobrain.dev.userserver.domain.member.service.MemberService
 import cc.nobrain.dev.userserver.domain.workspace.entity.Workspace
 import cc.nobrain.dev.userserver.domain.workspace.repository.WorkspaceRepository
+import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceReq
+import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceRes
+import org.modelmapper.ModelMapper
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -15,21 +17,37 @@ import org.springframework.transaction.annotation.Transactional
 class WorkspaceServiceImpl(
     private val workspaceRepository: WorkspaceRepository,
     private val memberService: MemberService,
+    private val modelMapper: ModelMapper,
 ) : WorkspaceService {
 
     @Transactional
-    override fun createWorkspace(workspace: Workspace): Workspace {
-        TODO("Not yet implemented")
+    override fun createWorkspace(create: WorkspaceReq.Create): WorkspaceRes {
+        val member = MemberUtil.getCurrentMember()
+            .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) };
+
+        val workspace = modelMapper.map(create, Workspace::class.java);
+
+        workspace.owner = member;
+        workspace.addMember(member);
+        workspaceRepository.save(workspace);
+
+        return modelMapper.map(workspace, WorkspaceRes::class.java);
     }
 
     @Transactional
-    override fun updateWorkspace(workspace: Workspace): Workspace {
-        TODO("Not yet implemented")
+    override fun updateWorkspace(id: Long, create: WorkspaceReq.Create): WorkspaceRes {
+        val workspace = workspaceRepository.findById(id)
+            .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) };
+
+        modelMapper.map(create, workspace);
+        workspaceRepository.save(workspace);
+
+        return modelMapper.map(workspace, WorkspaceRes::class.java);
     }
 
     @Transactional
     override fun deleteWorkspace(id: Long) {
-        TODO("Not yet implemented")
+        workspaceRepository.deleteById(id);
     }
 
     override fun getWorkspace(id: Long): Workspace {

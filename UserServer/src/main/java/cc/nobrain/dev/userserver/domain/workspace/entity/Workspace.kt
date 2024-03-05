@@ -23,6 +23,11 @@ class Workspace (
     @Column
     var description: String? = null,
 
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
+    @field:NotNull
+    var owner: Member,
+
     @OneToMany(mappedBy = "ownerIndex")
     var files: MutableList<TrainFile> = ArrayList(),
 

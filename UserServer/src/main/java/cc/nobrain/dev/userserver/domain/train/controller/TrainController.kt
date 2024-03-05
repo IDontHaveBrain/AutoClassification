@@ -7,7 +7,9 @@ import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/api/train")
-class TrainController(private val trainService: TrainService) {
+class TrainController(
+    private val trainService: TrainService
+) {
 
     @PostMapping("/upload")
     fun uploadTrainData(@RequestParam files: Array<MultipartFile>): List<FileDto> {

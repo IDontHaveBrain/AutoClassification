@@ -1,10 +1,12 @@
 package cc.nobrain.dev.userserver.domain.workspace.service
 
 import cc.nobrain.dev.userserver.domain.workspace.entity.Workspace
+import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceReq
+import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceRes
 
 interface WorkspaceService {
-    fun createWorkspace(workspace: Workspace): Workspace
-    fun updateWorkspace(workspace: Workspace): Workspace
+    fun createWorkspace(create: WorkspaceReq.Create): WorkspaceRes
+    fun updateWorkspace(id: Long, create: WorkspaceReq.Create): WorkspaceRes
     fun deleteWorkspace(id: Long)
 
     fun getWorkspace(id: Long): Workspace
