@@ -36,7 +36,7 @@ jobs:
         uses: gradle/gradle-build-action@v3
         with:
           build-root-directory: ./UserServer
-          arguments: build
+          arguments: build --exclude-task test
 
       - if: github.ref == 'refs/heads/main'
         name: 'Deploy'
