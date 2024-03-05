@@ -14,7 +14,7 @@ const NoticeEditor = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (location.state["data"] != null) {
+    if (location.state?.data) {
       setIsEdit(true);
       setNotice(location.state["data"]);
     }
@@ -49,7 +49,7 @@ const NoticeEditor = () => {
 
   return (
     <Grid item md={true}>
-      {notice && (
+      {(notice || !isEdit) && (
         <BaseEditor
           handleSave={handleSave}
           defaultValue={notice}

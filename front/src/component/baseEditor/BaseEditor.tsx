@@ -32,7 +32,7 @@ const BaseEditor = ({ handleSave, defaultValue }: Props, ref) => {
     <EditorContext.Provider value={{ editor, setEditor }}>
       <Grid container spacing={2} alignItems="flex-end">
         <Grid item xs>
-          <BaseInputField label="Title : " value={defaultValue.title} />
+          <BaseInputField label="Title : " value={defaultValue?.title} />
         </Grid>
         <Grid item>
           <Button
@@ -46,7 +46,7 @@ const BaseEditor = ({ handleSave, defaultValue }: Props, ref) => {
         </Grid>
         <Divider />
         <Grid item xs={12} style={{ paddingTop: "20px" }}>
-          <TextEditor value={defaultValue.content} />
+          <TextEditor value={defaultValue?.content} />
         </Grid>
       </Grid>
     </EditorContext.Provider>
