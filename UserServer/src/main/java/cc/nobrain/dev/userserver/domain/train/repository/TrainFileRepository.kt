@@ -5,4 +5,7 @@ import cc.nobrain.dev.userserver.domain.train.entity.TrainFile
 
 interface TrainFileRepository : FileRepository<TrainFile> {
     fun findByOwnerIndexId(ownerIndexId: Long): List<TrainFile>
+
+
+    fun findByOwnerIndex_IdIn(ids: MutableCollection<Long>): List<TrainFile>
 }
