@@ -4,7 +4,7 @@ import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import { addNotice, updateNotice } from "service/Apis/NoticeApi";
 import { useLocation, useNavigate } from "react-router-dom";
-import { onAlert } from "../../../component/modal/AlertModal";
+import { onAlert } from "component/modal/AlertModal";
 
 const NoticeEditor = () => {
   const [notice, setNotice] = useState(null);

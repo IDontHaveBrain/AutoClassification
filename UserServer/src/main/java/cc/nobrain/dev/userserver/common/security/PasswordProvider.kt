@@ -1,7 +1,6 @@
 package cc.nobrain.dev.userserver.common.security
 
 import cc.nobrain.dev.userserver.common.component.RsaHelper
-import cc.nobrain.dev.userserver.domain.member.entity.Member
 import cc.nobrain.dev.userserver.domain.member.service.dto.MemberDto
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken

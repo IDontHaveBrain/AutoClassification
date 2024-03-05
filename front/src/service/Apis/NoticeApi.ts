@@ -19,3 +19,7 @@ export const addNotice = (data): AxiosPromise => {
 export const updateNotice = (id: number, data): AxiosPromise => {
     return UserApi.put(URLS.API.NOTICE.PUT + `/${id}`, data);
 }
+
+export const deleteNotice = (id: number): AxiosPromise => {
+    return UserApi.delete(URLS.API.NOTICE.DELETE + `/${id}`);
+}

@@ -2,9 +2,7 @@ package cc.nobrain.dev.userserver.domain.alarm.entity;
 
 
 import cc.nobrain.dev.userserver.domain.alarm.enums.AlarmEventType;
-import cc.nobrain.dev.userserver.domain.alarm.enums.AlarmTargetType;
 import cc.nobrain.dev.userserver.domain.base.entity.BaseCU;
-import cc.nobrain.dev.userserver.domain.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicUpdate;

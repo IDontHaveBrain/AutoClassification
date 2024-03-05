@@ -1,8 +1,7 @@
 package cc.nobrain.dev.userserver.domain.train.entity;
 
-import cc.nobrain.dev.userserver.common.utils.CommonUtil;
 import cc.nobrain.dev.userserver.domain.base.entity.File;
-import cc.nobrain.dev.userserver.domain.member.entity.Member;
+import cc.nobrain.dev.userserver.domain.workspace.entity.Workspace;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -21,18 +20,14 @@ import java.util.Objects;
 public class TrainFile extends File {
     @ManyToOne
     @JoinColumn(name = "owner_index")
-    protected Member ownerIndex;
+    protected Workspace ownerIndex;
 
-    @Override@JoinColumn
+    @Override
     public <T> void setRelation(T ownerEntity) {
-        if (!(ownerEntity instanceof Member owner) || Objects.isNull(ownerEntity)) {
+        if (!(ownerEntity instanceof Workspace owner) || Objects.isNull(ownerEntity)) {
             throw new IllegalArgumentException("Invalid owner entity");
         }
         this.ownerIndex = owner;
-
-        if (CommonUtil.isEmpty(owner.getTrainFiles())) {
-            owner.initTrainFiles();
-        }
-        owner.getTrainFiles().add(this);
+        owner.getFiles().add(this);
     }
 }
