@@ -27,13 +27,15 @@ const NoticeDetail = ({ data, handleClose }: Props) => {
 
   const handleDelete = () => {
     console.log("delete");
-    deleteNotice(data.id).then((res) => {
+    deleteNotice(data.id)
+      .then((res) => {
         handleClose();
         onAlert("공지사항 삭제가 완료되었습니다.");
-    }).catch((err) => {
+      })
+      .catch((err) => {
         console.log(err);
         onAlert("공지사항 삭제에 실패했습니다.");
-    })
+      });
   };
 
   return (

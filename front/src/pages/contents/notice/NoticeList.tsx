@@ -82,8 +82,12 @@ const NoticeList = () => {
     { field: "createMember", headerName: "작성자", flex: 2 },
     { field: "createDateTime", headerName: "작성일", flex: 2 },
     { field: "updateMember", headerName: "수정자", flex: 2 },
-    { field: "updateDateTime", headerName: "수정일", flex: 2, valueGetter:
-          (params) => dayjs(params.value).format("YYYY-MM-DD HH:mm:ss")
+    {
+      field: "updateDateTime",
+      headerName: "수정일",
+      flex: 2,
+      valueGetter: (params) =>
+        dayjs(params.value).format("YYYY-MM-DD HH:mm:ss"),
     },
   ];
 

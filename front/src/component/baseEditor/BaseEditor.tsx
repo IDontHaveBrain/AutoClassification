@@ -1,4 +1,10 @@
-import { forwardRef, useContext, useEffect, useImperativeHandle, useState } from "react";
+import {
+  forwardRef,
+  useContext,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import { Divider, InputLabel } from "@mui/material";
 import TextEditor from "component/baseEditor/TextEditor";
 import Grid from "@mui/material/Grid";
@@ -11,8 +17,8 @@ import {
 import Button from "@mui/material/Button";
 
 interface Props {
-    handleSave: () => void;
-    defaultValue?: any;
+  handleSave: () => void;
+  defaultValue?: any;
 }
 
 const BaseEditor = ({ handleSave, defaultValue }: Props, ref) => {

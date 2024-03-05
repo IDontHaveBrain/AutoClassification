@@ -1,10 +1,10 @@
-import {useContext, useState} from "react";
+import { useContext, useState } from "react";
 import ReactQuill from "react-quill";
-import 'react-quill/dist/quill.snow.css';
-import {EditorContext} from "component/baseEditor/EditorContext";
+import "react-quill/dist/quill.snow.css";
+import { EditorContext } from "component/baseEditor/EditorContext";
 
 interface TextEditorProps {
-    value?: string;
+  value?: string;
 }
 
 const TextEditor = ({ value }: TextEditorProps) => {

@@ -25,23 +25,27 @@ const NoticeEditor = () => {
     const editorState = editorRef.current.getEditorState();
 
     if (isEdit) {
-      updateNotice(notice.id, editorState).then((res) => {
-        console.log(res);
-        onAlert("공지사항 수정이 완료되었습니다.");
-        navigate(-1);
-      }).catch((err) => {
-        console.log(err);
-        onAlert("공지사항 수정에 실패했습니다." );
-      });
+      updateNotice(notice.id, editorState)
+        .then((res) => {
+          console.log(res);
+          onAlert("공지사항 수정이 완료되었습니다.");
+          navigate(-1);
+        })
+        .catch((err) => {
+          console.log(err);
+          onAlert("공지사항 수정에 실패했습니다.");
+        });
     } else {
-      addNotice(editorState).then((res) => {
-        console.log(res);
-        onAlert("등록완료.");
-        navigate(-1)
-      }).catch((err) => {
-        console.log(err);
-        onAlert("공지사항 등록에 실패했습니다." );
-      });
+      addNotice(editorState)
+        .then((res) => {
+          console.log(res);
+          onAlert("등록완료.");
+          navigate(-1);
+        })
+        .catch((err) => {
+          console.log(err);
+          onAlert("공지사항 등록에 실패했습니다.");
+        });
     }
   };
 

@@ -1,29 +1,39 @@
-import {Divider, List, ListItem, ListItemText} from "@mui/material";
-import {Fragment} from "react";
-import {AlarmModel} from "model/GlobalModel";
+import { Divider, List, ListItem, ListItemText } from "@mui/material";
+import { Fragment } from "react";
+import { AlarmModel } from "model/GlobalModel";
 
 interface Props {
-    handleClose: () => void;
-    alarmList: AlarmModel[];
+  handleClose: () => void;
+  alarmList: AlarmModel[];
 }
 
-const AlarmDetail = ({handleClose, alarmList}: Props) => {
-
-    return (
-        <>
-            <List sx={{minWidth: '300px', maxWdith: '400px', minHeight: '300px', maxHeight: '400px', overflow: 'auto'}}>
-                {alarmList?.map((alarm, index) => (
-                    <Fragment key={index}>
-                        <ListItem>
-                            <ListItemText primary={alarm.title} secondary={alarm.content}
-                                          sx={{ textAlign: 'left' }}/>
-                        </ListItem>
-                        {index !== alarmList.length - 1 && <Divider />}
-                    </Fragment>
-                ))}
-            </List>
-        </>
-    )
-}
+const AlarmDetail = ({ handleClose, alarmList }: Props) => {
+  return (
+    <>
+      <List
+        sx={{
+          minWidth: "300px",
+          maxWdith: "400px",
+          minHeight: "300px",
+          maxHeight: "400px",
+          overflow: "auto",
+        }}
+      >
+        {alarmList?.map((alarm, index) => (
+          <Fragment key={index}>
+            <ListItem>
+              <ListItemText
+                primary={alarm.title}
+                secondary={alarm.content}
+                sx={{ textAlign: "left" }}
+              />
+            </ListItem>
+            {index !== alarmList.length - 1 && <Divider />}
+          </Fragment>
+        ))}
+      </List>
+    </>
+  );
+};
 
 export default AlarmDetail;

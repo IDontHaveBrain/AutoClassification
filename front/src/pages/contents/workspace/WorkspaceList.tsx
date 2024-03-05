@@ -5,12 +5,14 @@ const WorkspaceList = () => {
   const [workspaceList, setWorkspaceList] = useState([]);
 
   useEffect(() => {
-    getMyWorkspaceList().then((res) => {
-      console.log(res);
-      setWorkspaceList(res.data)
-    }).catch((err) => {
-      console.error(err);
-    });
+    getMyWorkspaceList()
+      .then((res) => {
+        console.log(res);
+        setWorkspaceList(res.data);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }, []);
 
   return (

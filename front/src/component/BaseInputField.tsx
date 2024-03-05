@@ -4,7 +4,7 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import {useEditorContext} from "component/baseEditor/EditorContext";
+import { useEditorContext } from "component/baseEditor/EditorContext";
 
 interface BaseInputFieldProps {
   label: string;
