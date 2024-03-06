@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { AlarmModel, AlertDetail, User, UserInfo } from "../model/GlobalModel";
+import { AlarmModel, AlertDetail, Member, MemberInfo } from "../model/GlobalModel";
 import SseClient from "../service/commons/SseClient";
 
 const userInfoSlice = createSlice({
@@ -10,10 +10,10 @@ const userInfoSlice = createSlice({
     user: {
       email: "",
       name: "",
-    } as User,
-  } as UserInfo,
+    } as Member,
+  } as MemberInfo,
   reducers: {
-    setUserInfo: (state, action: PayloadAction<UserInfo>) => {
+    setUserInfo: (state, action: PayloadAction<MemberInfo>) => {
       state.access_token = action.payload.access_token;
       state.refresh_token = action.payload.refresh_token;
       state.user = action.payload.user;

@@ -2,18 +2,20 @@ package cc.nobrain.dev.userserver.domain.workspace.controller
 
 import cc.nobrain.dev.userserver.domain.workspace.service.WorkspaceService
 import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceReq
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceRes
+import org.springframework.data.domain.Pageable
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/workspace")
 class WorkspaceController(
     private val workspaceService: WorkspaceService
 ) {
+
+    @GetMapping("/my")
+    fun getMyWorkspaces(pageable: Pageable?): List<WorkspaceRes.Owner> {
+        return workspaceService.getMyWorkspace();
+    }
 
     @PostMapping
     fun createWorkspace(create: WorkspaceReq.Create) {

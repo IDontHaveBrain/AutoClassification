@@ -8,12 +8,13 @@ import { GridSortModel } from "@mui/x-data-grid/models/gridSortModel";
 import { initPageable, Pageable } from "model/GlobalModel";
 import Button from "@mui/material/Button";
 import { GridPaginationModel } from "@mui/x-data-grid/models/gridPaginationProps";
+import { CommonUtil } from "../../utils/CommonUtil";
 
 export interface CustomDataGridProps extends DataGridProps {}
 
 interface Props {
   columns: GridColDef[];
-  page?: Pageable;
+  pageable: Pageable;
   loadRows?: any;
   onClick?: any;
   props?: DataGridProps;
@@ -21,14 +22,12 @@ interface Props {
 }
 
 const BaseTable = (
-  { columns, loadRows, onClick, props, children }: Props,
+  { columns, pageable, loadRows, onClick, props, children }: Props,
   ref,
 ) => {
-  const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
-  const [sortModel, setSortModel] = useState<GridSortModel>([
-    { field: "id", sort: "asc" },
-  ]);
+  const [page, setPage] = useState(pageable.page);
+  const [pageSize, setPageSize] = useState(pageable.size);
+  const [sortModel, setSortModel] = useState<GridSortModel>(CommonUtil.convertSortModel(pageable.sort));
   const [rows, setRows] = useState<any>([]);
 
   const onCustomClick = (row: any) => {
@@ -48,11 +47,9 @@ const BaseTable = (
   };
 
   const handleSortChange = async (sort: GridSortModel) => {
-    const sortParams = sort
-      .map((sortItem) => `${sortItem.field},${sortItem.sort}`)
-      .join(",");
-
     setSortModel(sort);
+
+    const sortParams = CommonUtil.convertSort(sort);
     const newRows = await loadRows(page, pageSize, sortParams);
     setRows(newRows);
   };
@@ -63,7 +60,7 @@ const BaseTable = (
       setRows(initialRows);
     };
     fetchRows();
-  }, [loadRows, page, pageSize, sortModel]);
+  }, []);
 
   useImperativeHandle(ref, () => ({}));
 
@@ -86,6 +83,7 @@ const BaseTable = (
         pageSizeOptions={[10, 25, 50]}
         pagination={true}
         paginationMode={"server"}
+        paginationModel={{ page: page, pageSize: pageSize}}
         onRowClick={onCustomClick}
         onPaginationModelChange={(page) => handlePageChange(page)}
         onSortModelChange={(model) => handleSortChange(model)}

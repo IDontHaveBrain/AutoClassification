@@ -55,11 +55,13 @@ class WorkspaceServiceImpl(
             .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) };
     }
 
-    override fun getMyWorkspace(): List<Workspace> {
+    override fun getMyWorkspace(): List<WorkspaceRes.Owner> {
         val member = MemberUtil.getCurrentMember()
-            .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) };
+            .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) };
 
-        return workspaceRepository.findByMembers_Id(member.id);
+        val workspace = workspaceRepository.findByMembers_IdOrOwner_Id(member.id, member.id);
+
+        return workspace.map { space -> modelMapper.map(space, WorkspaceRes.Owner::class.java) }
     }
 
     @Transactional

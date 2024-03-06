@@ -14,7 +14,7 @@ const BackGround = () => {
       SseClient.getInstance().sendHeartbeat();
     }
 
-    console.log(sseEvent);
+    // console.log(sseEvent);
   }, []);
 
   const handleSseError = useCallback((event: Event) => {

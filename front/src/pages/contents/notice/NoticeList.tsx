@@ -4,7 +4,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { Dialog, Divider } from "@mui/material";
 import BaseField from "component/BaseField";
-import { NoticeModel } from "model/GlobalModel";
+import { initPageable, NoticeModel, Pageable } from "model/GlobalModel";
 import { GridColDef } from "@mui/x-data-grid";
 import { useNavigate } from "react-router-dom";
 import { GridSortModel } from "@mui/x-data-grid/models/gridSortModel";
@@ -13,6 +13,7 @@ import BaseSearch from "component/baseBoard/BaseSearch";
 import BaseTable from "component/baseBoard/BaseTable";
 import NoticeDetail from "./NoticeDetail";
 import dayjs from "dayjs";
+import { CommonUtil } from "../../../utils/CommonUtil";
 
 const NoticeList = () => {
   const [search, setSearch] = useState({
@@ -22,6 +23,7 @@ const NoticeList = () => {
   const [noticeList, setNoticeList] = useState<NoticeModel[]>([]);
   const [openDetail, setOpenDetail] = useState(false);
   const [selectedData, setSelectedData] = useState<NoticeModel | null>(null);
+  const [pageable, setPageable] = useState<Pageable>(initPageable(10));
 
   const navigate = useNavigate();
 
@@ -46,7 +48,9 @@ const NoticeList = () => {
 
   const onSearch = (e) => {
     const params = {
-      search: { title: search.title, createMember: search.createMember },
+      title: search.title,
+      createMember: search.createMember,
+      ...pageable
     };
 
     getNoticeList(params)
@@ -60,17 +64,18 @@ const NoticeList = () => {
   };
 
   const loadRows = async (
-    page: number,
-    pageSize: number,
-    sort: GridSortModel,
+      page: number,
+      size: number,
+      sort: any,
   ) => {
     const params = {
       title: search.title,
       createMember: search.createMember,
       page: page,
-      size: pageSize,
+      size: size,
       sort: sort,
     };
+    setPageable(params);
 
     const response = await getNoticeList(params);
     return response.data;
@@ -80,14 +85,13 @@ const NoticeList = () => {
     { field: "id", headerName: "ID", flex: 1 },
     { field: "title", headerName: "제목", flex: 2 },
     { field: "createMember", headerName: "작성자", flex: 2 },
-    { field: "createDateTime", headerName: "작성일", flex: 2 },
+    { field: "createDateTime", headerName: "작성일", flex: 2, valueFormatter: CommonUtil.dateFormat, },
     { field: "updateMember", headerName: "수정자", flex: 2 },
     {
       field: "updateDateTime",
       headerName: "수정일",
       flex: 2,
-      valueGetter: (params) =>
-        dayjs(params.value).format("YYYY-MM-DD HH:mm:ss"),
+      valueFormatter: CommonUtil.dateFormat,
     },
   ];
 
@@ -125,6 +129,7 @@ const NoticeList = () => {
       <Divider sx={{ mt: 2, mb: 2 }} />
       <BaseTable
         columns={columns}
+        pageable={pageable}
         loadRows={loadRows}
         onClick={handleRowClick}
       />

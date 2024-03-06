@@ -7,4 +7,7 @@ import java.util.Optional
 
 interface WorkspaceRepository : JpaRepository<Workspace, Long>, JpaSpecificationExecutor<Workspace> {
     fun findByMembers_Id(id: Long): List<Workspace>
+
+
+    fun findByMembers_IdOrOwner_Id(id: Long, id1: Long): Set<Workspace>
 }

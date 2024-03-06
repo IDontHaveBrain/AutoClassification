@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
+import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -32,11 +33,7 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings
-import org.springframework.security.oauth2.server.authorization.token.DelegatingOAuth2TokenGenerator
-import org.springframework.security.oauth2.server.authorization.token.JwtGenerator
-import org.springframework.security.oauth2.server.authorization.token.OAuth2AccessTokenGenerator
-import org.springframework.security.oauth2.server.authorization.token.OAuth2RefreshTokenGenerator
-import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator
+import org.springframework.security.oauth2.server.authorization.token.*
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.web.cors.CorsConfigurationSource
 import java.nio.charset.StandardCharsets
@@ -81,9 +78,10 @@ class SecurityConfig(
         rsaHelper: RsaHelper,
         jwtDecoder: JwtDecoder
     ): SecurityFilterChain {
-        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http)
-
-        http.getConfigurer(OAuth2AuthorizationServerConfigurer::class.java)
+//        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http)
+//        http.getConfigurer(OAuth2AuthorizationServerConfigurer::class.java)
+        val authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer()
+        http.apply(authorizationServerConfigurer)
             .tokenGenerator(tokenGenerator)
             .clientAuthentication { clientAuth ->
                 clientAuth.authenticationConverters { }
@@ -115,24 +113,13 @@ class SecurityConfig(
             .csrf { csrf -> csrf.disable() }
             .formLogin { form -> form.disable() }
             .httpBasic { httpBasic -> httpBasic.disable() }
-
-        return http.build()
-    }
-
-    @Bean
-    @Order(2)
-    @Throws(Exception::class)
-    fun defaultSecurityFilterChain(http: HttpSecurity, jwtDecoder: JwtDecoder): SecurityFilterChain {
-        http.cors { cors -> cors.configurationSource(corsConfigurationSource) }.csrf { csrf -> csrf.disable() }
-            .httpBasic { httpBasic -> httpBasic.disable() }
             .sessionManagement { session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .userDetailsService(customUserDetailService)
             .oauth2ResourceServer { oauth2 ->
-                oauth2.jwt { jwt ->
-                    jwt.decoder(jwtDecoder)
-                    jwt.jwtAuthenticationConverter(CustomJwtAuthenticationConverter(customUserDetailService))
-                }
-            }
+            oauth2.jwt { jwt ->
+                jwt.decoder(jwtDecoder)
+                jwt.jwtAuthenticationConverter(CustomJwtAuthenticationConverter(customUserDetailService))
+            }}
             .authorizeHttpRequests { authorize ->
                 authorize.requestMatchers("/auth/**").permitAll()
                     .requestMatchers("/api/**").permitAll()
@@ -142,10 +129,9 @@ class SecurityConfig(
                     .requestMatchers("/v3/api-docs/**").permitAll()
                     .requestMatchers("/swagger-resources/**").permitAll()
                     .anyRequest().authenticated()
-            }
-            .formLogin { form -> form.disable() }
+            };
 
-        return http.build()
+        return http.build();
     }
 
     @Bean

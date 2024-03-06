@@ -10,7 +10,7 @@ interface WorkspaceService {
     fun deleteWorkspace(id: Long)
 
     fun getWorkspace(id: Long): Workspace
-    fun getMyWorkspace(): List<Workspace>
+    fun getMyWorkspace(): List<WorkspaceRes.Owner>
     fun addMember(workspaceId: Long, memberId: Long)
     fun removeMember(workspaceId: Long, memberId: Long)
 }

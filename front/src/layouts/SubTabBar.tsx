@@ -27,7 +27,7 @@ const SubTabBar = ({ subTabMenu }: SubTabBarProps) => {
       value={location.pathname}
       onChange={handleChange}
       indicatorColor="primary"
-      textColor="primary"
+      // textColor="primary"
       variant="scrollable"
       scrollButtons="auto"
       sx={{

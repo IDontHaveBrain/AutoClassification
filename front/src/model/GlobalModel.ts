@@ -1,3 +1,5 @@
+import { Workspace } from "./WorkspaceModel";
+
 export interface AlarmModel {
   id: number;
   title: string;
@@ -11,17 +13,40 @@ export interface AlertDetail {
   callback?: () => any;
 }
 
-export interface User {
+export interface GroupPermission {
+  id: number;
+  url: string;
+  httpMethod?: string | null;
+  description?: string | null;
+}
+
+export interface GroupPermissionMapping {
+  id: number;
+  memberGroup: MemberGroup;
+  groupPermission: GroupPermission;
+}
+
+export interface MemberGroup {
+  id: number;
+  groupName: string;
+  groupDescription?: string | null;
+  members?: Member[];
+  groupPermissionMappings?: GroupPermissionMapping[];
+}
+
+export interface Member {
   id?: number;
   email: string;
   name: string;
+  memberGroup?: MemberGroup | null;
+  workspace?: Workspace | null;
 }
 
-export interface UserInfo {
+export interface MemberInfo {
   access_token: string;
   refresh_token: string;
   expires_in: number;
-  user: User;
+  user: Member;
 }
 
 export enum SseType {
@@ -52,26 +77,22 @@ export interface NoticeModel extends BaseDto {
 
 export interface Pageable {
   page: number;
-  pageSize: number;
-  sort?: any;
+  size: number;
+  sort?: Array;
 }
 
 export const initPageable = (size: number): Pageable => {
   return {
     page: 0,
-    pageSize: size,
-    sort: "id,desc",
+    size: size,
+    sort: ["id,desc"],
   };
 };
 
-export interface FileModel {
+export interface FileModel extends BaseDto {
   id: number;
   url: string;
   fileName: string;
   originalFileName: string;
   size: number;
-  createMember: string;
-  updateMember: string;
-  createDateTime: string;
-  updateDateTime: string;
 }

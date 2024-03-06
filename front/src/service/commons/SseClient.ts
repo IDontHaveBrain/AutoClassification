@@ -122,9 +122,9 @@ class SseClient {
     if (this.isConnected()) {
       sendOk()
         .then(() => {
-          console.log("Heartbeat sent");
+          // console.log("Heartbeat sent");
           if (retryCount < SseClient.MAX_RETRIES) {
-            retryCount = 0; // Reset retry count on successful send
+            retryCount = 0;
           }
         })
         .catch((err) => {
@@ -133,10 +133,10 @@ class SseClient {
             setTimeout(
               () => this.sendHeartbeat(retryCount + 1),
               SseClient.RETRY_DELAY,
-            ); // Retry send on failure
+            );
           } else {
             console.error("Max retries exceeded");
-            retryCount = 0; // Reset retry count after max retries exceeded
+            retryCount = 0;
             this.disconnect();
           }
         });
