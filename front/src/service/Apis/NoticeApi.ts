@@ -4,8 +4,9 @@ import { UserApi } from "service/commons/ApiClient";
 import qs from "qs";
 
 export const getNoticeList = (search?): AxiosPromise => {
-  const queryString = qs.stringify(search);
-  return UserApi.get(`${URLS.API.NOTICE.GET}?${queryString}`);
+  // const queryString = qs.stringify(search);
+  // return UserApi.get(`${URLS.API.NOTICE.GET}?${queryString}`);
+  return UserApi.get(URLS.API.NOTICE.GET, { params: search });
 };
 
 export const getNoticeDetail = (id: number): AxiosPromise => {

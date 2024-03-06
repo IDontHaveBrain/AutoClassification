@@ -1,63 +1,43 @@
+import { useState, useEffect, useImperativeHandle, forwardRef } from "react";
 import Box from "@mui/material/Box";
-import { DataGrid, GridColDef, GridColTypeDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { DataGridProps } from "@mui/x-data-grid/models/props/DataGridProps";
-import { GridBaseColDef } from "@mui/x-data-grid/internals";
-import CONSTANT from "utils/constant/constant";
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { GridSortModel } from "@mui/x-data-grid/models/gridSortModel";
-import { initPageable, Pageable } from "model/GlobalModel";
-import Button from "@mui/material/Button";
 import { GridPaginationModel } from "@mui/x-data-grid/models/gridPaginationProps";
-import { CommonUtil } from "../../utils/CommonUtil";
-
-export interface CustomDataGridProps extends DataGridProps {}
+import { Pageable } from "model/GlobalModel";
+import { CommonUtil } from "utils/CommonUtil";
 
 interface Props {
+  rows: any[];
   columns: GridColDef[];
   pageable: Pageable;
-  loadRows?: any;
-  onClick?: any;
+  loadRows: (page: number, pageSize: number, sort: string) => void;
+  onClick?: (row: any) => void;
   props?: DataGridProps;
   children?: React.ReactNode;
 }
 
 const BaseTable = (
-  { columns, pageable, loadRows, onClick, props, children }: Props,
+  { rows, columns, pageable, loadRows, onClick, props, children }: Props,
   ref,
 ) => {
   const [page, setPage] = useState(pageable.page);
   const [pageSize, setPageSize] = useState(pageable.size);
-  const [sortModel, setSortModel] = useState<GridSortModel>(
-    CommonUtil.convertSortModel(pageable.sort),
-  );
-  const [rows, setRows] = useState<any>([]);
-
-  const onCustomClick = (row: any) => {
-    console.log("row Click! : ", row);
-    if (onClick) {
-      onClick(row);
-    }
-  };
-
-  const handlePageChange = async (param: GridPaginationModel) => {
-    setPage(param.page);
-    setPageSize(param.pageSize);
-    fetchRows();
-  };
-
-  const handleSortChange = async (sort: GridSortModel) => {
-    setSortModel(sort);
-    fetchRows();
-  };
-
-  const fetchRows = async () => {
-    const newRows = await loadRows?.(page, pageSize, sortModel);
-    setRows(newRows || []);
-  };
+  const [sortModel, setSortModel] = useState<GridSortModel>(pageable.sort);
 
   useEffect(() => {
-    fetchRows();
-  }, [loadRows]);
+    const sort = CommonUtil.convertSort(sortModel);
+    loadRows(page, pageSize, sort);
+  }, [page, pageSize, sortModel, loadRows]);
+
+  const handlePageChange = (param: GridPaginationModel) => {
+    setPage(param.page);
+    setPageSize(param.pageSize);
+  };
+
+  const handleSortChange = (sort: GridSortModel) => {
+    setSortModel(sort);
+  };
 
   useImperativeHandle(ref, () => ({}));
 
@@ -68,22 +48,14 @@ const BaseTable = (
         columns={columns}
         autoHeight
         {...props}
-        initialState={{
-          pagination: {
-            paginationModel: { page: 0, pageSize: 10 },
-          },
-          sorting: {
-            sortModel: [{ field: "id", sort: "asc" }],
-          },
-        }}
-        rowCount={rows?.length}
+        rowCount={rows.length}
         pageSizeOptions={[10, 25, 50]}
         pagination={true}
         paginationMode={"server"}
-        paginationModel={{ page: page, pageSize: pageSize }}
-        onRowClick={onCustomClick}
-        onPaginationModelChange={(page) => handlePageChange(page)}
-        onSortModelChange={(model) => handleSortChange(model)}
+        paginationModel={{ page, pageSize }}
+        onRowClick={onClick}
+        onPaginationModelChange={handlePageChange}
+        onSortModelChange={handleSortChange}
         sortModel={sortModel}
       />
       {children}

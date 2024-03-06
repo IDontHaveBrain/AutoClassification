@@ -1,4 +1,5 @@
 import { Workspace } from "./WorkspaceModel";
+import { GridSortModel } from "@mui/x-data-grid/models/gridSortModel";
 
 export interface AlarmModel {
   id: number;
@@ -78,14 +79,14 @@ export interface NoticeModel extends BaseDto {
 export interface Pageable {
   page: number;
   size: number;
-  sort?: any[];
+  sort?: GridSortModel;
 }
 
 export const initPageable = (size: number): Pageable => {
   return {
     page: 0,
     size: size,
-    sort: ["id,desc"],
+    sort: [{ field: "id", sort: "asc" }],
   };
 };
 

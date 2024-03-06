@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getMyWorkspaceList } from "service/Apis/WorkspaceApi";
 import { Workspace } from "model/WorkspaceModel";
 import BaseTitle from "component/baseBoard/BaseTitle";
@@ -10,24 +10,33 @@ import { CommonUtil } from "utils/CommonUtil";
 import { initPageable, Pageable } from "model/GlobalModel";
 import { GridSortModel } from "@mui/x-data-grid/models/gridSortModel";
 
+interface Search {
+  createMember: string;
+}
+
 const WorkspaceList = () => {
   const [pageable, setPageable] = useState<Pageable>(initPageable(10));
   const [workspaceList, setWorkspaceList] = useState<Workspace[]>([]);
+  const [search, setSearch] = useState<Search>({ createMember: "" });
 
-  const loadRows = async (
-    page: number,
-    pageSize: number,
-    sort: GridSortModel,
-  ) => {
-    const params = {
-      page: page,
-      pageSize: pageSize,
-      sort: sort,
-    };
-
-    const response = await getMyWorkspaceList(params);
-    return response.data;
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch({ ...search, [e.target.name]: e.target.value });
   };
+
+  const loadRows = useCallback(
+    async (page: number, size: number, sort: any) => {
+      const params = { ...search, page, size, sort };
+      setPageable(params);
+
+      try {
+        const response = await getMyWorkspaceList(params);
+        setWorkspaceList(response.data || []);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [search],
+  );
 
   const columns: GridColDef[] = [
     { field: "name", headerName: "제목", flex: 2 },
@@ -46,13 +55,14 @@ const WorkspaceList = () => {
       <BaseSearch>
         <BaseField
           name={"createMember"}
-          // value={search.createMember}
-          // onChange={handleSearch}
+          value={search.createMember}
+          onChange={handleSearch}
           size={"small"}
           label={"작성자"}
         />
       </BaseSearch>
       <BaseTable
+        rows={workspaceList}
         columns={columns}
         pageable={pageable}
         loadRows={loadRows}

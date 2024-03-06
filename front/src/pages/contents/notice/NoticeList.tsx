@@ -1,4 +1,4 @@
-import {useCallback, useState} from "react";
+import { useCallback, useState } from "react";
 import { getNoticeList } from "service/Apis/NoticeApi";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -12,25 +12,19 @@ import BaseSearch from "component/baseBoard/BaseSearch";
 import BaseTable from "component/baseBoard/BaseTable";
 import NoticeDetail from "./NoticeDetail";
 import { CommonUtil } from "utils/CommonUtil";
+import { GridSortModel } from "@mui/x-data-grid/models/gridSortModel";
 
 const NoticeList = () => {
-  const [search, setSearch] = useState({
-    title: "",
-    createMember: "",
-  });
-  const [noticeList, setNoticeList] = useState<NoticeModel[]>([]);
+  const [search, setSearch] = useState({ title: "", createMember: "" });
   const [openDetail, setOpenDetail] = useState(false);
-  const [selectedData, setSelectedData] = useState<NoticeModel | null>(null);
+  const [selectedData, setSelectedData] = useState(null);
   const [pageable, setPageable] = useState<Pageable>(initPageable(10));
+  const [rows, setRows] = useState<NoticeModel[]>([]);
 
   const navigate = useNavigate();
 
-  const handleClickOpen = () => {
-    setOpenDetail(true);
-  };
-  const handleClose = () => {
-    setOpenDetail(false);
-  };
+  const handleClickOpen = () => setOpenDetail(true);
+  const handleClose = () => setOpenDetail(false);
 
   const handleRowClick = (data) => {
     setSelectedData(data.row as NoticeModel);
@@ -38,42 +32,28 @@ const NoticeList = () => {
   };
 
   const handleSearch = (e) => {
-    setSearch({
-      ...search,
-      [e.target.name]: e.target.value,
-    });
+    setSearch({ ...search, [e.target.name]: e.target.value });
   };
 
-  const onSearch = (e) => {
-    const params = {
-      title: search.title,
-      createMember: search.createMember,
-      ...pageable,
-    };
-
-    getNoticeList(params)
-      .then((response) => {
-        console.log(response);
-        setNoticeList(response.data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+  const onSearch = () => {
+    loadRows(pageable.page, pageable.size, pageable.sort);
   };
 
-  const loadRows = useCallback(async (page: number, size: number, sort: any) => {
-    const params = {
-      title: search.title,
-      createMember: search.createMember,
-      page: page,
-      size: size,
-      sort: sort,
-    };
-    setPageable(params);
+  const loadRows = useCallback(
+    (page, size, sort) => {
+      const params = { ...search, page, size, sort };
+      setPageable(params);
 
-    const response = await getNoticeList(params);
-    return response.data;
-  }, []);
+      getNoticeList(params)
+        .then((response) => {
+          setRows(response.data || []);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
+    [search],
+  );
 
   const columns: GridColDef[] = [
     { field: "id", headerName: "ID", flex: 1 },
@@ -94,9 +74,7 @@ const NoticeList = () => {
     },
   ];
 
-  const onClickWrite = () => {
-    navigate("/notice/write");
-  };
+  const onClickWrite = () => navigate("/notice/write");
 
   return (
     <Box>
@@ -127,6 +105,7 @@ const NoticeList = () => {
       </BaseSearch>
       <Divider sx={{ mt: 2, mb: 2 }} />
       <BaseTable
+        rows={rows}
         columns={columns}
         pageable={pageable}
         loadRows={loadRows}
