@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useCallback, useState} from "react";
 import { getNoticeList } from "service/Apis/NoticeApi";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -7,13 +7,11 @@ import BaseField from "component/BaseField";
 import { initPageable, NoticeModel, Pageable } from "model/GlobalModel";
 import { GridColDef } from "@mui/x-data-grid";
 import { useNavigate } from "react-router-dom";
-import { GridSortModel } from "@mui/x-data-grid/models/gridSortModel";
 import BaseTitle from "component/baseBoard/BaseTitle";
 import BaseSearch from "component/baseBoard/BaseSearch";
 import BaseTable from "component/baseBoard/BaseTable";
 import NoticeDetail from "./NoticeDetail";
-import dayjs from "dayjs";
-import { CommonUtil } from "../../../utils/CommonUtil";
+import { CommonUtil } from "utils/CommonUtil";
 
 const NoticeList = () => {
   const [search, setSearch] = useState({
@@ -50,7 +48,7 @@ const NoticeList = () => {
     const params = {
       title: search.title,
       createMember: search.createMember,
-      ...pageable
+      ...pageable,
     };
 
     getNoticeList(params)
@@ -63,11 +61,7 @@ const NoticeList = () => {
       });
   };
 
-  const loadRows = async (
-      page: number,
-      size: number,
-      sort: any,
-  ) => {
+  const loadRows = useCallback(async (page: number, size: number, sort: any) => {
     const params = {
       title: search.title,
       createMember: search.createMember,
@@ -79,13 +73,18 @@ const NoticeList = () => {
 
     const response = await getNoticeList(params);
     return response.data;
-  };
+  }, []);
 
   const columns: GridColDef[] = [
     { field: "id", headerName: "ID", flex: 1 },
     { field: "title", headerName: "제목", flex: 2 },
     { field: "createMember", headerName: "작성자", flex: 2 },
-    { field: "createDateTime", headerName: "작성일", flex: 2, valueFormatter: CommonUtil.dateFormat, },
+    {
+      field: "createDateTime",
+      headerName: "작성일",
+      flex: 2,
+      valueFormatter: CommonUtil.dateFormat,
+    },
     { field: "updateMember", headerName: "수정자", flex: 2 },
     {
       field: "updateDateTime",

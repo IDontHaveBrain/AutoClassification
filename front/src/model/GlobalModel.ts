@@ -78,7 +78,7 @@ export interface NoticeModel extends BaseDto {
 export interface Pageable {
   page: number;
   size: number;
-  sort?: Array;
+  sort?: any[];
 }
 
 export const initPageable = (size: number): Pageable => {

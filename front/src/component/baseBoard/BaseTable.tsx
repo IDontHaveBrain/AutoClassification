@@ -27,7 +27,9 @@ const BaseTable = (
 ) => {
   const [page, setPage] = useState(pageable.page);
   const [pageSize, setPageSize] = useState(pageable.size);
-  const [sortModel, setSortModel] = useState<GridSortModel>(CommonUtil.convertSortModel(pageable.sort));
+  const [sortModel, setSortModel] = useState<GridSortModel>(
+    CommonUtil.convertSortModel(pageable.sort),
+  );
   const [rows, setRows] = useState<any>([]);
 
   const onCustomClick = (row: any) => {
@@ -38,29 +40,24 @@ const BaseTable = (
   };
 
   const handlePageChange = async (param: GridPaginationModel) => {
-    const newPage = param.page;
-    const newPageSize = param.pageSize;
-    setPage(newPage);
-    setPageSize(newPageSize);
-    const newRows = await loadRows(newPage, newPageSize, sortModel);
-    setRows(newRows);
+    setPage(param.page);
+    setPageSize(param.pageSize);
+    fetchRows();
   };
 
   const handleSortChange = async (sort: GridSortModel) => {
     setSortModel(sort);
+    fetchRows();
+  };
 
-    const sortParams = CommonUtil.convertSort(sort);
-    const newRows = await loadRows(page, pageSize, sortParams);
-    setRows(newRows);
+  const fetchRows = async () => {
+    const newRows = await loadRows?.(page, pageSize, sortModel);
+    setRows(newRows || []);
   };
 
   useEffect(() => {
-    const fetchRows = async () => {
-      const initialRows = await loadRows(page, pageSize, sortModel);
-      setRows(initialRows);
-    };
     fetchRows();
-  }, []);
+  }, [loadRows]);
 
   useImperativeHandle(ref, () => ({}));
 
@@ -83,7 +80,7 @@ const BaseTable = (
         pageSizeOptions={[10, 25, 50]}
         pagination={true}
         paginationMode={"server"}
-        paginationModel={{ page: page, pageSize: pageSize}}
+        paginationModel={{ page: page, pageSize: pageSize }}
         onRowClick={onCustomClick}
         onPaginationModelChange={(page) => handlePageChange(page)}
         onSortModelChange={(model) => handleSortChange(model)}

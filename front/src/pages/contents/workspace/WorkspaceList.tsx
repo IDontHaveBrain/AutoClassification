@@ -1,20 +1,24 @@
 import { useEffect, useState } from "react";
-import { getMyWorkspaceList } from "../../../service/Apis/WorkspaceApi";
+import { getMyWorkspaceList } from "service/Apis/WorkspaceApi";
 import { Workspace } from "model/WorkspaceModel";
 import BaseTitle from "component/baseBoard/BaseTitle";
 import BaseSearch from "component/baseBoard/BaseSearch";
 import BaseField from "component/BaseField";
-import BaseTable from "../../../component/baseBoard/BaseTable";
+import BaseTable from "component/baseBoard/BaseTable";
 import { GridColDef } from "@mui/x-data-grid";
-import { CommonUtil } from "../../../utils/CommonUtil";
-import { initPageable, Pageable } from "../../../model/GlobalModel";
+import { CommonUtil } from "utils/CommonUtil";
+import { initPageable, Pageable } from "model/GlobalModel";
 import { GridSortModel } from "@mui/x-data-grid/models/gridSortModel";
 
 const WorkspaceList = () => {
   const [pageable, setPageable] = useState<Pageable>(initPageable(10));
   const [workspaceList, setWorkspaceList] = useState<Workspace[]>([]);
 
-  const loadRows = async (page: number, pageSize: number, sort: GridSortModel) => {
+  const loadRows = async (
+    page: number,
+    pageSize: number,
+    sort: GridSortModel,
+  ) => {
     const params = {
       page: page,
       pageSize: pageSize,
@@ -48,7 +52,11 @@ const WorkspaceList = () => {
           label={"작성자"}
         />
       </BaseSearch>
-      <BaseTable columns={columns} pageable={pageable} loadRows={loadRows}></BaseTable>
+      <BaseTable
+        columns={columns}
+        pageable={pageable}
+        loadRows={loadRows}
+      ></BaseTable>
     </>
   );
 };
