@@ -45,7 +45,7 @@ const WorkspaceList = () => {
   const addWorkspace = () => {
     console.log("addWorkspace");
     navigate("/workspace/editor");
-  }
+  };
 
   const columns: GridColDef[] = [
     { field: "name", headerName: "제목", flex: 2 },

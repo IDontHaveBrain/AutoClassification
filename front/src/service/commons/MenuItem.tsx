@@ -61,7 +61,7 @@ export const MenuItems: MenuInfo[] = [
       {
         name: "Workspace Editor",
         path: "/workspace/editor",
-        element: <WorkspaceEditor/>,
+        element: <WorkspaceEditor />,
         invisible: true,
       },
     ],
