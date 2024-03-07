@@ -16,7 +16,7 @@ import { CommonUtil } from "utils/CommonUtil";
 const NoticeList = () => {
   const [search, setSearch] = useState({ title: "", createMember: "" });
   const [openDetail, setOpenDetail] = useState(false);
-  const [selectedData, setSelectedData] = useState(null);
+  const [selectedData, setSelectedData] = useState<NoticeModel>();
   const [pageable, setPageable] = useState<Pageable>(initPageable(10));
   const [rows, setRows] = useState<NoticeModel[]>([]);
 

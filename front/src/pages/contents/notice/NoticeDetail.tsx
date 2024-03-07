@@ -3,15 +3,12 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  useMediaQuery,
 } from "@mui/material";
 import Button from "@mui/material/Button";
-import { useTheme } from "@mui/material/styles";
-import { NoticeModel } from "../../../model/GlobalModel";
+import { NoticeModel } from "model/GlobalModel";
 import { useNavigate } from "react-router-dom";
-import { URLS } from "../../../utils/constant";
-import { deleteNotice } from "../../../service/Apis/NoticeApi";
-import { onAlert } from "../../../component/modal/AlertModal";
+import { deleteNotice } from "service/Apis/NoticeApi";
+import { onAlert } from "component/modal/AlertModal";
 
 interface Props {
   data: NoticeModel;
@@ -26,7 +23,6 @@ const NoticeDetail = ({ data, handleClose }: Props) => {
   };
 
   const handleDelete = () => {
-    console.log("delete");
     deleteNotice(data.id)
       .then((res) => {
         handleClose();

@@ -5,6 +5,7 @@ import Button from "@mui/material/Button";
 import { addNotice, updateNotice } from "service/Apis/NoticeApi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { onAlert } from "component/modal/AlertModal";
+import { Strings } from "utils/strings";
 
 const NoticeEditor = () => {
   const [notice, setNotice] = useState(null);
@@ -27,29 +28,25 @@ const NoticeEditor = () => {
     if (isEdit) {
       updateNotice(notice.id, editorState)
         .then((res) => {
-          console.log(res);
-          onAlert("공지사항 수정이 완료되었습니다.");
+          onAlert(Strings.Notice.update);
           navigate(-1);
         })
         .catch((err) => {
           console.log(err);
-          onAlert("공지사항 수정에 실패했습니다.");
+          onAlert(Strings.Notice.updateFailed);
         });
     } else {
       addNotice(editorState)
         .then((res) => {
-          console.log(res);
-          onAlert("등록완료.");
+          onAlert(Strings.Notice.add);
           navigate(-1);
         })
         .catch((err) => {
           console.log(err);
-          onAlert("공지사항 등록에 실패했습니다.");
+          onAlert(Strings.Notice.addFailed);
         });
     }
   };
-
-  useEffect(() => {}, []);
 
   return (
     <Grid item md={true}>
