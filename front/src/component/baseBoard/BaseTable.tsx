@@ -27,8 +27,10 @@ const BaseTable = (
 
   useEffect(() => {
     const sort = CommonUtil.convertSort(sortModel);
+    console.log("sort : ", sort);
+    console.log("sortModel : ", sortModel);
     loadRows(page, pageSize, sort);
-  }, [page, pageSize, sortModel, loadRows]);
+  }, [page, pageSize, sortModel]);
 
   const handlePageChange = (param: GridPaginationModel) => {
     setPage(param.page);
@@ -56,7 +58,7 @@ const BaseTable = (
         onRowClick={onClick}
         onPaginationModelChange={handlePageChange}
         onSortModelChange={handleSortChange}
-        sortModel={sortModel}
+        // sortModel={sortModel}
       />
       {children}
     </Box>

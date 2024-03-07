@@ -27,13 +27,15 @@ const WorkspaceList = () => {
     async (page: number, size: number, sort: any) => {
       const params = { ...search, page, size, sort };
       setPageable(params);
+      console.log("asdasd : ", params);
 
-      try {
-        const response = await getMyWorkspaceList(params);
-        setWorkspaceList(response.data || []);
-      } catch (error) {
-        console.error(error);
-      }
+      getMyWorkspaceList(params)
+        .then((response) => {
+          setWorkspaceList(response.data || []);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     },
     [search],
   );
