@@ -9,8 +9,8 @@
     "react-hooks",
     "@typescript-eslint",
     "import",
-    "import-order-autofix",
-    "prettier"
+    "prettier",
+    "simple-import-sort"
   ],
   "extends": [
     "eslint:recommended",

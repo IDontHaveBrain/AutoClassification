@@ -11,7 +11,7 @@ interface Props {
   rows: any[];
   columns: GridColDef[];
   pageable: Pageable;
-  loadRows: (page: number, pageSize: number, sort: string) => void;
+  loadRows: any;
   onClick?: (row: any) => void;
   props?: DataGridProps;
   children?: React.ReactNode;
@@ -27,10 +27,8 @@ const BaseTable = (
 
   useEffect(() => {
     const sort = CommonUtil.convertSort(sortModel);
-    console.log("sort : ", sort);
-    console.log("sortModel : ", sortModel);
     loadRows(page, pageSize, sort);
-  }, [page, pageSize, sortModel]);
+  }, [page, pageSize, sortModel, loadRows]);
 
   const handlePageChange = (param: GridPaginationModel) => {
     setPage(param.page);
