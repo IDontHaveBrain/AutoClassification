@@ -12,7 +12,6 @@ import BaseSearch from "component/baseBoard/BaseSearch";
 import BaseTable from "component/baseBoard/BaseTable";
 import NoticeDetail from "./NoticeDetail";
 import { CommonUtil } from "utils/CommonUtil";
-import { GridSortModel } from "@mui/x-data-grid/models/gridSortModel";
 
 const NoticeList = () => {
   const [search, setSearch] = useState({ title: "", createMember: "" });

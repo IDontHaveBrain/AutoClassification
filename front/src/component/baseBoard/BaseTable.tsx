@@ -42,7 +42,7 @@ const BaseTable = (
   useImperativeHandle(ref, () => ({}));
 
   return (
-    <Box>
+    <Box sx={{ mt: 2 }}>
       <DataGrid
         rows={rows}
         columns={columns}

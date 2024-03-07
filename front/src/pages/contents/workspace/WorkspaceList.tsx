@@ -9,6 +9,8 @@ import { GridColDef } from "@mui/x-data-grid";
 import { CommonUtil } from "utils/CommonUtil";
 import { initPageable, Pageable } from "model/GlobalModel";
 import { GridSortModel } from "@mui/x-data-grid/models/gridSortModel";
+import Button from "@mui/material/Button";
+import { useNavigate } from "react-router-dom";
 
 interface Search {
   createMember: string;
@@ -18,6 +20,7 @@ const WorkspaceList = () => {
   const [pageable, setPageable] = useState<Pageable>(initPageable(10));
   const [workspaceList, setWorkspaceList] = useState<Workspace[]>([]);
   const [search, setSearch] = useState<Search>({ createMember: "" });
+  const navigate = useNavigate();
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch({ ...search, [e.target.name]: e.target.value });
@@ -27,7 +30,6 @@ const WorkspaceList = () => {
     async (page: number, size: number, sort: any) => {
       const params = { ...search, page, size, sort };
       setPageable(params);
-      console.log("asdasd : ", params);
 
       getMyWorkspaceList(params)
         .then((response) => {
@@ -39,6 +41,11 @@ const WorkspaceList = () => {
     },
     [search],
   );
+
+  const addWorkspace = () => {
+    console.log("addWorkspace");
+    navigate("/workspace/editor");
+  }
 
   const columns: GridColDef[] = [
     { field: "name", headerName: "제목", flex: 2 },
@@ -62,6 +69,9 @@ const WorkspaceList = () => {
           size={"small"}
           label={"작성자"}
         />
+        <Button color={"success"} variant={"contained"} onClick={addWorkspace}>
+          추가
+        </Button>
       </BaseSearch>
       <BaseTable
         rows={workspaceList}
