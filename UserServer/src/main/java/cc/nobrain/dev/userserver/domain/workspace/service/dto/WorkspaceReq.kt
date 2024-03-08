@@ -11,7 +11,7 @@ data class WorkspaceReq(
     data class Create(
         var name: String,
         var description: String?,
-        var files: MutableList<FileDto>?
+        var files: MutableList<FileDto>? = mutableListOf()
     )
 
     data class Update(

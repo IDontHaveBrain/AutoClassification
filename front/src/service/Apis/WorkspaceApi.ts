@@ -16,3 +16,7 @@ export const createWorkspace = (data): AxiosPromise => {
 export const updateWorkspace = (id, data): AxiosPromise => {
   return UserApi.put(`${URLS.API.WORKSPACE.PUT}/${id}`, data);
 };
+
+export const deleteWorkspace = (id): AxiosPromise => {
+  return UserApi.delete(`${URLS.API.WORKSPACE.DELETE}/${id}`);
+};

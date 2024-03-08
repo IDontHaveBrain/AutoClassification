@@ -40,6 +40,9 @@ class Workspace (
     var members: MutableList<Member> = ArrayList(),
 ): BaseCU() {
     fun addMember(member: Member) {
+        if (members.isNullOrEmpty()) {
+            members = ArrayList()
+        }
         members.add(member)
         member.workspace.add(this)
     }

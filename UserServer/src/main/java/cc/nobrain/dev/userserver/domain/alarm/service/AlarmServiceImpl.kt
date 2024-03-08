@@ -7,8 +7,6 @@ import cc.nobrain.dev.userserver.domain.alarm.entity.Alarm
 import cc.nobrain.dev.userserver.domain.alarm.repository.AlarmRepository
 import cc.nobrain.dev.userserver.domain.alarm.service.dto.AlarmDto
 import cc.nobrain.dev.userserver.domain.member.entity.Member
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.modelmapper.ModelMapper
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
@@ -22,7 +20,7 @@ class AlarmServiceImpl(
 ) : AlarmService {
 
      override suspend fun getMyAlarmList(): List<AlarmDto> {
-        val member: Member = MemberUtil.getCurrentMember().orElseThrow {
+        val member: Member = MemberUtil.getCurrentMemberDto().orElseThrow {
             CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND)
         };
         val spec: Specification<Alarm> = AlarmSpecs.findAlarmByMemberId(member.id);

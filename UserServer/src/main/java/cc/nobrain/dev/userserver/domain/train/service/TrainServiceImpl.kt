@@ -9,8 +9,6 @@ import cc.nobrain.dev.userserver.domain.member.repository.MemberRepository
 import cc.nobrain.dev.userserver.domain.train.entity.TrainFile
 import cc.nobrain.dev.userserver.domain.train.repository.TrainFileRepository
 import cc.nobrain.dev.userserver.domain.workspace.service.WorkspaceService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.modelmapper.ModelMapper
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -28,7 +26,7 @@ class TrainServiceImpl(
 
     @Transactional
     override suspend fun uploadTrainData(files: Array<MultipartFile>): List<FileDto> {
-        var member = MemberUtil.getCurrentMember()
+        var member = MemberUtil.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
         member = memberRepository.findById(member.id)
@@ -40,7 +38,7 @@ class TrainServiceImpl(
     }
 
     override suspend fun getMyImgs(): List<FileDto> {
-        val member = MemberUtil.getCurrentMember()
+        val member = MemberUtil.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
         val workspaces = workspaceService.getMyWorkspace();
@@ -51,7 +49,7 @@ class TrainServiceImpl(
 
     @Transactional
     override suspend fun deleteTrainData(id: Long) {
-        val member = MemberUtil.getCurrentMember()
+        val member = MemberUtil.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
         val file = trainFileRepository.findById(id)
@@ -65,7 +63,7 @@ class TrainServiceImpl(
     }
 
     override suspend fun requestTrain(): List<FileDto> {
-        val member = MemberUtil.getCurrentMember()
+        val member = MemberUtil.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
         val files = trainFileRepository.findByOwnerIndexId(member.id)

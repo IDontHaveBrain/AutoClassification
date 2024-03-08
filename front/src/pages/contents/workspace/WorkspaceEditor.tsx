@@ -24,8 +24,13 @@ const WorkspaceEditor = () => {
     if (!editorRef.current) return;
     const editorState = editorRef.current.getEditorState();
 
+    const params = {
+      name: editorState.title,
+      description: editorState.content,
+    };
+
     if (isEdit) {
-      updateWorkspace(workspace.id, editorState)
+      updateWorkspace(workspace.id, params)
         .then((res) => {
           onAlert(Strings.Workspace.update);
           navigate(-1);
@@ -35,7 +40,7 @@ const WorkspaceEditor = () => {
           onAlert(Strings.Workspace.updateFailed);
         });
     } else {
-      createWorkspace(editorState)
+      createWorkspace(params)
         .then((res) => {
           onAlert(Strings.Workspace.add);
           navigate(-1);

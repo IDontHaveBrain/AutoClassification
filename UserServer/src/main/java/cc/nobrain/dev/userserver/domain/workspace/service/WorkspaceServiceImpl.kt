@@ -22,8 +22,7 @@ class WorkspaceServiceImpl(
 
     @Transactional
     override suspend fun createWorkspace(create: WorkspaceReq.Create): WorkspaceRes {
-        val member = MemberUtil.getCurrentMember()
-            .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) };
+        val member = MemberUtil.getCurrentMember();
 
         val workspace = modelMapper.map(create, Workspace::class.java);
 
@@ -56,7 +55,7 @@ class WorkspaceServiceImpl(
     }
 
     override suspend fun getMyWorkspace(): List<WorkspaceRes.Owner> {
-        val member = MemberUtil.getCurrentMember()
+        val member = MemberUtil.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) };
 
         val workspace = workspaceRepository.findByMembers_IdOrOwner_Id(member.id, member.id);

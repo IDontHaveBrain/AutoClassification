@@ -25,6 +25,11 @@ const NoticeEditor = () => {
     if (!editorRef.current) return;
     const editorState = editorRef.current.getEditorState();
 
+    const params = {
+      title: editorState.title,
+      content: editorState.content,
+    };
+
     if (isEdit) {
       updateNotice(notice.id, editorState)
         .then((res) => {

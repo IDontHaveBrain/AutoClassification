@@ -6,6 +6,8 @@ export const Strings = {
     title: "제목",
     content: "내용",
     notice: "공지사항",
+    apiSuccess: "요청이 성공했습니다.",
+    apiFailed: "요청이 실패했습니다.",
   },
   Notice: {
     update: "공지사항 수정이 완료되었습니다.",

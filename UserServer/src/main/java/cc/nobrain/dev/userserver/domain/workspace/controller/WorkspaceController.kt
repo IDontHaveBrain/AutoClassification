@@ -18,7 +18,7 @@ class WorkspaceController(
     }
 
     @PostMapping
-    suspend fun createWorkspace(create: WorkspaceReq.Create) {
+    suspend fun createWorkspace(@RequestBody create: WorkspaceReq.Create) {
         workspaceService.createWorkspace(create);
     }
 

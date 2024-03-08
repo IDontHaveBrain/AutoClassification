@@ -34,7 +34,7 @@ class MemberServiceImpl(
     }
 
     override suspend fun getMyInfo(): MemberDto {
-        var member: Member? = MemberUtil.getCurrentMember()
+        var member: Member? = MemberUtil.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
         member = findMemberByEmail(member!!.username)

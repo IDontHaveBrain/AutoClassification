@@ -1,7 +1,16 @@
 import { NoticeModel } from "model/GlobalModel";
 import { useNavigate } from "react-router-dom";
 import { Workspace } from "model/WorkspaceModel";
-import { DialogContent, DialogContentText, DialogTitle } from "@mui/material";
+import {
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@mui/material";
+import { deleteWorkspace } from "service/Apis/WorkspaceApi";
+import { onAlert } from "component/modal/AlertModal";
+import { Strings } from "utils/strings";
+import Button from "@mui/material/Button";
 
 interface Props {
   data: Workspace;
@@ -15,7 +24,17 @@ const WorkspaceDetail = ({ data, handleClose }: Props) => {
     navigate("/workspace/editor", { state: { data } });
   };
 
-  const handleDelete = () => {};
+  const handleDelete = () => {
+    deleteWorkspace(data.id)
+      .then((res) => {
+        handleClose();
+        onAlert(Strings.Common.apiSuccess);
+      })
+      .catch((err) => {
+        console.log(err);
+        onAlert(Strings.Common.apiFailed);
+      });
+  };
 
   return (
     <>
@@ -25,8 +44,14 @@ const WorkspaceDetail = ({ data, handleClose }: Props) => {
           dangerouslySetInnerHTML={{ __html: data?.description || "" }}
         />
       </DialogContent>
+      <DialogActions>
+        <Button onClick={handleDelete}>삭제</Button>
+        <Button onClick={handleEdit}>수정</Button>
+        <Button onClick={handleClose} autoFocus>
+          닫기
+        </Button>
+      </DialogActions>
     </>
   );
 };
-
 export default WorkspaceDetail;

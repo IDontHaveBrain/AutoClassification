@@ -9,6 +9,7 @@ import { NoticeModel } from "model/GlobalModel";
 import { useNavigate } from "react-router-dom";
 import { deleteNotice } from "service/Apis/NoticeApi";
 import { onAlert } from "component/modal/AlertModal";
+import { Strings } from "utils/strings";
 
 interface Props {
   data: NoticeModel;
@@ -26,11 +27,11 @@ const NoticeDetail = ({ data, handleClose }: Props) => {
     deleteNotice(data.id)
       .then((res) => {
         handleClose();
-        onAlert("공지사항 삭제가 완료되었습니다.");
+        onAlert(Strings.Common.apiSuccess);
       })
       .catch((err) => {
         console.log(err);
-        onAlert("공지사항 삭제에 실패했습니다.");
+        onAlert(Strings.Common.apiFailed);
       });
   };
 
