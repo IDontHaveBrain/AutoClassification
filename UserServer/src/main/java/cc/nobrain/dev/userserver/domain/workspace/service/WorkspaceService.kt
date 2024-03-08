@@ -5,12 +5,12 @@ import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceReq
 import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceRes
 
 interface WorkspaceService {
-    fun createWorkspace(create: WorkspaceReq.Create): WorkspaceRes
-    fun updateWorkspace(id: Long, create: WorkspaceReq.Create): WorkspaceRes
-    fun deleteWorkspace(id: Long)
+    suspend fun createWorkspace(create: WorkspaceReq.Create): WorkspaceRes
+    suspend fun updateWorkspace(id: Long, create: WorkspaceReq.Create): WorkspaceRes
+    suspend fun deleteWorkspace(id: Long)
 
-    fun getWorkspace(id: Long): Workspace
-    fun getMyWorkspace(): List<WorkspaceRes.Owner>
-    fun addMember(workspaceId: Long, memberId: Long)
-    fun removeMember(workspaceId: Long, memberId: Long)
+    suspend fun getWorkspace(id: Long): Workspace
+    suspend fun getMyWorkspace(): List<WorkspaceRes.Owner>
+    suspend fun addMember(workspaceId: Long, memberId: Long)
+    suspend fun removeMember(workspaceId: Long, memberId: Long)
 }

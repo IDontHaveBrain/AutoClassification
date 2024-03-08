@@ -7,6 +7,8 @@ import cc.nobrain.dev.userserver.domain.alarm.entity.Alarm
 import cc.nobrain.dev.userserver.domain.alarm.repository.AlarmRepository
 import cc.nobrain.dev.userserver.domain.alarm.service.dto.AlarmDto
 import cc.nobrain.dev.userserver.domain.member.entity.Member
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.modelmapper.ModelMapper
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
@@ -19,17 +21,17 @@ class AlarmServiceImpl(
     private val modelMapper: ModelMapper
 ) : AlarmService {
 
-    override fun getMyAlarmList(): List<AlarmDto> {
+     override suspend fun getMyAlarmList(): List<AlarmDto> {
         val member: Member = MemberUtil.getCurrentMember().orElseThrow {
             CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND)
-        }
-        val spec: Specification<Alarm> = AlarmSpecs.findAlarmByMemberId(member.id)
-        val alarmList: List<Alarm> = alarmRepository.findAll(spec)
+        };
+        val spec: Specification<Alarm> = AlarmSpecs.findAlarmByMemberId(member.id);
+        val alarmList: List<Alarm> = alarmRepository.findAll(spec);
         return alarmList.map { alarm -> modelMapper.map(alarm, AlarmDto::class.java) }
     }
 
-    override fun getMemberAlarmList(memberId: Long): List<AlarmDto> {
-        val alarmList: List<Alarm> = alarmRepository.getMemberAlarmList(memberId)
+    override suspend fun getMemberAlarmList(memberId: Long): List<AlarmDto> {
+        val alarmList: List<Alarm> = alarmRepository.getMemberAlarmList(memberId);
         return alarmList.map { alarm -> modelMapper.map(alarm, AlarmDto::class.java) }
     }
 }

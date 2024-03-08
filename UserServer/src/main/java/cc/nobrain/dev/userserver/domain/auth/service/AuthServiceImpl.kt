@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional(readOnly = true)
 class AuthServiceImpl(private val authProps: AuthProps) : AuthService {
 
-    override fun getPublicKey(): String {
+    override suspend fun getPublicKey(): String {
         return authProps.signKey
     }
 }

@@ -21,7 +21,7 @@ class WorkspaceServiceImpl(
 ) : WorkspaceService {
 
     @Transactional
-    override fun createWorkspace(create: WorkspaceReq.Create): WorkspaceRes {
+    override suspend fun createWorkspace(create: WorkspaceReq.Create): WorkspaceRes {
         val member = MemberUtil.getCurrentMember()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) };
 
@@ -35,7 +35,7 @@ class WorkspaceServiceImpl(
     }
 
     @Transactional
-    override fun updateWorkspace(id: Long, create: WorkspaceReq.Create): WorkspaceRes {
+    override suspend fun updateWorkspace(id: Long, create: WorkspaceReq.Create): WorkspaceRes {
         val workspace = workspaceRepository.findById(id)
             .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) };
 
@@ -46,16 +46,16 @@ class WorkspaceServiceImpl(
     }
 
     @Transactional
-    override fun deleteWorkspace(id: Long) {
+    override suspend fun deleteWorkspace(id: Long) {
         workspaceRepository.deleteById(id);
     }
 
-    override fun getWorkspace(id: Long): Workspace {
+    override suspend fun getWorkspace(id: Long): Workspace {
         return workspaceRepository.findById(id)
             .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) };
     }
 
-    override fun getMyWorkspace(): List<WorkspaceRes.Owner> {
+    override suspend fun getMyWorkspace(): List<WorkspaceRes.Owner> {
         val member = MemberUtil.getCurrentMember()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) };
 
@@ -65,7 +65,7 @@ class WorkspaceServiceImpl(
     }
 
     @Transactional
-    override fun addMember(workspaceId: Long, memberId: Long) {
+    override suspend fun addMember(workspaceId: Long, memberId: Long) {
         val workspace = workspaceRepository.findById(workspaceId)
             .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) }
 
@@ -77,7 +77,7 @@ class WorkspaceServiceImpl(
     }
 
     @Transactional
-    override fun removeMember(workspaceId: Long, memberId: Long) {
+    override suspend fun removeMember(workspaceId: Long, memberId: Long) {
         val workspace = workspaceRepository.findById(workspaceId)
             .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) }
 

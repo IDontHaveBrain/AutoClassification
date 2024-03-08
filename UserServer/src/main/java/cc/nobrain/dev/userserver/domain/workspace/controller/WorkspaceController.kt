@@ -13,22 +13,22 @@ class WorkspaceController(
 ) {
 
     @GetMapping("/my")
-    fun getMyWorkspaces(pageable: Pageable?): List<WorkspaceRes.Owner> {
+    suspend fun getMyWorkspaces(pageable: Pageable?): List<WorkspaceRes.Owner> {
         return workspaceService.getMyWorkspace();
     }
 
     @PostMapping
-    fun createWorkspace(create: WorkspaceReq.Create) {
+    suspend fun createWorkspace(create: WorkspaceReq.Create) {
         workspaceService.createWorkspace(create);
     }
 
     @PutMapping("/{id}")
-    fun updateWorkspace(@PathVariable id: Long, create: WorkspaceReq.Create) {
+    suspend fun updateWorkspace(@PathVariable id: Long, create: WorkspaceReq.Create) {
         workspaceService.updateWorkspace(id, create);
     }
 
     @DeleteMapping("/{id}")
-    fun deleteWorkspace(@PathVariable id: Long) {
+    suspend fun deleteWorkspace(@PathVariable id: Long) {
         workspaceService.deleteWorkspace(id);
     }
 }

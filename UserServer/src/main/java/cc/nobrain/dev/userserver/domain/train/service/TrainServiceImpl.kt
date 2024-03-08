@@ -8,8 +8,9 @@ import cc.nobrain.dev.userserver.domain.base.dto.FileDto
 import cc.nobrain.dev.userserver.domain.member.repository.MemberRepository
 import cc.nobrain.dev.userserver.domain.train.entity.TrainFile
 import cc.nobrain.dev.userserver.domain.train.repository.TrainFileRepository
-import cc.nobrain.dev.userserver.domain.workspace.entity.Workspace
 import cc.nobrain.dev.userserver.domain.workspace.service.WorkspaceService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.modelmapper.ModelMapper
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -26,7 +27,7 @@ class TrainServiceImpl(
 ) : TrainService {
 
     @Transactional
-    override fun uploadTrainData(files: Array<MultipartFile>): List<FileDto> {
+    override suspend fun uploadTrainData(files: Array<MultipartFile>): List<FileDto> {
         var member = MemberUtil.getCurrentMember()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
@@ -38,7 +39,7 @@ class TrainServiceImpl(
         return success.stream().map { file -> modelMapper.map(file, FileDto::class.java) }.toList()
     }
 
-    override fun getMyImgs(): List<FileDto> {
+    override suspend fun getMyImgs(): List<FileDto> {
         val member = MemberUtil.getCurrentMember()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
@@ -49,7 +50,7 @@ class TrainServiceImpl(
     }
 
     @Transactional
-    override fun deleteTrainData(id: Long) {
+    override suspend fun deleteTrainData(id: Long) {
         val member = MemberUtil.getCurrentMember()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
@@ -63,11 +64,11 @@ class TrainServiceImpl(
         fileComponent.deleteFile(file)
     }
 
-    override fun requestTrain(): List<FileDto> {
+    override suspend fun requestTrain(): List<FileDto> {
         val member = MemberUtil.getCurrentMember()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
-        val files = trainFileRepository.findByOwnerIndexId(member.id);
+        val files = trainFileRepository.findByOwnerIndexId(member.id)
 
 //        if ()
 

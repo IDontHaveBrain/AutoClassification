@@ -16,12 +16,12 @@ import java.time.Instant
 class SseController(private val notificationComponent: NotificationComponent) {
 
     @PostMapping("/ok")
-    fun heartBeat(@AuthenticationPrincipal member: Member) {
+    suspend fun heartBeat(@AuthenticationPrincipal member: Member) {
         notificationComponent.updateLastResponse(member.username, Instant.now())
     }
 
     @GetMapping("/subscribe")
-    fun subscribe(@AuthenticationPrincipal member: Member): Flux<ServerSentEvent<String>> {
+    suspend fun subscribe(@AuthenticationPrincipal member: Member): Flux<ServerSentEvent<String>> {
         notificationComponent.addSubscriber(member.username)
         notificationComponent.sendHeartbeat();
         return notificationComponent.subscribe(member.username)

@@ -12,22 +12,22 @@ class TrainController(
 ) {
 
     @PostMapping("/upload")
-    fun uploadTrainData(@RequestParam files: Array<MultipartFile>): List<FileDto> {
+    suspend fun uploadTrainData(@RequestParam files: Array<MultipartFile>): List<FileDto> {
         return trainService.uploadTrainData(files);
     }
 
     @GetMapping
-    fun getMyImgs(): List<FileDto> {
+    suspend fun getMyImgs(): List<FileDto> {
         return trainService.getMyImgs();
     }
 
     @PostMapping("/train")
-    fun requestTrain(): List<FileDto> {
+    suspend fun requestTrain(): List<FileDto> {
         return trainService.requestTrain();
     }
 
     @DeleteMapping("/{id}")
-    fun deleteTrainData(@PathVariable id: Long) {
+    suspend fun deleteTrainData(@PathVariable id: Long) {
         trainService.deleteTrainData(id);
     }
 }

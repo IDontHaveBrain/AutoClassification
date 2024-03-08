@@ -22,18 +22,18 @@ class MemberServiceImpl(
 
     @Transactional
     @CacheEvict(value = ["member"], key = "#req.email")
-    override fun register(req: MemberReq.Register): MemberDto {
+    override suspend fun register(req: MemberReq.Register): MemberDto {
         var newMember: Member = modelMapper.map(req, Member::class.java)
         newMember = memberRepository.save(newMember)
 
         return modelMapper.map(newMember, MemberDto::class.java)
     }
 
-    override fun duplicate(email: String): Boolean {
+    override suspend fun duplicate(email: String): Boolean {
         return memberRepository.existsByEmail(email)
     }
 
-    override fun getMyInfo(): MemberDto {
+    override suspend fun getMyInfo(): MemberDto {
         var member: Member? = MemberUtil.getCurrentMember()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
@@ -42,11 +42,11 @@ class MemberServiceImpl(
         return modelMapper.map(member, MemberDto::class.java)
     }
 
-    override fun findMemberById(id: Long): Member? {
+    override suspend fun findMemberById(id: Long): Member? {
         return memberRepository.findById(id).orElse(null)
     }
 
-    override fun findMemberByEmail(email: String): Member? {
+    override suspend fun findMemberByEmail(email: String): Member? {
         return memberRepository.findByEmail(email);
     }
 }
