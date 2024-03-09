@@ -4,11 +4,12 @@ import SignUp from "./pages/default/SignUp";
 import { Layout } from "./layouts/Layout";
 import { NotFound } from "./pages/default/NotFound";
 import { MenuInfo, MenuItems } from "./service/commons/MenuItem";
+import { PageProvider } from "component/PageContext";
 
 const createRouteFromMenu = (menu: MenuInfo): RouteObject => {
   return {
     path: menu.path,
-    element: menu.element,
+    element: <PageProvider>{menu.element}</PageProvider>,
   };
 };
 

@@ -2,10 +2,11 @@ import { NoticeModel } from "model/GlobalModel";
 import { useNavigate } from "react-router-dom";
 import { Workspace } from "model/WorkspaceModel";
 import {
+  CardMedia,
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle,
+  DialogTitle
 } from "@mui/material";
 import { deleteWorkspace } from "service/Apis/WorkspaceApi";
 import { onAlert } from "component/modal/AlertModal";
@@ -19,7 +20,6 @@ interface Props {
 
 const WorkspaceDetail = ({ data, handleClose }: Props) => {
   const navigate = useNavigate();
-
   const handleEdit = () => {
     navigate("/workspace/editor", { state: { data } });
   };
@@ -43,6 +43,15 @@ const WorkspaceDetail = ({ data, handleClose }: Props) => {
         <DialogContentText
           dangerouslySetInnerHTML={{ __html: data?.description || "" }}
         />
+        {data.files?.map((file) => (
+          <CardMedia
+            component="img"
+            height="140"
+            image={file.url}
+            alt={file.fileName}
+            key={file.id}
+          />
+        ))}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleDelete}>삭제</Button>

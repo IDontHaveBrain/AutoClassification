@@ -34,7 +34,7 @@ class WorkspaceServiceImpl(
     }
 
     @Transactional
-    override suspend fun updateWorkspace(id: Long, create: WorkspaceReq.Create): WorkspaceRes {
+    override suspend fun updateWorkspace(id: Long, create: WorkspaceReq.Update): WorkspaceRes {
         val workspace = workspaceRepository.findById(id)
             .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) };
 

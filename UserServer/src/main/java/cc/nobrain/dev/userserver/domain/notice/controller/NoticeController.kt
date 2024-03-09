@@ -3,6 +3,7 @@ package cc.nobrain.dev.userserver.domain.notice.controller
 import cc.nobrain.dev.userserver.domain.notice.service.NoticeService
 import cc.nobrain.dev.userserver.domain.notice.service.dto.NoticeReq
 import cc.nobrain.dev.userserver.domain.notice.service.dto.NoticeRes
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*
 class NoticeController(val noticeService: NoticeService) {
 
     @GetMapping
-    suspend fun searchNoticeList(search: NoticeReq.Search?, pageable: Pageable?): List<NoticeRes> {
+    suspend fun searchNoticeList(search: NoticeReq.Search?, pageable: Pageable?): Page<NoticeRes> {
         return noticeService.searchNoticeList(search, pageable!!)
     }
 

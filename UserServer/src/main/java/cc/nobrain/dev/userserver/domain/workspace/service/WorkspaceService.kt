@@ -6,7 +6,7 @@ import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceRes
 
 interface WorkspaceService {
     suspend fun createWorkspace(create: WorkspaceReq.Create): WorkspaceRes
-    suspend fun updateWorkspace(id: Long, create: WorkspaceReq.Create): WorkspaceRes
+    suspend fun updateWorkspace(id: Long, create: WorkspaceReq.Update): WorkspaceRes
     suspend fun deleteWorkspace(id: Long)
 
     suspend fun getWorkspace(id: Long): Workspace

@@ -9,6 +9,7 @@ import { CommonUtil } from "utils/CommonUtil";
 
 interface Props {
   rows: any[];
+  total: number;
   columns: GridColDef[];
   pageable: Pageable;
   loadRows: any;
@@ -18,7 +19,7 @@ interface Props {
 }
 
 const BaseTable = (
-  { rows, columns, pageable, loadRows, onClick, props, children }: Props,
+  { rows = [], total, columns, pageable, loadRows, onClick, props, children }: Props,
   ref,
 ) => {
   const [page, setPage] = useState(pageable.page);
@@ -48,7 +49,7 @@ const BaseTable = (
         columns={columns}
         autoHeight
         {...props}
-        rowCount={rows.length}
+        rowCount={total}
         pageSizeOptions={[10, 25, 50]}
         pagination={true}
         paginationMode={"server"}

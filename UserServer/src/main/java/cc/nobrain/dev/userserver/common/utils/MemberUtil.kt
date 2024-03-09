@@ -19,8 +19,8 @@ object MemberUtil {
     @JvmStatic
     fun getCurrentUserEmail(): String {
         val authentication: Authentication? = SecurityContextHolder.getContext().authentication
-        return if (authentication?.principal is UserDetails) {
-            val userDetails = authentication.principal as UserDetails
+        return if (authentication?.principal is Member) {
+            val userDetails = authentication.principal as Member
             userDetails.username
         } else "SYSTEM"
     }

@@ -3,9 +3,10 @@ package cc.nobrain.dev.userserver.domain.workspace.service.dto
 import cc.nobrain.dev.userserver.domain.base.dto.FileDto
 import cc.nobrain.dev.userserver.domain.member.entity.Member
 import cc.nobrain.dev.userserver.domain.train.entity.TrainFile
+import org.springframework.web.multipart.MultipartFile
 
 data class WorkspaceReq(
-    val create: Create?,
+    val create: Create? = null,
 ) {
 
     data class Create(
@@ -17,6 +18,6 @@ data class WorkspaceReq(
     data class Update(
         var name: String,
         var description: String?,
-        var files: MutableList<FileDto>?
+//        var files: Array<MultipartFile>?
     )
 }
