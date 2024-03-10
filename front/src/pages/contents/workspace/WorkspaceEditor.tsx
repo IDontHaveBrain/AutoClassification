@@ -1,4 +1,4 @@
-import React, { useReducer, useRef, useEffect } from 'react';
+import React, {useReducer, useRef, useEffect, useContext} from 'react';
 import Grid from "@mui/material/Grid";
 import BaseEditor from "component/baseEditor/BaseEditor";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -8,21 +8,11 @@ import { Strings } from "utils/strings";
 import { Workspace } from "model/WorkspaceModel";
 import WorkspaceAccordion from "pages/contents/workspace/editor/WorkspaceAccordion";
 import WorkspaceDropZone from './editor/WorkspaceDropZone';
-import { usePageContext } from "component/PageContext";
-
-
+import {MenuItems} from "service/commons/MenuItem";
+import {WorkspaceContext} from "utils/ContextManager";
 
 const WorkspaceEditor = () => {
-  const { pageState, setPageState } = usePageContext<{
-    editorData: {
-      title: string,
-      content: string,
-    },
-    files: any[],
-    classifyItems: any[],
-    isEdit: boolean,
-    workspace: Workspace | null,
-  }>();
+  const {state, setState} = useContext(WorkspaceContext);
   const editorRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,8 +20,8 @@ const WorkspaceEditor = () => {
   useEffect(() => {
     if (location.state?.data) {
       const data = location.state["data"] as Workspace;
-      setPageState({
-        ...pageState,
+      setState({
+        ...state,
         editorData: { title: data?.name, content: data?.description },
         files: data?.files || [],
         classifyItems: data?.classifyItems || [],
@@ -39,8 +29,8 @@ const WorkspaceEditor = () => {
         workspace: data,
       });
     } else {
-      setPageState({
-        ...pageState,
+      setState({
+        ...state,
         isEdit: false,
       });
     }
@@ -57,13 +47,13 @@ const WorkspaceEditor = () => {
       description: editorState.content,
     }));
 
-    pageState.files.forEach((file, index) => {
+    state.files.forEach((file, index) => {
       formData.append(`files`, file); // 'files[]' use when server supports array
     });
 
     try {
-      if (pageState.isEdit) {
-        const res = await updateWorkspace(pageState.workspace.id, formData);
+      if (state.isEdit) {
+        const res = await updateWorkspace(state.workspace.id, formData);
         onAlert(Strings.Workspace.update);
         navigate(-1);
       } else {
@@ -74,7 +64,7 @@ const WorkspaceEditor = () => {
     }
     catch (err) {
       console.log(err);
-      onAlert(pageState.isEdit ? Strings.Workspace.updateFailed : Strings.Workspace.addFailed);
+      onAlert(state.isEdit ? Strings.Workspace.updateFailed : Strings.Workspace.addFailed);
     }
   };
 
@@ -83,7 +73,7 @@ const WorkspaceEditor = () => {
       <Grid item md={true}>
         <BaseEditor
           handleSave={handleSave}
-          defaultValue={pageState.editorData}
+          defaultValue={state.editorData}
           ref={editorRef}
         />
       </Grid>

@@ -33,6 +33,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-simple-import-sort": "^12.0.0",
     "event-source-polyfill": "^1.0.31",
+    "immer": "^10.0.4",
     "prettier": "^3.2.5",
     "qs": "^6.11.2",
     "react": "^18.2.0",

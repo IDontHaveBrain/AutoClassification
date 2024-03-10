@@ -4,6 +4,7 @@ import cc.nobrain.dev.userserver.domain.workspace.service.WorkspaceService
 import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceReq
 import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceRes
 import org.springframework.data.domain.Pageable
+import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
@@ -23,9 +24,10 @@ class WorkspaceController(
         workspaceService.createWorkspace(create);
     }
 
-    @PutMapping("/{id}", consumes = ["multipart/form-data"])
-    suspend fun updateWorkspace(@PathVariable id: Long, update: WorkspaceReq.Update,
-                                @RequestPart files: Array<MultipartFile>) {
+    @PutMapping("/{id}", consumes = ["application/json", MediaType.MULTIPART_FORM_DATA_VALUE])
+    suspend fun updateWorkspace(@PathVariable id: Long,
+                                @RequestPart("update") update: WorkspaceReq.Update,
+                                @RequestPart("files") files: Array<MultipartFile>?) {
         workspaceService.updateWorkspace(id, update);
     }
 

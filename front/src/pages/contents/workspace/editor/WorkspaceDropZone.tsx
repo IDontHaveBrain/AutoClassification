@@ -1,32 +1,30 @@
-import React, { useCallback, useContext } from "react";
+import React, {useCallback, useContext} from "react";
 import FileDropzone from 'component/FileDropzone';
-import { Chip, Avatar, IconButton, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import {Accordion, AccordionDetails, AccordionSummary, Avatar, Chip} from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { green } from '@mui/material/colors';
+import {green} from '@mui/material/colors';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { PageContext } from 'component/PageContext'; // Ensure this path to be corrected according to your file structure
+import {MenuItems} from "service/commons/MenuItem";
+import {WorkspaceContext} from "utils/ContextManager";
 
 const WorkspaceDropZone = () => {
-  const { pageState, setPageState } = useContext(PageContext);
-
+  const {state, setState} = useContext(WorkspaceContext);
   const onDrop = useCallback((files) => {
     const newFiles = files.map((file) => Object.assign(file, {
       preview: URL.createObjectURL(file),
     }));
 
-    setPageState({
-      ...pageState,
+    setState({
+      ...state,
       files: newFiles
     });
-  }, [setPageState]);
+  }, [setState]);
 
   const handleRemoveFile = (index) => {
-    const newFiles = pageState.files.filter((file, i) => i !== index);
+    const newFiles = state.files.filter((file, i) => i !== index);
 
-    setPageState({
-      ...pageState,
+    setState({
+      ...state,
       files: newFiles
     });
   };
@@ -39,7 +37,7 @@ const WorkspaceDropZone = () => {
         </AccordionSummary>
         <AccordionDetails>
           <FileDropzone onDrop={onDrop} />
-          {pageState.files?.map((file, index) => (
+          {state.files?.map((file, index) => (
             <Chip
               key={index}
               label={file.name}

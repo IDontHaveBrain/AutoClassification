@@ -4,24 +4,25 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import { green } from "@mui/material/colors";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { PageContext } from 'component/PageContext'; // Ensure this path to be corrected according to your file structure
+import {MenuItems} from "service/commons/MenuItem";
+import {WorkspaceContext} from "utils/ContextManager";
 
 const WorkspaceAccordion = () => {
-  const { pageState, setPageState } = useContext(PageContext);
+  const {state, setState} = useContext(WorkspaceContext);
 
   const handleAdd= () => {
-    if (pageState.classifyItems) {
-      setPageState({
-        ...pageState,
-        classifyItems: [...pageState.classifyItems, '']
+    if (state.classifyItems) {
+      setState({
+        ...state,
+        classifyItems: [...state.classifyItems, '']
       });
     }
   };
 
   const handleRemove = (index) => {
-    setPageState({
-      ...pageState,
-      classifyItems: pageState.classifyItems.filter((_, i) => i !== index)
+    setState({
+      ...state,
+      classifyItems: state.classifyItems.filter((_, i) => i !== index)
     });
   };
 
@@ -33,15 +34,15 @@ const WorkspaceAccordion = () => {
         </AccordionSummary>
         <AccordionDetails>
           <Grid container direction="row" spacing={2}>
-            {pageState.classifyItems?.map((item, index) => (
+            {state.classifyItems?.map((item, index) => (
               <Grid item key={index}>
                 <TextField
                   value={item}
                   onChange={event => {
                     const newValue = event.target.value;
-                    setPageState({
-                      ...pageState,
-                      classifyItems: pageState.classifyItems.map((_, i) =>
+                    setState({
+                      ...state,
+                      classifyItems: state.classifyItems.map((_, i) =>
                         i === index ? newValue : item)
                     });
                   }}
