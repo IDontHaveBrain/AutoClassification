@@ -5,14 +5,14 @@ plugins {
     id("io.spring.dependency-management") version "1.1.4"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
 
-    kotlin("jvm") version "1.9.22"
-    kotlin("plugin.spring") version "1.9.22"
-    kotlin("plugin.jpa") version "1.9.22"
-    kotlin("plugin.allopen") version "1.9.22"
-    kotlin("plugin.noarg") version "1.9.22"
-    kotlin("kapt") version "1.9.22"
-    kotlin("plugin.lombok") version "1.9.22"
-    id("io.freefair.lombok") version "8.6"
+    kotlin("jvm") version "1.9.23"
+    kotlin("plugin.spring") version "1.9.23"
+    kotlin("plugin.jpa") version "1.9.23"
+    kotlin("plugin.allopen") version "1.9.23"
+    kotlin("plugin.noarg") version "1.9.23"
+    kotlin("kapt") version "1.9.23"
+    kotlin("plugin.lombok") version "1.9.23"
+    id("io.freefair.lombok") version "8.1.0"
     idea
 }
 
