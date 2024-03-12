@@ -1,9 +1,9 @@
 import {createBrowserRouter, RouteObject} from "react-router-dom";
-import SignIn from "./pages/default/SignIn";
-import SignUp from "./pages/default/SignUp";
-import {Layout} from "./layouts/Layout";
-import {NotFound} from "./pages/default/NotFound";
-import {MenuInfo, MenuItems} from "./service/commons/MenuItem";
+import SignIn from "pages/default/SignIn";
+import SignUp from "pages/default/SignUp";
+import {Layout} from "layouts/Layout";
+import {NotFound} from "pages/default/NotFound";
+import {MenuInfo, MenuItems} from "service/commons/MenuItem";
 import {useState} from "react";
 
 const MenuComponent = ({menu}: {menu: MenuInfo}) => {

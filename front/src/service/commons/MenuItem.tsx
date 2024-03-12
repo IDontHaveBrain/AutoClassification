@@ -10,7 +10,7 @@ import FileDropzone from "component/FileDropzone";
 import Classfiy from "../../pages/contents/classfiy/Classfiy";
 import WorkspaceList from "../../pages/contents/workspace/WorkspaceList";
 import WorkspaceEditor from "pages/contents/workspace/WorkspaceEditor";
-import {WorkspaceContext} from "utils/ContextManager";
+import { NoticeContext, WorkspaceContext } from "utils/ContextManager";
 
 export interface MenuInfo {
     name: string;
@@ -46,12 +46,13 @@ export const MenuItems: MenuInfo[] = [
         name: "공지사항",
         path: "/notice",
         element: <NoticeList/>,
-        context: createContext({}),
+        context: NoticeContext,
         subMenu: [
             {
                 name: "공지사항 작성",
                 path: "/notice/write",
                 element: <NoticeEditor/>,
+                context: NoticeContext,
                 invisible: true,
             },
         ],

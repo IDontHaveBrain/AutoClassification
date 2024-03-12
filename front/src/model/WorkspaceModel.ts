@@ -1,6 +1,6 @@
 import { BaseDto, FileModel, Member } from "./GlobalModel";
 
-export interface Workspace extends BaseDto {
+export interface WorkspaceModel extends BaseDto {
   id: number;
   name: string;
   description: string;

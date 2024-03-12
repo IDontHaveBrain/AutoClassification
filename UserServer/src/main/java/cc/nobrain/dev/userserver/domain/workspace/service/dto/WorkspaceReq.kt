@@ -12,12 +12,14 @@ data class WorkspaceReq(
     data class Create(
         var name: String,
         var description: String?,
-        var files: MutableList<FileDto>? = mutableListOf()
+        var classes: List<String>?,
+//        var files: MutableList<FileDto>? = mutableListOf()
     )
 
     data class Update(
         var name: String,
         var description: String?,
+        var classes: List<String>?,
 //        var files: Array<MultipartFile>?
     )
 }

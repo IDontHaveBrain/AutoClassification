@@ -19,6 +19,11 @@ class WorkspaceController(
         return workspaceService.getMyWorkspace();
     }
 
+    @GetMapping("/{id}")
+    suspend fun getWorkspace(@PathVariable id: Long): WorkspaceRes {
+        return workspaceService.getWorkspace(id);
+    }
+
     @PostMapping
     suspend fun createWorkspace(@RequestBody create: WorkspaceReq.Create) {
         workspaceService.createWorkspace(create);
@@ -28,7 +33,7 @@ class WorkspaceController(
     suspend fun updateWorkspace(@PathVariable id: Long,
                                 @RequestPart("update") update: WorkspaceReq.Update,
                                 @RequestPart("files") files: Array<MultipartFile>?) {
-        workspaceService.updateWorkspace(id, update);
+        workspaceService.updateWorkspace(id, update, files);
     }
 
     @DeleteMapping("/{id}")

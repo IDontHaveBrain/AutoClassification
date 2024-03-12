@@ -13,6 +13,10 @@ export const createWorkspace = (data): AxiosPromise => {
   return UserApi.post(URLS.API.WORKSPACE.POST, data);
 };
 
+export const getWorkspace = (id): AxiosPromise => {
+  return UserApi.get(`${URLS.API.WORKSPACE.GET}/${id}`);
+};
+
 export const updateWorkspace = (id, data): AxiosPromise => {
   return UserApi.put(`${URLS.API.WORKSPACE.PUT}/${id}`, data);
 };

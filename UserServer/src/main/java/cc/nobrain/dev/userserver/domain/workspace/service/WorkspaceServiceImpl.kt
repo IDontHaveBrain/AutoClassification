@@ -1,9 +1,11 @@
 package cc.nobrain.dev.userserver.domain.workspace.service
 
+import cc.nobrain.dev.userserver.common.component.FileComponent
 import cc.nobrain.dev.userserver.common.exception.CustomException
 import cc.nobrain.dev.userserver.common.exception.ErrorInfo
 import cc.nobrain.dev.userserver.common.utils.MemberUtil
 import cc.nobrain.dev.userserver.domain.member.service.MemberService
+import cc.nobrain.dev.userserver.domain.train.entity.TrainFile
 import cc.nobrain.dev.userserver.domain.workspace.entity.Workspace
 import cc.nobrain.dev.userserver.domain.workspace.repository.WorkspaceRepository
 import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceReq
@@ -11,6 +13,7 @@ import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceRes
 import org.modelmapper.ModelMapper
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
 
 @Service
 @Transactional(readOnly = true)
@@ -18,6 +21,7 @@ class WorkspaceServiceImpl(
     private val workspaceRepository: WorkspaceRepository,
     private val memberService: MemberService,
     private val modelMapper: ModelMapper,
+    private val fileComponent: FileComponent
 ) : WorkspaceService {
 
     @Transactional
@@ -34,11 +38,18 @@ class WorkspaceServiceImpl(
     }
 
     @Transactional
-    override suspend fun updateWorkspace(id: Long, create: WorkspaceReq.Update): WorkspaceRes {
+    override suspend fun updateWorkspace(id: Long, create: WorkspaceReq.Update, files: Array<MultipartFile>?): WorkspaceRes {
         val workspace = workspaceRepository.findById(id)
             .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) };
 
         modelMapper.map(create, workspace);
+        val success: List<Any> = if (!files.isNullOrEmpty()) {
+            fileComponent.uploadFile(files, TrainFile::class.java, workspace);
+        } else {
+            emptyList()
+        }
+
+        create.classes?.let { workspace.changeClasses(it) };
         workspaceRepository.save(workspace);
 
         return modelMapper.map(workspace, WorkspaceRes::class.java);
@@ -49,9 +60,11 @@ class WorkspaceServiceImpl(
         workspaceRepository.deleteById(id);
     }
 
-    override suspend fun getWorkspace(id: Long): Workspace {
-        return workspaceRepository.findById(id)
+    override suspend fun getWorkspace(id: Long): WorkspaceRes {
+        val workspace = workspaceRepository.findWorkspaceResById(id)
             .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) };
+
+        return modelMapper.map(workspace, WorkspaceRes::class.java);
     }
 
     override suspend fun getMyWorkspace(): List<WorkspaceRes.Owner> {

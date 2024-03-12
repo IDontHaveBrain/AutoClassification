@@ -18,7 +18,7 @@ public class NoticeFile extends File {
 
     @ManyToOne
     @JoinColumn(name = "owner_index")
-    private Notice ownerIndex;
+    protected Notice ownerIndex;
 
     @Override
     public <T> void setRelation(T ownerEntity) {
