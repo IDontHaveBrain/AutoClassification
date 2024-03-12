@@ -29,3 +29,7 @@ export const signIn = (loginData: LoginData): AxiosPromise => {
 export const getPublicKey = (): AxiosPromise => {
   return authApi.get("/key");
 };
+
+export const signUp = (data: any): AxiosPromise => {
+  return authApi.post("/register", data);
+}
