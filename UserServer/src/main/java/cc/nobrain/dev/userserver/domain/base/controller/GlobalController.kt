@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 class GlobalController(private val fileComponent: FileComponent) {
 
     @GetMapping("/health")
-    fun health(): ResponseEntity<Unit> {
+    suspend fun health(): ResponseEntity<Unit> {
         return ResponseEntity.ok().build()
     }
 }

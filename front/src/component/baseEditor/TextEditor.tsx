@@ -21,7 +21,7 @@ const TextEditor = ({ value }: TextEditorProps) => {
         value={editor?.content}
         defaultValue={value}
         onChange={onChange}
-        style={{ height: "25vh" }}
+        // style={{ height: "200px", minHeight: "200px" }}
       />
     </>
   );

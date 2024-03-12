@@ -9,19 +9,19 @@
     "react-hooks",
     "@typescript-eslint",
     "import",
-    "import-order-autofix",
-    "prettier"
+//    "prettier",
+    "simple-import-sort"
   ],
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
-    "plugin:@typescript-eslint/recommended",
-    "prettier",
-    "plugin:prettier/recommended"
+    "plugin:@typescript-eslint/recommended"
+//    "prettier",
+//    "plugin:prettier/recommended"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaVersion": "2023",
+    "ecmaVersion": 2023,
     "sourceType": "module"
   },
   "rules": {
@@ -30,11 +30,16 @@
     "react/react-in-jsx-scope": "off",
     "@typescript-eslint/no-unused-vars": ["off"],
     "@typescript-eslint/no-explicit-any": "off",
-    "prettier/prettier": "warn"
+//    "prettier/prettier": "warn",
+    "eslint-comments/disable-enable-pair": "off",
+    "eslint-disable-next-line": "off"
   },
   "settings": {
     "react": {
       "version": "detect"
+    },
+    "import/resolver": {
+      "typescript": {}
     }
   },
   "ignorePatterns": ["node_modules/**"]

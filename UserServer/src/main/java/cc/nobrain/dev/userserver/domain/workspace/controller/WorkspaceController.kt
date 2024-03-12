@@ -4,7 +4,9 @@ import cc.nobrain.dev.userserver.domain.workspace.service.WorkspaceService
 import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceReq
 import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceRes
 import org.springframework.data.domain.Pageable
+import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/api/workspace")
@@ -13,22 +15,29 @@ class WorkspaceController(
 ) {
 
     @GetMapping("/my")
-    fun getMyWorkspaces(pageable: Pageable?): List<WorkspaceRes.Owner> {
+    suspend fun getMyWorkspaces(pageable: Pageable?): List<WorkspaceRes.Owner> {
         return workspaceService.getMyWorkspace();
     }
 
+    @GetMapping("/{id}")
+    suspend fun getWorkspace(@PathVariable id: Long): WorkspaceRes {
+        return workspaceService.getWorkspace(id);
+    }
+
     @PostMapping
-    fun createWorkspace(create: WorkspaceReq.Create) {
+    suspend fun createWorkspace(@RequestBody create: WorkspaceReq.Create) {
         workspaceService.createWorkspace(create);
     }
 
-    @PutMapping("/{id}")
-    fun updateWorkspace(@PathVariable id: Long, create: WorkspaceReq.Create) {
-        workspaceService.updateWorkspace(id, create);
+    @PutMapping("/{id}", consumes = ["application/json", MediaType.MULTIPART_FORM_DATA_VALUE])
+    suspend fun updateWorkspace(@PathVariable id: Long,
+                                @RequestPart("update") update: WorkspaceReq.Update,
+                                @RequestPart("files") files: Array<MultipartFile>?) {
+        workspaceService.updateWorkspace(id, update, files);
     }
 
     @DeleteMapping("/{id}")
-    fun deleteWorkspace(@PathVariable id: Long) {
+    suspend fun deleteWorkspace(@PathVariable id: Long) {
         workspaceService.deleteWorkspace(id);
     }
 }

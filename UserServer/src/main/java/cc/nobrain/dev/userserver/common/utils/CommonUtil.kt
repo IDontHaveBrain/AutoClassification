@@ -1,11 +1,31 @@
 package cc.nobrain.dev.userserver.common.utils
 
+import org.springframework.context.ApplicationContext
+import org.springframework.context.ApplicationContextAware
+import org.springframework.stereotype.Component
 import org.springframework.util.ReflectionUtils
 import java.lang.reflect.Method
 import java.time.DayOfWeek
 import java.time.LocalDate
 
-object CommonUtil {
+@Component
+object CommonUtil : ApplicationContextAware {
+    private lateinit var context: ApplicationContext
+
+    override fun setApplicationContext(applicationContext: ApplicationContext) {
+        context = applicationContext
+    }
+
+    @JvmStatic
+    fun getBean(beanName: String): Any {
+        return context.getBean(beanName);
+    }
+
+    @JvmStatic
+    fun getBean(clazz: Class<*>): Any {
+        return context.getBean(clazz);
+    }
+
     @JvmStatic
     fun isWeekend(date: LocalDate): Boolean {
         val dayOfWeek = date.dayOfWeek

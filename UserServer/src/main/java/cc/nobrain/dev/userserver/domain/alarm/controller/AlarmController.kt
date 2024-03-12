@@ -11,12 +11,12 @@ class AlarmController(
 ) {
 
     @GetMapping("/my")
-    fun getMyAlarmList(): List<AlarmDto> {
+    suspend fun getMyAlarmList(): List<AlarmDto> {
         return alarmService.getMyAlarmList()
     }
 
     @GetMapping("/{memberId}")
-    fun getMemberAlarmList(@PathVariable memberId: Long): List<AlarmDto> {
+    suspend fun getMemberAlarmList(@PathVariable memberId: Long): List<AlarmDto> {
         return alarmService.getMemberAlarmList(memberId)
     }
 }

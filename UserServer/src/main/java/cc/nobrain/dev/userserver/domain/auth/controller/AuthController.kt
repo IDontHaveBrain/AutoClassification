@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController
 class AuthController(private val authService: AuthService) {
 
     @GetMapping("/key")
-    fun getPublicKey(): String {
+    suspend fun getPublicKey(): String {
         return authService.getPublicKey()
     }
 }

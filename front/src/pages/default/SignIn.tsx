@@ -13,7 +13,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { CONSTANT } from "utils/constant";
 import { useAppDispatch } from "stores/rootHook";
-import { getPublicKey, LoginData, signIn } from "../../service/Apis/AuthApi";
+import { getPublicKey, LoginData, signIn } from "service/Apis/AuthApi";
 import AuthUtils from "utils/authUtils";
 import { setUserInfo } from "stores/rootSlice";
 import { onAlert } from "component/modal/AlertModal";
@@ -139,7 +139,7 @@ export default function SignIn() {
             <TextField
               margin="normal"
               required
-              fullWidth
+              fullWidth={true}
               id="username"
               label="Email Address"
               name="username"
@@ -151,7 +151,7 @@ export default function SignIn() {
             <TextField
               margin="normal"
               required
-              fullWidth
+             fullWidth={true}
               name="password"
               label="Password"
               type="password"
@@ -171,7 +171,7 @@ export default function SignIn() {
             />
             <Button
               type="submit"
-              fullWidth
+             fullWidth={true}
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >

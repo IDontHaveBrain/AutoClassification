@@ -1,4 +1,4 @@
-import { Workspace } from "./WorkspaceModel";
+import { WorkspaceModel } from "./WorkspaceModel";
 import { GridSortModel } from "@mui/x-data-grid/models/gridSortModel";
 
 export interface AlarmModel {
@@ -40,7 +40,7 @@ export interface Member {
   email: string;
   name: string;
   memberGroup?: MemberGroup | null;
-  workspace?: Workspace | null;
+  workspace?: WorkspaceModel | null;
 }
 
 export interface MemberInfo {

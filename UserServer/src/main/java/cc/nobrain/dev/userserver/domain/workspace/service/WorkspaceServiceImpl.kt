@@ -1,9 +1,11 @@
 package cc.nobrain.dev.userserver.domain.workspace.service
 
+import cc.nobrain.dev.userserver.common.component.FileComponent
 import cc.nobrain.dev.userserver.common.exception.CustomException
 import cc.nobrain.dev.userserver.common.exception.ErrorInfo
 import cc.nobrain.dev.userserver.common.utils.MemberUtil
 import cc.nobrain.dev.userserver.domain.member.service.MemberService
+import cc.nobrain.dev.userserver.domain.train.entity.TrainFile
 import cc.nobrain.dev.userserver.domain.workspace.entity.Workspace
 import cc.nobrain.dev.userserver.domain.workspace.repository.WorkspaceRepository
 import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceReq
@@ -11,6 +13,7 @@ import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceRes
 import org.modelmapper.ModelMapper
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
 
 @Service
 @Transactional(readOnly = true)
@@ -18,12 +21,12 @@ class WorkspaceServiceImpl(
     private val workspaceRepository: WorkspaceRepository,
     private val memberService: MemberService,
     private val modelMapper: ModelMapper,
+    private val fileComponent: FileComponent
 ) : WorkspaceService {
 
     @Transactional
-    override fun createWorkspace(create: WorkspaceReq.Create): WorkspaceRes {
-        val member = MemberUtil.getCurrentMember()
-            .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) };
+    override suspend fun createWorkspace(create: WorkspaceReq.Create): WorkspaceRes {
+        val member = MemberUtil.getCurrentMember();
 
         val workspace = modelMapper.map(create, Workspace::class.java);
 
@@ -35,28 +38,37 @@ class WorkspaceServiceImpl(
     }
 
     @Transactional
-    override fun updateWorkspace(id: Long, create: WorkspaceReq.Create): WorkspaceRes {
+    override suspend fun updateWorkspace(id: Long, create: WorkspaceReq.Update, files: Array<MultipartFile>?): WorkspaceRes {
         val workspace = workspaceRepository.findById(id)
             .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) };
 
         modelMapper.map(create, workspace);
+        val success: List<Any> = if (!files.isNullOrEmpty()) {
+            fileComponent.uploadFile(files, TrainFile::class.java, workspace);
+        } else {
+            emptyList()
+        }
+
+        create.classes?.let { workspace.changeClasses(it) };
         workspaceRepository.save(workspace);
 
         return modelMapper.map(workspace, WorkspaceRes::class.java);
     }
 
     @Transactional
-    override fun deleteWorkspace(id: Long) {
+    override suspend fun deleteWorkspace(id: Long) {
         workspaceRepository.deleteById(id);
     }
 
-    override fun getWorkspace(id: Long): Workspace {
-        return workspaceRepository.findById(id)
+    override suspend fun getWorkspace(id: Long): WorkspaceRes {
+        val workspace = workspaceRepository.findWorkspaceResById(id)
             .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) };
+
+        return modelMapper.map(workspace, WorkspaceRes::class.java);
     }
 
-    override fun getMyWorkspace(): List<WorkspaceRes.Owner> {
-        val member = MemberUtil.getCurrentMember()
+    override suspend fun getMyWorkspace(): List<WorkspaceRes.Owner> {
+        val member = MemberUtil.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) };
 
         val workspace = workspaceRepository.findByMembers_IdOrOwner_Id(member.id, member.id);
@@ -65,7 +77,7 @@ class WorkspaceServiceImpl(
     }
 
     @Transactional
-    override fun addMember(workspaceId: Long, memberId: Long) {
+    override suspend fun addMember(workspaceId: Long, memberId: Long) {
         val workspace = workspaceRepository.findById(workspaceId)
             .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) }
 
@@ -77,7 +89,7 @@ class WorkspaceServiceImpl(
     }
 
     @Transactional
-    override fun removeMember(workspaceId: Long, memberId: Long) {
+    override suspend fun removeMember(workspaceId: Long, memberId: Long) {
         val workspace = workspaceRepository.findById(workspaceId)
             .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) }
 

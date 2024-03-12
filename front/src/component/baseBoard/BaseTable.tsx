@@ -9,16 +9,17 @@ import { CommonUtil } from "utils/CommonUtil";
 
 interface Props {
   rows: any[];
+  total: number;
   columns: GridColDef[];
   pageable: Pageable;
-  loadRows: (page: number, pageSize: number, sort: string) => void;
+  loadRows: any;
   onClick?: (row: any) => void;
   props?: DataGridProps;
   children?: React.ReactNode;
 }
 
 const BaseTable = (
-  { rows, columns, pageable, loadRows, onClick, props, children }: Props,
+  { rows = [], total, columns, pageable, loadRows, onClick, props, children }: Props,
   ref,
 ) => {
   const [page, setPage] = useState(pageable.page);
@@ -42,13 +43,13 @@ const BaseTable = (
   useImperativeHandle(ref, () => ({}));
 
   return (
-    <Box>
+    <Box sx={{ mt: 2 }}>
       <DataGrid
         rows={rows}
         columns={columns}
         autoHeight
         {...props}
-        rowCount={rows.length}
+        rowCount={total}
         pageSizeOptions={[10, 25, 50]}
         pagination={true}
         paginationMode={"server"}
@@ -56,7 +57,7 @@ const BaseTable = (
         onRowClick={onClick}
         onPaginationModelChange={handlePageChange}
         onSortModelChange={handleSortChange}
-        sortModel={sortModel}
+        // sortModel={sortModel}
       />
       {children}
     </Box>

@@ -8,12 +8,12 @@ import {
 } from "@mui/material";
 import MuiDrawer from "@mui/material/Drawer";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { MenuInfo } from "service/commons/MenuItem";
 import RenderMenu from "layouts/LeftBar/renderMenu";
 
 interface MenuBarProps extends DrawerProps {
-  drawerWidth: number;
+  drawerwidth: number;
 }
 
 interface LeftBarProps {
@@ -21,7 +21,7 @@ interface LeftBarProps {
   openMenu: () => void;
   width: number;
   menu?: MenuInfo[];
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 const LeftBar = ({
@@ -34,7 +34,7 @@ const LeftBar = ({
   const [openSubMenu, setOpenSubMenu] = useState({});
 
   return (
-    <MenuBar variant={"permanent"} open={open} drawerWidth={width}>
+    <MenuBar variant={"permanent"} open={open} drawerwidth={width}>
       <Toolbar
         sx={{
           display: "flex",
@@ -66,11 +66,11 @@ const LeftBar = ({
 
 const MenuBar = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
-})<MenuBarProps>(({ theme, open, drawerWidth }) => ({
+})<MenuBarProps>(({ theme, open, drawerwidth }) => ({
   "& .MuiDrawer-paper": {
     position: "relative",
     whiteSpace: "nowrap",
-    width: drawerWidth,
+    width: drawerwidth,
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
