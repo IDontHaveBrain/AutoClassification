@@ -28,11 +28,11 @@ const WorkspaceDetail = ({ data, handleClose }: Props) => {
         if (!data?.id) return;
         getWorkspace(data.id).then((res) => {
             setDetail(res.data as WorkspaceModel);
-            setState(res.data);
+            setState({...res.data, workspaceList: state.workspaceList});
         }).catch((err) => {
             console.log(err);
         });
-    }, [data?.id]);
+    }, [data?.id, setState, state.workspaceList]);
 
     const handleEdit = () => {
         navigate("/workspace/editor", { state: { data: detail } });
