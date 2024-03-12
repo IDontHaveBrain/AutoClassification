@@ -10,22 +10,22 @@ import org.springframework.web.bind.annotation.*
 class MemberController(private val memberService: MemberService) {
 
     @PostMapping("/register")
-    fun register(@RequestBody req: MemberReq.Register): MemberDto {
+    suspend fun register(@RequestBody req: MemberReq.Register): MemberDto {
         return memberService.register(req)
     }
 
     @GetMapping("/duplicate")
-    fun duplicate(@RequestParam email: String): Boolean {
+    suspend fun duplicate(@RequestParam email: String): Boolean {
         return memberService.duplicate(email)
     }
 
     @GetMapping("/me")
-    fun getMyInfo(): MemberDto {
+    suspend fun getMyInfo(): MemberDto {
         return memberService.getMyInfo();
     }
 
     @DeleteMapping("/logout")
-    fun logout(): Any? {
+    suspend fun logout(): Any? {
         return null
     }
 }

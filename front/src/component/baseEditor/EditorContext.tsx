@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useState } from "react";
+import { createContext, Dispatch, ReactNode, SetStateAction, useContext, useState } from "react";
 
 interface EditorState {
   title: string;
@@ -7,7 +7,7 @@ interface EditorState {
 
 interface EditorContextType {
   editor: EditorState;
-  setEditor: React.Dispatch<React.SetStateAction<EditorState>>;
+  setEditor: Dispatch<SetStateAction<EditorState>>;
 }
 
 export const EditorContext = createContext<EditorContextType | undefined>(

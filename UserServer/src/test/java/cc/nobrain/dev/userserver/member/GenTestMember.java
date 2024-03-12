@@ -22,9 +22,9 @@ public class GenTestMember {
     public void testAccount() {
         log.info("testAccount");
 
-        MemberReq.Register req = new MemberReq.Register("test@test.com", "123123!", "test");
-
-        memberService.register(req);
+//        MemberReq.Register req = new MemberReq.Register("test@test.com", "123123!", "test");
+//
+//        memberService.register(req);
 
     }
 

@@ -18,17 +18,20 @@ import Button from "@mui/material/Button";
 
 interface Props {
   handleSave: () => void;
-  defaultValue?: any;
+  defaultValue?: {
+    title: string;
+    content: string;
+  };
 }
 
 const BaseEditor = ({ handleSave, defaultValue }: Props, ref) => {
-  const [editor, setEditor] = useState();
+  const [editor, setEditor] = useState<any>();
 
   useEffect(() => {
     if (defaultValue) {
       setEditor(defaultValue);
     }
-  }, [defaultValue]);
+  }, [defaultValue, setEditor]);
 
   useImperativeHandle(ref, () => ({
     getEditorState: () => editor,
@@ -42,6 +45,7 @@ const BaseEditor = ({ handleSave, defaultValue }: Props, ref) => {
         </Grid>
         <Grid item>
           <Button
+
             variant="contained"
             color="success"
             size={"small"}

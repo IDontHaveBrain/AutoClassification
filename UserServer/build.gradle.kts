@@ -12,7 +12,7 @@ plugins {
     kotlin("plugin.noarg") version "1.9.22"
     kotlin("kapt") version "1.9.22"
     kotlin("plugin.lombok") version "1.9.22"
-    id("io.freefair.lombok") version "8.1.0"
+    id("io.freefair.lombok") version "8.6"
     idea
 }
 
@@ -20,7 +20,7 @@ group = "cc.nobrain.dev"
 version = "0.0.1-SNAPSHOT"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
 }
 
 allOpen {
@@ -130,7 +130,7 @@ sourceSets {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs += "-Xjsr305=strict"
-        jvmTarget = "17"
+        jvmTarget = "21"
     }
 }
 

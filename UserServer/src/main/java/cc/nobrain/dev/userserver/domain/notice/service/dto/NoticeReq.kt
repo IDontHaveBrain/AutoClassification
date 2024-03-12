@@ -1,10 +1,8 @@
 package cc.nobrain.dev.userserver.domain.notice.service.dto
 
-import cc.nobrain.dev.userserver.domain.base.dto.FileDto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
-import lombok.NoArgsConstructor
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class NoticeReq(val search: Search?, val create: Create?) {
@@ -24,6 +22,6 @@ data class NoticeReq(val search: Search?, val create: Create?) {
         var content: String,
 
         var sticky: Boolean? = false,
-        var attachments: List<FileDto?>? = emptyList()
+        var attachments: List<Any>?
     )
 }
