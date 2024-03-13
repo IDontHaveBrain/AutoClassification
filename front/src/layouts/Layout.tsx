@@ -66,7 +66,7 @@ export const Layout = () => {
           <Outlet />
         </Box>
       </Box>
-      <BackGround />
+      {/*<BackGround />*/}
     </Box>
   );
 };

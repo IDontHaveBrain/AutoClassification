@@ -30,6 +30,18 @@ spring:
       static-locations:
         - file:C:/Work/test/
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: jonamjun.dev@gmail.com
+    password: xood lixw sfby ejqd
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 logging:
   level:
     root: debug

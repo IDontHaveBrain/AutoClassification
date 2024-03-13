@@ -1,4 +1,4 @@
-import { authApi, UserApi } from "service/commons/ApiClient";
+import { AuthApi, UserApi } from "service/commons/ApiClient";
 import { AxiosPromise } from "axios";
 
 export interface LoginData {
@@ -23,13 +23,13 @@ export const signIn = (loginData: LoginData): AxiosPromise => {
   formData.append("username", params.username);
   formData.append("password", params.password);
 
-  return authApi.post("/token", formData);
+  return AuthApi.post("/token", formData);
 };
 
 export const getPublicKey = (): AxiosPromise => {
-  return authApi.get("/key");
+  return AuthApi.get("/key");
 };
 
 export const signUp = (data: any): AxiosPromise => {
-  return authApi.post("/register", data);
+  return UserApi.post("/member/register", data);
 }

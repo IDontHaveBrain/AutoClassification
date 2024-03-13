@@ -2,7 +2,7 @@ import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 import qs from "qs";
 import { CONSTANT } from "utils/constant";
 
-export const authApi: AxiosInstance = axios.create({
+export const AuthApi: AxiosInstance = axios.create({
   baseURL: CONSTANT.AUTH_API_URL,
   headers: {
     Accept: "application/json",

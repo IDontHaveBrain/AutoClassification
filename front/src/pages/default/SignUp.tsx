@@ -36,7 +36,7 @@ export default function SignUp() {
         name: "",
         email: "",
         password: "",
-        allowExtraEmails: false,
+        // allowExtraEmails: false,
     });
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
@@ -75,8 +75,7 @@ export default function SignUp() {
 
         signUp(form).then((res) => {
             console.log(res);
-            onAlert(Strings.Common.apiSuccess);
-            navigate('/sign-in');
+            onAlert(Strings.Common.apiSuccess, navigate('/sign-in'));
         }).catch((err) => {
             console.error(err);
             onAlert(Strings.Common.apiFailed);

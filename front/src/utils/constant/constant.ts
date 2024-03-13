@@ -1,4 +1,5 @@
 const CONSTANT = {
+  BASE_URL: process.env.REACT_APP_API_URL,
   AUTH_API_URL: `${process.env.REACT_APP_API_URL}/auth`,
   API_URL: `${process.env.REACT_APP_API_URL}/api`,
   PUBLIC_FILES_URL: `${process.env.REACT_APP_API_URL}/public`,
