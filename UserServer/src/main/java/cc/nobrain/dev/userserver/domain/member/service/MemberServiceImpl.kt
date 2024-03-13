@@ -21,8 +21,11 @@ class MemberServiceImpl(
 ) : MemberService {
 
     @Transactional
-    @CacheEvict(value = ["member"], key = "#req.email")
     override suspend fun register(req: MemberReq.Register): MemberDto {
+        if (duplicate(req.email)) {
+            throw CustomException(ErrorInfo.DUPLICATE_EMAIL)
+        }
+
         var newMember: Member = modelMapper.map(req, Member::class.java)
         newMember = memberRepository.save(newMember)
 

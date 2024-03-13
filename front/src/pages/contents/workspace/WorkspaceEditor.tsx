@@ -11,6 +11,7 @@ import WorkspaceDropZone from "./editor/WorkspaceDropZone";
 import { WorkspaceContext } from "utils/ContextManager";
 import { Divider } from "@mui/material";
 import WorkspaceDataSet from "pages/contents/workspace/editor/WorkspaceDataSet";
+import WorkspaceMember from "pages/contents/workspace/editor/WorkspaceMember";
 
 const WorkspaceEditor = () => {
     const { state, setState } = useContext(WorkspaceContext);
@@ -96,6 +97,7 @@ const WorkspaceEditor = () => {
             {workspace?.files?.length > 0 && (
                 <WorkspaceDataSet imgs={workspace?.files} setState={setState} />
             )}
+            <WorkspaceMember workspace={workspace} />
         </Grid>
     );
 };
