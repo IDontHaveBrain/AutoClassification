@@ -11,6 +11,7 @@ import Classfiy from "../../pages/contents/classfiy/Classfiy";
 import WorkspaceList from "../../pages/contents/workspace/WorkspaceList";
 import WorkspaceEditor from "pages/contents/workspace/WorkspaceEditor";
 import { NoticeContext, WorkspaceContext } from "utils/ContextManager";
+import Training from "pages/contents/workspace/Training/Training";
 
 export interface MenuInfo {
     name: string;
@@ -71,6 +72,13 @@ export const MenuItems: MenuInfo[] = [
                 invisible: true,
             },
         ],
+        subTabMenu: [
+            {
+                name: "Training",
+                path: "/workspace/training",
+                element: <Training/>,
+            }
+        ],
     },
     {
         name: "Service",
@@ -120,6 +128,13 @@ export const findMenuPath = (menus: MenuInfo[], path: string): MenuInfo[] => {
                 return [menu, ...found];
             }
         }
+
+        if (menu.subTabMenu) {
+            const found = findMenuPath(menu.subTabMenu, path);
+            if (found.length > 0) {
+                return [menu, ...found];
+            }
+        }
     }
 
     return [];
@@ -151,8 +166,15 @@ export const getCurrentMenuInfo = (
             return menu;
         }
 
-        if (menu.subMenu || menu.subTabMenu) {
-            const found = getCurrentMenuInfo(menu.subMenu ?? menu.subTabMenu, path);
+        if (menu.subMenu) {
+            const found = getCurrentMenuInfo(menu.subMenu, path);
+            if (found) {
+                return found;
+            }
+        }
+
+        if (menu.subTabMenu) {
+            const found = getCurrentMenuInfo(menu.subTabMenu, path);
             if (found) {
                 return found;
             }
@@ -160,4 +182,21 @@ export const getCurrentMenuInfo = (
     }
 
     return undefined;
+};
+
+export const findSiblingTabs = (menus: MenuInfo[], path: string): MenuInfo[] => {
+    for (const menu of menus) {
+        if (menu.subMenu && menu.subMenu.find(subMenu => subMenu.path === path)) {
+            return menu.subMenu;
+        }
+
+        if (menu.subMenu) {
+            const found = findSiblingTabs(menu.subMenu, path);
+            if (found) {
+                return found;
+            }
+        }
+    }
+
+    return [];
 };

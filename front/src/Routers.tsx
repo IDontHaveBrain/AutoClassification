@@ -42,6 +42,13 @@ MenuItems.forEach((menu) => {
             }
         });
     }
+    if (menu.subTabMenu) {
+        menu.subTabMenu.forEach((subMenu) => {
+            if (subMenu.path && subMenu.element) {
+                childRoutes.push(createRouteFromMenu(subMenu));
+            }
+        });
+    }
 });
 
 const routes: RouteObject[] = [

@@ -26,9 +26,9 @@ const FileDropzone = ({ onDrop, accept, style }: Props) => {
         style={{ display: "none" }}
       />
       {isDragActive ? (
-        <p>Drop the imgs here...</p>
+        <p>Drop the imgs or zip here...</p>
       ) : (
-        <p>Drag & drop some imgs here, or click to select imgs</p>
+        <p>Drag & drop some imgs or zip here, or click to select imgs</p>
       )}
     </Box>
   );
