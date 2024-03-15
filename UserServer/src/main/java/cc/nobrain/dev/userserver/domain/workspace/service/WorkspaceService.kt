@@ -7,11 +7,12 @@ import org.springframework.web.multipart.MultipartFile
 
 interface WorkspaceService {
     suspend fun createWorkspace(create: WorkspaceReq.Create): WorkspaceRes
-    suspend fun updateWorkspace(id: Long, create: WorkspaceReq.Update, files: Array<MultipartFile>?): WorkspaceRes
+    suspend fun updateWorkspace(id: Long, update: WorkspaceReq.Update, files: Array<MultipartFile>?): WorkspaceRes
     suspend fun deleteWorkspace(id: Long)
 
     suspend fun getWorkspace(id: Long): WorkspaceRes
     suspend fun getMyWorkspace(): List<WorkspaceRes.Owner>
     suspend fun addMember(workspaceId: Long, memberId: Long)
     suspend fun removeMember(workspaceId: Long, memberId: Long)
+    suspend fun invite(invite: WorkspaceReq.Invite)
 }

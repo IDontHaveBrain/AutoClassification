@@ -12,6 +12,7 @@ const URLS = {
       POST: "/member",
       PUT: "/member",
       DELETE: "/member",
+      SEARCH: "/member/search",
     },
     NOTICE: {
       GET: "/notice",

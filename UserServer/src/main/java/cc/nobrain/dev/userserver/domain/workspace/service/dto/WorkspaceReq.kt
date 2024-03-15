@@ -20,6 +20,12 @@ data class WorkspaceReq(
         var name: String,
         var description: String?,
         var classes: List<String>?,
+        var members: List<Member>?,
 //        var files: Array<MultipartFile>?
+    )
+
+    data class Invite(
+        var workspaceId: Long,
+        var emails: List<String>
     )
 }

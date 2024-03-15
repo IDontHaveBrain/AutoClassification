@@ -4,6 +4,7 @@ import cc.nobrain.dev.userserver.common.component.FileComponent
 import cc.nobrain.dev.userserver.common.exception.CustomException
 import cc.nobrain.dev.userserver.common.exception.ErrorInfo
 import cc.nobrain.dev.userserver.common.utils.MemberUtil
+import cc.nobrain.dev.userserver.domain.member.entity.Member
 import cc.nobrain.dev.userserver.domain.member.service.MemberService
 import cc.nobrain.dev.userserver.domain.train.entity.TrainFile
 import cc.nobrain.dev.userserver.domain.workspace.entity.Workspace
@@ -38,18 +39,19 @@ class WorkspaceServiceImpl(
     }
 
     @Transactional
-    override suspend fun updateWorkspace(id: Long, create: WorkspaceReq.Update, files: Array<MultipartFile>?): WorkspaceRes {
+    override suspend fun updateWorkspace(id: Long, update: WorkspaceReq.Update, files: Array<MultipartFile>?): WorkspaceRes {
         val workspace = workspaceRepository.findById(id)
             .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) };
 
-        modelMapper.map(create, workspace);
+        modelMapper.map(update, workspace);
         val success: List<Any> = if (!files.isNullOrEmpty()) {
             fileComponent.uploadFile(files, TrainFile::class.java, workspace);
         } else {
             emptyList()
         }
 
-        create.classes?.let { workspace.changeClasses(it) };
+        update.classes?.let { workspace.changeClasses(it) };
+        workspace.members = update.members as MutableList<Member>;
         workspaceRepository.save(workspace);
 
         return modelMapper.map(workspace, WorkspaceRes::class.java);
@@ -97,6 +99,18 @@ class WorkspaceServiceImpl(
             ?: throw CustomException(ErrorInfo.TARGET_NOT_FOUND);
 
         workspace.removeMember(member);
+        workspaceRepository.save(workspace);
+    }
+
+    @Transactional
+    override suspend fun invite(invite: WorkspaceReq.Invite) {
+        val workspace = workspaceRepository.findById(invite.workspaceId)
+            .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) }
+
+        val members = memberService.findMemberByEmails(invite.emails.toMutableList())
+            ?: throw CustomException(ErrorInfo.TARGET_NOT_FOUND);
+
+        members.forEach { member -> workspace.addMember(member) }
         workspaceRepository.save(workspace);
     }
 }

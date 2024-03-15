@@ -3,6 +3,8 @@ package cc.nobrain.dev.userserver.domain.member.controller
 import cc.nobrain.dev.userserver.domain.member.service.MemberService
 import cc.nobrain.dev.userserver.domain.member.service.dto.MemberDto
 import cc.nobrain.dev.userserver.domain.member.service.dto.MemberReq
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -28,4 +30,10 @@ class MemberController(private val memberService: MemberService) {
     suspend fun logout(): Any? {
         return null
     }
+
+    @GetMapping("/search")
+    suspend fun search(@RequestParam email: String, pageable: Pageable): Page<MemberDto> {
+        return memberService.search(email, pageable)
+    }
+
 }

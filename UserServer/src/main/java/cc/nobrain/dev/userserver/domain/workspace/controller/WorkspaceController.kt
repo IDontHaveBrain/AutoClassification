@@ -40,4 +40,9 @@ class WorkspaceController(
     suspend fun deleteWorkspace(@PathVariable id: Long) {
         workspaceService.deleteWorkspace(id);
     }
+
+    @PostMapping("/invite")
+    suspend fun invite(@RequestBody invite: WorkspaceReq.Invite) {
+        workspaceService.invite(invite);
+    }
 }

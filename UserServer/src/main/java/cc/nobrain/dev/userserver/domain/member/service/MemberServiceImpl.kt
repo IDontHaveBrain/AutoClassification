@@ -9,6 +9,8 @@ import cc.nobrain.dev.userserver.domain.member.service.dto.MemberDto
 import cc.nobrain.dev.userserver.domain.member.service.dto.MemberReq
 import org.modelmapper.ModelMapper
 import org.springframework.cache.annotation.CacheEvict
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -51,5 +53,14 @@ class MemberServiceImpl(
 
     override suspend fun findMemberByEmail(email: String): Member? {
         return memberRepository.findByEmail(email);
+    }
+
+    override suspend fun findMemberByEmails(emails: MutableList<String>): List<Member> {
+        return memberRepository.findByEmailIn(emails);
+    }
+
+    override suspend fun search(email: String, pageable: Pageable): Page<MemberDto> {
+        val members: Page<Member> = memberRepository.findByEmailLikeIgnoreCase("%$email%", pageable);
+        return members.map { member -> modelMapper.map(member, MemberDto::class.java) };
     }
 }

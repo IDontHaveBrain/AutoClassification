@@ -5,8 +5,8 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import ExpandComp from "component/ExpandComp";
 
 interface Props {
-    state: any;
-    setState: any;
+  state: any;
+  setState: any;
 }
 
 const WorkspaceClass = ({state, setState}: Props) => {
@@ -28,7 +28,7 @@ const WorkspaceClass = ({state, setState}: Props) => {
   const handleRemove = (index) => {
     setState({
       ...state,
-      classes: state.classes.filter((_, i) => i !== index)
+      classes: state.classes?.filter((_, i) => i !== index)
     });
   };
 
@@ -36,14 +36,14 @@ const WorkspaceClass = ({state, setState}: Props) => {
     const newValue = event.target.value;
     setState(prevState => ({
       ...prevState,
-      classes: prevState.classes.map((item, i) => (i === index ? newValue : item)),
+      classes: prevState.classes?.map((item, i) => (i === index ? newValue : item)),
     }));
   };
 
   return (
       <ExpandComp title="Classify">
         <Grid container direction="row" spacing={2}>
-          {state.classes?.map((item, index) => (
+          {state?.classes && state.classes.map((item, index) => (
               <Grid item key={index}>
                 <TextField
                     value={item}
