@@ -9,5 +9,4 @@ ARG JAR_FILE=build/libs/*.jar
 COPY ${JAR_FILE} user-server.jar
 
 # 실행
-ENTRYPOINT ["java", "-jar", "-Djava.awt.headless=true", "/user-server.jar"]
-#ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=dev", "-Djava.awt.headless=true", "/user-server.jar"]
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=dev", "-Djava.awt.headless=true", "/user-server.jar"]

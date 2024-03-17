@@ -5,10 +5,12 @@ import os, json, requests, base64
 
 app = Flask(__name__)
 
-base_dir = "C:/AutoClass"
+if os.name == 'nt':
+    base_dir = "C:/AutoClass"
+else:
+    base_dir = "/data/autoClass"
 
 API_KEY = "test"
-
 
 def check_inclusion(labels, class_list):
     result = []

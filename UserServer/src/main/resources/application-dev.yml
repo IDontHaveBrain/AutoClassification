@@ -1,0 +1,18 @@
+Spring:
+  profiles:
+    active: dev
+
+  web:
+    resources:
+      static-locations:
+        - file:/data/docker/toy/resource/
+
+app:
+  storage:
+    path: /data/docker/toy/resource/
+    resourcePath: public/
+    maxFileSize: 10485760
+
+jasypt:
+  encryptor:
+    password: testKey

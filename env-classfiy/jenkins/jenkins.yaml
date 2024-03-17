@@ -121,3 +121,39 @@ jobs:
               }
           }
       }
+
+  - script: >
+      pipelineJob('AiServer') {
+      triggers {
+        genericTrigger {
+            genericVariables {
+                genericVariable {
+                    key 'ref'
+                    value '\$.ref'
+                }
+                genericVariable {
+                    key 'target'
+                    value '\$.data.target'
+                }
+            }
+            token('asd')
+            printContributedVariables(true)
+            printPostContent(true)
+            regexpFilterText '\$ref \$target'
+            regexpFilterExpression 'refs/heads/main aiBe'
+        }
+      }
+      
+      definition {
+          cpsScm {
+              scm {
+                  git {
+                      remote {
+                          url 'https://github.com/IDontHaveBrain/AutoClassification.git'
+                      }
+                  }
+              }
+              scriptPath 'AiServer/Jenkinsfile'
+          }
+          }
+      }

@@ -1,6 +1,5 @@
 version: '3'
 services:
-
  UserServer:
   build:
    context: ./UserServer
@@ -12,6 +11,22 @@ services:
    - /data/logs/UserServer:/var/log
   ports:
    - 8080:8080
+  networks:
+   - share-net
+  environment:
+   TZ: "Asia/Seoul"
+
+ AiServer:
+  build:
+   context: ./AiServer
+   dockerfile: Dockerfile
+  image: nobrain/ai-server
+  container_name: AiServer
+  restart: always
+  volumes:
+   - /data/logs/AiServer:/var/log
+  ports:
+   - 5000:5000
   networks:
    - share-net
   environment:

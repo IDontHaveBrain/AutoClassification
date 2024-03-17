@@ -1,0 +1,118 @@
+@NonCPS
+def sendSlackBuildMessage(color, message){
+    slackSend(channel: '젠킨스-로그', color: color, message: message)
+}
+
+pipeline {
+    agent any
+
+//     triggers {
+//         GenericTrigger(
+//             genericVariables: [
+//                 [key: 'ref', value: '$.ref'],
+//                 [key: 'target', value: '$.data.target']
+//             ],
+//             token: 'asd',
+//             causeString: 'Triggered on $ref',
+//             regexpFilterText: '$ref $target',
+//             regexpFilterExpression: 'refs/heads/main userBe',
+//             printContributedVariables: true,
+//             printPostContent: true
+//         )
+//     }
+
+    environment {
+        USER_SERVER_DIR = 'AiServer'
+    }
+
+    stages {
+        stage('Check Diff') {
+            steps {
+                slackSend(color: '#0000FF', message: "START: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+//                 git 'https://github.com/IDontHaveBrain/AutoClassification.git'
+//                 lastChanges since: 'LAST_SUCCESSFUL_BUILD', format:'SIDE',matching: 'LINE'
+            }
+        }
+        stage('Setup') {
+            steps {
+                sh 'ls -al'
+                grantExecutePermission("${USER_SERVER_DIR}/app.py")
+            }
+        }
+        stage('Setup Python Environment') {
+            steps {
+                dir(USER_SERVER_DIR) {
+                    sh '''
+                    apt-get install -y python3.11-venv
+                    python3 -m venv .env
+                    '''
+                }
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                dir(USER_SERVER_DIR) {
+                    sh '''
+                    . .env/bin/activate
+                    pip install -r requirements.txt
+                    '''
+                }
+            }
+        }
+        stage('Build Docker image') {
+            steps {
+                dockerComposeBuild(USER_SERVER_DIR)
+            }
+        }
+        stage('Clean up old images') {
+            steps {
+                cleanUpDockerImages()
+            }
+        }
+        stage('Run Docker image') {
+            steps {
+                dockerComposeUp(USER_SERVER_DIR)
+            }
+        }
+    }
+    post {
+        success {
+            slackSend(color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+        }
+        failure {
+            slackSend(color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+        }
+    }
+}
+
+def cleanupWorkspace(){
+    deleteDir()
+}
+
+def checkoutGitRepo(gitUrl){
+    git gitUrl
+}
+
+def grantExecutePermission(path){
+    sh "chmod +x ${path}"
+}
+
+def gradleBuild(){
+    sh './gradlew build --exclude-task test'
+}
+
+def listArtifacts(path){
+    sh "ls -la ${path}"
+}
+
+def dockerComposeBuild(service){
+    sh "docker compose build ${service}"
+}
+
+def cleanUpDockerImages(){
+    sh 'docker image prune -f'
+}
+
+def dockerComposeUp(service){
+    sh "docker compose up -d ${service}"
+}
