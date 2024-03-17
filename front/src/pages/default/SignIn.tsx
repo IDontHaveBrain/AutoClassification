@@ -44,13 +44,17 @@ export default function SignIn() {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    getPublicKey()
-      .then((res) => {
-        setPublicKey(res.data);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    const intervalId = setInterval(() => {
+      getPublicKey()
+          .then((res) => {
+            setPublicKey(res.data);
+            clearInterval(intervalId);
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+    }, 2500);
+
     setRememberMe(localStorage.getItem(CONSTANT.REMEMBER_ME) ? true : false);
     if (localStorage.getItem(CONSTANT.REMEMBER_ME)) {
       setEmail(localStorage.getItem(CONSTANT.REMEMBER_ME));

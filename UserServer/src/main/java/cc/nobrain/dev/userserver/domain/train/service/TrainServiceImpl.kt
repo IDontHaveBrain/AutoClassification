@@ -54,6 +54,8 @@ class TrainServiceImpl(
 
         println(response)
 
+        success.forEach { fileComponent.deleteFile(it) }
+
         return emptyList()
     }
 
