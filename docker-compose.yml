@@ -9,6 +9,7 @@ services:
   restart: always
   volumes:
    - /data/logs/UserServer:/var/log
+   - /data/docker/toy/resource:/data/docker/toy/resource
   ports:
    - 8080:8080
   networks:
