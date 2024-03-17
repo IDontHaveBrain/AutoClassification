@@ -25,4 +25,7 @@ interface MemberRepository : JpaRepository<Member, Long>, JpaSpecificationExecut
 
 
     fun findByTempToken(tempToken: String): Optional<Member>
+
+
+    fun findByEmailAndIsVerified(email: String, isVerified: Boolean): Member?
 }

@@ -48,10 +48,13 @@ class MemberServiceImpl(
             .build()
             .toString()
 
+        var linkText = "회원가입 완료"
+        var htmlMessage = "<p>회원가입을 완료하려면 아래 링크를 클릭하세요.</p><br/><a href=\"$url\">$linkText</a>"
+
         emailService.send(
             newMember.email,
             "회원가입 인증",
-            "회원가입을 완료하려면 아래 링크를 클릭하세요.\n$url"
+            htmlMessage
         )
 
         return modelMapper.map(newMember, MemberDto::class.java)
