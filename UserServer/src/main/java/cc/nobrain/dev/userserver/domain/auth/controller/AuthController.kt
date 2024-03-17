@@ -21,8 +21,5 @@ class AuthController(
         return authService.getPublicKey()
     }
 
-    @PostMapping("/register")
-    suspend fun register(req: MemberReq.Register): MemberDto {
-        return memberService.register(req);
-    }
+
 }

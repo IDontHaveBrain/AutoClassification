@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
+import java.util.*
 
 interface MemberRepository : JpaRepository<Member, Long>, JpaSpecificationExecutor<Member> {
     fun existsByEmail(email: String): Boolean
@@ -21,4 +22,7 @@ interface MemberRepository : JpaRepository<Member, Long>, JpaSpecificationExecut
 
 
     fun findByEmailLikeIgnoreCase(email: String, pageable: Pageable): Page<Member>
+
+
+    fun findByTempToken(tempToken: String): Optional<Member>
 }

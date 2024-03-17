@@ -16,10 +16,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Getter
@@ -53,12 +50,25 @@ public class Member extends BaseCU implements UserDetails {
     @NotNull
     private Boolean isVerified = false;
 
+    @Column
+    private String tempToken;
+
     @ManyToOne
     @JoinColumn(name = "group_id")
     private MemberGroup memberGroup;
 
     @ManyToMany(mappedBy = "members")
     private List<Workspace> workspace = new ArrayList<>();
+
+    public String generateTempToken() {
+        this.tempToken = UUID.randomUUID().toString();
+        return this.tempToken;
+    }
+
+    public void verify() {
+        this.isVerified = true;
+        tempToken = null;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
