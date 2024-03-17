@@ -49,6 +49,10 @@ public class Member extends BaseCU implements UserDetails {
     @Column(length = 30, nullable = false)
     private String name;
 
+    @Column(columnDefinition = "boolean default false")
+    @NotNull
+    private Boolean isVerified = false;
+
     @ManyToOne
     @JoinColumn(name = "group_id")
     private MemberGroup memberGroup;

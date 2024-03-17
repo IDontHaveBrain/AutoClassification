@@ -90,30 +90,30 @@ export const MenuItems: MenuInfo[] = [
             },
         ],
     },
-    {
-        name: "My Page",
-        subMenu: [
-            {
-                name: "Not Found",
-                path: "/not-found",
-                element: <NotFound/>,
-            },
-            {
-                name: "Test Submenu2",
-                subMenu: [
-                    {
-                        name: "Test Submenu3",
-                        subMenu: [
-                            {
-                                name: "Test Submenu4",
-                                path: "/test-submenu4",
-                            },
-                        ],
-                    },
-                ],
-            },
-        ],
-    },
+    // {
+    //     name: "My Page",
+    //     subMenu: [
+    //         {
+    //             name: "Not Found",
+    //             path: "/not-found",
+    //             element: <NotFound/>,
+    //         },
+    //         {
+    //             name: "Test Submenu2",
+    //             subMenu: [
+    //                 {
+    //                     name: "Test Submenu3",
+    //                     subMenu: [
+    //                         {
+    //                             name: "Test Submenu4",
+    //                             path: "/test-submenu4",
+    //                         },
+    //                     ],
+    //                 },
+    //             ],
+    //         },
+    //     ],
+    // },
 ];
 
 export const findMenuPath = (menus: MenuInfo[], path: string): MenuInfo[] => {

@@ -1,12 +1,14 @@
 from flask import Flask, request, jsonify
 from openai import OpenAI
-import os, json, requests
+from datetime import datetime
+import os, json, requests, base64
 
 app = Flask(__name__)
 
 base_dir = "C:/AutoClass"
 
-API_KEY = os.getenv('API_KEY')
+API_KEY = "test"
+
 
 def check_inclusion(labels, class_list):
     result = []
@@ -17,14 +19,19 @@ def check_inclusion(labels, class_list):
             result.append('none')
     return result
 
+
 def set_labels(labels, images):
     for label, image in zip(labels, images):
         dir_path = os.path.join(base_dir, label)
         os.makedirs(dir_path, exist_ok=True)
-        file_path = os.path.join(dir_path, label + '.txt')
+
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S%f")
+        file_name = f"{label}_{timestamp}"
+
+        file_path = os.path.join(dir_path, file_name + '.txt')
 
         response = requests.get(image)
-        image_path = os.path.join(dir_path, label + '.jpg')
+        image_path = os.path.join(dir_path, file_name + '.jpg')
         with open(image_path, 'wb') as img_file:
             img_file.write(response.content)
 
@@ -34,12 +41,21 @@ def set_labels(labels, images):
 
     return {"labels": labels, "images": images}
 
+
 def is_url_image(image_url):
     image_formats = ("image/png", "image/jpeg", "image/jpg")
     r = requests.head(image_url)
     if r.headers["content-type"] in image_formats:
         return True
     return False
+
+
+def encode_image(url):
+    response = requests.get(url)
+    image_content = response.content
+    base64_image = base64.b64encode(image_content)
+    return base64_image.decode('utf-8')
+
 
 @app.route('/api/train', methods=['POST'])
 def train_data():
@@ -57,6 +73,8 @@ def train_data():
     print(f'testImages: {testImages}')
 
     filtered_images = [img for img in testImages if is_url_image(img)]
+    # filtered_images = testImages
+    encoded_images = [encode_image(url) for url in filtered_images]
 
     client = OpenAI()
     completion = client.chat.completions.create(
@@ -65,14 +83,18 @@ def train_data():
             {
                 "role": "user",
                 "content": [
-                               {"type": "text", "text": "You are an AI model that classifies images that are closest to the list I provide. To answer, "
-                                                        "just say the words from the list I provided with ',' separator. The list I provide : "
-                                                        + ','.join(testClass)},
+                               {"type": "text",
+                                "text": "You are an AI model that classifies images that are closest to the list I provide. To answer, "
+                                        "just say the words from the list I provided with ',' separator. The list I provide : "
+                                        + ','.join(testClass)},
                            ] + [
-                               {"type": "image_url", "image_url": url} for url in filtered_images
+                               {"type": "image_url",
+                                "image_url": {"url": f"data:image/jpeg;base64,{img}", "detail": "low"}} for img in
+                               encoded_images
                            ],
             }
         ],
+        max_tokens=2048,
     )
 
     resultJson = completion.model_dump_json()
@@ -83,6 +105,7 @@ def train_data():
     set_labels(labels, testImages)
 
     return resultJson
+
 
 @app.route('/')
 def hello_world():
@@ -110,20 +133,21 @@ def hello_world():
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": "You are an AI model that classifies images that are closest to the list I provide. To answer, "
-                                             "just say the words from the list I provided with ',' separator. The list I provide : "
-                                             + ','.join(testClass)},
-                    # {
-                    #     "type": "image_url",
-                    #     "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSI3xUdHDZK8vn_GPB43oFN0Lbd3bykTt0DJQ&usqp=CAU"
-                    # },
-                    # {
-                    #     "type": "image_url",
-                    #     "image_url": "https://image.dongascience.com/Photo/2022/11/0c265e639aabe3a9e3105bc551007009.jpg"
-                    # },
-                ] + [
-                    {"type": "image_url", "image_url": url} for url in filtered_images
-                ],
+                               {"type": "text",
+                                "text": "You are an AI model that classifies images that are closest to the list I provide. To answer, "
+                                        "just say the words from the list I provided with ',' separator. The list I provide : "
+                                        + ','.join(testClass)},
+                               # {
+                               #     "type": "image_url",
+                               #     "image_url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSI3xUdHDZK8vn_GPB43oFN0Lbd3bykTt0DJQ&usqp=CAU"
+                               # },
+                               # {
+                               #     "type": "image_url",
+                               #     "image_url": "https://image.dongascience.com/Photo/2022/11/0c265e639aabe3a9e3105bc551007009.jpg"
+                               # },
+                           ] + [
+                               {"type": "image_url", "image_url": url} for url in filtered_images
+                           ],
             }
         ],
         # tools=tools,

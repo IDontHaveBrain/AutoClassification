@@ -42,13 +42,10 @@ const Classfiy = () => {
 
   const onDrop = useCallback(
     (files) => {
-      console.log("files : ", files);
-
       const formData = new FormData();
       files.forEach((file, i) => {
         formData.append("files", file);
       });
-      // setFiles(files)
 
       setFiles(
         files.map((file) =>

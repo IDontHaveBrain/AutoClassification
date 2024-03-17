@@ -4,6 +4,7 @@ import cc.nobrain.dev.userserver.common.properties.AppProps
 import cc.nobrain.dev.userserver.common.utils.CryptoUtil
 import cc.nobrain.dev.userserver.common.utils.FileUtil
 import cc.nobrain.dev.userserver.domain.base.entity.File
+import cc.nobrain.dev.userserver.domain.base.entity.TempFile
 import cc.nobrain.dev.userserver.domain.base.repository.FileRepository
 import jakarta.servlet.http.HttpServletRequest
 import lombok.extern.slf4j.Slf4j
@@ -47,7 +48,6 @@ class FileComponent(
 
     @Transactional
     fun <T : File> uploadFile(files: Array<MultipartFile>, clazz: Class<T>, ownerEntity: Any): List<T> {
-        // Handle each file with a separate function
         val uploadedFiles = files.flatMap { processFile(it, clazz, ownerEntity) }
 
         return fileRepository.saveAll(uploadedFiles)
@@ -69,7 +69,6 @@ class FileComponent(
                 val content = zis.readAllBytes()
                 val uploadStream = ByteArrayInputStream(content)
 
-                // Infer content type from file extension
                 val extension = FileUtil.getExtension(entry.name)
                 val path = Paths.get(entry.name)
                 val contentType = Files.probeContentType(path)
@@ -161,6 +160,53 @@ class FileComponent(
         } catch (e: IOException) {
             e.printStackTrace()
             Optional.empty()
+        }
+    }
+
+    @Transactional
+    fun uploadTempFiles(files: Array<MultipartFile>): List<TempFile> {
+        return files.mapNotNull { file ->
+            try {
+                uploadTempFile(file)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
+    }
+
+    @Transactional
+    fun uploadTempFile(file: MultipartFile): TempFile {
+        return try {
+            if (file.isEmpty || file.size > appProps.maxFileSize) {
+                throw IllegalArgumentException("Invalid file")
+            } else {
+                val filename = CryptoUtil.encryptSHA256("${file.originalFilename}-${file.size}-${System.currentTimeMillis()}")
+                val originalFilename = file.originalFilename
+                val size = file.size
+                val contentType = file.contentType
+                val extension = FileUtil.getExtension(originalFilename ?: "")
+
+                val filePath = Paths.get("${appProps.path}${appProps.resourcePath}$filename$extension")
+                Files.copy(file.inputStream, filePath, StandardCopyOption.REPLACE_EXISTING)
+
+                val sourceMap = mapOf(
+                    "path" to "${appProps.path}${appProps.resourcePath}",
+                    "size" to size,
+                    "contentType" to contentType,
+                    "fileName" to filename,
+                    "originalFileName" to originalFilename,
+                    "url" to "${getBaseUrl()}${appProps.resourcePath}$filename$extension",
+                    "fileExtension" to extension
+                )
+
+                val uploadedFile: TempFile = modelMapper.map(sourceMap, TempFile::class.java)
+
+                fileRepository.save(uploadedFile)
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            throw RuntimeException("File upload failed", e)
         }
     }
 

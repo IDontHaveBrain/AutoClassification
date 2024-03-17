@@ -13,6 +13,7 @@ import org.modelmapper.ModelMapper
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.reactive.function.client.WebClient
 
 @Service
 @Transactional(readOnly = true)
@@ -22,6 +23,7 @@ class TrainServiceImpl(
     private val memberRepository: MemberRepository,
     private val modelMapper: ModelMapper,
     private val workspaceService: WorkspaceService,
+    private val webClient: WebClient,
 ) : TrainService {
 
     @Transactional
@@ -32,9 +34,27 @@ class TrainServiceImpl(
         member = memberRepository.findById(member.id)
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
-        val success = fileComponent.uploadFile(files, TrainFile::class.java, member)
+        val success = fileComponent.uploadTempFiles(files)
 
-        return success.stream().map { file -> modelMapper.map(file, FileDto::class.java) }.toList()
+        val testImages = success.map { it.url }
+        val testClass = listOf("cat", "dog", "wolf", "duck")
+
+        val requestBody = mapOf(
+            "testClass" to testClass,
+            "testImages" to testImages
+        )
+
+        val response = webClient.post()
+            .uri("http://localhost:5000/api/train")
+            .header("x-api-key", "test")
+            .bodyValue(requestBody)
+            .retrieve()
+            .bodyToMono(String::class.java)
+            .block()
+
+        println(response)
+
+        return emptyList()
     }
 
     override suspend fun getMyImgs(): List<FileDto> {
