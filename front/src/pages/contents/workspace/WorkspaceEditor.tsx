@@ -31,7 +31,7 @@ const WorkspaceEditor = () => {
             const { data } = location.state;
             setWorkspace(data);
             setIsEdit(true);
-            setState({...data, newFiles: []});
+            setState({...data, newFiles: [], members: data.members || []});
         }
     }, [location, setState]);
 
@@ -93,8 +93,12 @@ const WorkspaceEditor = () => {
             return;
         }
 
-        setState({...state, members: [...state.members, member]});
-        setWorkspace({...workspace, members: [...workspace.members, member]});
+        const newMembers = Array.isArray(state.members)
+            ? [...state.members, member]
+            : [member];
+
+        setState({...state, members: newMembers});
+        setWorkspace({...workspace, members: newMembers});
     }
 
     const removeMember = (member) => {
