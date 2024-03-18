@@ -18,14 +18,20 @@ jobs:
         with:
           python-version: '3.11'
           cache: 'pip'
+
+      - name: Install dependencies
         run: pip install -r ./AiServer/requirements.txt
 
       - name: Make AiServer executable
         run: chmod +x ./AiServer/app.py
 
-      - name: Start AiServer
-        uses: gradle/gradle-build-action@v3
-        run: python ./AiServer/app.py
+      - name: Start AiServer and perform health check
+        run: |
+          python ./AiServer/app.py &
+          SERVER_PID=$!
+          sleep 10
+          curl http://localhost:5000/health
+          kill $SERVER_PID
 
       - if: github.ref == 'refs/heads/main'
         name: 'Deploy'
