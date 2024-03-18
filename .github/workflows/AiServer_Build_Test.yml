@@ -1,0 +1,38 @@
+name: 'UserServer Build Test'
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: 'UserServer Build Test'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+        run: pip install -r ./AiServer/requirements.txt
+
+      - name: Make AiServer executable
+        run: chmod +x ./AiServer/app.py
+
+      - name: Start AiServer
+        uses: gradle/gradle-build-action@v3
+        run: python ./AiServer/app.py
+
+      - if: github.ref == 'refs/heads/main'
+        name: 'Deploy'
+        uses: distributhor/workflow-webhook@v3
+        with:
+          webhook_url: ${{ secrets.WEBHOOK_URL }}
+          data: '{ "target": "${{ secrets.AITARGET }}" }'
+          webhook_type: 'json-extended'
+          verbose: true
+          verify_ssl: false
