@@ -1,4 +1,4 @@
-name: 'UserServer Build Test'
+name: 'AiServer Build Test'
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: 'UserServer Build Test'
+    name: 'AiServer Build Test'
     runs-on: ubuntu-latest
 
     steps:
