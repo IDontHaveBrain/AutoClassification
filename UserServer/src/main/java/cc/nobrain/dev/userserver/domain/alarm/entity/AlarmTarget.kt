@@ -1,45 +1,37 @@
 package cc.nobrain.dev.userserver.domain.alarm.entity;
 
-import cc.nobrain.dev.userserver.domain.alarm.enums.AlarmTargetType;
-import cc.nobrain.dev.userserver.domain.base.entity.BaseCU;
-import cc.nobrain.dev.userserver.domain.member.entity.Member;
-import cc.nobrain.dev.userserver.domain.member.entity.MemberGroup;
-import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DiscriminatorOptions;
-import org.hibernate.annotations.DynamicUpdate;
+import cc.nobrain.dev.userserver.domain.alarm.enums.AlarmTargetType
+import cc.nobrain.dev.userserver.domain.base.entity.BaseCU
+import cc.nobrain.dev.userserver.domain.member.entity.Member
+import cc.nobrain.dev.userserver.domain.member.entity.MemberGroup
+import jakarta.persistence.*
+import org.hibernate.annotations.DiscriminatorOptions
+import org.hibernate.annotations.DynamicUpdate
 
 @DynamicUpdate
 @Entity
-@Getter
 @DiscriminatorColumn(name = "targetType")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorOptions(force = true)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class AlarmTarget extends BaseCU {
-
+class AlarmTarget (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    val id: Long? = null,
 
     @Column(insertable = false, updatable = false)
     @Enumerated(EnumType.STRING)
-    private AlarmTargetType targetType;
+    var targetType: AlarmTargetType? = null,
 
     @ManyToOne
     @JoinColumn(name = "alarm_id")
-    private Alarm alarm;
+    var alarmMessage: AlarmMessage? = null,
 
     @ManyToOne
     @JoinColumn(name = "member_id")
-    private Member targetMember;
+    var targetMember: Member? = null,
 
     @ManyToOne
     @JoinColumn(name = "group_id")
-    private MemberGroup targetGroup;
-
-
-
+    var targetGroup: MemberGroup? = null
+) : BaseCU() {
 }

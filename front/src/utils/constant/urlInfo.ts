@@ -20,10 +20,9 @@ const URLS = {
       PUT: "/notice",
       DELETE: "/notice",
     },
-    TRAIN: {
-      GET: "/train",
-      POST: "/train/upload",
-      DELETE: "/train",
+    FREETEST: {
+      GET: "/train/test/result",
+      POST: "/train/test/upload",
     },
     WORKSPACE: {
       MYLIST: "/workspace/my",

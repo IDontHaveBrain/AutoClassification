@@ -3,12 +3,20 @@ package cc.nobrain.dev.userserver.domain.alarm.entity;
 import cc.nobrain.dev.userserver.domain.base.entity.BaseCU;
 import cc.nobrain.dev.userserver.domain.member.entity.Member;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.OffsetDateTime;
 
 @Entity
 @DynamicUpdate
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class AlarmRead extends BaseCU {
 
     @Id
@@ -21,7 +29,7 @@ public class AlarmRead extends BaseCU {
 
     @ManyToOne
     @JoinColumn(name = "alarm_id")
-    private Alarm alarm;
+    private AlarmMessage alarmMessage;
 
     @Column
     private boolean readYn;

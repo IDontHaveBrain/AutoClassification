@@ -6,4 +6,6 @@ interface AlarmService {
     suspend fun getMemberAlarmList(memberId: Long): List<AlarmDto>
 
     suspend fun getMyAlarmList(): List<AlarmDto>
+
+    suspend fun sendAlarm(memberId: Long, title: String, content: String)
 }

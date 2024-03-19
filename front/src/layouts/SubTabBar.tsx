@@ -7,6 +7,7 @@ import {
   MenuInfo,
   MenuItems,
 } from "service/commons/MenuItem";
+import { useMemo } from "react";
 
 interface SubTabBarProps {
   subTabMenu?: MenuInfo[];
@@ -27,6 +28,10 @@ const SubTabBar = ({ subTabMenu }: SubTabBarProps) => {
   const rootMenu = breadcrumbs[0];
   const fullSubTabMenu = [rootMenu].concat(rootMenu.subTabMenu || []);
 
+  const filteredSubTabMenu = useMemo(() => {
+      return fullSubTabMenu.filter(tab => tab.element !== undefined);
+  }, [fullSubTabMenu]);
+
   return (
       <Tabs
           value={location.pathname}
@@ -39,7 +44,7 @@ const SubTabBar = ({ subTabMenu }: SubTabBarProps) => {
             borderRight: "2px solid #e8e8e8",
           }}
       >
-        {fullSubTabMenu.map((tab, index) => (
+        {filteredSubTabMenu.map((tab, index) => (
             <Tab key={index} label={tab.name} value={tab.path} />
         ))}
         <Divider />

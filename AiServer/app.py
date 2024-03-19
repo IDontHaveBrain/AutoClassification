@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify
+import requests, os, json, base64
 from openai import OpenAI
 from datetime import datetime
 from ultralytics import YOLO
-import os, json, requests, base64
 
 app = Flask(__name__)
 
@@ -12,6 +12,7 @@ else:
     base_dir = "/data/autoClass"
 
 API_KEY = "test"
+
 
 def check_inclusion(labels, class_list):
     result = []
@@ -23,24 +24,37 @@ def check_inclusion(labels, class_list):
     return result
 
 
-def set_labels(labels, images):
-    for label, image in zip(labels, images):
+def set_labels(labels, dtos):
+    for label, dto in zip(labels, dtos):
         dir_path = os.path.join(base_dir, label)
         os.makedirs(dir_path, exist_ok=True)
 
         file_name = f"{label}.txt"
         file_path = os.path.join(dir_path, file_name)
 
-        response = requests.get(image)
+        image_url = dto['url']
+        response = requests.get(image_url)
         image_path = os.path.join(dir_path, f"{label}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.jpg")
         with open(image_path, 'wb') as img_file:
             img_file.write(response.content)
 
         with open(file_path, 'a') as file:
-            data = {"name": label, "image": image_path}
+            data = {"id": dto['id'], "name": label, "url": image_url}
             file.write(json.dumps(data) + '\n')
 
-    return {"labels": labels, "images": images}
+    return {"labels": labels, "dtos": dtos}
+
+
+def get_labels_to_ids(labels, dtos):
+    labels_to_ids = {}
+    for label, dto in zip(labels, dtos):
+        # Collect ids based on label
+        if label in labels_to_ids:
+            labels_to_ids[label].append(dto['id'])
+        else:
+            labels_to_ids[label] = [dto['id']]
+
+    return labels_to_ids
 
 
 def is_url_image(image_url):
@@ -64,18 +78,15 @@ def train_data():
     if not api_key or api_key != API_KEY:
         return jsonify({'message': 'Invalid API key'}), 403
 
-    data = request.get_json()
-    for key in data:
-        print(f'{key}: {data[key]}')
+    data = request.json
 
     testClass = data.get('testClass', [])
-    testImages = data.get('testImages', [])
-    print(f'testClass: {testClass}')
-    print(f'testImages: {testImages}')
+    testDtos = data.get('testImages', [])
+    # Extract urls from dtos
+    testImages = [dto['url'] for dto in testDtos]
 
-    filtered_images = [img for img in testImages if is_url_image(img)]
-    # filtered_images = testImages
-    encoded_images = [encode_image(url) for url in filtered_images]
+    filtered_dto_image_pairs = [(dto, url) for dto, url in zip(testDtos, testImages) if is_url_image(url)]
+    encoded_images = [encode_image(url) for dto, url in filtered_dto_image_pairs]
 
     client = OpenAI()
     completion = client.chat.completions.create(
@@ -99,13 +110,13 @@ def train_data():
     )
 
     resultJson = completion.model_dump_json()
-    print(resultJson)
 
-    print(completion.choices[0].message)
     labels = check_inclusion(completion.choices[0].message.content.split(','), testClass)
-    set_labels(labels, testImages)
+    # set_labels(labels, filtered_dto_image_pairs)
+    labels_to_ids = get_labels_to_ids(labels, filtered_dto_image_pairs)
+    labels_and_ids = [{'label': label, 'ids': ids} for label, ids in labels_to_ids.items()]
 
-    return resultJson
+    return labels_and_ids
 
 
 @app.route('/')
@@ -115,6 +126,7 @@ def hello_world():
         return jsonify({'message': 'Invalid API key'}), 403
 
     return 'Hello, World!'
+
 
 @app.route('/health', methods=['GET'])
 def health_check():

@@ -168,10 +168,10 @@ class FileComponent(
     }
 
     @Transactional
-    fun uploadTempFiles(files: Array<MultipartFile>): List<TempFile> {
+    fun uploadTempFiles(files: Array<MultipartFile>, ownerEntity: Any): List<TempFile> {
         return files.mapNotNull { file ->
             try {
-                uploadTempFile(file)
+                uploadTempFile(file, ownerEntity)
             } catch (e: Exception) {
                 e.printStackTrace()
                 null
@@ -180,7 +180,7 @@ class FileComponent(
     }
 
     @Transactional
-    fun uploadTempFile(file: MultipartFile): TempFile {
+    fun uploadTempFile(file: MultipartFile, ownerEntity: Any): TempFile {
         return try {
             if (file.isEmpty || file.size > appProps.maxFileSize) {
                 throw IllegalArgumentException("Invalid file")
@@ -205,6 +205,7 @@ class FileComponent(
                 )
 
                 val uploadedFile: TempFile = modelMapper.map(sourceMap, TempFile::class.java)
+                uploadedFile.setRelation(ownerEntity)
 
                 fileRepository.save(uploadedFile)
             }

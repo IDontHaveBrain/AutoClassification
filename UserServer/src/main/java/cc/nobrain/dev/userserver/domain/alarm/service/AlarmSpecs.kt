@@ -9,24 +9,24 @@ import org.springframework.data.jpa.domain.Specification
 import jakarta.persistence.criteria.*
 
 object AlarmSpecs {
-    fun findAlarmByMemberId(memberId: Long?): Specification<Alarm> {
-        return Specification { root: Root<Alarm>, query: CriteriaQuery<*>, builder: CriteriaBuilder ->
+    fun findAlarmByMemberId(memberId: Long?): Specification<AlarmMessage> {
+        return Specification { root: Root<AlarmMessage>, query: CriteriaQuery<*>, builder: CriteriaBuilder ->
 
             if (memberId == null) {
                 return@Specification null
             }
 
-            val readFetch: Fetch<Alarm, AlarmRead> = root.fetch(Alarm_.alarmRead, JoinType.LEFT)
+            val readFetch: Fetch<AlarmMessage, AlarmRead> = root.fetch(AlarmMessage_.alarmRead, JoinType.LEFT)
 
-            val alarmTarget: Join<Alarm, AlarmTarget> = root.join(Alarm_.alarmTarget, JoinType.LEFT)
-            val member: Join<AlarmTarget, Member> = alarmTarget.join(AlarmTarget_.targetMember, JoinType.LEFT)
+            val alarmMessageTarget: Join<AlarmMessage, AlarmTarget> = root.join(AlarmMessage_.alarmTarget, JoinType.LEFT)
+            val member: Join<AlarmTarget, Member> = alarmMessageTarget.join(AlarmTarget_.targetMember, JoinType.LEFT)
 
             val memberTargetId: Predicate = builder.equal(member.get(id), memberId)
-            val memberGroup: Predicate = builder.equal(member.get(memberGroup), alarmTarget.get(AlarmTarget_.targetGroup))
+            val memberGroup: Predicate = builder.equal(member.get(memberGroup), alarmMessageTarget.get(AlarmTarget_.targetGroup))
 
-            val targetTypeAll: Predicate = builder.equal(alarmTarget.get(AlarmTarget_.targetType), AlarmTargetType.ALL)
-            val targetTypeMember: Predicate = builder.equal(alarmTarget.get(AlarmTarget_.targetType), AlarmTargetType.MEMBER)
-            val targetTypeGroup: Predicate = builder.equal(alarmTarget.get(AlarmTarget_.targetType), AlarmTargetType.GROUP)
+            val targetTypeAll: Predicate = builder.equal(alarmMessageTarget.get(AlarmTarget_.targetType), AlarmTargetType.ALL)
+            val targetTypeMember: Predicate = builder.equal(alarmMessageTarget.get(AlarmTarget_.targetType), AlarmTargetType.MEMBER)
+            val targetTypeGroup: Predicate = builder.equal(alarmMessageTarget.get(AlarmTarget_.targetType), AlarmTargetType.GROUP)
 
             val memberCondition: Predicate = builder.and(targetTypeMember, memberTargetId)
             val groupCondition: Predicate = builder.and(targetTypeGroup, memberGroup)

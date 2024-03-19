@@ -2,6 +2,7 @@ package cc.nobrain.dev.userserver.domain.train.controller
 
 import cc.nobrain.dev.userserver.domain.base.dto.FileDto
 import cc.nobrain.dev.userserver.domain.train.service.TrainService
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
@@ -11,9 +12,10 @@ class TrainController(
     private val trainService: TrainService
 ) {
 
-    @PostMapping("/upload")
-    suspend fun uploadTrainData(@RequestParam files: Array<MultipartFile>): List<FileDto> {
-        return trainService.uploadTrainData(files);
+    @PostMapping("/test/upload")
+    suspend fun testClassfiy(@RequestPart data: List<String>,
+                                @RequestPart files: Array<MultipartFile>): ResponseEntity<Any> {
+        return trainService.testClassfiyData(data, files);
     }
 
     @GetMapping

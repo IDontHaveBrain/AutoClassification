@@ -1,17 +1,16 @@
 import AssignmentIcon from "@mui/icons-material/Assignment";
-import {Context, createContext, ReactNode} from "react";
-import {Home} from "pages/default/Home";
+import { Context, ReactNode } from "react";
+import { Home } from "pages/default/Home";
 import SignIn from "pages/default/SignIn";
 import SignUp from "pages/default/SignUp";
 import NoticeEditor from "pages/contents/notice/NoticeEditor";
-import {NotFound} from "pages/default/NotFound";
 import NoticeList from "pages/contents/notice/NoticeList";
-import FileDropzone from "component/FileDropzone";
-import Classfiy from "../../pages/contents/classfiy/Classfiy";
+import TestClassfiy from "pages/contents/freetest/TestClassfiy";
 import WorkspaceList from "../../pages/contents/workspace/WorkspaceList";
 import WorkspaceEditor from "pages/contents/workspace/WorkspaceEditor";
 import { NoticeContext, WorkspaceContext } from "utils/ContextManager";
 import Training from "pages/contents/workspace/Training/Training";
+import TestResult from "pages/contents/freetest/TestResult";
 
 export interface MenuInfo {
     name: string;
@@ -85,9 +84,26 @@ export const MenuItems: MenuInfo[] = [
         subMenu: [
             {
                 name: "Classfiy",
-                path: "/classfiy",
-                element: <Classfiy/>,
+                path: "/test/classfiy",
+                element: <TestClassfiy/>,
             },
+            {
+                name: "Result",
+                path: "/test/result",
+                element: <TestResult/>,
+            }
+        ],
+        subTabMenu: [
+            {
+                name: "Classfiy",
+                path: "/test/classfiy",
+                element: <TestClassfiy/>,
+            },
+            {
+                name: "Result",
+                path: "/test/result",
+                element: <TestResult/>,
+            }
         ],
     },
     // {
