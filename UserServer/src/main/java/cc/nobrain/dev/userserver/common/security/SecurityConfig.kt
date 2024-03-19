@@ -125,6 +125,7 @@ class SecurityConfig(
                     .requestMatchers("/api/**").permitAll()
                     .requestMatchers("/authorize").permitAll()
                     .requestMatchers("/public/**").permitAll()
+                    .requestMatchers("/workspace/**").permitAll()
                     .requestMatchers("/swagger-ui/**").permitAll()
                     .requestMatchers("/v3/api-docs/**").permitAll()
                     .requestMatchers("/swagger-resources/**").permitAll()

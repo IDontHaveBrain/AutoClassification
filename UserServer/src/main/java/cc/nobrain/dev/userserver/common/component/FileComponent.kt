@@ -6,6 +6,8 @@ import cc.nobrain.dev.userserver.common.utils.FileUtil
 import cc.nobrain.dev.userserver.domain.base.entity.File
 import cc.nobrain.dev.userserver.domain.base.entity.TempFile
 import cc.nobrain.dev.userserver.domain.base.repository.FileRepository
+import cc.nobrain.dev.userserver.domain.train.entity.TrainFile
+import cc.nobrain.dev.userserver.domain.workspace.entity.Workspace
 import jakarta.servlet.http.HttpServletRequest
 import lombok.extern.slf4j.Slf4j
 import org.apache.tomcat.util.http.fileupload.IOUtils
@@ -107,16 +109,18 @@ class FileComponent(
                 val contentType = file.contentType
                 val extension = FileUtil.getExtension(originalFilename ?: "")
 
-                val filePath = Paths.get("${appProps.path}${appProps.resourcePath}$filename$extension")
+                val storagePath = getStoragePath(ownerEntity, clazz)
+                val filePath = Paths.get("${appProps.path}$storagePath$filename$extension")
+                Files.createDirectories(filePath.parent)
                 Files.copy(file.inputStream, filePath, StandardCopyOption.REPLACE_EXISTING)
 
                 val sourceMap = mapOf(
-                        "path" to "${appProps.path}${appProps.resourcePath}",
+                        "path" to "${appProps.path}$storagePath",
                         "size" to size,
                         "contentType" to contentType,
                         "fileName" to filename,
                         "originalFileName" to originalFilename,
-                        "url" to "${getBaseUrl()}${appProps.resourcePath}$filename$extension",
+                        "url" to "${getBaseUrl()}$storagePath$filename$extension",
                         "fileExtension" to extension
                 )
 
@@ -208,6 +212,14 @@ class FileComponent(
             e.printStackTrace()
             throw RuntimeException("File upload failed", e)
         }
+    }
+
+    private fun getStoragePath(ownerEntity: Any, clazz: Class<*>): String {
+        val id = when (ownerEntity) {
+            is Workspace -> ownerEntity.id
+            else -> throw IllegalArgumentException("Unsupported ownerEntity type")
+        }
+        return if (clazz == TrainFile::class.java) "workspace/$id/" else "${appProps.resourcePath}"
     }
 
     private fun getBaseUrl(): String {
