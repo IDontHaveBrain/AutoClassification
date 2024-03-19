@@ -36,7 +36,7 @@ export const Layout = () => {
   const currentMenuPath = findMenuPath(MenuItems, location.pathname);
   const subTabMenu = currentMenuPath
     ?.filter((menu) => menu.path === location.pathname)
-    .flatMap((menu) => menu.subTabMenu);
+    ?.flatMap((menu) => menu.subTabMenu);
 
   return (
     <Box sx={{ display: "flex" }}>
