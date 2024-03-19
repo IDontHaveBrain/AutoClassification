@@ -27,9 +27,9 @@ jobs:
 
       - name: Start AiServer and perform health check
         run: |
-          python ./AiServer/app.py &
+          python ./AiServer/app.py > server.log 2>&1 &
           SERVER_PID=$!
-          sleep 10
+          while ! grep -q "Running on" server.log; do sleep 1; done
           curl http://localhost:5000/health
           kill $SERVER_PID
 
