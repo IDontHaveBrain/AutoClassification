@@ -15,6 +15,8 @@ import cc.nobrain.dev.userserver.domain.alarm.repository.AlarmTargetRepository
 import cc.nobrain.dev.userserver.domain.alarm.service.dto.AlarmDto
 import cc.nobrain.dev.userserver.domain.member.entity.Member
 import cc.nobrain.dev.userserver.domain.member.service.MemberService
+import cc.nobrain.dev.userserver.domain.sse.enums.SseEventType
+import cc.nobrain.dev.userserver.domain.sse.service.dto.SseMessageDto
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.modelmapper.ModelMapper
 import org.springframework.data.jpa.domain.Specification
@@ -48,20 +50,24 @@ class AlarmServiceImpl(
     }
 
     @Transactional
-    override suspend fun sendAlarm(memberId: Long, title: String, content: String) {
+    override suspend fun sendAlarmToMember(memberId: Long, title: String, content: String) {
         val member = memberService.findMemberById(memberId) ?: throw CustomException(ErrorInfo.TARGET_NOT_FOUND);
 
-        var alarmMessage = createAlarmMessage(title, content, AlarmEventType.GENERAL);
-        alarmMessage = alarmMessageRepository.save(alarmMessage);
+        var newAlarmMessage = createAlarmMessage(title, content, AlarmEventType.GENERAL);
+        newAlarmMessage = alarmMessageRepository.save(newAlarmMessage);
 
         var alarmTarget = AlarmTargetMember().apply {
-            targetType = AlarmTargetType.MEMBER;
-            targetMember = member;
-            alarmMessage = alarmMessage;
+            this.targetType = AlarmTargetType.MEMBER;
+            this.targetMember = member;
+            this.alarmMessage = newAlarmMessage;
         }
 
         alarmTargetRepository.save(alarmTarget);
-        notificationComponent.sendMessage(member.id.toString(), objectMapper.writeValueAsString(alarmMessage));
+        val message = SseMessageDto(
+            type = SseEventType.ALARM,
+            message = newAlarmMessage
+        )
+        notificationComponent.sendMessage(member.id.toString(), message);
     }
 
     private fun createAlarmMessage(title: String, content: String, eventType: AlarmEventType): AlarmMessage {

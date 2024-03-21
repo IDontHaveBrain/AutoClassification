@@ -20,7 +20,7 @@ public class GenTestMember {
     @Transactional
     @Rollback(false)
     public void testAccount() {
-        log.info("testAccount");
+//        log.info("testAccount");
 
 //        MemberReq.Register req = new MemberReq.Register("test@test.com", "123123!", "test");
 //

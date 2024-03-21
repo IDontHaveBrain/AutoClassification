@@ -22,11 +22,11 @@ class SseController(private val notificationComponent: NotificationComponent) {
 
     @GetMapping("/subscribe")
     suspend fun subscribe(@AuthenticationPrincipal member: Member): Flux<ServerSentEvent<String>> {
-        notificationComponent.addSubscriber(member.username)
+//        val sseStream = notificationComponent.addSubscriber(member.id.toString())
+        val sseStream = notificationComponent.subscribe(member.id.toString())
+            .doOnNext { notificationComponent.updateLastResponse(member.id.toString(), Instant.now())}
+            .doOnTerminate { notificationComponent.removeSubscriber(member.id.toString()) }
         notificationComponent.sendHeartbeat();
-        return notificationComponent.subscribe(member.username)
-                .doOnCancel { notificationComponent.removeSubscriber(member.username) }
-                .doOnNext { notificationComponent.updateLastResponse(member.username, Instant.now())}
-                .doOnTerminate { notificationComponent.removeSubscriber(member.username) }
+        return sseStream;
     }
 }

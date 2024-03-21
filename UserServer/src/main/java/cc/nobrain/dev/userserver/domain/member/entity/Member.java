@@ -3,6 +3,7 @@ package cc.nobrain.dev.userserver.domain.member.entity;
 import cc.nobrain.dev.userserver.common.converter.BCryptoConverter;
 import cc.nobrain.dev.userserver.domain.base.entity.BaseCU;
 import cc.nobrain.dev.userserver.domain.base.entity.TempFile;
+import cc.nobrain.dev.userserver.domain.train.entity.Classfiy;
 import cc.nobrain.dev.userserver.domain.train.entity.TrainFile;
 import cc.nobrain.dev.userserver.domain.workspace.entity.Workspace;
 import jakarta.persistence.*;
@@ -60,6 +61,9 @@ public class Member extends BaseCU implements UserDetails {
 
     @ManyToMany(mappedBy = "members")
     private List<Workspace> workspace = new ArrayList<>();
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Classfiy> classfiy = new ArrayList<>();
 
     @OneToMany(mappedBy = "ownerIndex")
     private List<TempFile> tempFiles = new ArrayList<>();

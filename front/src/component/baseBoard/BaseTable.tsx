@@ -19,48 +19,46 @@ interface Props {
 }
 
 const BaseTable = (
-  { rows = [], total, columns, pageable, loadRows, onClick, props, children }: Props,
-  ref,
+    { rows = [], total, columns, pageable, loadRows, onClick, props, children }: Props,
+    ref,
 ) => {
   const [page, setPage] = useState(pageable.page);
   const [pageSize, setPageSize] = useState(pageable.size);
-  const [sortModel, setSortModel] = useState<GridSortModel>(pageable.sort);
-
-  useEffect(() => {
-    const sort = CommonUtil.convertSort(sortModel);
-    loadRows(page, pageSize, sort);
-  }, [page, pageSize, sortModel, loadRows]);
+  const [sortModel, setSortModel] = useState(pageable.sort);
 
   const handlePageChange = (param: GridPaginationModel) => {
     setPage(param.page);
     setPageSize(param.pageSize);
+    loadRows(param.page, param.pageSize, sortModel);
   };
 
   const handleSortChange = (sort: GridSortModel) => {
-    setSortModel(sort);
+    console.log(sort);
+    const sortModel = CommonUtil.convertSort(sort);
+    setSortModel(sortModel);
+    loadRows(page, pageSize, sortModel);
   };
 
   useImperativeHandle(ref, () => ({}));
 
   return (
-    <Box sx={{ mt: 2 }}>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        autoHeight
-        {...props}
-        rowCount={total}
-        pageSizeOptions={[10, 25, 50]}
-        pagination={true}
-        paginationMode={"server"}
-        paginationModel={{ page, pageSize }}
-        onRowClick={onClick}
-        onPaginationModelChange={handlePageChange}
-        onSortModelChange={handleSortChange}
-        // sortModel={sortModel}
-      />
-      {children}
-    </Box>
+      <Box sx={{ mt: 2 }}>
+        <DataGrid
+            rows={rows}
+            columns={columns}
+            autoHeight
+            rowCount={total}
+            pageSizeOptions={[10, 25, 50]}
+            pagination
+            paginationMode="server"
+            paginationModel={{ page, pageSize }}
+            onPaginationModelChange={handlePageChange}
+            onSortModelChange={handleSortChange}
+            onRowClick={onClick}
+            {...props}
+        />
+        {children}
+      </Box>
   );
 };
 

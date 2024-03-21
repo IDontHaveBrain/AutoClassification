@@ -60,7 +60,7 @@ export enum SseType {
 export interface SseEvent {
   id: string;
   type: SseType;
-  message: string;
+  message: any;
 }
 
 export interface BaseDto {
@@ -76,17 +76,30 @@ export interface NoticeModel extends BaseDto {
   content: string;
 }
 
+export interface Page<T> {
+    content: T[];
+    pageable: Pageable;
+    totalPages: number;
+    totalElements: number;
+    last: boolean;
+    size: number;
+    number: number;
+    numberOfElements: number;
+    first: boolean;
+    empty: boolean;
+}
+
 export interface Pageable {
   page: number;
   size: number;
-  sort?: GridSortModel;
+  sort?: any;
 }
 
 export const initPageable = (size: number): Pageable => {
   return {
     page: 0,
     size: size,
-    sort: [{ field: "id", sort: "asc" }],
+    sort: 'id,desc',
   };
 };
 

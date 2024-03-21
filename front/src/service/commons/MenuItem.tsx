@@ -10,7 +10,7 @@ import WorkspaceList from "../../pages/contents/workspace/WorkspaceList";
 import WorkspaceEditor from "pages/contents/workspace/WorkspaceEditor";
 import { NoticeContext, WorkspaceContext } from "utils/ContextManager";
 import Training from "pages/contents/workspace/Training/Training";
-import TestResult from "pages/contents/freetest/TestResult";
+import TestResultList from "pages/contents/freetest/TestResultList";
 
 export interface MenuInfo {
     name: string;
@@ -90,7 +90,7 @@ export const MenuItems: MenuInfo[] = [
             {
                 name: "Result",
                 path: "/test/result",
-                element: <TestResult/>,
+                element: <TestResultList/>,
             }
         ],
         subTabMenu: [
@@ -102,7 +102,7 @@ export const MenuItems: MenuInfo[] = [
             {
                 name: "Result",
                 path: "/test/result",
-                element: <TestResult/>,
+                element: <TestResultList/>,
             }
         ],
     },

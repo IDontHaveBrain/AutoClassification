@@ -4,18 +4,24 @@ import { SseEvent, SseType } from "model/GlobalModel";
 import SseClient from "service/commons/SseClient";
 import { CONSTANT, URLS } from "utils/constant";
 import AlertModal from "component/modal/AlertModal";
+import { SnackbarProvider, VariantType, useSnackbar } from 'notistack';
 
 const BackGround = () => {
   const dispatch = useAppDispatch();
+  const { enqueueSnackbar } = useSnackbar();
 
-  const handleSseMessage = useCallback((event) => {
-    const sseEvent = event as SseEvent;
+  const handleSseMessage = useCallback((event: SseEvent) => {
+    const sseEvent = event;
+    console.log()
     if (sseEvent.type === SseType.HEARTBEAT) {
       SseClient.getInstance().sendHeartbeat();
+      return;
     }
 
-    // console.log(sseEvent);
-  }, []);
+    if (sseEvent.type === SseType.ALARM) {
+      enqueueSnackbar(event.message.title, { variant: 'success'});
+    }
+  }, [enqueueSnackbar]);
 
   const handleSseError = useCallback((event: Event) => {
     console.error(event);

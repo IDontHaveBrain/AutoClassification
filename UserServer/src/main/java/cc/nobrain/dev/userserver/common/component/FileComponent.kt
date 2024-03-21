@@ -1,5 +1,7 @@
 package cc.nobrain.dev.userserver.common.component
 
+import cc.nobrain.dev.userserver.common.exception.CustomException
+import cc.nobrain.dev.userserver.common.exception.ErrorInfo
 import cc.nobrain.dev.userserver.common.properties.AppProps
 import cc.nobrain.dev.userserver.common.utils.CryptoUtil
 import cc.nobrain.dev.userserver.common.utils.FileUtil
@@ -55,13 +57,14 @@ class FileComponent(
         return fileRepository.saveAll(uploadedFiles)
     }
 
-    private fun <T : File> processFile(file: MultipartFile, clazz: Class<T>, ownerEntity: Any): List<T> {
+    @Transactional
+    protected fun <T : File> processFile(file: MultipartFile, clazz: Class<T>, ownerEntity: Any): List<T> {
         val extension = FileUtil.getExtension(file.originalFilename ?: "")
 
         return if (extension == ".zip") {
             processZipFile(file, clazz, ownerEntity)
         } else {
-            uploadFile(file, clazz, ownerEntity).map { listOf(it) }.orElse(emptyList())
+            listOf(uploadFile(file, clazz, ownerEntity))
         }
     }
 
@@ -83,25 +86,10 @@ class FileComponent(
         }
     }
 
-//    @Transactional
-//    fun <T : File> uploadFile(files: Array<MultipartFile>, clazz: Class<T>, ownerEntity: Any): List<T> {
-//        val result = mutableListOf<T>()
-//        if (files.isNullOrEmpty()) {
-//            return result
-//        }
-//        for (file in files) {
-//            // 여기
-//            val uploadedFile = uploadFile(file, clazz, ownerEntity)
-//            uploadedFile.ifPresent { uploadedFileResult: T -> result.add(uploadedFileResult) }
-//        }
-//        return fileRepository.saveAll(result)
-//    }
-
-    @Transactional
-    protected fun <T : File> uploadFile(file: MultipartFile, clazz: Class<T>, ownerEntity: Any): Optional<T> {
+    protected fun <T : File> uploadFile(file: MultipartFile, clazz: Class<T>, ownerEntity: Any): T {
         return try {
             if (file.isEmpty || file.size > appProps.maxFileSize) {
-                Optional.empty()
+                throw CustomException(ErrorInfo.INVALID_DATA)
             } else {
                 val filename = CryptoUtil.encryptSHA256("${file.originalFilename}-${file.size}-${System.currentTimeMillis()}")
                 val originalFilename = file.originalFilename
@@ -127,11 +115,11 @@ class FileComponent(
                 val uploadedFile: T = modelMapper.map(sourceMap, clazz)
                 uploadedFile.setRelation(ownerEntity)
 
-                Optional.ofNullable(uploadedFile)
+                return uploadedFile;
             }
         } catch (e: IOException) {
             e.printStackTrace()
-            Optional.empty()
+            throw RuntimeException("File upload failed", e)
         }
     }
 
@@ -218,7 +206,7 @@ class FileComponent(
     private fun getStoragePath(ownerEntity: Any, clazz: Class<*>): String {
         val id = when (ownerEntity) {
             is Workspace -> ownerEntity.id
-            else -> throw IllegalArgumentException("Unsupported ownerEntity type")
+            else -> ownerEntity::class.java.simpleName
         }
         return if (clazz == TrainFile::class.java) "workspace/$id/" else "${appProps.resourcePath}"
     }

@@ -47,13 +47,18 @@ def set_labels(labels, dtos):
 
 def get_labels_to_ids(labels, dtos):
     labels_to_ids = {}
-    for label, dto in zip(labels, dtos):
-        # Collect ids based on label
-        if label in labels_to_ids:
-            labels_to_ids[label].append(dto['id'])
+    for label, dto_url_tuple in zip(labels, dtos):  # unpack the tuple into dto and url
+        dto, url = dto_url_tuple  # unpack the tuple into dto and url
+        print(f"Processing label: {label} with dto: {dto}")  # Print the current label and dto
+        # Ensure that 'id' is in dto
+        if 'id' in dto:
+            # Collect ids based on label
+            if label in labels_to_ids:
+                labels_to_ids[label].append(dto['id'])
+            else:
+                labels_to_ids[label] = [dto['id']]
         else:
-            labels_to_ids[label] = [dto['id']]
-
+            print(f"'id' is not found in dto: {dto}")  # Print problematic dto
     return labels_to_ids
 
 

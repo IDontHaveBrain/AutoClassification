@@ -12,22 +12,19 @@ import java.util.Objects;
 @Entity
 @DynamicUpdate
 @DiscriminatorValue("TRAIN_FILE")
-@Getter
-@NoArgsConstructor
-public class TrainFile extends File {
+class TrainFile(
     @ManyToOne
-    @JoinColumn(name = "owner_index")
-    protected Workspace ownerIndex;
+    @JoinColumn(name = "ownerIndex", foreignKey = ForeignKey(name = "fk_ownerIndex", value = ConstraintMode.NO_CONSTRAINT))
+    var ownerIndex: Workspace? = null,
 
     @Column(nullable = false, columnDefinition = "varchar(255) default 'none'")
-    private String label = "none";
-
-    @Override
-    public <T> void setRelation(T ownerEntity) {
-        if (!(ownerEntity instanceof Workspace owner) || Objects.isNull(ownerEntity)) {
-            throw new IllegalArgumentException("Invalid owner entity");
+    var label: String = "none",
+) : File() {
+    override fun <T> setRelation(ownerEntity: T) {
+        if (ownerEntity == null || ownerEntity !is Workspace) {
+            throw IllegalArgumentException("Invalid owner entity")
         }
-        this.ownerIndex = owner;
-        owner.getFiles().add(this);
+        this.ownerIndex = ownerEntity
+        ownerEntity.files.add(this)
     }
 }

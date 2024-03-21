@@ -21,7 +21,7 @@ const URLS = {
       DELETE: "/notice",
     },
     FREETEST: {
-      GET: "/train/test/result",
+      GET: "/train/test",
       POST: "/train/test/upload",
     },
     WORKSPACE: {

@@ -13,7 +13,7 @@ import org.hibernate.annotations.DynamicUpdate
 @DiscriminatorColumn(name = "targetType")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorOptions(force = true)
-class AlarmTarget (
+abstract class AlarmTarget (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
@@ -23,7 +23,7 @@ class AlarmTarget (
     var targetType: AlarmTargetType? = null,
 
     @ManyToOne
-    @JoinColumn(name = "alarm_id")
+    @JoinColumn(name = "alarm_message_id")
     var alarmMessage: AlarmMessage? = null,
 
     @ManyToOne
