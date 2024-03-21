@@ -7,10 +7,12 @@ import cc.nobrain.dev.userserver.common.utils.MemberUtil
 import cc.nobrain.dev.userserver.domain.alarm.service.AlarmService
 import cc.nobrain.dev.userserver.domain.base.dto.FileDto
 import cc.nobrain.dev.userserver.domain.member.repository.MemberRepository
+import cc.nobrain.dev.userserver.domain.train.dto.ClassfiyDto
 import cc.nobrain.dev.userserver.domain.train.entity.Classfiy
 import cc.nobrain.dev.userserver.domain.train.entity.TestFile
 import cc.nobrain.dev.userserver.domain.train.repository.ClassfiyRepository
 import cc.nobrain.dev.userserver.domain.train.repository.TrainFileRepository
+import cc.nobrain.dev.userserver.domain.train.service.dto.ClassfiyRes
 import cc.nobrain.dev.userserver.domain.train.service.dto.LabelAndIds
 import cc.nobrain.dev.userserver.domain.workspace.service.WorkspaceService
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -18,6 +20,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.modelmapper.ModelMapper
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -47,7 +51,7 @@ class TrainServiceImpl(
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
         var classfiy = Classfiy(
-            member = member,
+            owner = member,
             classes = data.toMutableList()
         )
         classfiy = classfiyRepository.save(classfiy);
@@ -77,6 +81,12 @@ class TrainServiceImpl(
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    override suspend fun getTestResultList(page: Pageable): Page<ClassfiyRes> {
+        val spec = ClassfiySpecs.fetchFiles()?.and(ClassfiySpecs.ownerId(MemberUtil.getCurrentMemberDto().get().id))
+        val classfiy = classfiyRepository.findAll(spec!!, page)
+        return classfiy.map { c -> modelMapper.map(c, ClassfiyRes::class.java)};
     }
 
     override suspend fun getMyImgs(): List<FileDto> {

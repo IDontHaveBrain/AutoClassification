@@ -15,7 +15,7 @@ class Classfiy(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
-    var member: Member,
+    var owner: Member,
 
     @Column
     @Convert(converter = StringListConverter::class)

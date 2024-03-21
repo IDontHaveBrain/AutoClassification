@@ -62,7 +62,7 @@ public class Member extends BaseCU implements UserDetails {
     @ManyToMany(mappedBy = "members")
     private List<Workspace> workspace = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Classfiy> classfiy = new ArrayList<>();
 
     @OneToMany(mappedBy = "ownerIndex")
