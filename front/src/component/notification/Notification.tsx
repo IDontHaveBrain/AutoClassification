@@ -20,7 +20,7 @@ const Notification = () => {
   useEffect(() => {
     getMyAlarms()
       .then((response) => {
-        setAlarmList((prevAlarmList) => [...prevAlarmList, ...response.data]);
+        setAlarmList([...response.data]);
       })
       .catch((error) => {
         console.error(error);

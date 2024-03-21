@@ -1,11 +1,8 @@
 package cc.nobrain.dev.userserver.domain.base.entity;
 
-import cc.nobrain.dev.userserver.common.utils.MemberUtil;
-import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import jakarta.persistence.Column;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.MappedSuperclass;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -14,38 +11,35 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
 
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @MappedSuperclass
-@Getter
-@EntityListeners(AuditingEntityListener.class)
-@SuperBuilder
-public abstract class BaseCU {
+@EntityListeners(AuditingEntityListener::class)
+abstract class BaseCU {
 
     @CreatedBy
     @Column(updatable = false)
-    private String createMember;
+    var createMember: String? = null
 
     @CreatedDate
     @Column(updatable = false)
-    private OffsetDateTime createDateTime;
+    var createDateTime: OffsetDateTime? = null
 
     @LastModifiedBy
-    private String updateMember;
+    var updateMember: String? = null
 
     @LastModifiedDate
-    private OffsetDateTime updateDateTime;
+    var updateDateTime: OffsetDateTime? = null
 
-//    @PrePersist
-//    protected void onCreate() {
-//        createDateTime = OffsetDateTime.now();
-//        updateDateTime = OffsetDateTime.now();
-//        createMember = MemberUtil.getCurrentUserEmail();
-//        updateMember = MemberUtil.getCurrentUserEmail();
-//    }
-//
-//    @PreUpdate
-//    protected void onUpdate() {
-//        updateDateTime = OffsetDateTime.now();
-//        updateMember = MemberUtil.getCurrentUserEmail();
-//    }
+    // @PrePersist
+    // protected fun onCreate() {
+    //     createDateTime = OffsetDateTime.now()
+    //     updateDateTime = OffsetDateTime.now()
+    //     createMember = MemberUtil.getCurrentUserEmail()
+    //     updateMember = MemberUtil.getCurrentUserEmail()
+    // }
+
+    // @PreUpdate
+    // protected fun onUpdate() {
+    //     updateDateTime = OffsetDateTime.now()
+    //     updateMember = MemberUtil.getCurrentUserEmail()
+    // }
 }

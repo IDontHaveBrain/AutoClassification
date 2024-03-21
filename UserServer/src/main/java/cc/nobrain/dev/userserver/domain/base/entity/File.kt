@@ -7,43 +7,40 @@ import org.hibernate.annotations.DiscriminatorOptions;
 import org.hibernate.annotations.DynamicUpdate;
 
 @Entity
-@Getter
 @DynamicUpdate
-@AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(discriminatorType = DiscriminatorType.STRING)
-@DiscriminatorOptions(force=true)
-public abstract class File extends BaseCU {
+@DiscriminatorOptions(force = true)
+abstract class File : BaseCU() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    val id: Long? = null
 
     @Column(insertable = false, updatable = false)
-    private String dtype;
+    var dtype: String? = null
 
     @Column(nullable = false)
-    private String url;
-
-    @NotNull
-    @Column(nullable = false)
-    private String fileName;
-
-    @Column(nullable = false)
-    private String originalFileName;
-
-    @Column(nullable = false)
-    private String fileExtension;
+    var url: String? = null
 
     @NotNull
     @Column(nullable = false)
-    private Long size;
+    var fileName: String? = null
+
+    @Column(nullable = false)
+    var originalFileName: String? = null
+
+    @Column(nullable = false)
+    var fileExtension: String? = null
+
+    @NotNull
+    @Column(nullable = false)
+    var size: Long? = null
 
     @Column
-    private String contentType;
+    var contentType: String? = null
 
     @Column(nullable = false)
-    private String path;
+    var path: String? = null
 
-    public abstract <T> void setRelation(T ownerEntity);
+    abstract fun <T> setRelation(ownerEntity: T)
 }

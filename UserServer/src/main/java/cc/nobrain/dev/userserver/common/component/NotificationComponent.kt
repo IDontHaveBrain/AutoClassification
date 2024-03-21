@@ -80,6 +80,12 @@ class NotificationComponent {
             .build(), Sinks.EmitFailureHandler.FAIL_FAST)
     }
 
+    fun sendMessage(id: String, message: SseMessageDto) {
+        val processor = processors[id]
+        processor?.emitNext(ServerSentEvent.builder(message.toString())
+            .build(), Sinks.EmitFailureHandler.FAIL_FAST)
+    }
+
     fun sendMessageToAll(message: String) {
         val messageEvent = ServerSentEvent.builder(message).build()
         Flux

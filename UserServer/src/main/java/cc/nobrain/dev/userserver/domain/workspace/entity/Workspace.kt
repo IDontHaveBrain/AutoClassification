@@ -32,7 +32,7 @@ class Workspace (
     @field:NotNull
     var owner: Member,
 
-    @OneToMany(mappedBy = "ownerIndex", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "ownerIndex", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
     var files: MutableList<TrainFile> = ArrayList(),
 
     @ManyToMany

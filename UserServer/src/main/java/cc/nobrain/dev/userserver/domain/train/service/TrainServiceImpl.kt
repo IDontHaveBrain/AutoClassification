@@ -4,15 +4,19 @@ import cc.nobrain.dev.userserver.common.component.FileComponent
 import cc.nobrain.dev.userserver.common.exception.CustomException
 import cc.nobrain.dev.userserver.common.exception.ErrorInfo
 import cc.nobrain.dev.userserver.common.utils.MemberUtil
+import cc.nobrain.dev.userserver.domain.alarm.service.AlarmService
 import cc.nobrain.dev.userserver.domain.base.dto.FileDto
 import cc.nobrain.dev.userserver.domain.member.repository.MemberRepository
+import cc.nobrain.dev.userserver.domain.train.entity.Classfiy
+import cc.nobrain.dev.userserver.domain.train.entity.TestFile
+import cc.nobrain.dev.userserver.domain.train.repository.ClassfiyRepository
 import cc.nobrain.dev.userserver.domain.train.repository.TrainFileRepository
 import cc.nobrain.dev.userserver.domain.train.service.dto.LabelAndIds
 import cc.nobrain.dev.userserver.domain.workspace.service.WorkspaceService
+import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.modelmapper.ModelMapper
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
@@ -24,10 +28,13 @@ import org.springframework.web.reactive.function.client.WebClient
 @Transactional(readOnly = true)
 class TrainServiceImpl(
     private val trainFileRepository: TrainFileRepository,
+    private val classfiyRepository: ClassfiyRepository,
     private val fileComponent: FileComponent,
     private val memberRepository: MemberRepository,
     private val modelMapper: ModelMapper,
+    private val objectMapper: ObjectMapper,
     private val workspaceService: WorkspaceService,
+    private val alarmService: AlarmService,
     private val webClient: WebClient,
 ) : TrainService {
 
@@ -39,9 +46,13 @@ class TrainServiceImpl(
         member = memberRepository.findById(member.id)
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
-        val tempFiles = withContext(Dispatchers.IO) {
-            fileComponent.uploadTempFiles(files, member)
-        }
+        var classfiy = Classfiy(
+            member = member,
+            classes = data.toMutableList()
+        )
+        classfiy = classfiyRepository.save(classfiy);
+
+        val tempFiles = fileComponent.uploadFile(files, TestFile::class.java, classfiy)
 
         val testImages = tempFiles.map { file -> modelMapper.map(file, FileDto::class.java)}
         val testClass = data;
@@ -61,6 +72,8 @@ class TrainServiceImpl(
                 .collectList()
                 .block() ?: emptyList()
             println(response);
+            saveTestResult(classfiy.id!!, response);
+            alarmService.sendAlarmToMember(member.id, "테스트 결과가 도착했습니다.", "테스트 결과가 도착했습니다.");
         }
 
         return ResponseEntity.ok().build();
@@ -72,7 +85,7 @@ class TrainServiceImpl(
 
         val workspaces = workspaceService.getMyWorkspace();
 
-        val files = trainFileRepository.findByOwnerIndexId(member.id)
+        val files = trainFileRepository.findByOwnerIndex_Id(member.id)
         return files.stream().map { file -> modelMapper.map(file, FileDto::class.java) }.toList()
     }
 
@@ -84,9 +97,9 @@ class TrainServiceImpl(
         val file = trainFileRepository.findById(id)
             .orElseThrow { CustomException(ErrorInfo.FILE_NOT_FOUND) }
 
-        if (file.ownerIndex.id != member.id) {
-            throw CustomException(ErrorInfo.FILE_NOT_FOUND)
-        }
+//        if (file.ownerIndex.id != member.id) {
+//            throw CustomException(ErrorInfo.FILE_NOT_FOUND)
+//        }
 
         fileComponent.deleteFile(file)
     }
@@ -95,10 +108,19 @@ class TrainServiceImpl(
         val member = MemberUtil.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
-        val files = trainFileRepository.findByOwnerIndexId(member.id)
+        val files = trainFileRepository.findByOwnerIndex_Id(member.id)
 
 //        if ()
 
         return files.stream().map { file -> modelMapper.map(file, FileDto::class.java) }.toList()
+    }
+
+    @Transactional
+    protected suspend fun saveTestResult(classfiyId: Long, rst: List<LabelAndIds>) {
+        val classfiy = classfiyRepository.findById(classfiyId)
+            .orElseThrow { CustomException(ErrorInfo.TARGET_NOT_FOUND) }
+
+        classfiy.resultJson = objectMapper.writeValueAsString(rst);
+        classfiyRepository.save(classfiy);
     }
 }

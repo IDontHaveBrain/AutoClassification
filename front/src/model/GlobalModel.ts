@@ -60,7 +60,7 @@ export enum SseType {
 export interface SseEvent {
   id: string;
   type: SseType;
-  message: string;
+  message: any;
 }
 
 export interface BaseDto {

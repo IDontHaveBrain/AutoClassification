@@ -84,10 +84,17 @@ const TestClassfiy = () => {
         files.forEach((file, i) => {
             formData.append("files", file);
         });
-        formData.append("data", JSON.stringify(classList));
+        formData.append("data", new Blob(
+            [
+                JSON.stringify(classList),
+            ],
+            { type: "application/json" },
+        ));
         testUploadImg(formData)
             .then((res) => {
                 setClassList(["", ""]);
+                handleInputChange(0, "")
+                handleInputChange(1, "")
                 setFiles([]);
                 onAlert(Strings.FreeTest.requestTest);
             })
@@ -131,14 +138,18 @@ const TestClassfiy = () => {
             </Grid>
             <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}> {/* add flexbox to arrange the items in a row */}
                 {classList.map((item, index) => (
-                    <div key={index} style={{ marginRight: '8px' }}>
+                    <div key={index} style={{ display: 'flex', marginRight: '8px' }}>
                         <TextField
                             key={index}
                             size={"small"}
                             sx={{ m: 1 }}
+                            value={classList[index]}
                             onChange={(e) => handleInputChange(index, e.target.value)}
                         ></TextField>
-                        <Button onClick={() => removeClass(index)}>X</Button>
+                        <Button
+                            style={{ minWidth: 'initial', lineHeight: 'initial', alignSelf: 'center' }}
+                            onClick={() => removeClass(index)}
+                        >X</Button>
                     </div>
                 ))}
                 <IconButton onClick={addClass}>

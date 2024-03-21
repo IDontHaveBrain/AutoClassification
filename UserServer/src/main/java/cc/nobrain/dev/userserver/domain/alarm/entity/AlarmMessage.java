@@ -31,13 +31,16 @@ public class AlarmMessage extends BaseCU {
     @Column
     private String content;
 
+    @Column(nullable = true)
+    private String link;
+
     @Column
     @Enumerated(EnumType.STRING)
     private AlarmEventType eventType;
 
-    @OneToMany(mappedBy = "alarmMessage", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "alarmMessage", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AlarmTarget> alarmTarget;
 
-    @OneToMany(mappedBy = "alarmMessage", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "alarmMessage", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AlarmRead> alarmRead;
 }

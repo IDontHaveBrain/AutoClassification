@@ -36,7 +36,7 @@ public class Notice extends BaseCU {
     private Boolean sticky = false;
 
     @Size(max = 5)
-    @OneToMany(mappedBy = "ownerIndex", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "ownerIndex", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Builder.Default
     private List<NoticeFile> attachments = new ArrayList<>();
 
