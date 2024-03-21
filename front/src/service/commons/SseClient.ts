@@ -53,6 +53,7 @@ class SseClient {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
+        heartbeatTimeout: 120 * 1000,
       });
     } catch (e) {
       console.error("Failed to create EventSource", e);
@@ -61,6 +62,7 @@ class SseClient {
     }
 
     this.eventSource.onmessage = (event: any) => {
+      console.log("event.data : ", event.data);
       let receivedData;
 
       try {
@@ -74,6 +76,7 @@ class SseClient {
     };
 
     this.eventSource.onerror = (err: any) => {
+      console.error("EventSource error", err);
       errorHandler(err);
       if (this.eventSource?.readyState === EventSource.CLOSED) {
         this.reconnect(url, messageHandler, errorHandler);
