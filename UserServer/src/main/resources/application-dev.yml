@@ -5,6 +5,9 @@ spring:
         - file:/data/docker/toy/resource/
 
 app:
+  url:
+    ai: http://dev.nobrain.cc:5000
+
   storage:
     path: /data/docker/toy/resource/
     resourcePath: public/

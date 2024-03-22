@@ -3,11 +3,11 @@ package cc.nobrain.dev.userserver.domain.train.service
 import cc.nobrain.dev.userserver.common.component.FileComponent
 import cc.nobrain.dev.userserver.common.exception.CustomException
 import cc.nobrain.dev.userserver.common.exception.ErrorInfo
+import cc.nobrain.dev.userserver.common.properties.UrlProps
 import cc.nobrain.dev.userserver.common.utils.MemberUtil
 import cc.nobrain.dev.userserver.domain.alarm.service.AlarmService
 import cc.nobrain.dev.userserver.domain.base.dto.FileDto
 import cc.nobrain.dev.userserver.domain.member.repository.MemberRepository
-import cc.nobrain.dev.userserver.domain.train.dto.ClassfiyDto
 import cc.nobrain.dev.userserver.domain.train.entity.Classfiy
 import cc.nobrain.dev.userserver.domain.train.entity.TestFile
 import cc.nobrain.dev.userserver.domain.train.repository.ClassfiyRepository
@@ -40,6 +40,7 @@ class TrainServiceImpl(
     private val workspaceService: WorkspaceService,
     private val alarmService: AlarmService,
     private val webClient: WebClient,
+    private val urlProps: UrlProps
 ) : TrainService {
 
     @Transactional
@@ -68,7 +69,7 @@ class TrainServiceImpl(
 
         CoroutineScope(Dispatchers.IO).launch {
             val response: List<LabelAndIds> = webClient.post()
-                .uri("http://localhost:5000/api/train")
+                .uri("${urlProps.ai}/api/train")
                 .header("x-api-key", "test")
                 .bodyValue(requestBody)
                 .retrieve()

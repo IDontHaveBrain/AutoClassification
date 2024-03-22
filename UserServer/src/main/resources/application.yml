@@ -48,6 +48,9 @@ logging:
 
 
 app:
+  url:
+    ai: http://localhost:5000
+
   storage:
     path: C:/Work/test/
     resourcePath: public/
