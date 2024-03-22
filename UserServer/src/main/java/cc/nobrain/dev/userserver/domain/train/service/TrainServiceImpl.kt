@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import org.modelmapper.ModelMapper
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -84,9 +85,10 @@ class TrainServiceImpl(
         return ResponseEntity.ok().build();
     }
 
+    @EntityGraph(attributePaths = ["testFiles"])
     override suspend fun getTestResultList(page: Pageable): Page<ClassfiyRes> {
-        val spec = ClassfiySpecs.fetchFiles()?.and(ClassfiySpecs.ownerId(MemberUtil.getCurrentMemberDto().get().id))
-        val classfiy = classfiyRepository.findAll(spec!!, page)
+        val spec = ClassfiySpecs.ownerId(MemberUtil.getCurrentMemberDto().get().id)
+        val classfiy = classfiyRepository.findAll(spec, page)
         return classfiy.map { c -> modelMapper.map(c, ClassfiyRes::class.java)};
     }
 
