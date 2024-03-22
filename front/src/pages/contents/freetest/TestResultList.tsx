@@ -25,7 +25,7 @@ const TestResultList = () => {
 
     useEffect(() => {
         fetchResults(pageable);
-    }, [fetchResults]);
+    }, [fetchResults, pageable]);
 
     const handlePageChange = (page, size, sort) => {
         const updatedPageable = { ...pageable, page, size, sort };
