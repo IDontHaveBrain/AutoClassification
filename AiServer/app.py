@@ -111,7 +111,7 @@ def train_data():
                            ],
             }
         ],
-        max_tokens=1024,
+        max_tokens=2048,
     )
 
     resultJson = completion.model_dump_json()

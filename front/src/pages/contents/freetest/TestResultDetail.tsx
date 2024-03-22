@@ -9,15 +9,15 @@ interface Props {
 }
 
 const TestResultDetail = ({data, handleClose}: Props) => {
-    const result = JSON.parse(data.resultJson);
-    const images = data.testFiles;
+    const result = data?.resultJson ? JSON.parse(data.resultJson) : null;
+    const images = data?.testFiles;
 
     return (
         <>
-            <DialogTitle>{`${data.id} - ${data.classes}`}</DialogTitle>
+            <DialogTitle>{`${data?.id} - ${data?.classes}`}</DialogTitle>
             <DialogContent>
                 <Grid container spacing={2}>
-                    {result.map((item) => (
+                    {result?.map((item) => (
                         <Grid item xs={12} key={item.label}>
                             <h2>{item.label}</h2>
                             <Grid container spacing={2}>
