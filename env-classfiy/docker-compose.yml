@@ -55,6 +55,7 @@ services:
       TZ: "Asia/Seoul"
       CASC_JENKINS_CONFIG: /app/jenkins/casc_configs/jenkins.yaml
       JENKINS_OPTS: "--httpPort=7080"
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
 
   nginx:
     container_name: autoclassify-nginx

@@ -6,7 +6,7 @@ spring:
 
 app:
   url:
-    ai: http://dev.nobrain.cc:5000
+    ai: http://AiServer:5000
 
   storage:
     path: /data/docker/toy/resource/

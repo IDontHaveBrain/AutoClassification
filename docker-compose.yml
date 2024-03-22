@@ -32,6 +32,7 @@ services:
    - share-net
   environment:
    TZ: "Asia/Seoul"
+   OPENAI_API_KEY: ${OPENAI_API_KEY}
 
 networks:
  share-net:
