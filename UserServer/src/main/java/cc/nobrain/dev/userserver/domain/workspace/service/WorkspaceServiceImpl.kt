@@ -12,6 +12,8 @@ import cc.nobrain.dev.userserver.domain.workspace.repository.WorkspaceRepository
 import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceReq
 import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceRes
 import org.modelmapper.ModelMapper
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -69,11 +71,11 @@ class WorkspaceServiceImpl(
         return modelMapper.map(workspace, WorkspaceRes::class.java);
     }
 
-    override suspend fun getMyWorkspace(): List<WorkspaceRes.Owner> {
+    override suspend fun getMyWorkspace(pageable: Pageable?): Page<WorkspaceRes.Owner> {
         val member = MemberUtil.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) };
 
-        val workspace = workspaceRepository.findByMembers_IdOrOwner_Id(member.id, member.id);
+        val workspace = workspaceRepository.findByMembers_IdOrOwner_Id(member.id, member.id, pageable);
 
         return workspace.map { space -> modelMapper.map(space, WorkspaceRes.Owner::class.java) }
     }

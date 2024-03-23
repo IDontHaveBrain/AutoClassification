@@ -3,6 +3,7 @@ package cc.nobrain.dev.userserver.domain.workspace.controller
 import cc.nobrain.dev.userserver.domain.workspace.service.WorkspaceService
 import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceReq
 import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceRes
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
@@ -15,8 +16,8 @@ class WorkspaceController(
 ) {
 
     @GetMapping("/my")
-    suspend fun getMyWorkspaces(pageable: Pageable?): List<WorkspaceRes.Owner> {
-        return workspaceService.getMyWorkspace();
+    suspend fun getMyWorkspaces(pageable: Pageable?): Page<WorkspaceRes.Owner> {
+        return workspaceService.getMyWorkspace(pageable);
     }
 
     @GetMapping("/{id}")

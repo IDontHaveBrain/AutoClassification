@@ -46,6 +46,7 @@ const TestResultList = () => {
         { field: "id", headerName: "ID", flex: 1 },
         { field: "classes", headerName: "Classes", flex: 3 },
         { field: "resultJson", headerName: "Result", flex: 3 },
+        { field: "createDateTime", headerName: "Date", flex: 2 },
     ];
 
     return (

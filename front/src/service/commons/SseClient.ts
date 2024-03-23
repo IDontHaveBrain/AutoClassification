@@ -62,7 +62,7 @@ class SseClient {
     }
 
     this.eventSource.onmessage = (event: any) => {
-      console.log("event.data : ", event.data);
+      // console.log("event.data : ", event.data);
       let receivedData;
 
       try {

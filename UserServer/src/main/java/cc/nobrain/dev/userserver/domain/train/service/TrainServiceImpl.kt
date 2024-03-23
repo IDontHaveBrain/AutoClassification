@@ -96,7 +96,7 @@ class TrainServiceImpl(
         val member = MemberUtil.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
-        val workspaces = workspaceService.getMyWorkspace();
+        val workspaces = workspaceService.getMyWorkspace(null);
 
         val files = trainFileRepository.findByOwnerIndex_Id(member.id)
         return files.stream().map { file -> modelMapper.map(file, FileDto::class.java) }.toList()

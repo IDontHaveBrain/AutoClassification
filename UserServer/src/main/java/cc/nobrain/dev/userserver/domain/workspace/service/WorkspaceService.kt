@@ -3,6 +3,8 @@ package cc.nobrain.dev.userserver.domain.workspace.service
 import cc.nobrain.dev.userserver.domain.workspace.entity.Workspace
 import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceReq
 import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceRes
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.web.multipart.MultipartFile
 
 interface WorkspaceService {
@@ -11,7 +13,7 @@ interface WorkspaceService {
     suspend fun deleteWorkspace(id: Long)
 
     suspend fun getWorkspace(id: Long): WorkspaceRes
-    suspend fun getMyWorkspace(): List<WorkspaceRes.Owner>
+    suspend fun getMyWorkspace(pageable: Pageable?): Page<WorkspaceRes.Owner>
     suspend fun addMember(workspaceId: Long, memberId: Long)
     suspend fun removeMember(workspaceId: Long, memberId: Long)
     suspend fun invite(invite: WorkspaceReq.Invite)
