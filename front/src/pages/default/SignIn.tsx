@@ -19,6 +19,7 @@ import {setUserInfo} from "stores/rootSlice";
 import {onAlert} from "component/modal/AlertModal";
 import {Strings} from "utils/strings";
 import CircularProgress from "@mui/material/CircularProgress";
+import {Loading} from "pages/default/Loading";
 
 function Copyright(props: any) {
     return (
@@ -120,35 +121,7 @@ export default function SignIn() {
     return (
         <>
             {!publicKey ? (
-                <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      height: '100vh',
-                      bgcolor: 'background.default',
-                      color: 'text.primary',
-                    }}
-                >
-                  <Box
-                      sx={{
-                        p: 3,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        bgcolor: 'background.paper',
-                        boxShadow: 3,
-                        borderRadius: '10px',
-                      }}
-                  >
-                    <CircularProgress size={60} />
-                    <Typography variant="h6" sx={{ mt: 2 }}>
-                      Loading...
-                    </Typography>
-                  </Box>
-                </Box>
+                <Loading />
             ) : (
                 <Container component="main" maxWidth="xs">
                     <CssBaseline/>
