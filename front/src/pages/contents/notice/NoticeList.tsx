@@ -1,4 +1,4 @@
-import {useCallback, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {getNoticeList} from "service/Apis/NoticeApi";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -20,41 +20,48 @@ const NoticeList = () => {
     const [pageable, setPageable] = useState<Pageable>(initPageable(10));
     const [rows, setRows] = useState<NoticeModel[]>([]);
     const [total, setTotal] = useState(0);
-
     const navigate = useNavigate();
 
-    const handleClickOpen = () => setOpenDetail(true);
-    const handleClose = () => setOpenDetail(false);
+    const fetchNotices = useCallback(async (page, size, sort, search) => {
+        try {
+            const params = { ...search, page, size, sort };
+            const res = await getNoticeList(params);
+            setRows(res.data.content);
+            setTotal(res.data.totalElements);
+        } catch (error) {
+            console.error(error);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchNotices(pageable.page, pageable.size, pageable.sort, search);
+    }, [fetchNotices, pageable, search]);
+
+    const handlePageChange = (page, size, sort) => {
+        setPageable({ ...pageable, page, size, sort });
+        fetchNotices(page, size, sort, search);
+    }
 
     const handleRowClick = (data) => {
         setSelectedData(data.row as NoticeModel);
         handleClickOpen();
+    }
+
+    const handleClickOpen = () => {
+        setOpenDetail(true);
     };
+
+    const handleClose = () => {
+        setOpenDetail(false);
+    }
 
     const handleSearch = (e) => {
         setSearch({...search, [e.target.name]: e.target.value});
     };
 
     const onSearch = () => {
-        loadRows(pageable.page, pageable.size, pageable.sort);
+        fetchNotices(pageable.page, pageable.size, pageable.sort, search);
     };
-
-    const loadRows = useCallback(
-        (page, size, sort) => {
-            const params = {...search, page, size, sort};
-            setPageable(params);
-
-            getNoticeList(params)
-                .then((response) => {
-                    setRows(response.data.content || []);
-                    setTotal(response.data.totalElements);
-                })
-                .catch((error) => {
-                    console.error(error);
-                });
-        },
-        [search],
-    );
 
     const columns: GridColDef[] = [
         {field: "id", headerName: "ID", flex: 1},
@@ -110,7 +117,7 @@ const NoticeList = () => {
                 total={total}
                 columns={columns}
                 pageable={pageable}
-                loadRows={loadRows}
+                loadRows={handlePageChange}
                 onClick={handleRowClick}
             />
 

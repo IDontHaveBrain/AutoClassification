@@ -1,4 +1,4 @@
-import { useCallback, useContext, useState } from "react";
+import {useCallback, useContext, useEffect, useState} from "react";
 import { WorkspaceModel } from "model/WorkspaceModel";
 import BaseTitle from "component/baseBoard/BaseTitle";
 import BaseSearch from "component/baseBoard/BaseSearch";
@@ -29,28 +29,24 @@ const WorkspaceList = () => {
   const navigate = useNavigate();
   const { state, setState } = useContext(WorkspaceContext);
 
-  const handleSearch = (e) => {
-    setSearch({ ...search, [e.target.name]: e.target.value });
-  };
+    const fetchWorkspaces = useCallback(async (page, size, sort, search) => {
+        try {
+            const params = { ...search, page, size, sort };
+            const res = await getMyWorkspaceList(params);
+            setState(prevState => ({ ...prevState, rows: res.data.content, total: res.data.totalElements }));
+        } catch (error) {
+            console.error(error);
+        }
+    }, [setState]);
 
-  const loadRows = useCallback(
-    async (page: number, size: number, sort: any) => {
-      const params = { ...search, page, size, sort };
-      setPageable(params);
+    useEffect(() => {
+        fetchWorkspaces(pageable.page, pageable.size, pageable.sort, search);
+    }, [fetchWorkspaces, pageable, search]);
 
-      getMyWorkspaceList(params)
-        .then((response) => {
-          setState((prevState) => ({
-            ...prevState,
-            workspaceList: response.data || [],
-          }));
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    },
-    [search, setState],
-  );
+    const handlePageChange = (page, size, sort) => {
+        setState(prevState => ({ ...prevState, pageable: { ...pageable, page, size, sort } }));
+        fetchWorkspaces(page, size, sort, search);
+    }
 
   const addWorkspace = () => {
     navigate("/workspace/editor");
@@ -90,7 +86,7 @@ const WorkspaceList = () => {
         total={state?.workspaceList?.length || 0}
         columns={columns}
         pageable={pageable}
-        loadRows={loadRows}
+        loadRows={handlePageChange}
         onClick={handleRowClick}
       ></BaseTable>
       <Dialog open={openDetail} onClose={handleClose}>
