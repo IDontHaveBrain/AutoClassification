@@ -31,7 +31,15 @@ object AlarmSpecs {
             val memberCondition: Predicate = builder.and(targetTypeMember, memberTargetId)
             val groupCondition: Predicate = builder.and(targetTypeGroup, memberGroup)
 
-            builder.or(targetTypeAll, memberCondition, groupCondition)
+            val alarmRead: Join<AlarmMessage, AlarmRead> = root.join(AlarmMessage_.alarmRead, JoinType.LEFT)
+            val readYnCondition: Predicate = builder.or(builder.isNull(alarmRead), builder.equal(alarmRead.get(AlarmRead_.readYn), false))
+            val deleteYnCondition: Predicate = builder.equal(alarmRead.get(AlarmRead_.deleteYn), false)
+            val readAndDeleteCondition: Predicate = builder.and(readYnCondition, deleteYnCondition)
+
+            val alarmReadIsNull: Predicate = builder.isNull(alarmRead)
+            val finalCondition: Predicate = builder.or(alarmReadIsNull, readAndDeleteCondition)
+
+            builder.and(builder.or(targetTypeAll, memberCondition, groupCondition), finalCondition)
         }
     }
 }

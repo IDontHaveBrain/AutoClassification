@@ -13,33 +13,33 @@ import java.time.OffsetDateTime;
 
 @Entity
 @DynamicUpdate
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class AlarmRead extends BaseCU {
+class AlarmRead(
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        val id: Long? = null,
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+        @ManyToOne
+        @JoinColumn(name = "member_id")
+        val reader: Member? = null,
 
-    @ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member reader;
+        @ManyToOne
+        @JoinColumn(name = "alarm_id")
+        val alarmMessage: AlarmMessage? = null,
+) : BaseCU() {
+        @Column
+        var readYn: Boolean = true
 
-    @ManyToOne
-    @JoinColumn(name = "alarm_id")
-    private AlarmMessage alarmMessage;
+        @Column
+        var deleteYn: Boolean = false
 
-    @Column
-    private boolean readYn;
+        @Column
+        var readAt: OffsetDateTime? = OffsetDateTime.now()
 
-    @Column
-    private boolean deleteYn;
+        @Column
+        var deleteAt: OffsetDateTime? = null
 
-    @Column
-    private OffsetDateTime readAt;
-
-    @Column
-    private OffsetDateTime deleteAt;
+        fun read() {
+                this.readYn = true
+                this.readAt = OffsetDateTime.now()
+        }
 }

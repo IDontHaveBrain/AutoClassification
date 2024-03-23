@@ -7,9 +7,10 @@ import java.io.Serializable
 /**
  * DTO for {@link cc.nobrain.dev.userserver.domain.alarm.entity.Alarm}
  */
-open class AlarmDto(
+open class AlarmMessageDto(
     val id: Long? = null,
     val title: String? = null,
     val content: String? = null,
+    val link: String? = null,
     val eventType: AlarmEventType? = null
 ) : BaseDto(), Serializable
