@@ -1,18 +1,11 @@
-import { useNavigate } from "react-router-dom";
-import { WorkspaceModel } from "model/WorkspaceModel";
-import {
-    CardMedia,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-} from "@mui/material";
-import { deleteWorkspace, getWorkspace } from "service/Apis/WorkspaceApi";
-import { onAlert } from "component/modal/AlertModal";
-import { Strings } from "utils/strings";
+import {useNavigate} from "react-router-dom";
+import {WorkspaceModel} from "model/WorkspaceModel";
+import {CardMedia, DialogActions, DialogContent, DialogContentText, DialogTitle,} from "@mui/material";
+import {deleteWorkspace, getWorkspace} from "service/Apis/WorkspaceApi";
+import {onAlert} from "component/modal/AlertModal";
+import {Strings} from "utils/strings";
 import Button from "@mui/material/Button";
-import { useContext, useEffect, useState } from "react";
-import { WorkspaceContext } from "utils/ContextManager";
+import {useEffect, useState} from "react";
 
 interface Props {
     data: WorkspaceModel;
@@ -20,19 +13,19 @@ interface Props {
 }
 
 const WorkspaceDetail = ({ data, handleClose }: Props) => {
-    const { state, setState } = useContext(WorkspaceContext);
     const [detail, setDetail] = useState<WorkspaceModel>(data);
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!data?.id) return;
-        getWorkspace(data.id).then((res) => {
-            setDetail(res.data as WorkspaceModel);
-            setState({...res.data, workspaceList: state.workspaceList});
-        }).catch((err) => {
-            console.log(err);
-        });
-    }, [data?.id, setState, state.workspaceList]);
+        getWorkspace(data.id)
+            .then((res) => {
+                setDetail(res.data);
+            })
+            .catch((err) => {
+                console.log(err);
+                onAlert(Strings.Common.apiFailed);
+            });
+    }, [data.id]);
 
     const handleEdit = () => {
         navigate("/workspace/editor", { state: { data: detail } });

@@ -1,6 +1,6 @@
 import AssignmentIcon from "@mui/icons-material/Assignment";
-import { Context, ReactNode } from "react";
-import { Home } from "pages/default/Home";
+import {Context, ReactNode} from "react";
+import {Home} from "pages/default/Home";
 import SignIn from "pages/default/SignIn";
 import SignUp from "pages/default/SignUp";
 import NoticeEditor from "pages/contents/notice/NoticeEditor";
@@ -8,7 +8,7 @@ import NoticeList from "pages/contents/notice/NoticeList";
 import TestClassfiy from "pages/contents/freetest/TestClassfiy";
 import WorkspaceList from "../../pages/contents/workspace/WorkspaceList";
 import WorkspaceEditor from "pages/contents/workspace/WorkspaceEditor";
-import { NoticeContext, WorkspaceContext } from "utils/ContextManager";
+import {NoticeContext, WorkspaceContext} from "utils/ContextManager";
 import Training from "pages/contents/workspace/Training/Training";
 import TestResultList from "pages/contents/freetest/TestResultList";
 
@@ -83,12 +83,12 @@ export const MenuItems: MenuInfo[] = [
         name: "Service",
         subMenu: [
             {
-                name: "Classfiy",
+                name: "TestClassfiy",
                 path: "/test/classfiy",
                 element: <TestClassfiy/>,
             },
             {
-                name: "Result",
+                name: "TestResult",
                 path: "/test/result",
                 element: <TestResultList/>,
             }

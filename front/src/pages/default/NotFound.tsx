@@ -1,5 +1,5 @@
-import { Box, Button, Typography } from "@mui/material";
-import { Link } from "react-router-dom";
+import {Box, Button, Typography} from "@mui/material";
+import {Link} from "react-router-dom";
 
 export const NotFound = () => {
     return (
