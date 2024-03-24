@@ -24,6 +24,9 @@ const URLS = {
       GET: "/train/test",
       POST: "/train/test/upload",
     },
+    TRAIN: {
+      POST: "train/label",
+    },
     WORKSPACE: {
       MYLIST: "/workspace/my",
       GET: "/workspace",

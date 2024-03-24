@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import {getMyWorkspaceList, getWorkspace} from "service/Apis/WorkspaceApi";
 import {WorkspaceModel} from "model/WorkspaceModel";
-import {Autocomplete} from "@mui/material";
+import {Autocomplete, Button} from "@mui/material";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
 import BaseTitle from "component/baseBoard/BaseTitle";
@@ -9,6 +9,8 @@ import {onAlert} from "component/modal/AlertModal";
 import WorkspaceDataSet from "pages/contents/workspace/editor/WorkspaceDataSet";
 import {Strings} from "utils/strings";
 import LabelledImages from "component/imgs/LabelledImages";
+import {blue} from "@mui/material/colors";
+import {requestAutoLabel} from "service/Apis/TrainApi";
 
 const AutoLabel = () => {
     const [workspaceList, setWorkspaceList] = useState<WorkspaceModel[]>([]);
@@ -37,6 +39,24 @@ const AutoLabel = () => {
         }
     };
 
+    const handleLabelingRequest = () => {
+        if (!selected) {
+            onAlert('Select Workspace');
+            return;
+        }
+        if (!selected.files || selected.files.length === 0) {
+            onAlert('No images to label');
+            return;
+        }
+
+        requestAutoLabel(selected.id).then(res => {
+            onAlert(Strings.Common.apiSuccess);
+        }).catch(err => {
+            console.error(err);
+            onAlert(Strings.Common.apiFailed);
+        });
+    }
+
     return (
         <>
             <BaseTitle title={'AutoLabel'}/>
@@ -52,7 +72,7 @@ const AutoLabel = () => {
                     />
                 </Grid>
                 <Grid item>
-                    {/*<Button onClick={} color="inherit" style={{ backgroundColor: blue[300] }}>Labeling Request</Button>*/}
+                    <Button onClick={handleLabelingRequest} color="inherit" style={{ backgroundColor: blue[300] }}>Labeling Request</Button>
                 </Grid>
             </Grid>
             <Grid mt={2} container spacing={2} xs={10}>

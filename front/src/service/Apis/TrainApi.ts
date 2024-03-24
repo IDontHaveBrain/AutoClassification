@@ -9,3 +9,7 @@ export const testUploadImg = (params): AxiosPromise => {
 export const testGetResult = (params?): AxiosPromise => {
     return UserApi.get(URLS.API.FREETEST.GET, { params });
 }
+
+export const requestAutoLabel = (workspaceId): AxiosPromise => {
+    return UserApi.post(`${URLS.API.TRAIN.POST}/${workspaceId}`);
+}

@@ -8,5 +8,5 @@ import java.io.Serializable
  * DTO for {@link cc.nobrain.dev.userserver.domain.train.entity.Classfiy}
  */
 open class TrainFileDto(
-    label: String? = "none",
+    var label: String? = "none",
 ) : FileDto(), Serializable

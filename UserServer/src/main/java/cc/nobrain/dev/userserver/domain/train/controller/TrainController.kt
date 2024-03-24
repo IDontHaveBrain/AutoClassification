@@ -34,8 +34,8 @@ class TrainController(
         return trainService.getMyImgs();
     }
 
-    @GetMapping("/label/{workspaceId}")
-    suspend fun requestLabeling(workspaceId: Long): ResponseEntity<Any> {
+    @PostMapping("/label/{workspaceId}")
+    suspend fun requestLabeling(@PathVariable workspaceId: Long): ResponseEntity<Any> {
         return trainService.requestLabeling(workspaceId);
     }
 
