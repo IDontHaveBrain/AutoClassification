@@ -3,8 +3,14 @@ import requests, os, json, base64
 from openai import OpenAI
 from datetime import datetime
 from ultralytics import YOLO
+import pika
+import threading
+import json
 
 app = Flask(__name__)
+
+# connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+# channel = connection.channel()
 
 if os.name == 'nt':
     base_dir = "C:/AutoClass"
@@ -155,6 +161,39 @@ def hello_world():
 def health_check():
     return 'OK', 200
 
+def process_data_wrapper(ch, method, properties, body):
+    message = json.loads(body.decode('utf-8'))
+
+    class DummyRequest:
+        def __init__(self, json_data):
+            self.json = json_data
+            self.headers = {'x-api-key': API_KEY}
+
+    dummy_request = DummyRequest(message)
+
+    operation = 'classify'
+    result = process_data(dummy_request, operation)
+
+    print(result)
+
+    ch.basic_ack(delivery_tag=method.delivery_tag)
+
+def start_consumer():
+    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    channel = connection.channel()
+
+    channel.queue_declare(queue='ClassfiyQueue')
+
+    def callback(ch, method, properties, body):
+        threading.Thread(target=process_data_wrapper, args=(ch, method, properties, body)).start()
+
+    channel.basic_qos(prefetch_count=2)
+    channel.basic_consume(queue='ClassfiyQueue', on_message_callback=callback)
+
+    print(' [*] Waiting for messages. To exit press CTRL+C')
+    channel.start_consuming()
 
 if __name__ == '__main__':
+    consumer_thread = threading.Thread(target=start_consumer)
+    # consumer_thread.start()
     app.run(debug=True, host='0.0.0.0', port=5000)
