@@ -76,9 +76,7 @@ def encode_image(url):
     base64_image = base64.b64encode(image_content)
     return base64_image.decode('utf-8')
 
-
-@app.route('/api/train', methods=['POST'])
-def train_data():
+def process_data(request, operation):
     api_key = request.headers.get('x-api-key')
     if not api_key or api_key != API_KEY:
         return jsonify({'message': 'Invalid API key'}), 403
@@ -117,11 +115,20 @@ def train_data():
     resultJson = completion.model_dump_json()
 
     labels = check_inclusion(completion.choices[0].message.content.split(','), testClass)
-    # set_labels(labels, filtered_dto_image_pairs)
+    if operation == 'classify':
+        set_labels(labels, filtered_dto_image_pairs)
     labels_to_ids = get_labels_to_ids(labels, filtered_dto_image_pairs)
     labels_and_ids = [{'label': label, 'ids': ids} for label, ids in labels_to_ids.items()]
 
     return labels_and_ids
+
+@app.route('/api/classify', methods=['POST'])
+def classify_data():
+    return process_data(request, 'classify')
+
+@app.route('/api/testclassfiy', methods=['POST'])
+def test_data():
+    return process_data(request, 'test')
 
 
 @app.route('/')

@@ -69,17 +69,23 @@ class TrainServiceImpl(
         )
 
         CoroutineScope(Dispatchers.IO).launch {
-            val response: List<LabelAndIds> = webClient.post()
-                .uri("${urlProps.ai}/api/train")
-                .header("x-api-key", "test")
-                .bodyValue(requestBody)
-                .retrieve()
-                .bodyToFlux(LabelAndIds::class.java)
-                .collectList()
-                .block() ?: emptyList()
-            println(response);
-            saveTestResult(classfiy.id!!, response);
-            alarmService.sendAlarmToMember(member.id, "테스트 결과가 도착했습니다.", "테스트 결과가 도착했습니다.");
+            try {
+                val response: List<LabelAndIds> = webClient.post()
+                    .uri("${urlProps.ai}/api/testclassfiy")
+                    .header("x-api-key", "test")
+                    .bodyValue(requestBody)
+                    .retrieve()
+                    .bodyToFlux(LabelAndIds::class.java)
+                    .collectList()
+                    .block() ?: emptyList()
+                println(response);
+                saveTestResult(classfiy.id!!, response);
+                alarmService.sendAlarmToMember(member.id, "테스트 결과가 도착했습니다.", "테스트 결과가 도착했습니다.");
+            } catch (e: Exception) {
+                e.printStackTrace();
+                saveTestResult(classfiy.id!!, emptyList());
+                alarmService.sendAlarmToMember(member.id, "테스트가 실패하였습니다.", "테스트가 실패하였습니다.");
+            }
         }
 
         return ResponseEntity.ok().build();

@@ -9,8 +9,9 @@ import TestClassfiy from "pages/contents/freetest/TestClassfiy";
 import WorkspaceList from "../../pages/contents/workspace/WorkspaceList";
 import WorkspaceEditor from "pages/contents/workspace/WorkspaceEditor";
 import {NoticeContext, WorkspaceContext} from "utils/ContextManager";
-import Training from "pages/contents/workspace/Training/Training";
+import Training from "pages/contents/workspace/training/Training";
 import TestResultList from "pages/contents/freetest/TestResultList";
+import AutoLabel from "pages/contents/workspace/autolabel/AutoLabel";
 
 export interface MenuInfo {
     name: string;
@@ -70,13 +71,28 @@ export const MenuItems: MenuInfo[] = [
                 context: WorkspaceContext,
                 invisible: true,
             },
-        ],
-        subTabMenu: [
+            {
+                name: "Auto Label",
+                path: "/workspace/auto-label",
+                element: <AutoLabel/>,
+            },
             {
                 name: "Training",
                 path: "/workspace/training",
                 element: <Training/>,
-            }
+            },
+        ],
+        subTabMenu: [
+            {
+                name: "Auto Label",
+                path: "/workspace/auto-label",
+                element: <AutoLabel/>,
+            },
+            {
+                name: "Training",
+                path: "/workspace/training",
+                element: <Training/>,
+            },
         ],
     },
     {

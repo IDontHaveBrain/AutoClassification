@@ -33,12 +33,13 @@ const RenderMenu = ({
   if (item.invisible) return null;
 
   const handleOnClickMenuItem = () => {
-    if (item.path && item.element) {
-      navigate(item.path);
-    } else if (item.subMenu?.length) {
+    if (item.subMenu?.length) {
       const newOpenSubMenusState = { ...openSubMenus };
       newOpenSubMenusState[item.name] = !isSubMenuOpen;
       setOpenSubMenus(newOpenSubMenusState);
+    }
+    if (item.path && item.element) {
+      navigate(item.path);
     }
   };
 
@@ -66,7 +67,8 @@ const RenderMenu = ({
             }}
           />
         </Tooltip>
-        {item.subMenu?.length && open && !(item.path && item.element) ? (
+        {item.subMenu?.length && open && ( !item.path || !item.element ||
+            item.subMenu.some(subItem => !subItem.invisible)) ? (
           isSubMenuOpen ? (
             <ExpandLessIcon />
           ) : (
