@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor
 
 data class LabelAndIds (
     val label: String,
-    val ids: List<Int>
+    val ids: List<Long>
 )
 
 data class TrainRes(

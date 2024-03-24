@@ -25,9 +25,10 @@ class WorkspaceController(
         return workspaceService.getWorkspace(id);
     }
 
-    @PostMapping
-    suspend fun createWorkspace(@RequestPart("update") create: WorkspaceReq.Create) {
-        workspaceService.createWorkspace(create);
+    @PostMapping(consumes = ["application/json", MediaType.MULTIPART_FORM_DATA_VALUE])
+    suspend fun createWorkspace(@RequestPart("update") update: WorkspaceReq.Create,
+                                @RequestPart("files") files: Array<MultipartFile>?) {
+        workspaceService.createWorkspace(update, files);
     }
 
     @PutMapping("/{id}", consumes = ["application/json", MediaType.MULTIPART_FORM_DATA_VALUE])

@@ -1,14 +1,18 @@
 import {useEffect, useState} from "react";
-import {getMyWorkspaceList} from "service/Apis/WorkspaceApi";
+import {getMyWorkspaceList, getWorkspace} from "service/Apis/WorkspaceApi";
 import {WorkspaceModel} from "model/WorkspaceModel";
-import {Autocomplete, MenuItem, Select} from "@mui/material";
+import {Autocomplete} from "@mui/material";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
 import BaseTitle from "component/baseBoard/BaseTitle";
+import {onAlert} from "component/modal/AlertModal";
+import WorkspaceDataSet from "pages/contents/workspace/editor/WorkspaceDataSet";
+import {Strings} from "utils/strings";
+import LabelledImages from "component/imgs/LabelledImages";
 
 const AutoLabel = () => {
     const [workspaceList, setWorkspaceList] = useState<WorkspaceModel[]>([]);
-    const [selected, setSelected] = useState<WorkspaceModel>();
+    const [selected, setSelected] = useState<WorkspaceModel | null>(null);
 
 
     useEffect(() => {
@@ -19,25 +23,45 @@ const AutoLabel = () => {
         });
     }, []);
 
-    const handleSelectChange = (e) => {
-        setSelected(e.target.value);
+    const isOptionEqualToValue = (option, value) => option.id === value.id;
+
+    const handleSelectChange = (e, newValue: WorkspaceModel) => {
+        const workspace = newValue;
+        if (workspace) {
+            getWorkspace(workspace?.id).then(res => {
+                setSelected(res.data);
+            }).catch(err => {
+                console.error(err);
+                onAlert(Strings.Common.apiFailed);
+            });
+        }
     };
 
     return (
         <>
-            <BaseTitle title={'AutoLabel'} />
-            <Grid container>
+            <BaseTitle title={'AutoLabel'}/>
+            <Grid container direction="row" alignItems="center" spacing={2}>
                 <Grid item xs={3}>
                     <Autocomplete
                         options={workspaceList}
                         getOptionLabel={(option) => option.name}
                         value={selected}
-                        onChange={(event, newValue) => {
-                            setSelected(newValue);
-                        }}
-                        renderInput={(params) => <TextField {...params} label="Workspace" variant="outlined" fullWidth />}
+                        isOptionEqualToValue={isOptionEqualToValue}
+                        onChange={handleSelectChange}
+                        renderInput={(params) => <TextField {...params} label="Workspace" variant="outlined"/>}
                     />
                 </Grid>
+                <Grid item>
+                    {/*<Button onClick={} color="inherit" style={{ backgroundColor: blue[300] }}>Labeling Request</Button>*/}
+                </Grid>
+            </Grid>
+            <Grid mt={2} container spacing={2} xs={10}>
+                {selected && selected.files &&
+                    <>
+                        <WorkspaceDataSet imgs={selected?.files || []} setState={setSelected}/>
+                        <LabelledImages files={selected?.files || []}/>
+                    </>
+                }
             </Grid>
         </>
     );

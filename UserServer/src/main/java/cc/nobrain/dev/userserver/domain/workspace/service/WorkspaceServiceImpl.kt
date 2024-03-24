@@ -28,7 +28,7 @@ class WorkspaceServiceImpl(
 ) : WorkspaceService {
 
     @Transactional
-    override suspend fun createWorkspace(create: WorkspaceReq.Create): WorkspaceRes {
+    override suspend fun createWorkspace(create: WorkspaceReq.Create, files: Array<MultipartFile>?): WorkspaceRes {
         val member = MemberUtil.getCurrentMember();
 
         val workspace = modelMapper.map(create, Workspace::class.java);
@@ -36,6 +36,12 @@ class WorkspaceServiceImpl(
         workspace.owner = member;
         workspace.addMember(member);
         workspaceRepository.save(workspace);
+
+        val success: List<Any> = if (!files.isNullOrEmpty()) {
+            fileComponent.uploadFile(files, TrainFile::class.java, workspace);
+        } else {
+            emptyList()
+        }
 
         return modelMapper.map(workspace, WorkspaceRes::class.java);
     }

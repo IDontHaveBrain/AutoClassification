@@ -110,4 +110,5 @@ export interface FileModel extends BaseDto {
   fileName: string;
   originalFileName: string;
   size: number;
+  label?: string;
 }

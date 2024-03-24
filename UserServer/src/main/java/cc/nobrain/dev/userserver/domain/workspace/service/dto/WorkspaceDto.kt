@@ -9,7 +9,7 @@ import java.io.Serializable
  */
 open class WorkspaceDto(
     var id: Long? = null,
-    @field:NotNull var name: String? = null,
+    var name: String? = null,
     var description: String? = null,
     var classes: List<String> = emptyList<String>(),
 ) : BaseDto(), Serializable

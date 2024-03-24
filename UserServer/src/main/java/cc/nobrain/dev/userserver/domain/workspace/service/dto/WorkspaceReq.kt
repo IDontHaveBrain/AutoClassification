@@ -15,7 +15,7 @@ data class WorkspaceReq(
         var name: String,
         var description: String?,
         var classes: List<String>?,
-//        var files: MutableList<FileDto>? = mutableListOf()
+        var members: List<Member>?,
     )
 
     @JsonIgnoreProperties
@@ -24,7 +24,6 @@ data class WorkspaceReq(
         var description: String?,
         var classes: List<String>?,
         var members: List<Member>?,
-//        var files: Array<MultipartFile>?
     )
 
     data class Invite(

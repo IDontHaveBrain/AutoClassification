@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.web.multipart.MultipartFile
 
 interface WorkspaceService {
-    suspend fun createWorkspace(create: WorkspaceReq.Create): WorkspaceRes
+    suspend fun createWorkspace(create: WorkspaceReq.Create, files: Array<MultipartFile>?): WorkspaceRes
     suspend fun updateWorkspace(id: Long, update: WorkspaceReq.Update, files: Array<MultipartFile>?): WorkspaceRes
     suspend fun deleteWorkspace(id: Long)
 
