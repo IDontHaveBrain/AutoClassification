@@ -34,6 +34,11 @@ class TrainController(
         return trainService.getMyImgs();
     }
 
+    @GetMapping("/label/{workspaceId}")
+    suspend fun requestLabeling(workspaceId: Long): ResponseEntity<Any> {
+        return trainService.requestLabeling(workspaceId);
+    }
+
     @PostMapping("/train")
     suspend fun requestTrain(): List<FileDto> {
         return trainService.requestTrain();

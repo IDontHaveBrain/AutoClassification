@@ -14,6 +14,7 @@ import cc.nobrain.dev.userserver.domain.train.repository.ClassfiyRepository
 import cc.nobrain.dev.userserver.domain.train.repository.TrainFileRepository
 import cc.nobrain.dev.userserver.domain.train.service.dto.ClassfiyRes
 import cc.nobrain.dev.userserver.domain.train.service.dto.LabelAndIds
+import cc.nobrain.dev.userserver.domain.workspace.repository.WorkspaceRepository
 import cc.nobrain.dev.userserver.domain.workspace.service.WorkspaceService
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.CoroutineScope
@@ -34,6 +35,7 @@ import org.springframework.web.reactive.function.client.WebClient
 class TrainServiceImpl(
     private val trainFileRepository: TrainFileRepository,
     private val classfiyRepository: ClassfiyRepository,
+    private val workspaceRepository: WorkspaceRepository,
     private val fileComponent: FileComponent,
     private val memberRepository: MemberRepository,
     private val modelMapper: ModelMapper,
@@ -123,15 +125,72 @@ class TrainServiceImpl(
         fileComponent.deleteFile(file)
     }
 
+    @Transactional
+    override suspend fun requestLabeling(workspaceId: Long): ResponseEntity<Any> {
+        val member = MemberUtil.getCurrentMemberDto()
+            .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
+        val workspaceList = workspaceService.getMyWorkspace(null);
+        val workspace = workspaceList.stream().filter { w -> w.id == workspaceId }.findFirst()
+            .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) }
+
+        val files = trainFileRepository.findByOwnerIndex_Id(workspaceId);
+
+        val testImages = files.map { file -> modelMapper.map(file, FileDto::class.java)}
+        val testClass = workspace.classes;
+
+        val requestBody = mapOf(
+            "testClass" to testClass,
+            "testImages" to testImages
+        )
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response: List<LabelAndIds> = webClient.post()
+                    .uri("${urlProps.ai}/api/classify")
+                    .header("x-api-key", "test")
+                    .bodyValue(requestBody)
+                    .retrieve()
+                    .bodyToFlux(LabelAndIds::class.java)
+                    .collectList()
+                    .block() ?: emptyList()
+
+                println(response);
+                updateFileLabels(response);
+
+                alarmService.sendAlarmToMember(member.id, "라벨링 결과가 도착했습니다.", "라벨링 결과가 도착했습니다.");
+            } catch (e: Exception) {
+                e.printStackTrace();
+                alarmService.sendAlarmToMember(member.id, "라벨링 요청이 실패하였습니다.", "라벨링 요청이 실패하였습니다.");
+            }
+        }
+
+        return ResponseEntity.ok().build();
+    }
+
     override suspend fun requestTrain(): List<FileDto> {
         val member = MemberUtil.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
         val files = trainFileRepository.findByOwnerIndex_Id(member.id)
 
-//        if ()
+        TODO("Not yet implemented")
 
         return files.stream().map { file -> modelMapper.map(file, FileDto::class.java) }.toList()
+    }
+
+    @Transactional
+    protected suspend fun updateFileLabels(response: List<LabelAndIds>) {
+        val fileIds = response.flatMap { it.ids }.toSet()
+        val files = trainFileRepository.findAllById(fileIds)
+
+        files.forEach { file ->
+            val label = response.find { it.ids.contains(file.id) }?.label
+            if (label != null) {
+                file.label = label
+            }
+        }
+
+        trainFileRepository.saveAll(files)
     }
 
     @Transactional

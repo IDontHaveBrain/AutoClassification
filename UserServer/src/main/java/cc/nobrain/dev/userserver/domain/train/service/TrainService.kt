@@ -16,6 +16,8 @@ interface TrainService {
 
     suspend fun getMyImgs(): List<FileDto>
 
+    suspend fun requestLabeling(workspaceId: Long): ResponseEntity<Any>
+
     suspend fun requestTrain(): List<FileDto>
 
     suspend fun deleteTrainData(id: Long)

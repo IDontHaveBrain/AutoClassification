@@ -25,6 +25,9 @@ class TrainFile(
             throw IllegalArgumentException("Invalid owner entity")
         }
         this.ownerIndex = ownerEntity
+        if (ownerEntity.files.isNullOrEmpty()) {
+            ownerEntity.files = mutableListOf()
+        }
         ownerEntity.files.add(this)
     }
 }
