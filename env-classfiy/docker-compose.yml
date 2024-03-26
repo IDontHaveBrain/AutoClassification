@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 services:
   base-img:
     image: nobrain/base
@@ -41,13 +41,13 @@ services:
       dockerfile: Dockerfile
     restart: always
     user: root
-#    networks:
-#      - share-net
+    #    networks:
+    #      - share-net
     volumes:
-        - /data/docker/toy/jenkins:/var/jenkins_home
-#        - /home/jenkins/.ssh:/jenkins/.ssh
-        - /var/run/docker.sock:/var/run/docker.sock
-        - /data/docker/toy/nginx/html:/usr/share/nginx/html
+      - /data/docker/toy/jenkins:/var/jenkins_home
+      #        - /home/jenkins/.ssh:/jenkins/.ssh
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /data/docker/toy/nginx/html:/usr/share/nginx/html
     ports:
       - 7080:7080
       - 50001:50000
@@ -70,8 +70,20 @@ services:
       - share-net
     expose:
       - 7081
-#    ports:
-#      - 8087:8087
+    #    ports:
+    #      - 8087:8087
+    environment:
+      TZ: "Asia/Seoul"
+
+  rabbit:
+    image: rabbitmq:management-alpine
+    container_name: autoclassify-rabbit
+    restart: always
+    networks:
+      - share-net
+    ports:
+      - 5672:5672
+      - 15672:15672
     environment:
       TZ: "Asia/Seoul"
 

@@ -9,9 +9,6 @@ import json
 
 app = Flask(__name__)
 
-# connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-# channel = connection.channel()
-
 if os.name == 'nt':
     base_dir = "C:/AutoClass"
 else:
@@ -56,9 +53,7 @@ def get_labels_to_ids(labels, dtos):
     for label, dto_url_tuple in zip(labels, dtos):
         dto, url = dto_url_tuple
         print(f"Processing label: {label} with dto: {dto}")
-        # Ensure that 'id' is in dto
         if 'id' in dto:
-            # Collect ids based on label
             if label in labels_to_ids:
                 labels_to_ids[label].append(dto['id'])
             else:
@@ -170,6 +165,7 @@ def process_data_wrapper(ch, method, properties, body):
             self.headers = {'x-api-key': API_KEY}
 
     dummy_request = DummyRequest(message)
+    print(dummy_request.json)
 
     operation = 'classify'
     result = process_data(dummy_request, operation)
@@ -178,22 +174,44 @@ def process_data_wrapper(ch, method, properties, body):
 
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
+_is_consumer_thread_started = False
 def start_consumer():
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
-    channel = connection.channel()
+    global _is_consumer_thread_started
+    if _is_consumer_thread_started:
+        print("Consumer thread already started.")
+        return
 
-    channel.queue_declare(queue='ClassfiyQueue')
+    _is_consumer_thread_started = True
+    connection = None
+    channel = None
 
-    def callback(ch, method, properties, body):
-        threading.Thread(target=process_data_wrapper, args=(ch, method, properties, body)).start()
+    while True:
+        try:
+            if not connection or connection.is_closed:
+                connection = pika.BlockingConnection(pika.ConnectionParameters('dev.nobrain.cc', 5672))
+                channel = connection.channel()
 
-    channel.basic_qos(prefetch_count=2)
-    channel.basic_consume(queue='ClassfiyQueue', on_message_callback=callback)
+            channel.queue_declare(queue='ClassfiyQueue')
 
-    print(' [*] Waiting for messages. To exit press CTRL+C')
-    channel.start_consuming()
+            def callback(ch, method, properties, body):
+                threading.Thread(target=process_data_wrapper, args=(ch, method, properties, body)).start()
+                print(f" [x] Received {body}, {ch}, {method}, {properties}")
+
+            channel.basic_qos(prefetch_count=2)
+            channel.basic_consume(queue='ClassfiyQueue', on_message_callback=callback, auto_ack=False)
+
+            print(' [*] Waiting for messages. To exit press CTRL+C')
+            channel.start_consuming()
+
+        except pika.exceptions.StreamLostError:
+            print("Connection lost, attempting to reconnect...")
+            continue
+
+        except KeyboardInterrupt:
+            print("Exiting consumer thread...")
+            break
 
 if __name__ == '__main__':
-    consumer_thread = threading.Thread(target=start_consumer)
-    # consumer_thread.start()
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    if not _is_consumer_thread_started:
+        consumer_thread = threading.Thread(target=start_consumer).start()
+    app.run(host='0.0.0.0', port=5000)

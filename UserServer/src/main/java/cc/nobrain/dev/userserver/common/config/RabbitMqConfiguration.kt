@@ -15,22 +15,27 @@ class RabbitMqConfiguration {
 
     companion object {
         const val CLASSFIY_QUEUE = "ClassfiyQueue"
+        const val CLASSFIY_RESPONSE_QUEUE = "ClassfiyResponseQueue"
         const val CLASSFIY_EXCHANGE = "ClassfiyExchange"
+        const val CLASSFIY_ROUTING_KEY = "classfiy"
     }
 
     @Bean
-    fun classfiyQueue(): Queue = Queue(CLASSFIY_QUEUE, false)
+    fun classfiyQueue(): Queue = Queue(CLASSFIY_QUEUE, true)
+    @Bean
+    fun classfiyResponseQueue(): Queue = Queue(CLASSFIY_RESPONSE_QUEUE, true)
 
     @Bean
     fun classfiyExchange(): DirectExchange = DirectExchange(CLASSFIY_EXCHANGE)
 
     @Bean
-    fun binding(myQueue: Queue, myExchange: DirectExchange): Binding =
-        BindingBuilder.bind(myQueue).to(myExchange).with(CLASSFIY_QUEUE)
+    fun binding(classfiyQueue: Queue, classfiyExchange: DirectExchange): Binding =
+        BindingBuilder.bind(classfiyQueue).to(classfiyExchange).with(CLASSFIY_ROUTING_KEY)
 
     @Bean
     fun rabbitTemplate(connectionFactory: ConnectionFactory): RabbitTemplate =
         RabbitTemplate(connectionFactory).apply {
             messageConverter = Jackson2JsonMessageConverter()
+            setExchange(CLASSFIY_EXCHANGE)
         }
 }

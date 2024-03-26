@@ -1,5 +1,7 @@
 package cc.nobrain.dev.userserver.domain.train.controller
 
+import cc.nobrain.dev.userserver.common.component.RabbitEventPublisher
+import cc.nobrain.dev.userserver.common.config.RabbitMqConfiguration
 import cc.nobrain.dev.userserver.domain.base.dto.FileDto
 import cc.nobrain.dev.userserver.domain.train.dto.ClassfiyDto
 import cc.nobrain.dev.userserver.domain.train.entity.Classfiy
@@ -15,7 +17,8 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/api/train")
 class TrainController(
-    private val trainService: TrainService
+    private val trainService: TrainService,
+    private val rabbitEventPublisher: RabbitEventPublisher
 ) {
 
     @PostMapping("/test/upload", consumes = ["application/json", MediaType.MULTIPART_FORM_DATA_VALUE])
@@ -47,5 +50,11 @@ class TrainController(
     @DeleteMapping("/{id}")
     suspend fun deleteTrainData(@PathVariable id: Long) {
         trainService.deleteTrainData(id);
+    }
+
+    @GetMapping("/tttt")
+    suspend fun tttt(): String {
+        rabbitEventPublisher.publish(RabbitMqConfiguration.CLASSFIY_QUEUE, "test");
+        return "tttt";
     }
 }

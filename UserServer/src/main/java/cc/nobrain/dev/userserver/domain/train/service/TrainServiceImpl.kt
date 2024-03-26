@@ -1,6 +1,8 @@
 package cc.nobrain.dev.userserver.domain.train.service
 
 import cc.nobrain.dev.userserver.common.component.FileComponent
+import cc.nobrain.dev.userserver.common.component.RabbitEventPublisher
+import cc.nobrain.dev.userserver.common.config.RabbitMqConfiguration.Companion.CLASSFIY_ROUTING_KEY
 import cc.nobrain.dev.userserver.common.exception.CustomException
 import cc.nobrain.dev.userserver.common.exception.ErrorInfo
 import cc.nobrain.dev.userserver.common.properties.UrlProps
@@ -42,6 +44,7 @@ class TrainServiceImpl(
     private val objectMapper: ObjectMapper,
     private val workspaceService: WorkspaceService,
     private val alarmService: AlarmService,
+    private val rabbitEventPublisher: RabbitEventPublisher,
     private val webClient: WebClient,
     private val urlProps: UrlProps
 ) : TrainService {
@@ -145,17 +148,19 @@ class TrainServiceImpl(
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response: List<LabelAndIds> = webClient.post()
-                    .uri("${urlProps.ai}/api/classify")
-                    .header("x-api-key", "test")
-                    .bodyValue(requestBody)
-                    .retrieve()
-                    .bodyToFlux(LabelAndIds::class.java)
-                    .collectList()
-                    .block() ?: emptyList()
+//                val response: List<LabelAndIds> = webClient.post()
+//                    .uri("${urlProps.ai}/api/classify")
+//                    .header("x-api-key", "test")
+//                    .bodyValue(requestBody)
+//                    .retrieve()
+//                    .bodyToFlux(LabelAndIds::class.java)
+//                    .collectList()
+//                    .block() ?: emptyList()
 
-                println(response);
-                updateFileLabels(response);
+//                println(response);
+//                updateFileLabels(response);
+
+                rabbitEventPublisher.publish(CLASSFIY_ROUTING_KEY, requestBody);
 
                 alarmService.sendAlarmToMember(member.id, "라벨링 결과가 도착했습니다.", "라벨링 결과가 도착했습니다.");
             } catch (e: Exception) {
