@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import requests, os, json, base64
 from openai import OpenAI
 from datetime import datetime
+import config
 from ultralytics import YOLO
 import pika
 import threading
@@ -52,7 +53,7 @@ def get_labels_to_ids(labels, dtos):
     labels_to_ids = {}
     for label, dto_url_tuple in zip(labels, dtos):
         dto, url = dto_url_tuple
-        print(f"Processing label: {label} with dto: {dto}")
+        # print(f"Processing label: {label} with dto: {dto}")
         if 'id' in dto:
             if label in labels_to_ids:
                 labels_to_ids[label].append(dto['id'])
@@ -156,62 +157,104 @@ def hello_world():
 def health_check():
     return 'OK', 200
 
+class RabbitMQConnection:
+    _instance = None
+    _lock = threading.Lock()
+
+    def __new__(cls):
+        with cls._lock:
+            if cls._instance is None:
+                cls._instance = super(RabbitMQConnection, cls).__new__(cls)
+                cls._connection = None
+                cls._channel = None
+        return cls._instance
+
+    def get_channel(self):
+        if self._connection is None or self._connection.is_closed:
+            self._connection = pika.BlockingConnection(
+                pika.ConnectionParameters(host=config.RABBITMQ_HOST, port=config.RABBITMQ_PORT))
+            self._channel = self._connection.channel()
+            self._channel.queue_declare(queue=config.RABBITMQ_RESPONSE_QUEUE, durable=True)
+        return self._channel
+
+def send_response_to_queue(correlation_id, response_data):
+    channel = RabbitMQConnection().get_channel()
+    message = json.dumps(response_data)
+    channel.basic_publish(
+        exchange="",
+        routing_key=config.RABBITMQ_RESPONSE_QUEUE,
+        body=message,
+        properties=pika.BasicProperties(
+            correlation_id=correlation_id,
+            delivery_mode=2,
+        ))
+    print(" [x] Sent response to ClassfiyResponseQueue")
+
 def process_data_wrapper(ch, method, properties, body):
-    message = json.loads(body.decode('utf-8'))
+    try:
+        message = json.loads(body.decode('utf-8'))
+        message = json.loads(message)
+        print(f"Received message: {message}")
 
-    class DummyRequest:
-        def __init__(self, json_data):
-            self.json = json_data
-            self.headers = {'x-api-key': API_KEY}
+        class DummyRequest:
+            def __init__(self, json_data):
+                self.json = json_data
+                self.headers = {'x-api-key': API_KEY}
 
-    dummy_request = DummyRequest(message)
-    print(dummy_request.json)
+        dummy_request = DummyRequest(message)
+        data = dummy_request.json
 
-    operation = 'classify'
-    result = process_data(dummy_request, operation)
+        operation = 'classify'
+        labels_and_ids = process_data(dummy_request, operation)
+        result = {
+            'requesterId': data.get('requesterId'),
+            'workspaceId': data.get('workspaceId'),
+            'labelsAndIds': labels_and_ids
+        }
 
-    print(result)
+        # result = 'dummy result'
 
-    ch.basic_ack(delivery_tag=method.delivery_tag)
+        send_response_to_queue(properties.correlation_id, result)
+        ch.basic_ack(delivery_tag=method.delivery_tag)
+    except pika.exceptions.StreamLostError:
+        print("Connection lost, attempting to reconnect...")
+        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+    except Exception as e:
+        print(f"Unexpected error occurred: {e}")
+        ch.basic_ack(delivery_tag=method.delivery_tag)
 
 _is_consumer_thread_started = False
+connection = None
 def start_consumer():
     global _is_consumer_thread_started
+    global connection
     if _is_consumer_thread_started:
-        print("Consumer thread already started.")
         return
 
     _is_consumer_thread_started = True
-    connection = None
-    channel = None
-
     while True:
         try:
-            if not connection or connection.is_closed:
-                connection = pika.BlockingConnection(pika.ConnectionParameters('dev.nobrain.cc', 5672))
-                channel = connection.channel()
+            if connection is None or connection.is_closed:
+                connection = pika.BlockingConnection(pika.ConnectionParameters(config.RABBITMQ_HOST, config.RABBITMQ_PORT))
+            channel = connection.channel()
+            channel.exchange_declare(exchange=config.RABBITMQ_EXCHANGE, exchange_type='direct', durable=True)
+            channel.queue_declare(queue=config.RABBITMQ_QUEUE, durable=True)
 
-            channel.queue_declare(queue='ClassfiyQueue')
-
-            def callback(ch, method, properties, body):
-                threading.Thread(target=process_data_wrapper, args=(ch, method, properties, body)).start()
-                print(f" [x] Received {body}, {ch}, {method}, {properties}")
-
-            channel.basic_qos(prefetch_count=2)
-            channel.basic_consume(queue='ClassfiyQueue', on_message_callback=callback, auto_ack=False)
+            channel.basic_qos(prefetch_count=3)
+            channel.basic_consume(queue=config.RABBITMQ_QUEUE, on_message_callback=process_data_wrapper, auto_ack=False)
 
             print(' [*] Waiting for messages. To exit press CTRL+C')
             channel.start_consuming()
-
         except pika.exceptions.StreamLostError:
             print("Connection lost, attempting to reconnect...")
             continue
-
+        except Exception as e:
+            print(f"Unexpected error occurred: {e}. Retrying...")
+            continue
         except KeyboardInterrupt:
             print("Exiting consumer thread...")
             break
 
 if __name__ == '__main__':
-    if not _is_consumer_thread_started:
-        consumer_thread = threading.Thread(target=start_consumer).start()
+    consumer_thread = threading.Thread(target=start_consumer).start()
     app.run(host='0.0.0.0', port=5000)

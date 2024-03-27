@@ -1,7 +1,9 @@
 package cc.nobrain.dev.userserver.domain.train.service.dto
 
 import cc.nobrain.dev.userserver.domain.base.dto.FileDto
+import cc.nobrain.dev.userserver.domain.member.service.dto.MemberDto
 import cc.nobrain.dev.userserver.domain.train.dto.ClassfiyDto
+import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceDto
 import lombok.NoArgsConstructor
 
 data class LabelAndIds (
@@ -9,8 +11,10 @@ data class LabelAndIds (
     val ids: List<Long>
 )
 
-data class TrainRes(
-    val labels_and_ids: List<LabelAndIds>
+data class WorkspaceClassfiy(
+    val requesterId: Long,
+    val workspaceId: Long,
+    val labelsAndIds: List<LabelAndIds>
 )
 
 data class ClassfiyRes(

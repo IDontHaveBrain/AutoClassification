@@ -10,6 +10,7 @@ import cc.nobrain.dev.userserver.common.utils.MemberUtil
 import cc.nobrain.dev.userserver.domain.alarm.service.AlarmService
 import cc.nobrain.dev.userserver.domain.base.dto.FileDto
 import cc.nobrain.dev.userserver.domain.member.repository.MemberRepository
+import cc.nobrain.dev.userserver.domain.member.service.dto.MemberDto
 import cc.nobrain.dev.userserver.domain.train.entity.Classfiy
 import cc.nobrain.dev.userserver.domain.train.entity.TestFile
 import cc.nobrain.dev.userserver.domain.train.repository.ClassfiyRepository
@@ -142,6 +143,8 @@ class TrainServiceImpl(
         val testClass = workspace.classes;
 
         val requestBody = mapOf(
+            "requesterId" to member.id,
+            "workspaceId" to workspace.id,
             "testClass" to testClass,
             "testImages" to testImages
         )
@@ -160,7 +163,7 @@ class TrainServiceImpl(
 //                println(response);
 //                updateFileLabels(response);
 
-                rabbitEventPublisher.publish(CLASSFIY_ROUTING_KEY, requestBody);
+                rabbitEventPublisher.publish(CLASSFIY_ROUTING_KEY, objectMapper.writeValueAsString(requestBody));
 
                 alarmService.sendAlarmToMember(member.id, "라벨링 결과가 도착했습니다.", "라벨링 결과가 도착했습니다.");
             } catch (e: Exception) {

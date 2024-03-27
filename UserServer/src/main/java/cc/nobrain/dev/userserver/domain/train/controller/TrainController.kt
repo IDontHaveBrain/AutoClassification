@@ -54,7 +54,7 @@ class TrainController(
 
     @GetMapping("/tttt")
     suspend fun tttt(): String {
-        rabbitEventPublisher.publish(RabbitMqConfiguration.CLASSFIY_QUEUE, "test");
+        rabbitEventPublisher.publish(RabbitMqConfiguration.CLASSFIY_ROUTING_KEY, "test");
         return "tttt";
     }
 }

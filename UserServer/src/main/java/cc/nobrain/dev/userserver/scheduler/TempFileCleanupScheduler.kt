@@ -15,6 +15,6 @@ class TempFileCleanupScheduler(
     @Scheduled(cron = "0 0/30 * * * ?")
     fun cleanUp() {
         val thirtyMinutesAgo = OffsetDateTime.now().minusMinutes(30)
-        fileRepository.deleteByCreateDateTimeBefore(thirtyMinutesAgo)
+//        fileRepository.deleteByCreateDateTimeBefore(thirtyMinutesAgo)
     }
 }
