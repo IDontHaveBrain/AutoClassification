@@ -52,7 +52,7 @@ const MemberSearchModal = ({ close, setData }: Props) => {
 
     useEffect(() => {
         loadRows(pageable.page, pageable.size, pageable.sort);
-    }, [loadRows]);
+    }, [loadRows, pageable.page, pageable.size, pageable.sort]);
 
     return (
         <>
