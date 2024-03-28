@@ -2,7 +2,7 @@ package cc.nobrain.dev.userserver.domain.train.service
 
 import cc.nobrain.dev.userserver.common.component.FileComponent
 import cc.nobrain.dev.userserver.common.component.RabbitEventPublisher
-import cc.nobrain.dev.userserver.common.config.RabbitMqConfiguration.Companion.CLASSFIY_ROUTING_KEY
+import cc.nobrain.dev.userserver.common.config.RabbitMqConfiguration.Companion.CLASSFIY_QUEUE
 import cc.nobrain.dev.userserver.common.exception.CustomException
 import cc.nobrain.dev.userserver.common.exception.ErrorInfo
 import cc.nobrain.dev.userserver.common.properties.UrlProps
@@ -10,7 +10,6 @@ import cc.nobrain.dev.userserver.common.utils.MemberUtil
 import cc.nobrain.dev.userserver.domain.alarm.service.AlarmService
 import cc.nobrain.dev.userserver.domain.base.dto.FileDto
 import cc.nobrain.dev.userserver.domain.member.repository.MemberRepository
-import cc.nobrain.dev.userserver.domain.member.service.dto.MemberDto
 import cc.nobrain.dev.userserver.domain.train.entity.Classfiy
 import cc.nobrain.dev.userserver.domain.train.entity.TestFile
 import cc.nobrain.dev.userserver.domain.train.repository.ClassfiyRepository
@@ -163,9 +162,9 @@ class TrainServiceImpl(
 //                println(response);
 //                updateFileLabels(response);
 
-                rabbitEventPublisher.publish(CLASSFIY_ROUTING_KEY, objectMapper.writeValueAsString(requestBody));
+                rabbitEventPublisher.publish(CLASSFIY_QUEUE, objectMapper.writeValueAsString(requestBody));
 
-                alarmService.sendAlarmToMember(member.id, "라벨링 결과가 도착했습니다.", "라벨링 결과가 도착했습니다.");
+//                alarmService.sendAlarmToMember(member.id, "라벨링 결과가 도착했습니다.", "라벨링 결과가 도착했습니다.");
             } catch (e: Exception) {
                 e.printStackTrace();
                 alarmService.sendAlarmToMember(member.id, "라벨링 요청이 실패하였습니다.", "라벨링 요청이 실패하였습니다.");
@@ -187,7 +186,7 @@ class TrainServiceImpl(
     }
 
     @Transactional
-    protected suspend fun updateFileLabels(response: List<LabelAndIds>) {
+    override suspend fun updateFileLabels(response: List<LabelAndIds>) {
         val fileIds = response.flatMap { it.ids }.toSet()
         val files = trainFileRepository.findAllById(fileIds)
 

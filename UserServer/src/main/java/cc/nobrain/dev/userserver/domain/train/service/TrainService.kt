@@ -4,6 +4,7 @@ import cc.nobrain.dev.userserver.domain.base.dto.FileDto
 import cc.nobrain.dev.userserver.domain.train.dto.ClassfiyDto
 import cc.nobrain.dev.userserver.domain.train.entity.Classfiy
 import cc.nobrain.dev.userserver.domain.train.service.dto.ClassfiyRes
+import cc.nobrain.dev.userserver.domain.train.service.dto.LabelAndIds
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity
@@ -19,6 +20,8 @@ interface TrainService {
     suspend fun requestLabeling(workspaceId: Long): ResponseEntity<Any>
 
     suspend fun requestTrain(): List<FileDto>
+
+    suspend fun updateFileLabels(response: List<LabelAndIds>)
 
     suspend fun deleteTrainData(id: Long)
 }
