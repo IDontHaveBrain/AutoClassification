@@ -1,43 +1,36 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import FileDropzone from "component/FileDropzone";
 import { Avatar, Chip } from "@mui/material";
-import { WorkspaceContext } from "utils/ContextManager";
 import ExpandComp from "component/ExpandComp";
 
-const WorkspaceDropZone = () => {
-    const { state, setState } = useContext(WorkspaceContext);
+const WorkspaceDropZone = ({ onFilesChange }) => {
+    const [newFiles, setNewFiles] = useState([]);
 
     const onDrop = useCallback(
         (files) => {
-            const newFiles = files.map((file) =>
+            const updatedFiles = files.map((file) =>
                 Object.assign(file, {
                     preview: URL.createObjectURL(file),
                 }),
             ) || [];
 
-            setState((prevState) => {
-                return {
-                    ...prevState,
-                    newFiles: newFiles,
-                }
-            });
+            setNewFiles(updatedFiles);
+            onFilesChange(updatedFiles);
         },
-        [setState]
+        [onFilesChange]
     );
 
     const handleRemoveFile = (index) => {
-        const newFiles = state.newFiles.filter((file, i) => i !== index);
+        const updatedFiles = newFiles.filter((file, i) => i !== index);
 
-        setState({
-            ...state,
-            newFiles: newFiles,
-        });
+        setNewFiles(updatedFiles);
+        onFilesChange(updatedFiles);
     };
 
     return (
         <ExpandComp title="Add Imgs">
             <FileDropzone onDrop={onDrop} />
-            {state?.newFiles?.map((file, index) => (
+            {newFiles.map((file, index) => (
                 <Chip
                     key={index}
                     label={file.name}

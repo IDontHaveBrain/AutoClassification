@@ -78,6 +78,7 @@ def encode_image(url):
     base64_image = base64.b64encode(image_content)
     return base64_image.decode('utf-8')
 
+
 def process_data(request, operation):
     api_key = request.headers.get('x-api-key')
     if not api_key or api_key != API_KEY:
@@ -105,23 +106,31 @@ def process_data(request, operation):
             images_for_ai = [{"type": "image_url", "image_url": {"url": url, "detail": "low"}} for _, url in chunk]
         else:
             encoded_images = [encode_image(url) for _, url in chunk]
-            images_for_ai = [{"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{img}", "detail": "low"}} for img in encoded_images]
+            images_for_ai = [
+                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{img}", "detail": "low"}} for img in
+                encoded_images]
 
-        completion = client.chat.completions.create(
-            model="gpt-4-vision-preview",
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                                   {"type": "text",
-                                    "text": "You are an AI model that classifies images that are closest to the list I provide. To answer, "
-                                            "just say the words from the list I provided with ',' separator. The list I provide : "
-                                            + ','.join(testClass)},
-                               ] + images_for_ai,
-                }
-            ],
-            max_tokens=2048,
-        )
+        try:
+            completion = client.chat.completions.create(
+                model="gpt-4-vision-preview",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                                       {"type": "text",
+                                        "text": "You are an AI model that classifies images that are closest to the list I provide. To answer, "
+                                                "just say the words from the list I provided with ',' separator. The list I provide : "
+                                                + ','.join(testClass)},
+                                   ] + images_for_ai,
+                    }
+                ],
+                max_tokens=2048,
+            )
+        except Exception as e:
+            print(f"Error processing images: {e}")
+            for _, url in chunk:
+                print(f"Image URL: {url}")
+            raise
 
         chunk_labels = check_inclusion(completion.choices[0].message.content.split(','), testClass)
         all_labels.extend(chunk_labels)
@@ -138,6 +147,7 @@ def process_data(request, operation):
 @app.route('/api/classify', methods=['POST'])
 def classify_data():
     return process_data(request, 'classify')
+
 
 @app.route('/api/testclassfiy', methods=['POST'])
 def test_data():
@@ -156,6 +166,7 @@ def hello_world():
 @app.route('/health', methods=['GET'])
 def health_check():
     return 'OK', 200
+
 
 class RabbitMQConnection:
     _instance = None
@@ -177,6 +188,7 @@ class RabbitMQConnection:
             self._channel.queue_declare(queue=config.RABBITMQ_RESPONSE_QUEUE, durable=True)
         return self._channel
 
+
 def send_response_to_queue(correlation_id, response_data):
     channel = RabbitMQConnection().get_channel()
     message = json.dumps(response_data)
@@ -189,6 +201,7 @@ def send_response_to_queue(correlation_id, response_data):
             delivery_mode=2,
         ))
     print(" [x] Sent response to ClassfiyResponseQueue")
+
 
 def process_data_wrapper(ch, method, properties, body):
     try:
@@ -223,8 +236,11 @@ def process_data_wrapper(ch, method, properties, body):
         print(f"Unexpected error occurred: {e}")
         ch.basic_ack(delivery_tag=method.delivery_tag)
 
+
 _is_consumer_thread_started = False
 connection = None
+
+
 def start_consumer():
     global _is_consumer_thread_started
     global connection
@@ -235,7 +251,8 @@ def start_consumer():
     while True:
         try:
             if connection is None or connection.is_closed:
-                connection = pika.BlockingConnection(pika.ConnectionParameters(config.RABBITMQ_HOST, config.RABBITMQ_PORT))
+                connection = pika.BlockingConnection(
+                    pika.ConnectionParameters(config.RABBITMQ_HOST, config.RABBITMQ_PORT))
             channel = connection.channel()
             channel.exchange_declare(exchange=config.RABBITMQ_EXCHANGE, exchange_type='direct', durable=True)
             channel.queue_declare(queue=config.RABBITMQ_QUEUE, durable=True)
@@ -254,6 +271,7 @@ def start_consumer():
         except KeyboardInterrupt:
             print("Exiting consumer thread...")
             break
+
 
 if __name__ == '__main__':
     consumer_thread = threading.Thread(target=start_consumer).start()

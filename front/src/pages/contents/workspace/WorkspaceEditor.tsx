@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Grid from "@mui/material/Grid";
 import BaseEditor from "component/baseEditor/BaseEditor";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -8,18 +8,16 @@ import { Strings } from "utils/strings";
 import { WorkspaceModel } from "model/WorkspaceModel";
 import WorkspaceClass from "pages/contents/workspace/editor/WorkspaceClass";
 import WorkspaceDropZone from "./editor/WorkspaceDropZone";
-import { WorkspaceContext } from "utils/ContextManager";
-import {Dialog, Divider} from "@mui/material";
+import { Dialog, Divider } from "@mui/material";
 import WorkspaceDataSet from "pages/contents/workspace/editor/WorkspaceDataSet";
 import WorkspaceMember from "pages/contents/workspace/editor/WorkspaceMember";
 import Button from "@mui/material/Button";
 import MemberSearchModal from "component/modal/MemberSearchModal";
-import {Member} from "model/GlobalModel";
-import Modal from "@mui/material/Modal";
+import { Member } from "model/GlobalModel";
 
 const WorkspaceEditor = () => {
-    const { state, setState } = useContext(WorkspaceContext);
     const [workspace, setWorkspace] = useState<WorkspaceModel>();
+    const [newFiles, setNewFiles] = useState<any>([]);
     const [isEdit, setIsEdit] = useState(false);
     const [openMemberModal, setOpenMemberModal] = useState(false);
     const editorRef = useRef(null);
@@ -27,13 +25,13 @@ const WorkspaceEditor = () => {
     const location = useLocation();
 
     useEffect(() => {
+        console.log(location);
         if (location.state) {
             const { data } = location.state;
             setWorkspace(data);
             setIsEdit(true);
-            setState({...data, newFiles: [], members: data.members || []});
         }
-    }, [location, setState]);
+    }, [location]);
 
     const handleSave = async () => {
         if (!editorRef.current) return;
@@ -47,15 +45,15 @@ const WorkspaceEditor = () => {
                     JSON.stringify({
                         name: editorState.title,
                         description: editorState.content,
-                        classes: state?.classes,
-                        members: state?.members,
+                        classes: workspace?.classes,
+                        members: workspace?.members,
                     }),
                 ],
                 { type: "application/json" },
             ),
         );
 
-        state?.newFiles?.forEach((file, index) => {
+        newFiles?.forEach((file, index) => {
             formData.append(`files`, file);
         });
 
@@ -79,48 +77,48 @@ const WorkspaceEditor = () => {
         }
     };
 
-    const dataToBase = () => {
-        const baseData = {
-            title: workspace?.name,
-            content: workspace?.description,
-        };
-
-        return baseData;
-    };
-
     const addMember = (member) => {
         if (!member) {
             return;
         }
 
-        const newMembers = Array.isArray(state.members)
-            ? [...state.members, member]
+        const newMembers = Array.isArray(workspace?.members)
+            ? [...workspace.members, member]
             : [member];
 
-        setState({...state, members: newMembers});
         setWorkspace({...workspace, members: newMembers});
+    }
+
+    const onClassesChange = (classes) => {
+        setWorkspace({...workspace, classes});
     }
 
     const removeMember = (member) => {
-        const newMembers = state.members.filter((m: Member) => m.id !== member.id);
-        setState({...state, members: newMembers});
+        const newMembers = workspace?.members.filter((m: Member) => m.id !== member.id);
         setWorkspace({...workspace, members: newMembers});
     }
+
+    const handleFilesChange = (files) => {
+        setNewFiles(files);
+    };
 
     return (
         <Grid container direction="column">
             <Grid item md={true}>
-                <BaseEditor
-                    handleSave={handleSave}
-                    defaultValue={dataToBase()}
-                    ref={editorRef}
-                />
+                {(workspace || !isEdit) && (
+                    <BaseEditor
+                        handleSave={handleSave}
+                        defaultTitle={workspace?.name}
+                        defaultContent={workspace?.description}
+                        ref={editorRef}
+                    />
+                )}
             </Grid>
-            <WorkspaceClass state={state} setState={setState} />
-            <WorkspaceDropZone />
+            <WorkspaceClass classes={workspace?.classes} onClassesChange={onClassesChange} />
+            <WorkspaceDropZone onFilesChange={handleFilesChange} />
             <Divider sx={{ m: 2 }} />
             {workspace?.files?.length > 0 && (
-                <WorkspaceDataSet imgs={workspace?.files} setState={setState} />
+                <WorkspaceDataSet imgs={workspace?.files} setState={setWorkspace} />
             )}
             <WorkspaceMember workspace={workspace} removeMember={removeMember} />
             <Grid item container justifyContent="center">

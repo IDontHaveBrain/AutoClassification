@@ -1,30 +1,36 @@
-import { useContext, useState } from "react";
+import {useEffect, useState} from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { EditorContext } from "component/baseEditor/EditorContext";
 
 interface TextEditorProps {
-  value?: string;
+    value?: string;
+    onChange: (content: string) => void;
 }
 
-const TextEditor = ({ value }: TextEditorProps) => {
-  const { editor, setEditor } = useContext(EditorContext);
+const TextEditor = ({ value, onChange }: TextEditorProps) => {
+    const [editorContent, setEditorContent] = useState(value);
 
-  const onChange = (value: string) => {
-    setEditor((prevEditor) => ({ ...prevEditor, content: value }));
-  };
+    useEffect(() => {
+        setEditorContent(value);
+    }, [value]);
 
-  return (
-    <>
-      <ReactQuill
-        theme={"snow"}
-        value={editor?.content}
-        defaultValue={value}
-        onChange={onChange}
-        // style={{ height: "200px", minHeight: "200px" }}
-      />
-    </>
-  );
+    const handleChange = (value: string) => {
+        setEditorContent(value);
+        if (onChange) {
+            onChange(value);
+        }
+    };
+
+    return (
+        <>
+            <ReactQuill
+                theme={"snow"}
+                value={editorContent}
+                defaultValue={value}
+                onChange={handleChange}
+            />
+        </>
+    );
 };
 
 export default TextEditor;

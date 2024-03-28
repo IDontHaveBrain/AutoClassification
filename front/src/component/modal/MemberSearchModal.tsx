@@ -50,6 +50,10 @@ const MemberSearchModal = ({ close, setData }: Props) => {
             });
     }, [search]);
 
+    useEffect(() => {
+        loadRows(pageable.page, pageable.size, pageable.sort);
+    }, [loadRows]);
+
     return (
         <>
             <DialogTitle>Member Search</DialogTitle>

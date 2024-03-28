@@ -7,5 +7,5 @@ export interface WorkspaceModel extends BaseDto {
   owner: Member;
   files?: FileModel[];
   members?: Member[];
-  classifyItems?: string[];
+  classes?: string[];
 }

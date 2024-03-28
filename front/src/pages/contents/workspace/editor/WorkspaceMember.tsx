@@ -11,7 +11,6 @@ interface Props {
 }
 
 const WorkspaceMember = ({ workspace, removeMember }: Props) => {
-    const { state, setState } = useContext(WorkspaceContext);
 
     return (
         <ExpandComp title="Members">

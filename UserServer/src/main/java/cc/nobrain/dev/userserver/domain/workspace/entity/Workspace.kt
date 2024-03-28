@@ -29,10 +29,9 @@ class Workspace (
 
     @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
-    @field:NotNull
     var owner: Member,
 
-    @OneToMany(mappedBy = "ownerIndex", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "ownerIndex", cascade = [CascadeType.ALL])
     var files: MutableList<TrainFile> = ArrayList(),
 
     @ManyToMany
