@@ -11,6 +11,6 @@ COPY requirements.txt .
 RUN python -m venv /venv
 RUN /venv/bin/pip install -r requirements.txt
 
-COPY app.py .
+COPY . .
 
 CMD ["/venv/bin/python", "app.py"]
