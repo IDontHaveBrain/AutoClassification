@@ -24,7 +24,7 @@ class Consumer:
 
                 channel.basic_qos(prefetch_count=1)
                 channel.basic_consume(queue=config.RABBITMQ_QUEUE,
-                                      on_message_callback=RabbitMQHandler.process_data_wrapper)
+                                      on_message_callback=RabbitMQHandler.process_data_wrapper, auto_ack=False)
 
                 print(' [*] Waiting for messages. To exit press CTRL+C')
                 channel.start_consuming()

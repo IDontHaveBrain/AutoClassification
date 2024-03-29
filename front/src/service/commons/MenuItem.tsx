@@ -9,7 +9,7 @@ import TestClassfiy from "pages/contents/freetest/TestClassfiy";
 import WorkspaceList from "../../pages/contents/workspace/WorkspaceList";
 import WorkspaceEditor from "pages/contents/workspace/WorkspaceEditor";
 import {NoticeContext, WorkspaceContext} from "utils/ContextManager";
-import Training from "pages/contents/workspace/training/Training";
+import Train from "pages/contents/workspace/training/Train";
 import TestResultList from "pages/contents/freetest/TestResultList";
 import AutoLabel from "pages/contents/workspace/autolabel/AutoLabel";
 
@@ -79,7 +79,7 @@ export const MenuItems: MenuInfo[] = [
             {
                 name: "Training",
                 path: "/workspace/training",
-                element: <Training/>,
+                element: <Train/>,
             },
         ],
         subTabMenu: [
@@ -91,7 +91,7 @@ export const MenuItems: MenuInfo[] = [
             {
                 name: "Training",
                 path: "/workspace/training",
-                element: <Training/>,
+                element: <Train/>,
             },
         ],
     },

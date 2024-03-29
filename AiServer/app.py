@@ -1,6 +1,7 @@
 import threading
 
 from flask import Flask, request, jsonify
+from ultralytics import YOLO
 
 import config
 from Consumer import Consumer
@@ -15,6 +16,16 @@ def classify_data():
 @app.route('/api/testclassfiy', methods=['POST'])
 def test_data():
     return jsonify(DataProcessor.process_data(request, 'test')), 200
+
+@app.route('/api/train', methods=['POST'])
+def train_data():
+    print('Training data...')
+    model = YOLO('yolov8n-cls.pt')
+    model.info()
+
+    results = model.train(data=config.BASE_DIR+'/workspace/'+str(request.json['workspaceId']), epochs=10, imgsz=416)
+
+    return jsonify({'message': 'Training data...'}), 200
 
 @app.route('/')
 def hello_world():

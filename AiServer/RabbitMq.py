@@ -45,7 +45,7 @@ class RabbitMQHandler:
     @staticmethod
     def process_data_wrapper(ch, method, properties, body):
         try:
-            print(" [x] Received %r" % body)
+            print(" [x] Received")
             message = json.loads(body.decode('utf-8'))
             message = json.loads(message)
 
@@ -57,8 +57,8 @@ class RabbitMQHandler:
             dummy_request = DummyRequest(message)
             data = dummy_request.json
 
-            operation = 'test'
-            labels_and_ids = DataProcessor.process_data(dummy_request, operation)
+            operation = 'auto'
+            labels_and_ids = DataProcessor.process_data(dummy_request, operation, properties)
             result = {
                 'requesterId': data.get('requesterId'),
                 'workspaceId': data.get('workspaceId'),

@@ -1,6 +1,7 @@
 import base64
 import json
 import os
+import random
 from datetime import datetime
 
 import requests
@@ -20,9 +21,9 @@ class ImageProcessor:
         return result
 
     @staticmethod
-    def set_labels(labels, dtos):
+    def set_labels(labels, dtos, workspaceId):
         for label, (dto, _) in zip(labels, dtos):
-            dir_path = os.path.join(config.BASE_DIR, label)
+            dir_path = os.path.join(config.BASE_DIR, 'workspace', str(workspaceId), label)
             os.makedirs(dir_path, exist_ok=True)
 
             file_name = f"{label}.txt"
@@ -30,7 +31,8 @@ class ImageProcessor:
 
             image_url = dto['url']
             response = requests.get(image_url)
-            image_path = os.path.join(dir_path, f"{label}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.jpg")
+            random_value = random.randint(1000, 9999)
+            image_path = os.path.join(dir_path, f"{label}_{datetime.now().strftime('%m%d%H%M%S%f')}_{str(random_value)}.jpg")
             with open(image_path, 'wb') as img_file:
                 img_file.write(response.content)
 

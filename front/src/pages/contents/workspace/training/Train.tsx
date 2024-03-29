@@ -8,8 +8,9 @@ import TextField from "@mui/material/TextField";
 import {blue} from "@mui/material/colors";
 import {onAlert} from "component/modal/AlertModal";
 import {Strings} from "utils/strings";
+import LabelledImages from "component/imgs/LabelledImages";
 
-const Training = () => {
+const Train = () => {
     const [workspaceList, setWorkspaceList] = useState<WorkspaceModel[]>([]);
     const [selected, setSelected] = useState<WorkspaceModel | null>(null);
 
@@ -37,9 +38,22 @@ const Training = () => {
         }
     };
 
+    const handleTrainRequest = () => {
+        if (!selected) {
+            onAlert('Select Workspace');
+            return;
+        }
+        if (!selected.files || selected.files.length === 0) {
+            onAlert('No images to label');
+            return;
+        }
+
+        // TODO: 훈련 요청
+    }
+
     return (
         <>
-            <BaseTitle title={'AutoLabel'}/>
+            <BaseTitle title={'Train'}/>
             <Grid container direction="row" alignItems="center" spacing={2}>
                 <Grid item xs={3}>
                     <Autocomplete
@@ -51,9 +65,17 @@ const Training = () => {
                         renderInput={(params) => <TextField {...params} label="Workspace" variant="outlined"/>}
                     />
                 </Grid>
+                <Grid item>
+                    <Button onClick={handleTrainRequest} color="inherit" style={{ backgroundColor: blue[300] }}>Train Request</Button>
+                </Grid>
+            </Grid>
+            <Grid mt={2} container spacing={2} xs={10}>
+                {selected && selected.files &&
+                    <LabelledImages files={selected?.files || []}/>
+                }
             </Grid>
         </>
     );
 };
 
-export default Training;
+export default Train;
