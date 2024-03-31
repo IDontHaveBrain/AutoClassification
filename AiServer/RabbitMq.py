@@ -57,8 +57,9 @@ class RabbitMQHandler:
             dummy_request = DummyRequest(message)
             data = dummy_request.json
 
+            ch.basic_ack(delivery_tag=method.delivery_tag)
             operation = 'auto'
-            labels_and_ids = DataProcessor.process_data(dummy_request, operation, properties)
+            labels_and_ids = DataProcessor.process_data(dummy_request, operation)
             result = {
                 'requesterId': data.get('requesterId'),
                 'workspaceId': data.get('workspaceId'),
@@ -66,7 +67,7 @@ class RabbitMQHandler:
             }
 
             RabbitMQHandler.send_response_to_queue(properties.correlation_id, result)
-            ch.basic_ack(delivery_tag=method.delivery_tag)
+            # ch.basic_ack(delivery_tag=method.delivery_tag)
 
         except pika.exceptions.StreamLostError:
             print("Connection lost, attempting to reconnect...")

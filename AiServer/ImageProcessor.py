@@ -31,8 +31,8 @@ class ImageProcessor:
 
             image_url = dto['url']
             response = requests.get(image_url)
-            random_value = random.randint(1000, 9999)
-            image_path = os.path.join(dir_path, f"{label}_{datetime.now().strftime('%m%d%H%M%S%f')}_{str(random_value)}.jpg")
+            # random_value = random.randint(1000, 9999)
+            image_path = os.path.join(dir_path, f"{dto['fileName']}.jpg")
             with open(image_path, 'wb') as img_file:
                 img_file.write(response.content)
 

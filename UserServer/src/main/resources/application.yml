@@ -48,6 +48,11 @@ spring:
           starttls:
             enable: true
 
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
 logging:
   level:
     root: debug
@@ -60,7 +65,7 @@ app:
   storage:
     path: C:/Work/test/
     resourcePath: public/
-    maxFileSize: 10485760
+    maxFileSize: 104857600
 
 jasypt:
   encryptor:
