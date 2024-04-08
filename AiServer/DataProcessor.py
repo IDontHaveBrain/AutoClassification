@@ -96,7 +96,7 @@ class DataProcessor:
             await asyncio.gather(*tasks)
 
             if i + 3 < len(chunks_list):
-                await asyncio.sleep(30)
+                await asyncio.sleep(60)
 
         return labels_to_ids
 

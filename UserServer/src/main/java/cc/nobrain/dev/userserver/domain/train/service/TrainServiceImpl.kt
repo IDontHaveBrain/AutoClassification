@@ -148,8 +148,8 @@ class TrainServiceImpl(
             "testImages" to testImages
         )
 
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
+//        CoroutineScope(Dispatchers.IO).launch {
+//            try {
 //                val response: List<LabelAndIds> = webClient.post()
 //                    .uri("${urlProps.ai}/api/classify")
 //                    .header("x-api-key", "test")
@@ -158,18 +158,18 @@ class TrainServiceImpl(
 //                    .bodyToFlux(LabelAndIds::class.java)
 //                    .collectList()
 //                    .block() ?: emptyList()
-
+//
 //                println(response);
 //                updateFileLabels(response);
-
-                rabbitEventPublisher.publish(CLASSFIY_QUEUE, objectMapper.writeValueAsString(requestBody));
-
+//
 //                alarmService.sendAlarmToMember(member.id, "라벨링 결과가 도착했습니다.", "라벨링 결과가 도착했습니다.");
-            } catch (e: Exception) {
-                e.printStackTrace();
-                alarmService.sendAlarmToMember(member.id, "라벨링 요청이 실패하였습니다.", "라벨링 요청이 실패하였습니다.");
-            }
-        }
+//            } catch (e: Exception) {
+//                e.printStackTrace();
+//                alarmService.sendAlarmToMember(member.id, "라벨링 요청이 실패하였습니다.", "라벨링 요청이 실패하였습니다.");
+//            }
+//        }
+
+        rabbitEventPublisher.publish(CLASSFIY_QUEUE, objectMapper.writeValueAsString(requestBody));
 
         return ResponseEntity.ok().build();
     }
