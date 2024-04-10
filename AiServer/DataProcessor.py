@@ -23,7 +23,7 @@ class DataProcessor:
 
         filtered_dto_image_pairs = [(dto, url) for dto, url in zip(testDtos, testImages) if
                                     ImageProcessor.is_url_image(url)]
-        chunks = DataProcessor.chunk_list(filtered_dto_image_pairs, 10)
+        chunks = DataProcessor.chunk_list(filtered_dto_image_pairs, 50)
 
         labels_to_ids = asyncio.run(DataProcessor.process_chunks(chunks, testClass, operation, workspaceId))
 
@@ -49,14 +49,14 @@ class DataProcessor:
                 start_time = time.time()
                 print("Processing images... start_time: ", start_time)
                 completion = await client.chat.completions.create(
-                    model="gpt-4-1106-vision-preview",
+                    model="gpt-4-turbo",
                     messages=[
                         {
                             "role": "user",
                             "content": [
                                            {"type": "text",
                                             "text": "You are an AI model that classifies images that are closest to the list I provide. To answer, "
-                                                    "just say the words from the list I provided with ',' separator. The list I provide : "
+                                                    "just say the words from the list I provided with ',' separator and ensure the labels are in the same order as the images provided. The list I provide : "
                                                     + ','.join(testClass)},
                                        ] + images_for_ai,
                         }
@@ -96,7 +96,7 @@ class DataProcessor:
             await asyncio.gather(*tasks)
 
             if i + 3 < len(chunks_list):
-                await asyncio.sleep(60)
+                await asyncio.sleep(30)
 
         return labels_to_ids
 
