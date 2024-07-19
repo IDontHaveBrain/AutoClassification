@@ -51,10 +51,8 @@ class TrainServiceImpl(
 
     @Transactional
     override suspend fun testClassfiyData(data: List<String>, files: Array<MultipartFile>): ResponseEntity<Any> {
-        var member = MemberUtil.getCurrentMemberDto()
-            .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
-
-        member = memberRepository.findById(member.id)
+        val member = MemberUtil.instance.getCurrentMemberDto()
+            .flatMap { dto -> dto.id?.let { id -> memberRepository.findById(id) } }
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
         var classfiy = Classfiy(
@@ -85,11 +83,11 @@ class TrainServiceImpl(
                     .block() ?: emptyList()
                 println(response);
                 saveTestResult(classfiy.id!!, response);
-                alarmService.sendAlarmToMember(member.id, "테스트 결과가 도착했습니다.", "테스트 결과가 도착했습니다.");
+                alarmService.sendAlarmToMember(member.id!!, "테스트 결과가 도착했습니다.", "테스트 결과가 도착했습니다.");
             } catch (e: Exception) {
                 e.printStackTrace();
                 saveTestResult(classfiy.id!!, emptyList());
-                alarmService.sendAlarmToMember(member.id, "테스트가 실패하였습니다.", "테스트가 실패하였습니다.");
+                alarmService.sendAlarmToMember(member.id!!, "테스트가 실패하였습니다.", "테스트가 실패하였습니다.");
             }
         }
 
@@ -98,24 +96,24 @@ class TrainServiceImpl(
 
     @EntityGraph(attributePaths = ["testFiles"])
     override suspend fun getTestResultList(page: Pageable): Page<ClassfiyRes> {
-        val spec = ClassfiySpecs.ownerId(MemberUtil.getCurrentMemberDto().get().id)
+        val spec = ClassfiySpecs.ownerId(MemberUtil.instance.getCurrentMemberDto().get().id)
         val classfiy = classfiyRepository.findAll(spec, page)
         return classfiy.map { c -> modelMapper.map(c, ClassfiyRes::class.java)};
     }
 
     override suspend fun getMyImgs(): List<FileDto> {
-        val member = MemberUtil.getCurrentMemberDto()
+        val member = MemberUtil.instance.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
         val workspaces = workspaceService.getMyWorkspace(null);
 
-        val files = trainFileRepository.findByOwnerIndex_Id(member.id)
+        val files = trainFileRepository.findByOwnerIndex_Id(member.id!!)
         return files.stream().map { file -> modelMapper.map(file, FileDto::class.java) }.toList()
     }
 
     @Transactional
     override suspend fun deleteTrainData(id: Long) {
-        val member = MemberUtil.getCurrentMemberDto()
+        val member = MemberUtil.instance.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
         val file = trainFileRepository.findById(id)
@@ -130,7 +128,7 @@ class TrainServiceImpl(
 
     @Transactional
     override suspend fun requestLabeling(workspaceId: Long): ResponseEntity<Any> {
-        val member = MemberUtil.getCurrentMemberDto()
+        val member = MemberUtil.instance.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
         val workspaceList = workspaceService.getMyWorkspace(null);
         val workspace = workspaceList.stream().filter { w -> w.id == workspaceId }.findFirst()
@@ -175,10 +173,10 @@ class TrainServiceImpl(
     }
 
     override suspend fun requestTrain(): List<FileDto> {
-        val member = MemberUtil.getCurrentMemberDto()
+        val member = MemberUtil.instance.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
-        val files = trainFileRepository.findByOwnerIndex_Id(member.id)
+        val files = trainFileRepository.findByOwnerIndex_Id(member.id!!)
 
         TODO("Not yet implemented")
 

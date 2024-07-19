@@ -29,7 +29,7 @@ class WorkspaceServiceImpl(
 
     @Transactional
     override suspend fun createWorkspace(create: WorkspaceReq.Create, files: Array<MultipartFile>?): WorkspaceRes {
-        val member = MemberUtil.getCurrentMember();
+        val member = MemberUtil.instance.getCurrentMember();
 
         val workspace = modelMapper.map(create, Workspace::class.java);
 
@@ -78,10 +78,10 @@ class WorkspaceServiceImpl(
     }
 
     override suspend fun getMyWorkspace(pageable: Pageable?): Page<WorkspaceRes.Owner> {
-        val member = MemberUtil.getCurrentMemberDto()
+        val member = MemberUtil.instance.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) };
 
-        val workspace = workspaceRepository.findByMembers_IdOrOwner_Id(member.id, member.id, pageable);
+        val workspace = workspaceRepository.findByMembers_IdOrOwner_Id(member.id!!, member.id!!, pageable);
 
         return workspace.map { space -> modelMapper.map(space, WorkspaceRes.Owner::class.java) }
     }

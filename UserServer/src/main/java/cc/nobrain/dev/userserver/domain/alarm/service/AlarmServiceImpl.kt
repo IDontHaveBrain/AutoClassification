@@ -39,11 +39,9 @@ class AlarmServiceImpl(
 ) : AlarmService {
 
      override suspend fun getMyAlarmList(): List<AlarmRes> {
-        val member: Member = MemberUtil.getCurrentMemberDto().orElseThrow {
-            CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND)
-        };
-        val spec: Specification<AlarmMessage> = AlarmSpecs.findAlarmByMemberId(member.id);
-        val alarmMessageList: List<AlarmMessage> = alarmMessageRepository.findAll(spec);
+        val member: Member = MemberUtil.instance.getCurrentMember()
+        val spec: Specification<AlarmMessage> = AlarmSpecs.findAlarmByMemberId(member.id)
+        val alarmMessageList: List<AlarmMessage> = alarmMessageRepository.findAll(spec)
         return alarmMessageList.map { alarm -> modelMapper.map(alarm, AlarmRes::class.java) }
     }
 
@@ -54,9 +52,7 @@ class AlarmServiceImpl(
 
     @Transactional
     override suspend fun readAlarm(alarmId: Long) {
-        val member: Member = MemberUtil.getCurrentMemberDto().orElseThrow {
-            CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND)
-        }
+        val member: Member = MemberUtil.instance.getCurrentMember()
 
         val alarmMessage: AlarmMessage = alarmMessageRepository.findById(alarmId).orElseThrow {
             CustomException(ErrorInfo.TARGET_NOT_FOUND)
@@ -73,9 +69,7 @@ class AlarmServiceImpl(
 
     @Transactional
     override suspend fun readAllAlarm() {
-        val member: Member = MemberUtil.getCurrentMemberDto().orElseThrow {
-            CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND)
-        }
+        val member: Member = MemberUtil.instance.getCurrentMember()
 
         val spec: Specification<AlarmMessage> = AlarmSpecs.findAlarmByMemberId(member.id)
         val alarmMessageList: List<AlarmMessage> = alarmMessageRepository.findAll(spec)

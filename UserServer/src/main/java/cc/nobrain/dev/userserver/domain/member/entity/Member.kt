@@ -28,7 +28,7 @@ class Member(
     @NotNull
     @Column
     @Convert(converter = BCryptoConverter::class)
-    var password: String,
+    private var password: String,
 
     @NotNull
     @Column(length = 30, nullable = false)
