@@ -1,6 +1,6 @@
 plugins {
-    id 'org.springframework.boot' version '3.1.12'
-    id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.springframework.boot' version '3.2.8'
+    id 'io.spring.dependency-management' version '1.1.6'
     id 'org.asciidoctor.jvm.convert' version '3.3.2'
     id 'org.jetbrains.kotlin.jvm' version '1.9.24'
     id 'org.jetbrains.kotlin.plugin.spring' version '1.9.24'
@@ -9,7 +9,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.noarg' version '1.9.24'
     id 'org.jetbrains.kotlin.kapt' version '1.9.24'
     id 'org.jetbrains.kotlin.plugin.lombok' version '1.9.24'
-    id 'io.freefair.lombok' version '8.6.0'
+    id 'io.freefair.lombok' version '8.6'
     id 'idea'
 }
 
@@ -55,18 +55,18 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor'
 
-    compileOnly 'org.projectlombok:lombok:1.18.32'
+    compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'
     kapt 'org.springframework.boot:spring-boot-configuration-processor'
-    kapt 'org.projectlombok:lombok:1.18.32'
+    kapt 'org.projectlombok:lombok'
     kapt 'org.hibernate.orm:hibernate-jpamodelgen'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.amqp:spring-rabbit-test'
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    testCompileOnly 'org.projectlombok:lombok:1.18.32'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
     testImplementation 'com.github.gavlyukovskiy:datasource-proxy-spring-boot-starter:1.9.1'
 
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-authorization-server'
@@ -117,10 +117,9 @@ sourceSets {
     }
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
-    kotlinOptions {
-        freeCompilerArgs += '-Xjsr305=strict'
-        jvmTarget = '21'
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll '-Xjsr305=strict'
     }
 }
 
