@@ -1,31 +1,24 @@
-package cc.nobrain.dev.userserver.domain.member.entity;
+package cc.nobrain.dev.userserver.domain.member.entity
 
-import jakarta.persistence.*;
-import lombok.Getter;
-import org.hibernate.annotations.DynamicUpdate;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import jakarta.persistence.*
+import org.hibernate.annotations.DynamicUpdate
 
 @Entity
 @DynamicUpdate
-@Getter
-public class MemberGroup {
+class MemberGroup(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    val id: Long? = null,
 
     @Column(unique = true)
-    private String groupName;
+    val groupName: String,
 
     @Column
-    private String groupDescription;
+    val groupDescription: String,
 
     @OneToMany(mappedBy = "memberGroup", fetch = FetchType.LAZY)
-    private List<Member> members = new ArrayList<>();
+    val members: MutableList<Member> = mutableListOf(),
 
     @OneToMany(mappedBy = "memberGroup", fetch = FetchType.LAZY)
-    private Set<GroupPermissionMapping> groupPermissionMappings = new HashSet<>();
-}
+    val groupPermissionMappings: MutableSet<GroupPermissionMapping> = mutableSetOf()
+)

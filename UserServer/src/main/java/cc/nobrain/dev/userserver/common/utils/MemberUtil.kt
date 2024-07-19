@@ -38,7 +38,11 @@ object MemberUtil {
         val authentication: Authentication = SecurityContextHolder.getContext().authentication
         val memberRepository = CommonUtil.getBean("memberRepository") as? MemberRepository;
 
-        return memberRepository?.findById((authentication.principal as Member).id)?.orElseThrow()
+        val memberId = (authentication.principal as Member).id
             ?: throw CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND);
+
+        return memberRepository?.findById(memberId)?.orElseThrow {
+            CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND)
+        } ?: throw CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND)
     }
 }

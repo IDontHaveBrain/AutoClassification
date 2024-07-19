@@ -16,7 +16,11 @@ plugins {
 group = 'cc.nobrain.dev'
 version = '0.0.1-SNAPSHOT'
 
-sourceCompatibility = JavaVersion.VERSION_21
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
 
 allOpen {
     annotation('jakarta.persistence.Entity')
@@ -99,10 +103,6 @@ asciidoctor {
 task buildWithoutTest {
     dependsOn 'clean', 'build'
     test.enabled = false
-}
-
-bootBuildImage {
-    builder = 'paketobuildpacks/builder-jammy-base:latest'
 }
 
 def generated = 'src/main/generated'

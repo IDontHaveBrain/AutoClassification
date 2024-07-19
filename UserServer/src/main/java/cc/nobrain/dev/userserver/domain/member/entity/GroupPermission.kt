@@ -1,30 +1,24 @@
-package cc.nobrain.dev.userserver.domain.member.entity;
+package cc.nobrain.dev.userserver.domain.member.entity
 
-import jakarta.persistence.*;
-import lombok.Getter;
-import org.hibernate.annotations.DynamicUpdate;
-
-import java.util.HashSet;
-import java.util.Set;
+import jakarta.persistence.*
+import org.hibernate.annotations.DynamicUpdate
 
 @Entity
 @DynamicUpdate
-@Getter
-public class GroupPermission {
+class GroupPermission(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    val id: Long? = null,
 
     @Column(unique = true, nullable = false)
-    private String url;
+    val url: String,
 
     @Column
-    private String httpMethod;
+    val httpMethod: String,
 
     @Column
-    private String description;
+    val description: String,
 
     @OneToMany(mappedBy = "groupPermission", fetch = FetchType.LAZY)
-    private Set<GroupPermissionMapping> groupPermissionMappings = new HashSet<>();
-
-}
+    val groupPermissionMappings: MutableSet<GroupPermissionMapping> = mutableSetOf()
+)

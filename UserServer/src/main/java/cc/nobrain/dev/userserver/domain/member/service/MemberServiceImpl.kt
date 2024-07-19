@@ -44,7 +44,7 @@ class MemberServiceImpl(
             .host(request.serverName)
             .port(request.serverPort)
             .path("/api/member/verify")
-            .queryParam("token", newMember.tempToken)
+            .queryParam("token", newMember.getTempToken())
             .build()
             .toString()
 
