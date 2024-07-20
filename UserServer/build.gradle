@@ -100,10 +100,10 @@ asciidoctor {
             dependsOn test
 }
 
-task buildWithoutTest {
-    dependsOn 'clean', 'build'
-    test.enabled = false
-}
+//task buildWithoutTest {
+//    dependsOn 'clean', 'build'
+//    test.enabled = false
+//}
 
 def generated = 'src/main/generated'
 sourceSets {

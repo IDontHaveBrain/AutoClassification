@@ -108,12 +108,12 @@ class AlarmServiceImpl(
     }
 
     private fun createAlarmMessage(title: String, content: String, eventType: AlarmEventType, url: String? = null): AlarmMessage {
-        var alarmMessage = AlarmMessage.builder()
-            .title(title)
-            .content(content)
-            .eventType(eventType)
-            .link(url)
-            .build()
+        var alarmMessage = AlarmMessage(
+            title = title,
+            content = content,
+            eventType = eventType,
+            link = url
+        )
 
         return alarmMessage;
     }
