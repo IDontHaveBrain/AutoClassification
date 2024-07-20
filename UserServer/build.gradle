@@ -91,31 +91,14 @@ task buildWithoutTest {
     test.enabled = false
 }
 
-def generated = 'src/main/generated'
-sourceSets {
-    main {
-        kotlin {
-            srcDirs += file(generated)
-        }
-        java {
-            srcDirs += file(generated)
-        }
+clean {
+    doLast {
+        file('out').deleteDir()
     }
 }
 
 kotlin {
     compilerOptions {
         freeCompilerArgs.addAll '-Xjsr305=strict'
-    }
-}
-
-tasks.withType(JavaCompile) {
-    options.generatedSourceOutputDirectory = file(generated)
-}
-
-clean {
-    doLast {
-        file(generated).deleteDir()
-        file('out').deleteDir()
     }
 }
