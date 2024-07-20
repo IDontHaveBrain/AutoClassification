@@ -11,6 +11,7 @@ import cc.nobrain.dev.userserver.domain.alarm.entity.AlarmTargetMember
 import cc.nobrain.dev.userserver.domain.alarm.enums.AlarmEventType
 import cc.nobrain.dev.userserver.domain.alarm.enums.AlarmTargetType
 import cc.nobrain.dev.userserver.domain.alarm.repository.AlarmMessageMessageRepository
+import cc.nobrain.dev.userserver.domain.alarm.repository.AlarmMessageSpecs
 import cc.nobrain.dev.userserver.domain.alarm.repository.AlarmReadRepository
 import cc.nobrain.dev.userserver.domain.alarm.repository.AlarmTargetRepository
 import cc.nobrain.dev.userserver.domain.alarm.service.dto.AlarmMessageDto
@@ -46,7 +47,8 @@ class AlarmServiceImpl(
     }
 
     override suspend fun getMemberAlarmList(memberId: Long): List<AlarmMessageDto> {
-        val alarmMessageList: List<AlarmMessage> = alarmMessageRepository.getMemberAlarmList(memberId);
+        val spec: Specification<AlarmMessage> = AlarmMessageSpecs.memberAlarm(memberId)
+        val alarmMessageList: List<AlarmMessage> = alarmMessageRepository.findAll(spec)
         return alarmMessageList.map { alarm -> modelMapper.map(alarm, AlarmMessageDto::class.java) }
     }
 

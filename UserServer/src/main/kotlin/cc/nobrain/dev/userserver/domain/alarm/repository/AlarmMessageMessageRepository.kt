@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.data.querydsl.QuerydslPredicateExecutor
 
-interface AlarmMessageMessageRepository : JpaRepository<AlarmMessage, Long>, JpaSpecificationExecutor<AlarmMessage>, QuerydslPredicateExecutor<AlarmMessage>, AlarmMessageRepositoryCustom {
+interface AlarmMessageMessageRepository : JpaRepository<AlarmMessage, Long>, JpaSpecificationExecutor<AlarmMessage> {
 
 }
