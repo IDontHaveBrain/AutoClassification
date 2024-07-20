@@ -83,7 +83,6 @@ class SecurityConfig(
         val authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer()
         http
             .securityMatcher(authorizationServerConfigurer.endpointsMatcher)
-            .authorizeHttpRequests { authorize -> authorize.anyRequest().authenticated() }
             .csrf { csrf -> csrf.ignoringRequestMatchers(authorizationServerConfigurer.endpointsMatcher) }
             .with(authorizationServerConfigurer) { oauth2 ->
                 oauth2
@@ -127,7 +126,8 @@ class SecurityConfig(
                 jwt.jwtAuthenticationConverter(CustomJwtAuthenticationConverter(customUserDetailService))
             }}
             .authorizeHttpRequests { authorize ->
-                authorize.requestMatchers("/auth/**").permitAll()
+                authorize
+                    .requestMatchers("/auth/**").permitAll()
                     .requestMatchers("/api/**").permitAll()
                     .requestMatchers("/authorize").permitAll()
                     .requestMatchers("/public/**").permitAll()

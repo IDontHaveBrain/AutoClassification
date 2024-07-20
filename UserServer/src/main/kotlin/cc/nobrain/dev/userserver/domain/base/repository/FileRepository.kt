@@ -6,5 +6,4 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import java.time.OffsetDateTime
 
 interface FileRepository<T : File> : JpaRepository<T, Long>, JpaSpecificationExecutor<T> {
-    fun deleteByCreateDateTimeBefore(delTime: OffsetDateTime);
 }
