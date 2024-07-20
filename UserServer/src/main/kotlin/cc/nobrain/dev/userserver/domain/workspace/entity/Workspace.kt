@@ -6,12 +6,10 @@ import cc.nobrain.dev.userserver.domain.member.entity.Member
 import cc.nobrain.dev.userserver.domain.train.entity.TrainFile
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
-import lombok.Getter
 import org.hibernate.annotations.DynamicUpdate
 
 @Entity
 @DynamicUpdate
-@Getter
 class Workspace (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

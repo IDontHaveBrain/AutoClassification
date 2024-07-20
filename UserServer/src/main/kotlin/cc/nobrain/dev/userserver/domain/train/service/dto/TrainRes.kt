@@ -1,10 +1,7 @@
 package cc.nobrain.dev.userserver.domain.train.service.dto
 
 import cc.nobrain.dev.userserver.domain.base.dto.FileDto
-import cc.nobrain.dev.userserver.domain.member.service.dto.MemberDto
 import cc.nobrain.dev.userserver.domain.train.dto.ClassfiyDto
-import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceDto
-import lombok.NoArgsConstructor
 
 data class LabelAndIds (
     val label: String,

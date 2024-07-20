@@ -3,8 +3,6 @@ package cc.nobrain.dev.userserver.domain.train.entity;
 import cc.nobrain.dev.userserver.domain.base.entity.File;
 import cc.nobrain.dev.userserver.domain.workspace.entity.Workspace;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.Objects;

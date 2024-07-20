@@ -8,8 +8,6 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.allopen' version '1.9.24'
     id 'org.jetbrains.kotlin.plugin.noarg' version '1.9.24'
     id 'org.jetbrains.kotlin.kapt' version '1.9.24'
-    id 'org.jetbrains.kotlin.plugin.lombok' version '1.9.24'
-    id 'io.freefair.lombok' version '8.6'
     id 'idea'
 }
 
@@ -59,18 +57,14 @@ dependencies {
     implementation 'org.jetbrains.kotlin:kotlin-reflect'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor'
 
-    compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'
     kapt 'org.springframework.boot:spring-boot-configuration-processor'
-    kapt 'org.projectlombok:lombok'
     kapt 'org.hibernate.orm:hibernate-jpamodelgen'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.amqp:spring-rabbit-test'
     testImplementation 'io.projectreactor:reactor-test'
     testImplementation 'org.springframework.security:spring-security-test'
-    testCompileOnly 'org.projectlombok:lombok'
-    testAnnotationProcessor 'org.projectlombok:lombok'
     testImplementation 'com.github.gavlyukovskiy:datasource-proxy-spring-boot-starter:1.9.1'
 
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-authorization-server'
@@ -100,10 +94,10 @@ asciidoctor {
             dependsOn test
 }
 
-//task buildWithoutTest {
-//    dependsOn 'clean', 'build'
-//    test.enabled = false
-//}
+task buildWithoutTest {
+    dependsOn 'clean', 'build'
+    test.enabled = false
+}
 
 def generated = 'src/main/generated'
 sourceSets {

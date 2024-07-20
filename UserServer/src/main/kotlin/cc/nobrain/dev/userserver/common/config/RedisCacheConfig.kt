@@ -1,6 +1,5 @@
 package cc.nobrain.dev.userserver.common.config;
 
-import lombok.RequiredArgsConstructor
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.cache.annotation.EnableCaching
@@ -19,7 +18,6 @@ import java.time.Duration
         value = ["app.redis.cacheInit"],
         havingValue = "true",
         matchIfMissing = false)
-@RequiredArgsConstructor
 @Lazy
 class RedisCacheConfig {
 

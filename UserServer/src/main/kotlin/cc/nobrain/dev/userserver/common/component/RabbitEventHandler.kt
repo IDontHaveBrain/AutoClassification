@@ -5,7 +5,6 @@ import cc.nobrain.dev.userserver.domain.alarm.service.AlarmService
 import cc.nobrain.dev.userserver.domain.train.service.TrainService
 import cc.nobrain.dev.userserver.domain.train.service.dto.WorkspaceClassfiy
 import com.fasterxml.jackson.databind.ObjectMapper
-import lombok.RequiredArgsConstructor
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Component
@@ -17,7 +16,6 @@ interface EventPublisher {
 }
 
 @Component
-@RequiredArgsConstructor
 class RabbitEventPublisher(
     private val rabbitTemplate: RabbitTemplate,
 ) : EventPublisher {

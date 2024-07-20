@@ -2,7 +2,6 @@ package cc.nobrain.dev.userserver.domain.notice.entity;
 
 import cc.nobrain.dev.userserver.domain.base.entity.File;
 import jakarta.persistence.*
-import lombok.Getter;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.Objects;

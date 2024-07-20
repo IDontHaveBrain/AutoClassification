@@ -11,7 +11,6 @@ import cc.nobrain.dev.userserver.domain.base.repository.FileRepository
 import cc.nobrain.dev.userserver.domain.train.entity.TrainFile
 import cc.nobrain.dev.userserver.domain.workspace.entity.Workspace
 import jakarta.servlet.http.HttpServletRequest
-import lombok.extern.slf4j.Slf4j
 import org.apache.tomcat.util.http.fileupload.IOUtils
 import org.modelmapper.ModelMapper
 import org.springframework.stereotype.Component
