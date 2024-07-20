@@ -37,10 +37,8 @@ class WorkspaceServiceImpl(
         workspace.addMember(member);
         workspaceRepository.save(workspace);
 
-        val success: List<Any> = if (!files.isNullOrEmpty()) {
-            fileComponent.uploadFile(files, TrainFile::class.java, workspace);
-        } else {
-            emptyList()
+        if (!files.isNullOrEmpty()) {
+            fileComponent.uploadFile(files, TrainFile::class.java, workspace)
         }
 
         return modelMapper.map(workspace, WorkspaceRes::class.java);
@@ -52,10 +50,8 @@ class WorkspaceServiceImpl(
             .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) };
 
         modelMapper.map(update, workspace);
-        val success: List<Any> = if (!files.isNullOrEmpty()) {
+        if (!files.isNullOrEmpty()) {
             fileComponent.uploadFile(files, TrainFile::class.java, workspace);
-        } else {
-            emptyList()
         }
 
         update.classes?.let { workspace.changeClasses(it) };
@@ -116,7 +112,9 @@ class WorkspaceServiceImpl(
             .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) }
 
         val members = memberService.findMemberByEmails(invite.emails.toMutableList())
-            ?: throw CustomException(ErrorInfo.TARGET_NOT_FOUND);
+        if (members.isEmpty()) {
+            throw CustomException(ErrorInfo.TARGET_NOT_FOUND)
+        }
 
         members.forEach { member -> workspace.addMember(member) }
         workspaceRepository.save(workspace);

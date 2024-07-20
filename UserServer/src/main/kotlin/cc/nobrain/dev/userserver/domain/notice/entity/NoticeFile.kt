@@ -16,7 +16,7 @@ class NoticeFile(
 ) : File() {
 
     override fun <T> setRelation(ownerEntity: T) {
-        if (ownerEntity !is Notice || ownerEntity == null) {
+        if (ownerEntity !is Notice) {
             throw IllegalArgumentException("Invalid owner entity")
         }
         this.ownerIndex = ownerEntity

@@ -73,7 +73,7 @@ class FileComponent(
                 val content = zis.readAllBytes()
                 val uploadStream = ByteArrayInputStream(content)
 
-                val extension = FileUtil.getExtension(entry.name)
+//                val extension = FileUtil.getExtension(entry.name)
                 val path = Paths.get(entry.name)
                 val contentType = Files.probeContentType(path)
 
@@ -86,40 +86,35 @@ class FileComponent(
     }
 
     protected fun <T : File> uploadFile(file: MultipartFile, clazz: Class<T>, ownerEntity: Any): T {
-        return try {
-            if (file.isEmpty || file.size > appProps.maxFileSize) {
-                throw CustomException(ErrorInfo.INVALID_DATA)
-            } else {
-                val filename = CryptoUtil.encryptSHA256("${file.originalFilename}-${file.size}-${System.currentTimeMillis()}")
-                val originalFilename = file.originalFilename
-                val size = file.size
-                val contentType = file.contentType
-                val extension = FileUtil.getExtension(originalFilename ?: "")
-
-                val storagePath = getStoragePath(ownerEntity, clazz)
-                val filePath = Paths.get("${appProps.path}$storagePath$filename$extension")
-                Files.createDirectories(filePath.parent)
-                Files.copy(file.inputStream, filePath, StandardCopyOption.REPLACE_EXISTING)
-
-                val sourceMap = mapOf(
-                        "path" to "${appProps.path}$storagePath",
-                        "size" to size,
-                        "contentType" to contentType,
-                        "fileName" to filename,
-                        "originalFileName" to originalFilename,
-                        "url" to "${getBaseUrl()}$storagePath$filename$extension",
-                        "fileExtension" to extension
-                )
-
-                val uploadedFile: T = modelMapper.map(sourceMap, clazz)
-                uploadedFile.setRelation(ownerEntity)
-
-                return uploadedFile;
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            throw RuntimeException("File upload failed", e)
+        if (file.isEmpty || file.size > appProps.maxFileSize) {
+            throw CustomException(ErrorInfo.INVALID_DATA)
         }
+
+        val filename = CryptoUtil.encryptSHA256("${file.originalFilename}-${file.size}-${System.currentTimeMillis()}")
+        val originalFilename = file.originalFilename
+        val size = file.size
+        val contentType = file.contentType
+        val extension = FileUtil.getExtension(originalFilename ?: "")
+
+        val storagePath = getStoragePath(ownerEntity, clazz)
+        val filePath = Paths.get("${appProps.path}$storagePath$filename$extension")
+        Files.createDirectories(filePath.parent)
+        Files.copy(file.inputStream, filePath, StandardCopyOption.REPLACE_EXISTING)
+
+        val sourceMap = mapOf(
+            "path" to "${appProps.path}$storagePath",
+            "size" to size,
+            "contentType" to contentType,
+            "fileName" to filename,
+            "originalFileName" to originalFilename,
+            "url" to "${getBaseUrl()}$storagePath$filename$extension",
+            "fileExtension" to extension
+        )
+
+        val uploadedFile: T = modelMapper.map(sourceMap, clazz)
+        uploadedFile.setRelation(ownerEntity)
+
+        return uploadedFile
     }
 
     @Transactional
@@ -129,7 +124,7 @@ class FileComponent(
                 Optional.empty()
             } else {
                 val filename = CryptoUtil.encryptSHA256("$fileName-$size-${System.currentTimeMillis()}")
-                val extension = FileUtil.getExtension(fileName ?: "")
+                val extension = FileUtil.getExtension(fileName)
                 val filePath = Paths.get("${appProps.path}${appProps.resourcePath}$filename$extension")
                 Files.copy(fileStream, filePath, StandardCopyOption.REPLACE_EXISTING)
 

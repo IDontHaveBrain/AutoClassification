@@ -119,9 +119,9 @@ class TrainServiceImpl(
         val file = trainFileRepository.findById(id)
             .orElseThrow { CustomException(ErrorInfo.FILE_NOT_FOUND) }
 
-//        if (file.ownerIndex.id != member.id) {
-//            throw CustomException(ErrorInfo.FILE_NOT_FOUND)
-//        }
+        if (file.ownerIndex!!.id != member.id) {
+            throw CustomException(ErrorInfo.FILE_NOT_FOUND)
+        }
 
         fileComponent.deleteFile(file)
     }

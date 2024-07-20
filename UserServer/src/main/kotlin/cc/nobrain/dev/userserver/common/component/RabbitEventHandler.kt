@@ -20,7 +20,7 @@ class RabbitEventPublisher(
     private val rabbitTemplate: RabbitTemplate,
 ) : EventPublisher {
     override fun publish(routingKey: String, message: Any) {
-        val correlationId = UUID.randomUUID().toString()
+//        val correlationId = UUID.randomUUID().toString()
         rabbitTemplate.convertAndSend("", routingKey, message)
     }
 }

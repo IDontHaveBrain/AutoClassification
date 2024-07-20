@@ -81,33 +81,39 @@ class SecurityConfig(
 //        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http)
 //        http.getConfigurer(OAuth2AuthorizationServerConfigurer::class.java)
         val authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer()
-        http.apply(authorizationServerConfigurer)
-            .tokenGenerator(tokenGenerator)
-            .clientAuthentication { clientAuth ->
-                clientAuth.authenticationConverters { }
-            }
-            .authorizationEndpoint { authorizationEndpoint ->
-                authorizationEndpoint.authorizationRequestConverters { }
-                    .authenticationProviders { }
-            }
-            .tokenEndpoint { tokenEndpoint ->
-                tokenEndpoint.accessTokenRequestConverters { converters ->
-                    converters.add(PasswordConverter())
-                }
-                    .authenticationProviders { providers ->
-                        providers.add(
-                            PasswordProvider(
-                                authorizationService,
-                                tokenGenerator,
-                                customUserDetailService,
-                                rsaHelper
-                            )
-                        )
+        http
+            .securityMatcher(authorizationServerConfigurer.endpointsMatcher)
+            .authorizeHttpRequests { authorize -> authorize.anyRequest().authenticated() }
+            .csrf { csrf -> csrf.ignoringRequestMatchers(authorizationServerConfigurer.endpointsMatcher) }
+            .with(authorizationServerConfigurer) { oauth2 ->
+                oauth2
+                    .tokenGenerator(tokenGenerator)
+                    .clientAuthentication { clientAuth ->
+                        clientAuth.authenticationConverters { }
                     }
+                    .authorizationEndpoint { authorizationEndpoint ->
+                        authorizationEndpoint.authorizationRequestConverters { }
+                            .authenticationProviders { }
+                    }
+                    .tokenEndpoint { tokenEndpoint ->
+                        tokenEndpoint.accessTokenRequestConverters { converters ->
+                            converters.add(PasswordConverter())
+                        }
+                            .authenticationProviders { providers ->
+                                providers.add(
+                                    PasswordProvider(
+                                        authorizationService,
+                                        tokenGenerator,
+                                        customUserDetailService,
+                                        rsaHelper
+                                    )
+                                )
+                            }
+                    }
+                    .registeredClientRepository(registeredClientRepository)
+                    .authorizationServerSettings(authorizationServerSettings)
+                    .authorizationService(authorizationService)
             }
-            .registeredClientRepository(registeredClientRepository)
-            .authorizationServerSettings(authorizationServerSettings)
-            .authorizationService(authorizationService)
 
         http.cors { cors -> cors.configurationSource(corsConfigurationSource) }
             .csrf { csrf -> csrf.disable() }
