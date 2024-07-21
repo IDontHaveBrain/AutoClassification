@@ -74,7 +74,7 @@ class TrainServiceImpl(
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response: List<LabelAndIds> = webClient.post()
-                    .uri("${urlProps.ai}/api/testclassfiy")
+                    .uri("${urlProps.ai}/api/testclassify")
                     .header("x-api-key", "test")
                     .bodyValue(requestBody)
                     .retrieve()
