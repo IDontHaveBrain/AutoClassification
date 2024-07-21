@@ -66,13 +66,27 @@ class SseClient {
       let receivedData;
 
       try {
+        // First, try to parse the entire event.data as JSON
         receivedData = JSON.parse(event.data);
-        messageHandler(receivedData);
       } catch (e) {
-        console.error("Invalid JSON", e);
-        messageHandler(event.data);
-        // errorHandler(e);
+        // If parsing fails, assume it's a string representation of SseMessageDto
+        try {
+          // Extract the JSON part from the string
+          const jsonStart = event.data.indexOf('{');
+          const jsonEnd = event.data.lastIndexOf('}');
+          if (jsonStart !== -1 && jsonEnd !== -1) {
+            const jsonPart = event.data.substring(jsonStart, jsonEnd + 1);
+            receivedData = JSON.parse(jsonPart);
+          } else {
+            throw new Error("Unable to extract JSON from event data");
+          }
+        } catch (innerError) {
+          console.error("Invalid data format", innerError);
+          receivedData = event.data; // Use the raw data if all parsing attempts fail
+        }
       }
+
+      messageHandler(receivedData);
     };
 
     this.eventSource.onerror = (err: any) => {

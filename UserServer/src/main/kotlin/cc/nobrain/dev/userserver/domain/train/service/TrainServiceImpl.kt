@@ -98,7 +98,12 @@ class TrainServiceImpl(
     override suspend fun getTestResultList(page: Pageable): Page<ClassfiyRes> {
         val spec = ClassfiySpecs.ownerId(MemberUtil.instance.getCurrentMemberDto().get().id)
         val classfiy = classfiyRepository.findAll(spec, page)
-        return classfiy.map { c -> modelMapper.map(c, ClassfiyRes::class.java)};
+        return classfiy.map { c ->
+            val classfiyRes = modelMapper.map(c, ClassfiyRes::class.java)
+            classfiyRes.createDateTime = c.createDateTime
+            classfiyRes.updateDateTime = c.updateDateTime
+            classfiyRes
+        }
     }
 
     override suspend fun getMyImgs(): List<FileDto> {

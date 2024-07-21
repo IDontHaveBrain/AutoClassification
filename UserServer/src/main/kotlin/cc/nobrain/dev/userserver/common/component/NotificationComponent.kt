@@ -12,22 +12,31 @@ import reactor.core.scheduler.Schedulers
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.*
+import org.slf4j.LoggerFactory
+import reactor.core.Disposable
 
 @Component
 class NotificationComponent {
+    private val logger = LoggerFactory.getLogger(NotificationComponent::class.java)
 
-    private val scheduler = Executors.newScheduledThreadPool(1)
-    private val lastResponse = ConcurrentSkipListMap<String, Instant>()
+    private val scheduler = Schedulers.newBoundedElastic(10, 100, "sse-scheduler")
+    private val lastResponse = ConcurrentHashMap<String, Instant>()
     private val processors = ConcurrentHashMap<String, Sinks.Many<ServerSentEvent<String>>>()
-    private var heartbeatTask: ScheduledFuture<*>? = null
-    private var removalTask: ScheduledFuture<*>? = null
+    private var heartbeatTask: Disposable? = null
+    private var removalTask: Disposable? = null
 
-    private val EXPIRATION_TIME = 180L
-    private val HEARTBEAT_INTERVAL = 30L
+    private val EXPIRATION_TIME = Duration.ofMinutes(3)
+    private val HEARTBEAT_INTERVAL = Duration.ofSeconds(30)
+    private val REMOVAL_INTERVAL = Duration.ofMinutes(1)
 
     init {
-        heartbeatTask = scheduler.scheduleAtFixedRate(::sendHeartbeat, 0, HEARTBEAT_INTERVAL, TimeUnit.SECONDS)
-        removalTask = scheduler.scheduleAtFixedRate(::removeInactiveUsers, 0, 60, TimeUnit.SECONDS)
+        heartbeatTask = Flux.interval(HEARTBEAT_INTERVAL)
+            .flatMap { Mono.fromRunnable<Unit> { sendHeartbeat() }.subscribeOn(scheduler) }
+            .subscribe()
+
+        removalTask = Flux.interval(REMOVAL_INTERVAL)
+            .flatMap { Mono.fromRunnable<Unit> { removeInactiveUsers() }.subscribeOn(scheduler) }
+            .subscribe()
     }
 
     fun sendHeartbeat() {
@@ -36,73 +45,76 @@ class NotificationComponent {
             type = SseEventType.HEARTBEAT,
             message = "Heartbeat"
         )
-        Mono.just(msg.toString())
-            .publishOn(Schedulers.boundedElastic())
-            .doOnNext(::sendMessageToAll)
-            .subscribe()
+        sendMessageToAll(msg.toString())
+        logger.debug("Heartbeat sent to all active connections")
     }
 
     fun updateLastResponse(id: String, time: Instant) {
         lastResponse[id] = time
+        logger.debug("Updated last response for user: $id")
     }
 
     fun removeInactiveUsers() {
         val now = Instant.now()
-        val iterator = lastResponse.iterator()
-        while (iterator.hasNext()) {
-            val entry = iterator.next()
-            if (Duration.between(entry.value, now).seconds >= EXPIRATION_TIME) {
-                processors.remove(entry.key)
-                iterator.remove()
+        lastResponse.entries.removeIf { (id, lastResponseTime) ->
+            if (Duration.between(lastResponseTime, now) >= EXPIRATION_TIME) {
+                processors.remove(id)?.tryEmitComplete()
+                logger.info("Removed inactive user: $id")
+                true
+            } else {
+                false
             }
         }
     }
 
     fun addSubscriber(id: String) {
-        processors[id] = Sinks.many().replay().latest()
+        processors.computeIfAbsent(id) { Sinks.many().multicast().onBackpressureBuffer() }
         lastResponse[id] = Instant.now()
+        logger.info("Added new subscriber: $id")
     }
 
     fun subscribe(id: String): Flux<ServerSentEvent<String>> {
-        processors.putIfAbsent(id, Sinks.many().replay().latest())
-        lastResponse.putIfAbsent(id, Instant.now())
+        addSubscriber(id)
         return processors[id]!!.asFlux()
+            .doOnCancel {
+                removeSubscriber(id)
+                logger.info("User $id unsubscribed")
+            }
     }
 
     fun removeSubscriber(id: String) {
-        processors.remove(id)
+        processors.remove(id)?.tryEmitComplete()
         lastResponse.remove(id)
+        logger.info("Removed subscriber: $id")
     }
 
     fun sendMessage(id: String, message: String) {
         val processor = processors[id]
-        processor?.emitNext(ServerSentEvent.builder(message)
-            .build(), Sinks.EmitFailureHandler.FAIL_FAST)
+        processor?.tryEmitNext(ServerSentEvent.builder(message).build())
+        logger.debug("Sent message to user: $id")
     }
 
+    @Autowired
+    private lateinit var sseMessageDtoSerializer: SseMessageDto.SseMessageDtoSerializer
+
     fun sendMessage(id: String, message: SseMessageDto) {
-        val processor = processors[id]
-        processor?.emitNext(ServerSentEvent.builder(message.toString())
-            .build(), Sinks.EmitFailureHandler.FAIL_FAST)
+        sendMessage(id, sseMessageDtoSerializer.serialize(message))
     }
 
     fun sendMessageToAll(message: String) {
         val messageEvent = ServerSentEvent.builder(message).build()
-        Flux
-            .fromIterable(processors.entries)
-            .parallel()
-            .runOn(Schedulers.parallel())
-            .doOnNext { entry ->
-                entry.value.emitNext(messageEvent, Sinks.EmitFailureHandler.FAIL_FAST)
-            }
-            .sequential()
-            .subscribe()
+        processors.values.forEach { sink ->
+            sink.tryEmitNext(messageEvent)
+        }
+        logger.debug("Sent message to all active connections")
     }
 
     @PreDestroy
     fun shutdown() {
-        heartbeatTask?.cancel(true)
-        removalTask?.cancel(true)
-        scheduler.shutdown()
+        heartbeatTask?.dispose()
+        removalTask?.dispose()
+        processors.values.forEach { it.tryEmitComplete() }
+        scheduler.dispose()
+        logger.info("NotificationComponent shut down")
     }
 }
