@@ -12,13 +12,13 @@ class CorsConfig {
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration()
-//        configuration.allowedOrigins = Arrays.asList("http://localhost:3000", "http://toy.dev.nobrain.cc")
+        configuration.allowedOrigins = Arrays.asList("http://localhost:3000", "http://toy.dev.nobrain.cc")
         configuration.allowedMethods = Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS");
         configuration.allowedHeaders = Arrays.asList("*");
 //        configuration.addAllowedHeader("*")
 //        configuration.addAllowedHeader("Authorization")
         configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:[*]", "http://*.dev.nobrain.cc", "*"));
-//        configuration.allowCredentials = true;
+        configuration.allowCredentials = true;
         val source = UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

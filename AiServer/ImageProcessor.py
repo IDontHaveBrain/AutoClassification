@@ -14,10 +14,10 @@ class ImageProcessor:
     def check_inclusion(labels, class_list):
         result = []
         for word in labels:
-            if any(test_word in word for test_word in class_list):
-                result.append(next((test_word for test_word in class_list if test_word in word), 'none'))
+            if word == 'NONE' or word not in class_list:
+                result.append('NONE')
             else:
-                result.append('none')
+                result.append(word)
         return result
 
     @staticmethod

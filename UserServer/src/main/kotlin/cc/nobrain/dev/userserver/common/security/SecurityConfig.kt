@@ -82,8 +82,6 @@ class SecurityConfig(
 //        http.getConfigurer(OAuth2AuthorizationServerConfigurer::class.java)
         val authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer()
         http
-            .securityMatcher(authorizationServerConfigurer.endpointsMatcher)
-            .csrf { csrf -> csrf.ignoringRequestMatchers(authorizationServerConfigurer.endpointsMatcher) }
             .with(authorizationServerConfigurer) { oauth2 ->
                 oauth2
                     .tokenGenerator(tokenGenerator)

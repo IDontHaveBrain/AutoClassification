@@ -1,4 +1,6 @@
 import threading
+import logging
+import sys
 
 from flask import Flask, request, jsonify
 from ultralytics import YOLO
@@ -7,7 +9,21 @@ import config
 from Consumer import Consumer
 from DataProcessor import DataProcessor
 
+# 로깅 설정
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger()
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+# Flask
 app = Flask(__name__)
+
+@app.route('/dev/test')
+def test():
+    return jsonify(DataProcessor.process_data(request, 'test')), 200
 
 @app.route('/api/classify', methods=['POST'])
 def classify_data():

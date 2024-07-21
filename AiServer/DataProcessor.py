@@ -1,12 +1,11 @@
 import asyncio
 import time
-
+import logging
 from flask import jsonify
 from openai import AsyncOpenAI
-
 import config
 from ImageProcessor import ImageProcessor
-
+from function_schemas import get_image_classification_tool
 
 class DataProcessor:
     @staticmethod
@@ -23,7 +22,7 @@ class DataProcessor:
 
         filtered_dto_image_pairs = [(dto, url) for dto, url in zip(testDtos, testImages) if
                                     ImageProcessor.is_url_image(url)]
-        chunks = DataProcessor.chunk_list(filtered_dto_image_pairs, 50)
+        chunks = DataProcessor.chunk_list(filtered_dto_image_pairs, 100)
 
         labels_to_ids = asyncio.run(DataProcessor.process_chunks(chunks, testClass, operation, workspaceId))
 
@@ -39,7 +38,6 @@ class DataProcessor:
     @staticmethod
     async def process_chunks(chunks, testClass, operation, workspaceId=0):
         client = AsyncOpenAI()
-        all_labels = []
         labels_to_ids = {}
 
         async def process_chunk(chunk):
@@ -47,67 +45,108 @@ class DataProcessor:
 
             try:
                 start_time = time.time()
-                print("Processing images... start_time: ", start_time)
-                completion = await client.chat.completions.create(
-                    model="gpt-4-turbo",
-                    messages=[
-                        {
-                            "role": "user",
-                            "content": [
-                                           {"type": "text",
-                                            "text": "You are an AI model that classifies images that are closest to the list I provide. To answer, "
-                                                    "just say the words from the list I provided with ',' separator and ensure the labels are in the same order as the images provided. The list I provide : "
-                                                    + ','.join(testClass)},
-                                       ] + images_for_ai,
-                        }
-                    ],
-                    max_tokens=2048,
-                )
+                logging.info(f"Processing images... start_time: {start_time}")
+                
+                response = await DataProcessor.classify_images_with_tools(client, images_for_ai, testClass)
+                
                 end_time = time.time()
-                print(f"Duration: {end_time - start_time} seconds")
+                logging.info(f"Duration: {end_time - start_time} seconds")
+
+                chunk_labels = DataProcessor.parse_tool_response(response, testClass, len(chunk))
+
+                if operation != 'test':
+                    ImageProcessor.set_labels(chunk_labels, chunk, workspaceId)
+
+                for label, dto_url_tuple in zip(chunk_labels, chunk):
+                    dto, _ = dto_url_tuple
+                    if 'id' in dto:
+                        labels_to_ids.setdefault(label, []).append(dto['id'])
+                    else:
+                        logging.warning(f"'id' is not found in dto: {dto}")
+
             except Exception as e:
-                print(f"Error processing images: {e}")
+                logging.error(f"Error processing images: {e}")
                 for _, url in chunk:
-                    print(f"Image URL: {url}")
+                    logging.error(f"Image URL: {url}")
                 raise
 
-            chunk_labels = ImageProcessor.check_inclusion(completion.choices[0].message.content.split(','),
-                                                          testClass)
-            all_labels.extend(chunk_labels)
-
-            if operation != 'test':
-                ImageProcessor.set_labels(chunk_labels, chunk, workspaceId)
-
-            for label, dto_url_tuple in zip(chunk_labels, chunk):
-                dto, url = dto_url_tuple
-                if 'id' in dto:
-                    if label in labels_to_ids:
-                        labels_to_ids[label].append(dto['id'])
-                    else:
-                        labels_to_ids[label] = [dto['id']]
-                else:
-                    print(f"'id' is not found in dto: {dto}")
-
         chunks_list = list(chunks)
-        for i in range(0, len(chunks_list), 3):
-            chunk_group = chunks_list[i:i+3]
+        for i in range(0, len(chunks_list), 2):
+            chunk_group = chunks_list[i:i+2]
 
             tasks = [process_chunk(chunk) for chunk in chunk_group]
             await asyncio.gather(*tasks)
 
-            if i + 3 < len(chunks_list):
-                await asyncio.sleep(30)
+            if i + 2 < len(chunks_list):
+                await asyncio.sleep(100)
 
         return labels_to_ids
 
     @staticmethod
+    async def classify_images_with_tools(client, images_for_ai, testClass):
+        tool = get_image_classification_tool(testClass)
+        
+        try:
+            response = await client.chat.completions.create(
+                model="gpt-4o",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": "Classify the following images based on the provided categories. Each image is preceded by its index number."},
+                            *images_for_ai
+                        ],
+                    }
+                ],
+                tools=[tool],
+                tool_choice={"type": "function", "function": {"name": "classify_images"}},
+            )
+            return response
+        except Exception as e:
+            logging.error(f"Error in API call: {e}")
+            raise
+
+    @staticmethod
+    def parse_tool_response(response, testClass, chunk_size):
+        try:
+            tool_calls = response.choices[0].message.tool_calls
+            if tool_calls and tool_calls[0].function.name == "classify_images":
+                classifications = eval(tool_calls[0].function.arguments)
+                result = ['NONE'] * chunk_size
+                for classification in classifications['classifications']:
+                    index = classification['index']
+                    category = classification['category']
+                    if 0 <= index < chunk_size:
+                        result[index] = category if category in testClass else 'NONE'
+                return result
+            else:
+                logging.warning(f"Unexpected tool call or no tool call found")
+                return ['NONE'] * chunk_size
+        except Exception as e:
+            logging.error(f"Error parsing tool call response: {e}")
+            return ['NONE'] * chunk_size
+
+    @staticmethod
     def prepare_images_for_ai(chunk):
         images_for_ai = []
-        for _, url in chunk:
+        for index, (_, url) in enumerate(chunk):
             if 'localhost' in url:
                 img = ImageProcessor.encode_image(url)
-                images_for_ai.append(
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{img}", "detail": "low"}})
+                images_for_ai.append({
+                    "type": "text",
+                    "text": f"Image {index}:"
+                })
+                images_for_ai.append({
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/jpeg;base64,{img}"}
+                })
             else:
-                images_for_ai.append({"type": "image_url", "image_url": {"url": url, "detail": "low"}})
+                images_for_ai.append({
+                    "type": "text",
+                    "text": f"Image {index}:"
+                })
+                images_for_ai.append({
+                    "type": "image_url",
+                    "image_url": {"url": url}
+                })
         return images_for_ai
