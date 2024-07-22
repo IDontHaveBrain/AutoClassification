@@ -1,10 +1,11 @@
-import { AppBarProps, IconButton, styled, Toolbar } from "@mui/material";
+import { AppBarProps, IconButton, styled, Toolbar, Box } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import MuiAppBar from "@mui/material/AppBar";
 import { useEffect } from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useAppDispatch, useAppSelector } from "stores/rootHook";
 import Notification from "component/notification/Notification";
+import UserInfo from "component/user/UserInfo";
 
 interface MyAppBarProps extends AppBarProps {
     open: boolean;
@@ -51,9 +52,12 @@ const TopBar = ({ open, openMenu, width, children }: TopBarProps) => {
                     noWrap
                     sx={{ flexGrow: 1 }}
                 >
-                    {user.name}
+                    Dashboard
                 </Typography>
-                <Notification />
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <UserInfo user={user} />
+                    <Notification />
+                </Box>
             </Toolbar>
         </AppBar>
     );
