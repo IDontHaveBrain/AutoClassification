@@ -27,10 +27,12 @@ class NoticeServiceImpl(
         val spec = Specification.where(NoticeSpecs.titleLike(search?.title))
             .and(NoticeSpecs.createMemberLike(search?.createMember))
 
-        val rst = noticeRepository.findAll(spec, pageable)
-        val noticeRes = rst.map { notice -> modelMapper.map(notice, NoticeRes::class.java) }
-
-        return noticeRes
+        val rst: Page<Notice> = noticeRepository.findAll(spec, pageable)
+        return if (rst.content.isEmpty()) {
+            Page.empty(pageable)
+        } else {
+            rst.map { notice -> modelMapper.map(notice, NoticeRes::class.java) ?: NoticeRes() }
+        }
     }
 
     @Transactional
