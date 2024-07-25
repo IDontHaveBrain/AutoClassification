@@ -44,15 +44,15 @@ class MemberRepositoryTest {
         assertThat(member).isNotNull
     }
 
-    @Test
-    fun deleteTestAccount() {
-        val testEmail = "test@test.com"
-        val member = memberRepository.findByEmail(testEmail)
-        if (member != null) {
-            memberRepository.delete(member)
-            println("Test account deleted: $testEmail")
-        } else {
-            println("Test account not found: $testEmail")
-        }
-    }
+//    @Test
+//    fun deleteTestAccount() {
+//        val testEmail = "test@test.com"
+//        val member = memberRepository.findByEmail(testEmail)
+//        if (member != null) {
+//            memberRepository.delete(member)
+//            println("Test account deleted: $testEmail")
+//        } else {
+//            println("Test account not found: $testEmail")
+//        }
+//    }
 }
