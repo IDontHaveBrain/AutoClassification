@@ -292,7 +292,7 @@
 ## 테스트
 <details>
 
-테스트 환경 접속: [https://toy.dev.nobrain.cc/sign-in](https://toy.dev.nobrain.cc/sign-in)
+테스트 환경 접속: [http://toy.dev.nobrain.cc/sign-in](http://toy.dev.nobrain.cc/sign-in)
 
 테스트 계정:
 - 사용자 이름: test@test.com
