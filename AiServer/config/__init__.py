@@ -1,26 +1,22 @@
 import os
 from dotenv import load_dotenv
+from .config import Config
 
 # Load environment variables from .env file
 load_dotenv()
 
-# Determine the current environment
-ENV = os.getenv('FLASK_ENV', 'development')
+def get_config():
+    """
+    환경 변수를 로드하고 Config 객체를 생성합니다.
 
-# Import the appropriate configuration
-if ENV == 'production':
-    from .production import ProductionConfig as Config
-elif ENV == 'testing':
-    from .testing import TestingConfig as Config
-else:
-    from .development import DevelopmentConfig as Config
+    Returns:
+        Config: 환경 변수로 초기화된 Config 객체
+    """
+    config_dict = {
+        key: value for key, value in os.environ.items()
+        if key.isupper() and hasattr(Config, key)
+    }
+    return Config(**config_dict)
 
 # Create a config object
-config = Config()
-
-# Override config values with environment variables
-for key in dir(config):
-    if key.isupper():
-        env_value = os.getenv(key)
-        if env_value is not None:
-            setattr(config, key, env_value)
+config = get_config()

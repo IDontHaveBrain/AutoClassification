@@ -47,10 +47,21 @@ class TestClassificationService(unittest.TestCase):
         with self.assertRaises(Exception):
             await self.classification_service.classify_images(images, categories)
 
+    def test_parse_classification_response(self):
+        mock_response = MagicMock()
+        mock_response.choices[0].message.tool_calls[0].function.name = "classify_images"
+        mock_response.choices[0].message.tool_calls[0].function.arguments = '{"classifications": [{"index": 0, "category": "cat"}, {"index": 1, "category": "dog"}]}'
+
+        categories = ["cat", "dog", "bird"]
+        image_count = 2
+
+        result = self.classification_service._parse_classification_response(mock_response, categories, image_count)
+
+        self.assertEqual(result, ["cat", "dog"])
+
 class TestImageService(unittest.TestCase):
     @patch('services.image_service.requests.get')
     def test_encode_image(self, mock_get):
-        # Mock the image content
         mock_get.return_value.content = b'fake image content'
         
         url = "http://example.com/image.jpg"
@@ -61,11 +72,9 @@ class TestImageService(unittest.TestCase):
 
     @patch('services.image_service.requests.head')
     def test_is_url_image(self, mock_head):
-        # Test with valid image content type
         mock_head.return_value.headers = {"content-type": "image/jpeg"}
         self.assertTrue(ImageService.is_url_image("http://example.com/valid.jpg"))
 
-        # Test with invalid content type
         mock_head.return_value.headers = {"content-type": "text/html"}
         self.assertFalse(ImageService.is_url_image("http://example.com/invalid.html"))
 
@@ -85,6 +94,19 @@ class TestImageService(unittest.TestCase):
 
         self.assertTrue(isinstance(result, str))
         self.assertEqual(result, "cmVzaXplZCBpbWFnZSBjb250ZW50")  # Base64 encoded 'resized image content'
+
+    def test_prepare_images_for_ai(self):
+        images = ["http://example.com/image1.jpg", "http://example.com/image2.jpg"]
+        result = ImageService.prepare_images_for_ai(images)
+
+        expected_result = [
+            {"type": "text", "text": "Image 0:"},
+            {"type": "image_url", "image_url": {"url": "http://example.com/image1.jpg"}},
+            {"type": "text", "text": "Image 1:"},
+            {"type": "image_url", "image_url": {"url": "http://example.com/image2.jpg"}}
+        ]
+
+        self.assertEqual(result, expected_result)
 
 if __name__ == '__main__':
     unittest.main()

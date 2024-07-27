@@ -6,6 +6,7 @@ from ultralytics import YOLO
 
 api_bp = Blueprint('api', __name__)
 logger = get_logger(__name__)
+data_processor = DataProcessor()
 
 @api_bp.route('/dev/test')
 def test():
@@ -15,7 +16,7 @@ def test():
     Returns:
         tuple: JSON 응답과 HTTP 상태 코드를 포함하는 튜플.
     """
-    return jsonify(DataProcessor.process_data(request, "test")), 200
+    return jsonify(data_processor.process_data(request, "test")), 200
 
 @api_bp.route('/api/classify', methods=['POST'])
 def classify_data():
@@ -25,7 +26,7 @@ def classify_data():
     Returns:
         tuple: JSON 응답과 HTTP 상태 코드를 포함하는 튜플.
     """
-    return jsonify(DataProcessor.process_data(request, "classify")), 200
+    return jsonify(data_processor.process_data(request, "classify")), 200
 
 @api_bp.route('/api/testclassify', methods=['POST'])
 def test_data():
@@ -35,7 +36,7 @@ def test_data():
     Returns:
         tuple: JSON 응답과 HTTP 상태 코드를 포함하는 튜플.
     """
-    return jsonify(DataProcessor.process_data(request, "test")), 200
+    return jsonify(data_processor.process_data(request, "test")), 200
 
 @api_bp.route('/api/train', methods=['POST'])
 def train_data():

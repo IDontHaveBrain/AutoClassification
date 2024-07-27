@@ -1,17 +1,19 @@
 import unittest
 from unittest.mock import patch, MagicMock
 from services.data_processor import DataProcessor
-from flask import Flask, jsonify
+from flask import Flask
+from config import config
 
 class TestDataProcessor(unittest.TestCase):
     def setUp(self):
         self.app = Flask(__name__)
         self.app.config['TESTING'] = True
+        self.data_processor = DataProcessor()
 
-    @patch('services.data_processor.ImageProcessor')
+    @patch('services.data_processor.ImageService')
     @patch('services.data_processor.asyncio.run')
-    def test_process_data(self, mock_asyncio_run, mock_image_processor):
-        mock_image_processor.is_url_image.return_value = True
+    def test_process_data(self, mock_asyncio_run, mock_image_service):
+        mock_image_service.is_url_image.return_value = True
         mock_asyncio_run.return_value = {'cat': ['1', '2'], 'dog': ['3']}
 
         with self.app.test_request_context(json={
@@ -22,8 +24,8 @@ class TestDataProcessor(unittest.TestCase):
                 {'id': '2', 'url': 'http://example.com/cat2.jpg'},
                 {'id': '3', 'url': 'http://example.com/dog.jpg'}
             ]
-        }, headers={'x-api-key': 'test'}):
-            result = DataProcessor.process_data(MagicMock(), 'test')
+        }, headers={'x-api-key': config.API_KEY}):
+            result = self.data_processor.process_data(MagicMock(), 'test')
 
         expected_result = [
             {'label': 'cat', 'ids': ['1', '2']},
@@ -31,29 +33,25 @@ class TestDataProcessor(unittest.TestCase):
         ]
         self.assertEqual(result, expected_result)
 
-    @patch('services.data_processor.AsyncOpenAI')
-    async def test_classify_images_with_tools(self, mock_openai):
-        mock_response = MagicMock()
-        mock_response.choices[0].message.tool_calls[0].function.name = "classify_images"
-        mock_response.choices[0].message.tool_calls[0].function.arguments = '{"classifications": [{"index": 0, "category": "cat"}, {"index": 1, "category": "dog"}]}'
-        mock_openai.return_value.chat.completions.create.return_value = mock_response
+    @patch('services.data_processor.ClassificationService.classify_images')
+    async def test_process_chunks(self, mock_classify_images):
+        mock_classify_images.return_value = ['cat', 'dog']
+        chunks = [[({'id': '1'}, 'http://example.com/cat.jpg'), 
+                   ({'id': '2'}, 'http://example.com/dog.jpg')]]
+        test_class = ['cat', 'dog']
+        operation = 'test'
+        workspace_id = 1
 
-        client = MagicMock()
-        images = [("data:image/jpeg;base64,abc", "http://example.com/cat.jpg"), ("data:image/jpeg;base64,def", "http://example.com/dog.jpg")]
-        categories = ["cat", "dog"]
+        result = await self.data_processor._process_chunks(chunks, test_class, operation, workspace_id)
 
-        result = await DataProcessor.classify_images_with_tools(client, images, categories)
+        expected_result = {'cat': ['1'], 'dog': ['2']}
+        self.assertEqual(result, expected_result)
 
-        self.assertEqual(result, mock_response)
-
-    def test_parse_tool_response(self):
-        mock_response = MagicMock()
-        mock_response.choices[0].message.tool_calls[0].function.name = "classify_images"
-        mock_response.choices[0].message.tool_calls[0].function.arguments = '{"classifications": [{"index": 0, "category": "cat"}, {"index": 1, "category": "dog"}]}'
-
-        result = DataProcessor.parse_tool_response(mock_response, ["cat", "dog", "bird"], 2)
-
-        self.assertEqual(result, ["cat", "dog"])
+    def test_chunk_list(self):
+        test_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        result = list(self.data_processor._chunk_list(test_list, 3))
+        expected_result = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]]
+        self.assertEqual(result, expected_result)
 
 if __name__ == '__main__':
     unittest.main()
