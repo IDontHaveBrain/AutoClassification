@@ -49,6 +49,15 @@ tool:
               installers:
                 - nodeJSInstaller:
                     id: "20.15.1"
+  jdk:
+    installations:
+      - name: "jdk21"
+        home: ""
+        properties:
+          - installSource:
+              installers:
+                - jdkInstaller:
+                    id: "jdk-21"
 
 jobs:
   - script: >
