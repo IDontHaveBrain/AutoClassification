@@ -1,20 +1,21 @@
-import {useCallback, useEffect, useState} from "react";
-import {getNoticeList} from "service/Apis/NoticeApi";
+import React, { useCallback, useEffect, useState } from "react";
+import { getNoticeList } from "service/Apis/NoticeApi";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import {Dialog, Divider} from "@mui/material";
+import { Dialog, Divider } from "@mui/material";
 import BaseField from "component/BaseField";
-import {initPageable, NoticeModel, Pageable} from "model/GlobalModel";
-import {GridColDef} from "@mui/x-data-grid";
-import {useNavigate} from "react-router-dom";
+import { initPageable, NoticeModel, Pageable, SseEvent, SseType } from "model/GlobalModel";
+import { GridColDef } from "@mui/x-data-grid";
+import { useNavigate } from "react-router-dom";
 import BaseTitle from "component/baseBoard/BaseTitle";
 import BaseSearch from "component/baseBoard/BaseSearch";
 import BaseTable from "component/baseBoard/BaseTable";
 import NoticeDetail from "./NoticeDetail";
-import {CommonUtil} from "utils/CommonUtil";
+import { CommonUtil } from "utils/CommonUtil";
+import { eventBus } from "layouts/BackGround";
 
-const NoticeList = () => {
-    const [search, setSearch] = useState({title: "", createMember: ""});
+const NoticeList: React.FC = () => {
+    const [search, setSearch] = useState({ title: "", createMember: "" });
     const [openDetail, setOpenDetail] = useState(false);
     const [selectedData, setSelectedData] = useState<NoticeModel>();
     const [pageable, setPageable] = useState<Pageable>(initPageable(10));
@@ -35,6 +36,16 @@ const NoticeList = () => {
 
     useEffect(() => {
         fetchNotices(pageable.page, pageable.size, pageable.sort, search);
+
+        const handleNoticeUpdate = () => {
+            fetchNotices(pageable.page, pageable.size, pageable.sort, search);
+        };
+
+        eventBus.subscribe(SseType.NOTICE_UPDATE, handleNoticeUpdate);
+
+        return () => {
+            eventBus.unsubscribe(SseType.NOTICE_UPDATE, handleNoticeUpdate);
+        };
     }, [fetchNotices, pageable, search]);
 
     const handlePageChange = (page, size, sort) => {
@@ -55,8 +66,8 @@ const NoticeList = () => {
         setOpenDetail(false);
     }
 
-    const handleSearch = (e) => {
-        setSearch({...search, [e.target.name]: e.target.value});
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearch({ ...search, [e.target.name]: e.target.value });
     };
 
     const onSearch = () => {
@@ -64,16 +75,16 @@ const NoticeList = () => {
     };
 
     const columns: GridColDef[] = [
-        {field: "id", headerName: "ID", flex: 1},
-        {field: "title", headerName: "제목", flex: 2},
-        {field: "createMember", headerName: "작성자", flex: 2},
+        { field: "id", headerName: "ID", flex: 1 },
+        { field: "title", headerName: "제목", flex: 2 },
+        { field: "createMember", headerName: "작성자", flex: 2 },
         {
             field: "createDateTime",
             headerName: "작성일",
             flex: 2,
             valueFormatter: CommonUtil.dateFormat,
         },
-        {field: "updateMember", headerName: "수정자", flex: 2},
+        { field: "updateMember", headerName: "수정자", flex: 2 },
         {
             field: "updateDateTime",
             headerName: "수정일",
@@ -86,7 +97,7 @@ const NoticeList = () => {
 
     return (
         <Box>
-            <BaseTitle title={"공지사항"}/>
+            <BaseTitle title={"공지사항"} />
             <BaseSearch>
                 <Box>
                     <BaseField
@@ -111,7 +122,7 @@ const NoticeList = () => {
                     작성하기
                 </Button>
             </BaseSearch>
-            <Divider sx={{mt: 2, mb: 2}}/>
+            <Divider sx={{ mt: 2, mb: 2 }} />
             <BaseTable
                 rows={rows}
                 total={total}
@@ -122,7 +133,7 @@ const NoticeList = () => {
             />
 
             <Dialog open={openDetail} onClose={handleClose}>
-                <NoticeDetail handleClose={handleClose} data={selectedData}/>
+                <NoticeDetail handleClose={handleClose} data={selectedData} />
             </Dialog>
         </Box>
     );

@@ -6,8 +6,8 @@ import { persistor, rootStore } from "stores/rootStore";
 import { Loading } from "pages/default/Loading";
 import { baseRouter } from "Routers";
 import BackGround from "layouts/BackGround";
+import { CustomSnackbarProvider } from "layouts/BackGround";
 import React from "react";
-import { SnackbarProvider } from "notistack";
 
 const defaultTheme = createTheme();
 
@@ -16,13 +16,13 @@ function App() {
         <ThemeProvider theme={defaultTheme}>
             <Provider store={rootStore}>
                 <PersistGate persistor={persistor} loading={<Loading />}>
-                    <SnackbarProvider maxSnack={3}>
+                    <CustomSnackbarProvider maxSnack={3}>
                         <RouterProvider
                             router={baseRouter}
                             fallbackElement={<Loading />}
                         />
                         <BackGround />
-                    </SnackbarProvider>
+                    </CustomSnackbarProvider>
                 </PersistGate>
             </Provider>
         </ThemeProvider>

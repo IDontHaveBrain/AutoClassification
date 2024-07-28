@@ -1,5 +1,7 @@
 import { AuthApi, UserApi } from "service/commons/ApiClient";
 import { AxiosPromise } from "axios";
+import SseManager from "service/commons/SseManager";
+import { CONSTANT, URLS } from "utils/constant";
 
 export interface LoginData {
   username: string;
@@ -23,7 +25,11 @@ export const signIn = (loginData: LoginData): AxiosPromise => {
   formData.append("username", params.username);
   formData.append("password", params.password);
 
-  return AuthApi.post("/token", formData);
+  return AuthApi.post("/token", formData).then(response => {
+    // 로그인 성공 시 이벤트 발생
+    window.dispatchEvent(new CustomEvent('userLoggedIn'));
+    return response;
+  });
 };
 
 export const getPublicKey = (): AxiosPromise => {
@@ -32,4 +38,10 @@ export const getPublicKey = (): AxiosPromise => {
 
 export const signUp = (data: any): AxiosPromise => {
   return UserApi.post("/member/register", data);
-}
+};
+
+export const signOut = (): void => {
+  // 로그아웃 시 SSE 연결 종료
+  const sseManager = SseManager.getInstance();
+  sseManager.disconnect();
+};

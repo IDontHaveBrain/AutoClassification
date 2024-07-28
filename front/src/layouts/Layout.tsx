@@ -1,24 +1,12 @@
-import { Outlet, useLocation, useNavigation } from "react-router-dom";
+import {Outlet, useLocation, useNavigation} from "react-router-dom";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
-import {
-  Card,
-  css,
-  Divider,
-  keyframes,
-  makeStyles,
-  styled,
-  Toolbar,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
+import {Divider, Toolbar,} from "@mui/material";
+import React, {useState} from "react";
 import TopBar from "./TopBar";
 import LeftBar from "./LeftBar";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid";
-import BackGround from "./BackGround";
-import { findMenuPath, MenuInfo, MenuItems } from "service/commons/MenuItem";
+import {findMenuPath, MenuInfo, MenuItems} from "service/commons/MenuItem";
 import ContentPath from "layouts/ContentPath";
-import { CSSTransition, TransitionGroup } from "react-transition-group";
 import SubTabBar from "layouts/SubTabBar";
 
 export const Layout = () => {

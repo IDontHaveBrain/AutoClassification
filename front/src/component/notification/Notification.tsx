@@ -1,52 +1,58 @@
-import {Badge, IconButton, Popover} from "@mui/material";
+import { Badge, IconButton, Popover } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import SseClient from "service/commons/SseClient";
-import {useCallback, useEffect, useState} from "react";
-import {AlarmModel} from "model/GlobalModel";
-import {useAppSelector} from "stores/rootHook";
-import {getMyAlarms} from "service/Apis/AlarmApi";
+import { useCallback, useEffect, useState } from "react";
+import { AlarmModel, SseType } from "model/GlobalModel";
+import { getMyAlarms } from "service/Apis/AlarmApi";
 import AlarmDetail from "component/notification/AlarmDetail";
+import { eventBus } from "layouts/BackGround";
 
-interface Props {
-    sse?: SseClient;
-}
+const POPOVER_ANCHOR_ORIGIN = {
+    vertical: "bottom" as const,
+    horizontal: "center" as const
+};
+
+const POPOVER_TRANSFORM_ORIGIN = {
+    vertical: "top" as const,
+    horizontal: "center" as const
+};
+
+const sortAlarms = (alarms: AlarmModel[]) =>
+    alarms.sort((a, b) => b.id - a.id);
 
 const Notification = () => {
     const [alarmList, setAlarmList] = useState<AlarmModel[]>([]);
-    const [target, setTarget] = useState(null);
+    const [target, setTarget] = useState<HTMLElement | null>(null);
     const [open, setOpen] = useState(false);
-    const newEvents = useAppSelector((state) => state.sse.sseEvents);
 
     const fetchAlarm = useCallback(async () => {
-        getMyAlarms()
-            .then((response) => {
-                const sortedData = [...response.data].sort(
-                    (a, b) => new Date(b.createDateTime).getTime() - new Date(a.createDateTime).getTime()
-                );
-                setAlarmList(sortedData);
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-    }, [setAlarmList]);
+        try {
+            console.log("Fetching alarms...");
+            const response = await getMyAlarms();
+            console.log("Alarms fetched:", response.data);
+            setAlarmList(sortAlarms([...response.data]));
+        } catch (error) {
+            console.error("Failed to fetch alarms:", error);
+        }
+    }, []);
 
     useEffect(() => {
+        console.log("Notification component mounted");
         fetchAlarm();
+
+        const handleAlarmUpdate = () => {
+            console.log("Received alarm update in Notification component");
+            fetchAlarm();
+        };
+
+        eventBus.subscribe(SseType.ALARM, handleAlarmUpdate);
+
+        return () => {
+            console.log("Notification component unmounting");
+            eventBus.unsubscribe(SseType.ALARM, handleAlarmUpdate);
+        };
     }, [fetchAlarm]);
 
-    useEffect(() => {
-        setAlarmList((prevAlarmList) => {
-            const combinedList = [...prevAlarmList, ...newEvents];
-            const uniqueList = Array.from(new Set(combinedList.map((a) => a.id))).map(
-                (id) => {
-                    return combinedList.find((a) => a.id === id);
-                },
-            );
-            return uniqueList;
-        });
-    }, [newEvents]);
-
-    const handleDetail = (event) => {
+    const handleOpenAlarmDetail = (event: React.MouseEvent<HTMLButtonElement>) => {
         setOpen(!open);
         setTarget(event.currentTarget);
     };
@@ -58,25 +64,23 @@ const Notification = () => {
 
     return (
         <>
-            <IconButton color="inherit" onClick={handleDetail}>
+            <IconButton
+                color="inherit"
+                onClick={handleOpenAlarmDetail}
+                aria-label="알림"
+            >
                 <Badge badgeContent={alarmList.length} color="secondary">
-                    <NotificationsIcon/>
+                    <NotificationsIcon />
                 </Badge>
             </IconButton>
             <Popover
                 open={open}
                 anchorEl={target}
                 onClose={handleClose}
-                anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "center",
-                }}
-                transformOrigin={{
-                    vertical: "top",
-                    horizontal: "center",
-                }}
+                anchorOrigin={POPOVER_ANCHOR_ORIGIN}
+                transformOrigin={POPOVER_TRANSFORM_ORIGIN}
             >
-                <AlarmDetail handleClose={handleClose} alarmList={alarmList}/>
+                <AlarmDetail handleClose={handleClose} alarmList={alarmList} />
             </Popover>
         </>
     );

@@ -1,79 +1,78 @@
 package cc.nobrain.dev.userserver.domain.sse.service
 
-import cc.nobrain.dev.userserver.common.component.NotificationComponent
 import cc.nobrain.dev.userserver.domain.sse.enums.SseEventType
+import cc.nobrain.dev.userserver.domain.sse.handler.SseHandler
 import cc.nobrain.dev.userserver.domain.sse.service.dto.SseMessageDto
+import cc.nobrain.dev.userserver.domain.member.repository.MemberRepository
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.http.codec.ServerSentEvent
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
 import java.time.Instant
 import org.slf4j.LoggerFactory
-import reactor.core.scheduler.Schedulers
+import java.util.*
 
 @Service
-class SseService(private val notificationComponent: NotificationComponent) {
+class SseService(
+    private val sseHandler: SseHandler,
+    private val memberRepository: MemberRepository,
+    private val objectMapper: ObjectMapper
+) {
     private val logger = LoggerFactory.getLogger(SseService::class.java)
-    private val scheduler = Schedulers.newBoundedElastic(10, 100, "sse-service")
-
-    fun updateLastResponse(userId: String, time: Instant) {
-        Mono.fromRunnable<Unit> { notificationComponent.updateLastResponse(userId, time) }
-            .subscribeOn(scheduler)
-            .subscribe()
-        logger.debug("Updated last response for user: $userId")
-    }
 
     fun subscribeUser(userId: String): Flux<ServerSentEvent<String>> {
-        return notificationComponent.subscribe(userId)
-            .doOnNext { updateLastResponse(userId, Instant.now()) }
-            .doOnSubscribe { 
-                sendInitialHeartbeat(userId)
-                logger.info("User $userId subscribed")
-            }
+        logger.info("User $userId subscribing")
+        val member = memberRepository.findById(userId.toLong()).orElseThrow { IllegalArgumentException("User not found") }
+        val groupId = member.memberGroup?.id ?: 0L
+        return sseHandler.subscribe(userId, groupId)
+            .doOnSubscribe { logger.info("User $userId subscribed successfully") }
+            .doOnCancel { logger.info("User $userId unsubscribed") }
+            .doOnError { error -> logger.error("Error in SSE stream for user $userId: ${error.message}") }
     }
 
-    private fun sendInitialHeartbeat(userId: String) {
-        val heartbeatMessage = SseMessageDto(
-            id = "initial_heartbeat",
-            type = SseEventType.HEARTBEAT,
-            message = "Initial Heartbeat"
-        )
-        sendMessage(userId, heartbeatMessage)
+    fun sendMessage(userId: String, sseMessage: SseMessageDto) {
+        if (sseMessage.validate()) {
+            sseHandler.sendEvent(userId, sseMessage)
+            logger.debug("Sent message to user: $userId, type: ${sseMessage.type}")
+        } else {
+            logger.warn("Invalid message for user: $userId, type: ${sseMessage.type}")
+        }
     }
 
     fun sendMessage(userId: String, message: String) {
         val sseMessage = SseMessageDto(
-            id = null,
+            id = UUID.randomUUID().toString(),
             type = SseEventType.MESSAGE,
-            message = message
+            data = message
         )
         sendMessage(userId, sseMessage)
     }
 
-    fun sendMessage(userId: String, sseMessage: SseMessageDto) {
-        Mono.fromRunnable<Unit> {
-            if (sseMessage.validate()) {
-                notificationComponent.sendMessage(userId, sseMessage)
-                logger.debug("Sent message to user: $userId, type: ${sseMessage.type}")
-            } else {
-                logger.warn("Invalid message for user: $userId, type: ${sseMessage.type}")
-            }
-        }.subscribeOn(scheduler).subscribe()
+    fun sendGroupMessage(groupId: Long, message: String) {
+        val sseMessage = SseMessageDto(
+            id = UUID.randomUUID().toString(),
+            type = SseEventType.MESSAGE,
+            data = message
+        )
+        if (sseMessage.validate()) {
+            sseHandler.sendGroupEvent(groupId, sseMessage)
+            logger.debug("Sent group message to group: $groupId, type: ${sseMessage.type}")
+        } else {
+            logger.warn("Invalid group message for group: $groupId, type: ${sseMessage.type}")
+        }
     }
 
     fun broadcastMessage(message: String) {
         val sseMessage = SseMessageDto(
-            id = null,
+            id = UUID.randomUUID().toString(),
             type = SseEventType.MESSAGE,
-            message = message
+            data = message
         )
-        Mono.fromRunnable<Unit> {
-            if (sseMessage.validate()) {
-                notificationComponent.sendMessageToAll(sseMessage.toString())
-                logger.debug("Broadcasted message to all users")
-            } else {
-                logger.warn("Invalid broadcast message")
-            }
-        }.subscribeOn(scheduler).subscribe()
+        if (sseMessage.validate()) {
+            sseHandler.broadcastEvent(sseMessage)
+            logger.debug("Broadcasted message to all users")
+        } else {
+            logger.warn("Invalid broadcast message")
+        }
     }
 }
