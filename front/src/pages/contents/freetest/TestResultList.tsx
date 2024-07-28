@@ -82,7 +82,12 @@ const TestResultList: React.FC = () => {
                 onClick={handleRowClick}
             />
 
-            <Dialog open={!!detailData} onClose={handleClose}>
+            <Dialog 
+                open={!!detailData} 
+                onClose={handleClose}
+                maxWidth="lg"
+                fullWidth
+            >
                 <TestResultDetail data={detailData} handleClose={handleClose} />
             </Dialog>
         </Box>
