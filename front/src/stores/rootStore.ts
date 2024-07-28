@@ -3,6 +3,7 @@ import { persistReducer, persistStore } from "redux-persist";
 import { alertReducer, sseReducer, userInfoReducer } from "./rootSlice";
 import sessionStorage from "redux-persist/es/storage/session";
 import errorMiddleware from "./rootMiddleware";
+import SseManager from "../service/commons/SseManager";
 
 const persistConfig = {
   key: "root",
@@ -26,8 +27,12 @@ const rootStore = configureStore({
 
 const persistor = persistStore(rootStore);
 
-export { rootStore, persistor };
+// SSE 연결 상태 변경 시 스토어 업데이트
+SseManager.getInstance().onConnectionStatusChange((isConnected) => {
+  rootStore.dispatch({ type: 'sse/setConnectionStatus', payload: isConnected });
+});
 
+export { rootStore, persistor };
 
 export type RootState = ReturnType<typeof rootStore.getState>;
 export type AppDispatch = typeof rootStore.dispatch;

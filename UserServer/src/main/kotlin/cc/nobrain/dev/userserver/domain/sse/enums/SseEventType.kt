@@ -5,4 +5,6 @@ enum class SseEventType {
     ALARM,
     NOTICE,
     MESSAGE,
+    WORKSPACE_UPDATE,
+    USER_UPDATE,
 }

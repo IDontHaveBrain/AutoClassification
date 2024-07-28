@@ -1,6 +1,5 @@
 package cc.nobrain.dev.userserver.domain.alarm.service
 
-import cc.nobrain.dev.userserver.common.component.NotificationComponent
 import cc.nobrain.dev.userserver.common.exception.CustomException
 import cc.nobrain.dev.userserver.common.exception.ErrorInfo
 import cc.nobrain.dev.userserver.common.utils.MemberUtil
@@ -19,6 +18,7 @@ import cc.nobrain.dev.userserver.domain.alarm.service.dto.AlarmRes
 import cc.nobrain.dev.userserver.domain.member.entity.Member
 import cc.nobrain.dev.userserver.domain.member.service.MemberService
 import cc.nobrain.dev.userserver.domain.sse.enums.SseEventType
+import cc.nobrain.dev.userserver.domain.sse.service.SseService
 import cc.nobrain.dev.userserver.domain.sse.service.dto.SseMessageDto
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.modelmapper.ModelMapper
@@ -34,7 +34,7 @@ class AlarmServiceImpl(
     private val alarmReadRepository: AlarmReadRepository,
     private val alarmTargetRepository: AlarmTargetRepository<AlarmTarget>,
     private val memberService: MemberService,
-    private val notificationComponent: NotificationComponent,
+    private val sseService: SseService,
     private val objectMapper: ObjectMapper,
     private val modelMapper: ModelMapper
 ) : AlarmService {
@@ -90,23 +90,26 @@ class AlarmServiceImpl(
 
     @Transactional
     override suspend fun sendAlarmToMember(memberId: Long, title: String, content: String, url: String?) {
-        val member = memberService.findMemberById(memberId) ?: throw CustomException(ErrorInfo.TARGET_NOT_FOUND);
+        val member = memberService.findMemberById(memberId) ?: throw CustomException(ErrorInfo.TARGET_NOT_FOUND)
 
-        var newAlarmMessage = createAlarmMessage(title, content, AlarmEventType.GENERAL, url);
-        newAlarmMessage = alarmMessageRepository.save(newAlarmMessage);
+        val newAlarmMessage = createAlarmMessage(title, content, AlarmEventType.GENERAL, url)
+        val savedAlarmMessage = alarmMessageRepository.save(newAlarmMessage)
 
-        var alarmTarget = AlarmTargetMember().apply {
-            this.targetType = AlarmTargetType.MEMBER;
-            this.targetMember = member;
-            this.alarmMessage = newAlarmMessage;
+        val alarmTarget = AlarmTargetMember().apply {
+            this.targetType = AlarmTargetType.MEMBER
+            this.targetMember = member
+            this.alarmMessage = savedAlarmMessage
         }
 
-        alarmTargetRepository.save(alarmTarget);
+        alarmTargetRepository.save(alarmTarget)
+        
+        val alarmJson = objectMapper.writeValueAsString(savedAlarmMessage)
         val message = SseMessageDto(
+            id = savedAlarmMessage.id.toString(),
             type = SseEventType.ALARM,
-            message = newAlarmMessage
+            data = alarmJson
         )
-        notificationComponent.sendMessage(member.id.toString(), message);
+        sseService.sendMessage(member.id.toString(), message)
     }
 
     private fun createAlarmMessage(title: String, content: String, eventType: AlarmEventType, url: String? = null): AlarmMessage {

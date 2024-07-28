@@ -1,14 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IconButton, Popover, Typography, Box } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { Member } from 'model/GlobalModel';
+import { Member, SseEvent, SseType } from 'model/GlobalModel';
+import { eventBus } from 'layouts/BackGround';
 
 interface UserInfoProps {
   user: Member;
 }
 
-const UserInfo: React.FC<UserInfoProps> = ({ user }) => {
+const UserInfo: React.FC<UserInfoProps> = ({ user: initialUser }) => {
+  const [user, setUser] = useState<Member>(initialUser);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    const handleUserUpdate = (updatedUser: Member) => {
+      if (updatedUser.id === user.id) {
+        setUser(prevUser => ({ ...prevUser, ...updatedUser }));
+      }
+    };
+
+    eventBus.subscribe(SseType.USER_UPDATE, handleUserUpdate);
+
+    return () => {
+      eventBus.unsubscribe(SseType.USER_UPDATE, handleUserUpdate);
+    };
+  }, [user.id]);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);

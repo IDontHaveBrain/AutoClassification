@@ -5,7 +5,7 @@ import {
   Member,
   MemberInfo,
 } from "../model/GlobalModel";
-import SseClient from "../service/commons/SseClient";
+import SseManager from "../service/commons/SseManager";
 
 const userInfoSlice = createSlice({
   name: "userInfo",
@@ -58,21 +58,16 @@ const alertSlice = createSlice({
 const sseSlice = createSlice({
   name: "sse",
   initialState: {
-    sseClient: SseClient.getInstance(),
     sseEvents: [] as AlarmModel[],
   },
   reducers: {
-    resetSseClient: (state) => {
-      state.sseClient.disconnect();
-      state.sseClient = SseClient.resetInstance();
-    },
     newSseEvent: (state, action: PayloadAction<AlarmModel>) => {
       state.sseEvents.push(action.payload);
     },
   },
 });
 
-export const { resetSseClient, newSseEvent } = sseSlice.actions;
+export const { newSseEvent } = sseSlice.actions;
 export const sseReducer = sseSlice.reducer;
 
 export const { setUserInfo, resetUserInfo } = userInfoSlice.actions;

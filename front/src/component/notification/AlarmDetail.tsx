@@ -1,17 +1,17 @@
-import {Button, Divider, List, ListItem, ListItemButton, ListItemText} from "@mui/material";
-import {Fragment} from "react";
-import {AlarmModel} from "model/GlobalModel";
-import {readAlarm, readAllAlarm} from "service/Apis/AlarmApi";
-import {useNavigate} from "react-router-dom";
-import {onAlert} from "component/modal/AlertModal";
-import {Strings} from "utils/strings";
+import { Button, Divider, List, ListItemButton, ListItemText } from "@mui/material";
+import { Fragment } from "react";
+import { AlarmModel } from "model/GlobalModel";
+import { readAlarm, readAllAlarm } from "service/Apis/AlarmApi";
+import { useNavigate } from "react-router-dom";
+import { onAlert } from "component/modal/AlertModal";
+import { Strings } from "utils/strings";
 
 interface Props {
     handleClose: () => void;
     alarmList: AlarmModel[];
 }
 
-const AlarmDetail = ({handleClose, alarmList}: Props) => {
+const AlarmDetail = ({ handleClose, alarmList }: Props) => {
     const navigate = useNavigate();
 
     const handleAlarmClick = (alarm: AlarmModel) => {
@@ -48,7 +48,7 @@ const AlarmDetail = ({handleClose, alarmList}: Props) => {
                     maxWdith: "400px",
                     minHeight: "300px",
                     maxHeight: "400px",
-                    overflow: "auto",
+                    overflow: "auto"
                 }}
             >
                 {alarmList?.map((alarm, index) => (
@@ -57,10 +57,10 @@ const AlarmDetail = ({handleClose, alarmList}: Props) => {
                             <ListItemText
                                 primary={alarm.title}
                                 secondary={alarm.content}
-                                sx={{textAlign: "left"}}
+                                sx={{ textAlign: "left" }}
                             />
                         </ListItemButton>
-                        {index !== alarmList.length - 1 && <Divider/>}
+                        {index !== alarmList.length - 1 && <Divider />}
                     </Fragment>
                 ))}
             </List>

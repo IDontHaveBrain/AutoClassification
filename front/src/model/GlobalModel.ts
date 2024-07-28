@@ -1,80 +1,83 @@
 import { WorkspaceModel } from "./WorkspaceModel";
-import { GridSortModel } from "@mui/x-data-grid/models/gridSortModel";
 
 export interface AlarmModel {
-  id: number;
-  title: string;
-  content: string;
-  link: string;
-  createDateTime: string;
+    id: number;
+    title: string;
+    content: string;
+    link: string;
+    createDateTime: string;
 }
 
 export interface AlertDetail {
-  message: string;
-  open?: boolean;
-  callback?: () => any;
+    message: string;
+    open?: boolean;
+    callback?: () => any;
 }
 
 export interface GroupPermission {
-  id: number;
-  url: string;
-  httpMethod?: string | null;
-  description?: string | null;
+    id: number;
+    url: string;
+    httpMethod?: string | null;
+    description?: string | null;
 }
 
 export interface GroupPermissionMapping {
-  id: number;
-  memberGroup: MemberGroup;
-  groupPermission: GroupPermission;
+    id: number;
+    memberGroup: MemberGroup;
+    groupPermission: GroupPermission;
 }
 
 export interface MemberGroup {
-  id: number;
-  groupName: string;
-  groupDescription?: string | null;
-  members?: Member[];
-  groupPermissionMappings?: GroupPermissionMapping[];
+    id: number;
+    groupName: string;
+    groupDescription?: string | null;
+    members?: Member[];
+    groupPermissionMappings?: GroupPermissionMapping[];
 }
 
 export interface Member {
-  id?: number;
-  email: string;
-  name: string;
-  memberGroup?: MemberGroup | null;
-  workspace?: WorkspaceModel | null;
+    id?: number;
+    email: string;
+    name: string;
+    memberGroup?: MemberGroup | null;
+    workspace?: WorkspaceModel | null;
 }
 
 export interface MemberInfo {
-  access_token: string;
-  refresh_token: string;
-  expires_in: number;
-  user: Member;
+    access_token: string;
+    refresh_token: string;
+    expires_in: number;
+    user: Member;
 }
 
 export enum SseType {
-  HEARTBEAT = "HEARTBEAT",
-  ALARM = "ALARM",
-  NOTICE = "NOTICE",
-  MESSAGE = "MESSAGE",
+    HEARTBEAT = "HEARTBEAT",
+    ALARM = "ALARM",
+    NOTICE = "NOTICE",
+    MESSAGE = "MESSAGE",
+    WORKSPACE_UPDATE = "WORKSPACE_UPDATE",
+    NOTICE_UPDATE = "NOTICE_UPDATE",
+    USER_UPDATE = "USER_UPDATE",
 }
 
 export interface SseEvent {
-  id: string;
-  type: SseType;
-  message: any;
+    id: string;
+    type: SseType;
+    data: string;
+    timestamp: number;
 }
 
 export interface BaseDto {
-  createMember?: string;
-  updateMember?: string;
-  createDateTime?: string;
-  updateDateTime?: string;
+    createMember?: string;
+    updateMember?: string;
+    createDateTime?: string;
+    updateDateTime?: string;
 }
 
 export interface NoticeModel extends BaseDto {
-  id: number;
-  title: string;
-  content: string;
+    id: number;
+    title: string;
+    content: string;
 }
 
 export interface Page<T> {
@@ -91,24 +94,24 @@ export interface Page<T> {
 }
 
 export interface Pageable {
-  page: number;
-  size: number;
-  sort?: any;
+    page: number;
+    size: number;
+    sort?: any;
 }
 
 export const initPageable = (size: number): Pageable => {
-  return {
-    page: 0,
-    size: size,
-    sort: 'id,desc',
-  };
+    return {
+        page: 0,
+        size: size,
+        sort: "id,desc"
+    };
 };
 
 export interface FileModel extends BaseDto {
-  id: number;
-  url: string;
-  fileName: string;
-  originalFileName: string;
-  size: number;
-  label?: string;
+    id: number;
+    url: string;
+    fileName: string;
+    originalFileName: string;
+    size: number;
+    label?: string;
 }

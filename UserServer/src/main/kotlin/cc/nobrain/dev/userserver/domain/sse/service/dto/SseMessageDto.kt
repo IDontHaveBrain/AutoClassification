@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 data class SseMessageDto(
     val id: String? = null,
     val type: SseEventType,
-    val message: Any,
+    val data: Any,
     val timestamp: Long = System.currentTimeMillis()
 ) {
     companion object {
@@ -43,8 +43,8 @@ data class SseMessageDto(
     fun validate(): Boolean {
         return when (type) {
             SseEventType.HEARTBEAT -> true
-            SseEventType.ALARM, SseEventType.NOTICE, SseEventType.MESSAGE -> message.toString().isNotBlank()
-            else -> false
+            SseEventType.ALARM, SseEventType.NOTICE, SseEventType.MESSAGE, 
+            SseEventType.WORKSPACE_UPDATE, SseEventType.USER_UPDATE -> data.toString().isNotBlank()
         }
     }
 }

@@ -1,11 +1,13 @@
-import {useNavigate} from "react-router-dom";
-import {WorkspaceModel} from "model/WorkspaceModel";
-import {CardMedia, DialogActions, DialogContent, DialogContentText, DialogTitle,} from "@mui/material";
-import {deleteWorkspace, getWorkspace} from "service/Apis/WorkspaceApi";
-import {onAlert} from "component/modal/AlertModal";
-import {Strings} from "utils/strings";
+import { useNavigate } from "react-router-dom";
+import { WorkspaceModel } from "model/WorkspaceModel";
+import { CardMedia, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
+import { deleteWorkspace, getWorkspace } from "service/Apis/WorkspaceApi";
+import { onAlert } from "component/modal/AlertModal";
+import { Strings } from "utils/strings";
 import Button from "@mui/material/Button";
-import {useEffect, useState} from "react";
+import { useEffect, useState, useCallback } from "react";
+import { eventBus } from "layouts/BackGround";
+import { SseEvent, SseType } from "model/GlobalModel";
 
 interface Props {
     data: WorkspaceModel;
@@ -16,16 +18,34 @@ const WorkspaceDetail = ({ data, handleClose }: Props) => {
     const [detail, setDetail] = useState<WorkspaceModel>(data);
     const navigate = useNavigate();
 
+    const fetchWorkspaceDetail = useCallback(async (id: number) => {
+        try {
+            const res = await getWorkspace(id);
+            setDetail(res.data);
+        } catch (err) {
+            console.error(err);
+            onAlert(Strings.Common.apiFailed);
+        }
+    }, []);
+
     useEffect(() => {
-        getWorkspace(data.id)
-            .then((res) => {
-                setDetail(res.data);
-            })
-            .catch((err) => {
-                console.log(err);
-                onAlert(Strings.Common.apiFailed);
-            });
-    }, [data.id]);
+        fetchWorkspaceDetail(data.id);
+
+        const handleSseMessage = (event: SseEvent) => {
+            if (event.type === SseType.WORKSPACE_UPDATE) {
+                const updatedWorkspace = JSON.parse(event.data);
+                if (updatedWorkspace.id === data.id) {
+                    fetchWorkspaceDetail(data.id);
+                }
+            }
+        };
+
+        eventBus.subscribe(SseType.WORKSPACE_UPDATE, handleSseMessage);
+
+        return () => {
+            eventBus.unsubscribe(SseType.WORKSPACE_UPDATE, handleSseMessage);
+        };
+    }, [data.id, fetchWorkspaceDetail]);
 
     const handleEdit = () => {
         navigate("/workspace/editor", { state: { data: detail } });
