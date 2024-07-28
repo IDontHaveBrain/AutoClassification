@@ -26,6 +26,8 @@ jobs:
         run: chmod +x ./AiServer/app.py
 
       - name: Start AiServer and perform health check
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           python ./AiServer/app.py > server.log 2>&1 &
           SERVER_PID=$!

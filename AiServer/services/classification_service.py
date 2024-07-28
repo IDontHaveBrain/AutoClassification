@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import os
 from openai import AsyncOpenAI
 from config import config
 from services.image_service import ImageService
@@ -22,8 +23,12 @@ class ClassificationService:
         ClassificationService 인스턴스를 초기화합니다.
 
         AsyncOpenAI 클라이언트를 생성하여 OpenAI API와의 통신을 준비합니다.
+        환경 변수에서 API 키를 읽어옵니다.
         """
-        self.client = AsyncOpenAI()
+        api_key = os.getenv('OPENAI_API_KEY')
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY environment variable is not set")
+        self.client = AsyncOpenAI(api_key=api_key)
 
     async def classify_images(self, images, categories):
         """

@@ -1,4 +1,5 @@
 from typing import Any
+import os
 
 class Config:
     """Base configuration."""
@@ -14,6 +15,7 @@ class Config:
     API_KEY: str = 'test'
     DATABASE_URI: str = 'sqlite:///dev.db'
     LOG_LEVEL: str = 'DEBUG'
+    OPENAI_API_KEY: str = os.getenv('OPENAI_API_KEY', '')
 
     def __init__(self, **kwargs: Any) -> None:
         """
