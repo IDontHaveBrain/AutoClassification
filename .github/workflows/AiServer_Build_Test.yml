@@ -29,8 +29,21 @@ jobs:
         run: |
           python ./AiServer/app.py > server.log 2>&1 &
           SERVER_PID=$!
-          while ! grep -q "Running on" server.log; do sleep 1; done
-          curl http://localhost:5000/health
+          echo "Waiting for server to start..."
+          sleep 10
+          MAX_RETRIES=5
+          RETRY_COUNT=0
+          until curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/health | grep -q "200" || [ $RETRY_COUNT -eq $MAX_RETRIES ]; do
+            echo "Health check failed. Retrying in 5 seconds..."
+            sleep 5
+            RETRY_COUNT=$((RETRY_COUNT+1))
+          done
+          if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+            echo "Health check failed after $MAX_RETRIES attempts. Server log:"
+            cat server.log
+            exit 1
+          fi
+          echo "Health check passed successfully."
           kill $SERVER_PID
 
       - if: github.ref == 'refs/heads/main'
