@@ -1,28 +1,29 @@
-import {useCallback, useEffect, useRef, useState} from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { initPageable, Member, Pageable } from "model/GlobalModel";
 import { getMemberList } from "service/Apis/MemberApi";
-import { onAlert } from "component/modal/AlertModal";
-import { GridColDef } from "@mui/x-data-grid";
+import { GridColDef, GridRowParams } from "@mui/x-data-grid";
 import BaseTable from "component/baseBoard/BaseTable";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import { DialogActions, DialogContent, DialogTitle } from "@mui/material";
-import { debounce } from "lodash";
-import {CommonUtil} from "utils/CommonUtil";
 
 interface Props {
     close: () => void;
-    setData: any;
+    setData: (member: Member) => void;
 }
 
-const MemberSearchModal = ({ close, setData }: Props) => {
-    const [search, setSearch] = useState({ email: "" });
+interface SearchParams {
+    email: string;
+}
+
+const MemberSearchModal: React.FC<Props> = ({ close, setData }) => {
+    const [search, setSearch] = useState<SearchParams>({ email: "" });
     const [pageable, setPageable] = useState<Pageable>(initPageable(10));
     const [members, setMembers] = useState<Member[]>([]);
     const [totalMembers, setTotalMembers] = useState(0);
 
-    const handleSearch = (e) => {
-        setSearch({...search, [e.target.name]: e.target.value});
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearch(prevSearch => ({...prevSearch, [e.target.name]: e.target.value}));
     };
 
     const columns: GridColDef[] = [
@@ -31,14 +32,14 @@ const MemberSearchModal = ({ close, setData }: Props) => {
         { field: "name", headerName: "Name", width: 130 },
     ];
 
-    const handleRowClick = (data) => {
-        setData(data.row);
+    const handleRowClick = (params: GridRowParams) => {
+        setData(params.row as Member);
         close();
     };
 
-    const loadRows = useCallback((page, size, sort) => {
+    const loadRows = useCallback((page: number, size: number, sort: string) => {
         const params = { ...search, page, size, sort };
-        setPageable(params);
+        setPageable(prevPageable => ({ ...prevPageable, page, size, sort }));
 
         getMemberList(params)
             .then((response) => {
@@ -62,7 +63,7 @@ const MemberSearchModal = ({ close, setData }: Props) => {
                     label="Email"
                     variant="outlined"
                     name="email"
-                    defaultValue={search.email}
+                    value={search.email}
                     onChange={handleSearch}
                     fullWidth
                 />

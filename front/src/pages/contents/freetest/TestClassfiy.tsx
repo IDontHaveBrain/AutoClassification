@@ -1,178 +1,170 @@
+import React, { useCallback, useState } from "react";
 import Box from "@mui/material/Box";
 import FileDropzone from "component/FileDropzone";
 import Grid from "@mui/material/Grid";
-import { useCallback, useState } from "react";
 import {
     Divider,
     IconButton,
     List,
     ListItem,
     ListItemText,
+    Typography,
 } from "@mui/material";
 import Button from "@mui/material/Button";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import DeleteIcon from "@mui/icons-material/Delete";
 import { testUploadImg } from "service/Apis/TrainApi";
-import TextField from "@mui/material/TextField";
 import { onAlert } from "component/modal/AlertModal";
 import { Strings } from "utils/strings";
+import ClassInputCard from "component/ClassInputCard";
 
 const TEST_MAX_CLASSES_COUNT = 5;
 const TEST_MIN_CLASSES_COUNT = 2;
 
-const TestClassfiy = () => {
-    const [files, setFiles] = useState([]);
-    const [classList, setClassList] = useState(["", ""]);
+const TestClassify: React.FC = () => {
+    const [files, setFiles] = useState<File[]>([]);
+    const [classList, setClassList] = useState<string[]>(["", ""]);
 
     const addClass = () => {
         if (classList.length < TEST_MAX_CLASSES_COUNT) {
             setClassList([...classList, ""]);
         } else {
-            onAlert("You can add up to " + TEST_MAX_CLASSES_COUNT + " classes.");
+            onAlert(`최대 ${TEST_MAX_CLASSES_COUNT}개의 클래스만 추가할 수 있습니다.`);
         }
     };
 
     const handleInputChange = (index: number, newValue: string) => {
-        if (index < TEST_MIN_CLASSES_COUNT && newValue.trim() === "") {
-            onAlert("The first " + TEST_MIN_CLASSES_COUNT + " classes are mandatory.");
-        } else {
-            const newClassList = [...classList];
-            newClassList[index] = newValue;
-            setClassList(newClassList);
-        }
+        const newClassList = [...classList];
+        newClassList[index] = newValue;
+        setClassList(newClassList);
     };
 
     const removeClass = (index: number) => {
         if (classList.length <= TEST_MIN_CLASSES_COUNT) {
-            onAlert("You must keep at least " + TEST_MIN_CLASSES_COUNT + " classes.");
+            onAlert(`최소 ${TEST_MIN_CLASSES_COUNT}개의 클래스를 유지해야 합니다.`);
         } else {
-            const newClassList = [...classList];
-            newClassList.splice(index, 1);
+            const newClassList = classList.filter((_, i) => i !== index);
             setClassList(newClassList);
         }
     };
 
     const onDrop = useCallback(
-        (files) => {
-            if (files.length > 30) {
+        (droppedFiles: File[]) => {
+            if (droppedFiles.length > 30) {
                 onAlert("분류 테스트는 이미지 30개 이하로 테스트 가능합니다.");
                 return;
             }
 
-            const formData = new FormData();
-            files.forEach((file, i) => {
-                formData.append("files", file);
-            });
-
             setFiles(
-                files.map((file) =>
+                droppedFiles.map((file) =>
                     Object.assign(file, {
                         preview: URL.createObjectURL(file),
                     }),
                 ),
             );
         },
-        [setFiles],
+        [],
     );
 
     const onSave = () => {
-        console.log("files : ", files);
         if (classList.some(item => item.trim() === "")) {
             onAlert(Strings.Common.notEmpty);
             return;
         }
         const formData = new FormData();
-        files.forEach((file, i) => {
+        files.forEach((file) => {
             formData.append("files", file);
         });
-        formData.append("data", new Blob(
-            [
-                JSON.stringify(classList),
-            ],
-            { type: "application/json" },
-        ));
+        formData.append("data", new Blob([JSON.stringify(classList)], { type: "application/json" }));
+        
         testUploadImg(formData)
-            .then((res) => {
+            .then(() => {
                 setClassList(["", ""]);
-                handleInputChange(0, "")
-                handleInputChange(1, "")
                 setFiles([]);
                 onAlert(Strings.FreeTest.requestTest);
             })
             .catch((err) => {
-                console.log("err : ", err);
+                console.error("Error:", err);
                 onAlert(Strings.Common.apiFailed);
             });
     };
 
     const onRemove = (index: number) => {
-        const newFiles = files.filter((file, i) => i !== index);
+        const newFiles = files.filter((_, i) => i !== index);
         setFiles(newFiles);
     };
 
-    const images = files.map((file, index) => (
-        <div
-            key={`${index}-${file.name}`}
-            style={{position: "relative", display: "inline-block"}}
-        >
-            <img src={file.preview} style={{width: "200px"}} alt="preview"/>
-            <button
-                onClick={() => onRemove(index)}
-                style={{
-                    position: "absolute",
-                    top: 0,
-                    right: 0,
-                    background: "red",
-                    color: "white",
-                    border: "none",
-                    cursor: "pointer",
-                }}
-            >
-                X
-            </button>
-        </div>
-    ));
+    const onRemoveAll = () => {
+        setFiles([]);
+    };
+
     return (
-        <Box>
-            <Grid item md={12}>
-                <FileDropzone onDrop={onDrop}/>
-            </Grid>
-            <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}> {/* add flexbox to arrange the items in a row */}
-                {classList.map((item, index) => (
-                    <div key={index} style={{ display: 'flex', marginRight: '8px' }}>
-                        <TextField
-                            key={index}
-                            size={"small"}
-                            sx={{ m: 1 }}
-                            value={classList[index]}
-                            onChange={(e) => handleInputChange(index, e.target.value)}
-                        ></TextField>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                    <Typography variant="h6" gutterBottom>클래스 입력</Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                        {classList.map((item, index) => (
+                            <ClassInputCard
+                                key={index}
+                                value={item}
+                                onChange={(newValue) => handleInputChange(index, newValue)}
+                                onDelete={() => removeClass(index)}
+                                isRequired={index < TEST_MIN_CLASSES_COUNT}
+                            />
+                        ))}
+                        {classList.length < TEST_MAX_CLASSES_COUNT && (
+                            <IconButton onClick={addClass} color="primary">
+                                <AddCircleOutlineIcon />
+                            </IconButton>
+                        )}
+                    </Box>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                    <Typography variant="h6" gutterBottom>파일 업로드</Typography>
+                    <FileDropzone onDrop={onDrop} />
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2 }}>
+                        <Typography variant="subtitle1">{`업로드된 이미지: ${files.length}`}</Typography>
                         <Button
-                            style={{ minWidth: 'initial', lineHeight: 'initial', alignSelf: 'center' }}
-                            onClick={() => removeClass(index)}
-                        >X</Button>
-                    </div>
-                ))}
-                <IconButton onClick={addClass}>
-                    <AddCircleOutlineIcon />
-                </IconButton>
-            </div>
-            <aside style={{display: "flex", flexWrap: "wrap", marginTop: "15px"}}>
-                {images}
-            </aside>
-            <Grid item xs={12}>
-                <Grid container justifyContent="space-between" alignItems="center">
-                    <Grid item>
-                        <Button onClick={onSave} color={"secondary"} variant={"contained"}>
-                            {Strings.FreeTest.classifyTest}
+                            variant="outlined"
+                            color="error"
+                            startIcon={<DeleteIcon />}
+                            onClick={onRemoveAll}
+                            disabled={files.length === 0}
+                        >
+                            모든 이미지 삭제
                         </Button>
-                    </Grid>
+                    </Box>
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 2 }}>
+                        {files.map((file: any, index) => (
+                            <Box key={`${index}-${file.name}`} sx={{ position: "relative" }}>
+                                <img src={file.preview} style={{ width: "100px", height: "100px", objectFit: "cover" }} alt="preview" />
+                                <IconButton
+                                    size="small"
+                                    onClick={() => onRemove(index)}
+                                    sx={{
+                                        position: "absolute",
+                                        top: 0,
+                                        right: 0,
+                                        bgcolor: 'rgba(255, 255, 255, 0.7)',
+                                        '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.9)' },
+                                    }}
+                                >
+                                    X
+                                </IconButton>
+                            </Box>
+                        ))}
+                    </Box>
                 </Grid>
             </Grid>
-            <Divider sx={{mt: 2}}/>
+            <Button onClick={onSave} color="secondary" variant="contained" sx={{ alignSelf: 'flex-start' }}>
+                {Strings.FreeTest.classifyTest}
+            </Button>
+            <Divider />
             <List>
                 {files.map((file, index) => (
                     <ListItem key={index}>
-                        <ListItemText primary={file.name}/>
+                        <ListItemText primary={file.name} />
                     </ListItem>
                 ))}
             </List>
@@ -180,4 +172,4 @@ const TestClassfiy = () => {
     );
 };
 
-export default TestClassfiy;
+export default TestClassify;

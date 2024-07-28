@@ -4,8 +4,8 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { Dialog, Divider } from "@mui/material";
 import BaseField from "component/BaseField";
-import { initPageable, NoticeModel, Pageable, SseEvent, SseType } from "model/GlobalModel";
-import { GridColDef } from "@mui/x-data-grid";
+import { initPageable, NoticeModel, Pageable, SseType } from "model/GlobalModel";
+import { GridColDef, GridRowParams } from "@mui/x-data-grid";
 import { useNavigate } from "react-router-dom";
 import BaseTitle from "component/baseBoard/BaseTitle";
 import BaseSearch from "component/baseBoard/BaseSearch";
@@ -14,18 +14,23 @@ import NoticeDetail from "./NoticeDetail";
 import { CommonUtil } from "utils/CommonUtil";
 import { eventBus } from "layouts/BackGround";
 
+interface SearchParams {
+    title: string;
+    createMember: string;
+}
+
 const NoticeList: React.FC = () => {
-    const [search, setSearch] = useState({ title: "", createMember: "" });
+    const [search, setSearch] = useState<SearchParams>({ title: "", createMember: "" });
     const [openDetail, setOpenDetail] = useState(false);
-    const [selectedData, setSelectedData] = useState<NoticeModel>();
+    const [selectedData, setSelectedData] = useState<NoticeModel | undefined>();
     const [pageable, setPageable] = useState<Pageable>(initPageable(10));
     const [rows, setRows] = useState<NoticeModel[]>([]);
     const [total, setTotal] = useState(0);
     const navigate = useNavigate();
 
-    const fetchNotices = useCallback(async (page, size, sort, search) => {
+    const fetchNotices = useCallback(async (page: number, size: number, sort: string, searchParams: SearchParams) => {
         try {
-            const params = { ...search, page, size, sort };
+            const params = { ...searchParams, page, size, sort };
             const res = await getNoticeList(params);
             setRows(res.data.content);
             setTotal(res.data.totalElements);
@@ -48,26 +53,22 @@ const NoticeList: React.FC = () => {
         };
     }, [fetchNotices, pageable, search]);
 
-    const handlePageChange = (page, size, sort) => {
-        setPageable({ ...pageable, page, size, sort });
+    const handlePageChange = (page: number, size: number, sort: string) => {
+        setPageable(prevPageable => ({ ...prevPageable, page, size, sort }));
         fetchNotices(page, size, sort, search);
     }
 
-    const handleRowClick = (data) => {
-        setSelectedData(data.row as NoticeModel);
-        handleClickOpen();
-    }
-
-    const handleClickOpen = () => {
+    const handleRowClick = (params: GridRowParams) => {
+        setSelectedData(params.row as NoticeModel);
         setOpenDetail(true);
-    };
+    }
 
     const handleClose = () => {
         setOpenDetail(false);
     }
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearch({ ...search, [e.target.name]: e.target.value });
+        setSearch(prevSearch => ({ ...prevSearch, [e.target.name]: e.target.value }));
     };
 
     const onSearch = () => {

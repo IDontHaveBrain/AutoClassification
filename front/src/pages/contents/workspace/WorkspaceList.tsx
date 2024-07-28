@@ -1,50 +1,48 @@
-import {useCallback, useContext, useEffect, useState} from "react";
-import {WorkspaceModel} from "model/WorkspaceModel";
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { WorkspaceModel } from "model/WorkspaceModel";
 import BaseTitle from "component/baseBoard/BaseTitle";
 import BaseSearch from "component/baseBoard/BaseSearch";
 import BaseTable from "component/baseBoard/BaseTable";
-import {GridColDef} from "@mui/x-data-grid";
-import {CommonUtil} from "utils/CommonUtil";
-import {initPageable, Pageable} from "model/GlobalModel";
+import { GridColDef, GridRowParams } from "@mui/x-data-grid";
+import { CommonUtil } from "utils/CommonUtil";
+import { initPageable, Pageable } from "model/GlobalModel";
 import Button from "@mui/material/Button";
-import {useNavigate} from "react-router-dom";
-import {Dialog} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { Dialog } from "@mui/material";
 import WorkspaceDetail from "pages/contents/workspace/WorkspaceDetail";
-import {getMyWorkspaceList} from "service/Apis/WorkspaceApi";
-import {WorkspaceContext} from "utils/ContextManager";
+import { getMyWorkspaceList } from "service/Apis/WorkspaceApi";
+import { WorkspaceContext } from "utils/ContextManager";
 
 interface Search {
     createMember: string;
 }
 
-interface State {
-    workspaceList?: WorkspaceModel[];
-    workspace?: WorkspaceModel;
-}
-
-const WorkspaceList = () => {
+const WorkspaceList: React.FC = () => {
     const [pageable, setPageable] = useState<Pageable>(initPageable(10));
     const [search, setSearch] = useState<Search>({createMember: ""});
     const [openDetail, setOpenDetail] = useState(false);
+    const [rows, setRows] = useState<WorkspaceModel[]>([]);
+    const [total, setTotal] = useState(0);
     const navigate = useNavigate();
-    const {state, setState} = useContext(WorkspaceContext);
+    const { setState } = useContext(WorkspaceContext);
 
-    const fetchWorkspaces = useCallback(async (page, size, sort, search) => {
+    const fetchWorkspaces = useCallback(async (page: number, size: number, sort: string, search: Search) => {
         try {
             const params = {...search, page, size, sort};
             const res = await getMyWorkspaceList(params);
-            setState(prevState => ({...prevState, rows: res.data.content, total: res.data.totalElements}));
+            setRows(res.data.content);
+            setTotal(res.data.totalElements);
         } catch (error) {
             console.error(error);
         }
-    }, [setState]);
+    }, []);
 
     useEffect(() => {
         fetchWorkspaces(pageable.page, pageable.size, pageable.sort, search);
     }, [fetchWorkspaces, pageable, search]);
 
-    const handlePageChange = (page, size, sort) => {
-        setState(prevState => ({...prevState, pageable: {...pageable, page, size, sort}}));
+    const handlePageChange = (page: number, size: number, sort: string) => {
+        setPageable(prevPageable => ({...prevPageable, page, size, sort}));
         fetchWorkspaces(page, size, sort, search);
     }
 
@@ -54,10 +52,10 @@ const WorkspaceList = () => {
 
     const handleClickOpen = () => setOpenDetail(true);
     const handleClose = () => setOpenDetail(false);
-    const handleRowClick = (data) => {
+    const handleRowClick = (params: GridRowParams) => {
         setState((prevState) => ({
             ...prevState,
-            selectedData: data.row as WorkspaceModel,
+            selectedData: params.row as WorkspaceModel,
         }));
         handleClickOpen();
     };
@@ -82,15 +80,15 @@ const WorkspaceList = () => {
                 </Button>
             </BaseSearch>
             <BaseTable
-                rows={state?.rows || []}
-                total={state?.total || 0}
+                rows={rows}
+                total={total}
                 columns={columns}
                 pageable={pageable}
                 loadRows={handlePageChange}
                 onClick={handleRowClick}
-            ></BaseTable>
+            />
             <Dialog open={openDetail} onClose={handleClose}>
-                <WorkspaceDetail handleClose={handleClose} data={state?.selectedData}/>
+                <WorkspaceDetail handleClose={handleClose} data={rows.find(row => row.id === (openDetail ? rows[0]?.id : null))}/>
             </Dialog>
         </>
     );

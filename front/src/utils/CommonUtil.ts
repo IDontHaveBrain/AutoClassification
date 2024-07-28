@@ -6,23 +6,19 @@ import {
 } from "@mui/x-data-grid/models/gridSortModel";
 
 export const CommonUtil = {
-  dateFormat: (params) => {
+  dateFormat: (params: { value: string | number | Date }) => {
     return dayjs(params.value).format("YYYY-MM-DD HH:mm:ss");
   },
   convertSort(sortModel: GridSortModel): string {
     return sortModel
-      .map((sortItem) => {
-        return `${sortItem.field},${sortItem.sort}`;
-      })
-      .join("&");
+      .map((sortItem) => `${sortItem.field},${sortItem.sort}`)
+      .join("&sort=");
   },
-  convertSortModel: (sort: string[]): GridSortModel => {
-    return sort.flatMap((sortItem) => {
-      if (typeof sortItem === "string") {
-        const [field, sort] = sortItem.split(",");
-        return { field, sort: sort as GridSortDirection };
-      }
-      return [];
+  convertSortModel: (sort: string): GridSortModel => {
+    if (!sort) return [];
+    return sort.split("&sort=").map((item) => {
+      const [field, direction] = item.split(",");
+      return { field, sort: direction as GridSortDirection };
     });
   },
 };
