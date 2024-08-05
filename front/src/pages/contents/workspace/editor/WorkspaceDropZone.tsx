@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 import FileDropzone from "component/FileDropzone";
-import { Avatar, Chip, LinearProgress, Typography, Box } from "@mui/material";
+import { Avatar, Chip, LinearProgress, Typography, Box, Button } from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
 import ExpandComp from "component/ExpandComp";
 
 interface WorkspaceDropZoneProps {
@@ -23,8 +24,8 @@ const WorkspaceDropZone: React.FC<WorkspaceDropZoneProps> = ({ onFilesChange }) 
                 }) as CustomFile
             );
 
-            setNewFiles(updatedFiles);
-            onFilesChange(updatedFiles);
+            setNewFiles((prevFiles) => [...prevFiles, ...updatedFiles]);
+            onFilesChange([...newFiles, ...updatedFiles]);
 
             // Simulating upload progress
             let progress = 0;
@@ -35,15 +36,20 @@ const WorkspaceDropZone: React.FC<WorkspaceDropZoneProps> = ({ onFilesChange }) 
                     clearInterval(interval);
                     setTimeout(() => setUploadProgress(0), 1000);
                 }
-            }, 500);
+            }, 200);
         },
-        [onFilesChange]
+        [onFilesChange, newFiles]
     );
 
     const handleRemoveFile = (index: number) => {
         const updatedFiles = newFiles.filter((_, i) => i !== index);
         setNewFiles(updatedFiles);
         onFilesChange(updatedFiles);
+    };
+
+    const handleClearAll = () => {
+        setNewFiles([]);
+        onFilesChange([]);
     };
 
     const isValidFileType = (file: File) => {
@@ -61,10 +67,20 @@ const WorkspaceDropZone: React.FC<WorkspaceDropZoneProps> = ({ onFilesChange }) 
             />
             {uploadProgress > 0 && (
                 <Box sx={{ width: '100%', mt: 2 }}>
-                    <LinearProgress variant="determinate" value={uploadProgress} />
+                    <LinearProgress 
+                        variant="determinate" 
+                        value={uploadProgress} 
+                        sx={{ 
+                            height: 10, 
+                            borderRadius: 5,
+                            '& .MuiLinearProgress-bar': {
+                                borderRadius: 5,
+                            }
+                        }} 
+                    />
                 </Box>
             )}
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                 {newFiles.map((file, index) => (
                     <Chip
                         key={index}
@@ -72,11 +88,29 @@ const WorkspaceDropZone: React.FC<WorkspaceDropZoneProps> = ({ onFilesChange }) 
                         onDelete={() => handleRemoveFile(index)}
                         avatar={<Avatar alt={file.name} src={file.preview} />}
                         color={isValidFileType(file) ? "primary" : "error"}
-                        sx={{ m: 0.5 }}
+                        sx={{ 
+                            m: 0.5,
+                            '& .MuiChip-avatar': {
+                                width: 24,
+                                height: 24,
+                            }
+                        }}
                     />
                 ))}
             </Box>
-            <Typography variant="caption" color="textSecondary">
+            {newFiles.length > 0 && (
+                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                    <Button
+                        variant="outlined"
+                        color="error"
+                        startIcon={<DeleteIcon />}
+                        onClick={handleClearAll}
+                    >
+                        Clear All
+                    </Button>
+                </Box>
+            )}
+            <Typography variant="caption" color="textSecondary" sx={{ mt: 2, display: 'block' }}>
                 Allowed file types: JPEG, PNG, GIF. Max size: 5MB
             </Typography>
         </ExpandComp>
