@@ -1,6 +1,6 @@
 package cc.nobrain.dev.userserver.common.component
 
-import cc.nobrain.dev.userserver.common.config.RabbitMqConfiguration.Companion.CLASSFIY_RESPONSE_QUEUE
+import cc.nobrain.dev.userserver.common.config.RabbitMqConfiguration.Companion.CLASSIFY_RESPONSE_QUEUE
 import cc.nobrain.dev.userserver.domain.alarm.service.AlarmService
 import cc.nobrain.dev.userserver.domain.train.service.TrainService
 import cc.nobrain.dev.userserver.domain.train.service.dto.WorkspaceClassfiy
@@ -54,7 +54,7 @@ class MessageReceiver(
 ) {
     private val logger = LoggerFactory.getLogger(MessageReceiver::class.java)
 
-    @RabbitListener(queues = [CLASSFIY_RESPONSE_QUEUE])
+    @RabbitListener(queues = [CLASSIFY_RESPONSE_QUEUE])
     @Transactional
     @Retryable(
         value = [Exception::class],

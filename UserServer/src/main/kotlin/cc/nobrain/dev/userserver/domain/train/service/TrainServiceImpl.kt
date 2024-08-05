@@ -2,7 +2,7 @@ package cc.nobrain.dev.userserver.domain.train.service
 
 import cc.nobrain.dev.userserver.common.component.FileComponent
 import cc.nobrain.dev.userserver.common.component.RabbitEventPublisher
-import cc.nobrain.dev.userserver.common.config.RabbitMqConfiguration.Companion.CLASSFIY_QUEUE
+import cc.nobrain.dev.userserver.common.config.RabbitMqConfiguration.Companion.CLASSIFY_QUEUE
 import cc.nobrain.dev.userserver.common.exception.CustomException
 import cc.nobrain.dev.userserver.common.exception.ErrorInfo
 import cc.nobrain.dev.userserver.common.properties.UrlProps
@@ -167,7 +167,7 @@ class TrainServiceImpl(
 //            }
 //        }
 
-        rabbitEventPublisher.publish(CLASSFIY_QUEUE, objectMapper.writeValueAsString(requestBody));
+        rabbitEventPublisher.publish(CLASSIFY_QUEUE, objectMapper.writeValueAsString(requestBody));
 
         return ResponseEntity.ok().build();
     }

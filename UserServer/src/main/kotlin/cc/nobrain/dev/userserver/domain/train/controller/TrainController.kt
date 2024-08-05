@@ -3,8 +3,6 @@ package cc.nobrain.dev.userserver.domain.train.controller
 import cc.nobrain.dev.userserver.common.component.RabbitEventPublisher
 import cc.nobrain.dev.userserver.common.config.RabbitMqConfiguration
 import cc.nobrain.dev.userserver.domain.base.dto.FileDto
-import cc.nobrain.dev.userserver.domain.train.dto.ClassfiyDto
-import cc.nobrain.dev.userserver.domain.train.entity.Classfiy
 import cc.nobrain.dev.userserver.domain.train.service.TrainService
 import cc.nobrain.dev.userserver.domain.train.service.dto.ClassfiyRes
 import org.springframework.data.domain.Page
@@ -54,7 +52,7 @@ class TrainController(
 
     @GetMapping("/tttt")
     suspend fun tttt(): String {
-        rabbitEventPublisher.publish(RabbitMqConfiguration.CLASSFIY_QUEUE, "test");
+        rabbitEventPublisher.publish(RabbitMqConfiguration.CLASSIFY_QUEUE, "test");
         return "tttt";
     }
 }

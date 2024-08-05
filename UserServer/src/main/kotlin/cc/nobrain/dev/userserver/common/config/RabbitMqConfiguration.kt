@@ -1,8 +1,5 @@
 package cc.nobrain.dev.userserver.common.config
 
-import org.springframework.amqp.core.Binding
-import org.springframework.amqp.core.BindingBuilder
-import org.springframework.amqp.core.DirectExchange
 import org.springframework.amqp.core.Queue
 import org.springframework.amqp.rabbit.connection.ConnectionFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
@@ -14,14 +11,14 @@ import org.springframework.context.annotation.Configuration
 class RabbitMqConfiguration {
 
     companion object {
-        const val CLASSFIY_QUEUE = "ClassfiyQueue"
-        const val CLASSFIY_RESPONSE_QUEUE = "ClassfiyResponseQueue"
+        const val CLASSIFY_QUEUE = "ClassifyQueue"
+        const val CLASSIFY_RESPONSE_QUEUE = "ClassifyResponseQueue"
     }
 
     @Bean
-    fun classfiyQueue(): Queue = Queue(CLASSFIY_QUEUE, true)
+    fun classifyQueue(): Queue = Queue(CLASSIFY_QUEUE, true)
     @Bean
-    fun classfiyResponseQueue(): Queue = Queue(CLASSFIY_RESPONSE_QUEUE, true)
+    fun ClassifyResponseQueue(): Queue = Queue(CLASSIFY_RESPONSE_QUEUE, true)
 
     @Bean
     fun rabbitTemplate(connectionFactory: ConnectionFactory): RabbitTemplate =
