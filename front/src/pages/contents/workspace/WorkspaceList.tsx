@@ -16,15 +16,15 @@ import { onAlert } from "component/modal/AlertModal";
 import { Strings } from "utils/strings";
 
 interface Search {
-    createMember: string;
+    owner: string;
     name: string;
-    description: string;
 }
 
 const WorkspaceList: React.FC = () => {
     const [pageable, setPageable] = useState<Pageable>(initPageable(10));
-    const [search, setSearch] = useState<Search>({createMember: "", name: "", description: ""});
+    const [search, setSearch] = useState<Search>({owner: "", name: ""});
     const [openDetail, setOpenDetail] = useState(false);
+    const [selectedWorkspace, setSelectedWorkspace] = useState<WorkspaceModel | null>(null);
     const [rows, setRows] = useState<WorkspaceModel[]>([]);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -59,14 +59,25 @@ const WorkspaceList: React.FC = () => {
         navigate("/workspace/editor");
     };
 
-    const handleClickOpen = () => setOpenDetail(true);
-    const handleClose = () => setOpenDetail(false);
+    const handleClickOpen = (workspace: WorkspaceModel) => {
+        setSelectedWorkspace(workspace);
+        setOpenDetail(true);
+    };
+    const handleClose = () => {
+        setOpenDetail(false);
+        setSelectedWorkspace(null);
+    };
+
+    const handleDeleteSuccess = () => {
+        fetchWorkspaces(pageable.page, pageable.size, pageable.sort, search);
+    };
     const handleRowClick = (params: GridRowParams) => {
+        const workspace = params.row as WorkspaceModel;
         setState((prevState) => ({
             ...prevState,
-            selectedData: params.row as WorkspaceModel,
+            selectedData: workspace,
         }));
-        handleClickOpen();
+        handleClickOpen(workspace);
     };
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -116,19 +127,11 @@ const WorkspaceList: React.FC = () => {
                         onChange={handleSearchChange}
                     />
                     <TextField
-                        name="createMember"
-                        label="Creator"
+                        name="owner"
+                        label="Owner"
                         variant="outlined"
                         size="small"
-                        value={search.createMember}
-                        onChange={handleSearchChange}
-                    />
-                    <TextField
-                        name="description"
-                        label="Description"
-                        variant="outlined"
-                        size="small"
-                        value={search.description}
+                        value={search.owner}
                         onChange={handleSearchChange}
                     />
                     <Button variant="contained" onClick={handleSearch}>Search</Button>
@@ -152,7 +155,13 @@ const WorkspaceList: React.FC = () => {
                 />
             )}
             <Dialog open={openDetail} onClose={handleClose}>
-                <WorkspaceDetail handleClose={handleClose} data={rows.find(row => row.id === (openDetail ? rows[0]?.id : null))}/>
+                {selectedWorkspace && (
+                    <WorkspaceDetail
+                        handleClose={handleClose}
+                        data={selectedWorkspace}
+                        onDeleteSuccess={handleDeleteSuccess}
+                    />
+                )}
             </Dialog>
         </>
     );

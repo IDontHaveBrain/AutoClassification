@@ -1,31 +1,37 @@
 import React, { useEffect, useRef, useState } from "react";
-import Grid from "@mui/material/Grid";
-import BaseEditor from "component/baseEditor/BaseEditor";
 import { useLocation, useNavigate } from "react-router-dom";
 import { createWorkspace, updateWorkspace } from "service/Apis/WorkspaceApi";
 import { onAlert } from "component/modal/AlertModal";
 import { Strings } from "utils/strings";
 import { WorkspaceModel } from "model/WorkspaceModel";
+import { Member } from "model/GlobalModel";
+import { 
+    Grid, Dialog, Divider, Button, Tabs, Tab, Box, CircularProgress, Snackbar, 
+    Paper, Typography, IconButton, Tooltip, DialogActions, DialogContent, DialogContentText, DialogTitle
+} from "@mui/material";
+import SaveIcon from '@mui/icons-material/Save';
+import CloseIcon from '@mui/icons-material/Close';
+import BaseEditor from "component/baseEditor/BaseEditor";
 import WorkspaceClass from "pages/contents/workspace/editor/WorkspaceClass";
 import WorkspaceDropZone from "./editor/WorkspaceDropZone";
-import { Dialog, Divider } from "@mui/material";
 import WorkspaceDataSet from "pages/contents/workspace/editor/WorkspaceDataSet";
 import WorkspaceMember from "pages/contents/workspace/editor/WorkspaceMember";
-import Button from "@mui/material/Button";
 import MemberSearchModal from "component/modal/MemberSearchModal";
-import { Member } from "model/GlobalModel";
 
 const WorkspaceEditor = () => {
     const [workspace, setWorkspace] = useState<WorkspaceModel>();
     const [newFiles, setNewFiles] = useState<any>([]);
     const [isEdit, setIsEdit] = useState(false);
     const [openMemberModal, setOpenMemberModal] = useState(false);
+    const [tabValue, setTabValue] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
     const editorRef = useRef(null);
     const navigate = useNavigate();
     const location = useLocation();
 
     useEffect(() => {
-        console.log(location);
         if (location.state) {
             const { data } = location.state;
             setWorkspace(data);
@@ -34,6 +40,19 @@ const WorkspaceEditor = () => {
     }, [location]);
 
     const handleSave = async () => {
+        if (!editorRef.current) return;
+        const editorState = editorRef.current.getEditorState();
+
+        if (!editorState.title.trim() || !editorState.content.trim()) {
+            setError("Title and description are required.");
+            return;
+        }
+
+        setOpenConfirmDialog(true);
+    };
+
+    const confirmSave = async () => {
+        setOpenConfirmDialog(false);
         if (!editorRef.current) return;
         const editorState = editorRef.current.getEditorState();
 
@@ -53,39 +72,33 @@ const WorkspaceEditor = () => {
             ),
         );
 
-        newFiles?.forEach((file, index) => {
+        newFiles?.forEach((file) => {
             formData.append(`files`, file);
         });
 
+        setIsLoading(true);
+        setError(null);
+
         try {
             if (isEdit) {
-                const res = await updateWorkspace(workspace.id, formData);
+                await updateWorkspace(workspace.id, formData);
                 onAlert(Strings.Workspace.update);
-                navigate(-1);
             } else {
-                const res = await createWorkspace(formData);
+                await createWorkspace(formData);
                 onAlert(Strings.Workspace.add);
-                navigate(-1);
             }
+            navigate(-1);
         } catch (err) {
-            console.log(err);
-            onAlert(
-                isEdit
-                    ? Strings.Workspace.updateFailed
-                    : Strings.Workspace.addFailed,
-            );
+            console.error(err);
+            setError(isEdit ? Strings.Workspace.updateFailed : Strings.Workspace.addFailed);
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const addMember = (member) => {
-        if (!member) {
-            return;
-        }
-
-        const newMembers = Array.isArray(workspace?.members)
-            ? [...workspace.members, member]
-            : [member];
-
+        if (!member) return;
+        const newMembers = Array.isArray(workspace?.members) ? [...workspace.members, member] : [member];
         setWorkspace({...workspace, members: newMembers});
     }
 
@@ -102,35 +115,154 @@ const WorkspaceEditor = () => {
         setNewFiles(files);
     };
 
+    const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+        setTabValue(newValue);
+    };
+
     return (
-        <Grid container direction="column">
-            <Grid item md={true}>
-                {(workspace || !isEdit) && (
-                    <BaseEditor
-                        handleSave={handleSave}
-                        defaultTitle={workspace?.name}
-                        defaultContent={workspace?.description}
-                        ref={editorRef}
-                    />
-                )}
-            </Grid>
-            <WorkspaceClass classes={workspace?.classes} onClassesChange={onClassesChange} />
-            <WorkspaceDropZone onFilesChange={handleFilesChange} />
-            <Divider sx={{ m: 2 }} />
-            {workspace?.files?.length > 0 && (
-                <WorkspaceDataSet imgs={workspace?.files} setState={setWorkspace} />
-            )}
-            <WorkspaceMember workspace={workspace} removeMember={removeMember} />
-            <Grid item container justifyContent="center">
-                <Button variant="contained" color="primary" sx={{ width: '150px' }}
-                        onClick={() => setOpenMemberModal(true)}>
-                    맴버 추가
-                </Button>
+        <Paper elevation={3} sx={{ p: 3, m: 2 }}>
+            <Grid container direction="column" spacing={3}>
+                <Grid item container justifyContent="space-between" alignItems="center">
+                    <Typography variant="h4" component="h1">
+                        {isEdit ? 'Edit Workspace' : 'Create Workspace'}
+                    </Typography>
+                    <Box>
+                        <Tooltip title="Save">
+                            <IconButton color="primary" onClick={handleSave} disabled={isLoading}>
+                                <SaveIcon />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Close">
+                            <IconButton color="secondary" onClick={() => navigate(-1)}>
+                                <CloseIcon />
+                            </IconButton>
+                        </Tooltip>
+                    </Box>
+                </Grid>
+                <Grid item container justifyContent="center">
+                    <Box sx={{ width: '100%', maxWidth: 600 }}>
+                        <Tabs 
+                            value={tabValue} 
+                            onChange={handleTabChange} 
+                            variant="fullWidth"
+                            sx={{
+                                backgroundColor: 'primary.main',
+                                borderRadius: '4px',
+                                '& .MuiTab-root': {
+                                    color: 'white',
+                                    '&.Mui-selected': {
+                                        color: 'white',
+                                        fontWeight: 'bold',
+                                    },
+                                    '&:not(:last-child)': {
+                                        borderRight: '1px solid rgba(255, 255, 255, 0.2)',
+                                    },
+                                },
+                                '& .MuiTabs-indicator': {
+                                    backgroundColor: 'white',
+                                },
+                            }}
+                        >
+                            <Tab label="Details" />
+                            <Tab label="Classes" />
+                            <Tab label="Files" />
+                            <Tab label="Members" />
+                        </Tabs>
+                    </Box>
+                </Grid>
+                <Grid item>
+                    {isLoading ? (
+                        <Box display="flex" justifyContent="center" alignItems="center" height="200px">
+                            <CircularProgress />
+                        </Box>
+                    ) : (
+                        <>
+                            <Box hidden={tabValue !== 0}>
+                                {(workspace || !isEdit) && (
+                                    <BaseEditor
+                                        handleSave={handleSave}
+                                        defaultTitle={workspace?.name}
+                                        defaultContent={workspace?.description}
+                                        ref={editorRef}
+                                    />
+                                )}
+                            </Box>
+                            <Box hidden={tabValue !== 1}>
+                                <WorkspaceClass 
+                                    classes={workspace?.classes} 
+                                    onClassesChange={onClassesChange}
+                                    isLoading={isLoading}
+                                    error={error}
+                                />
+                            </Box>
+                            <Box hidden={tabValue !== 2}>
+                                <WorkspaceDropZone onFilesChange={handleFilesChange} />
+                                <Divider sx={{ my: 2 }} />
+                                <WorkspaceDataSet 
+                                    imgs={workspace?.files || []} 
+                                    setState={setWorkspace}
+                                    isLoading={isLoading}
+                                    error={error}
+                                />
+                            </Box>
+                            <Box hidden={tabValue !== 3}>
+                                <WorkspaceMember 
+                                    workspace={workspace} 
+                                    removeMember={removeMember}
+                                    isLoading={isLoading}
+                                    error={error}
+                                />
+                                <Grid container justifyContent="center" sx={{ mt: 2 }}>
+                                    <Button variant="contained" color="primary" onClick={() => setOpenMemberModal(true)}>
+                                        Add Member
+                                    </Button>
+                                </Grid>
+                            </Box>
+                        </>
+                    )}
+                </Grid>
             </Grid>
             <Dialog open={openMemberModal} onClose={() => setOpenMemberModal(false)}>
                 <MemberSearchModal close={() => setOpenMemberModal(false)} setData={addMember} />
             </Dialog>
-        </Grid>
+            <Dialog
+                open={openConfirmDialog}
+                onClose={() => setOpenConfirmDialog(false)}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">{"Confirm Save"}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        Are you sure you want to save these changes?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setOpenConfirmDialog(false)} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={confirmSave} color="primary" autoFocus>
+                        Confirm
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            <Snackbar
+                open={!!error}
+                autoHideDuration={6000}
+                onClose={() => setError(null)}
+                message={error}
+                action={
+                    <IconButton
+                        size="small"
+                        aria-label="close"
+                        color="inherit"
+                        onClick={() => setError(null)}
+                    >
+                        <CloseIcon fontSize="small" />
+                    </IconButton>
+                }
+            />
+        </Paper>
     );
 };
 

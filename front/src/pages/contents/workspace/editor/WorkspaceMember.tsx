@@ -1,44 +1,75 @@
-import { Fragment, useContext } from "react";
-import { WorkspaceContext } from "utils/ContextManager";
+import React from "react";
 import ExpandComp from "component/ExpandComp";
 import { WorkspaceModel } from "model/WorkspaceModel";
-import {Box, Divider, Grid, IconButton, ListItem, ListItemText} from "@mui/material";
+import { Avatar, Box, Grid, IconButton, Tooltip, Typography, CircularProgress } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { Member } from "model/GlobalModel";
 
 interface Props {
     workspace: WorkspaceModel;
-    removeMember: any;
+    removeMember: (member: Member) => void;
+    isLoading?: boolean;
+    error?: string | null;
 }
 
-const WorkspaceMember = ({ workspace, removeMember }: Props) => {
+const WorkspaceMember: React.FC<Props> = ({ workspace, removeMember, isLoading = false, error = null }) => {
+    if (isLoading) {
+        return (
+            <ExpandComp title="Members">
+                <Box display="flex" justifyContent="center" alignItems="center" height="200px">
+                    <CircularProgress />
+                </Box>
+            </ExpandComp>
+        );
+    }
+
+    if (error) {
+        return (
+            <ExpandComp title="Members">
+                <Typography color="error" align="center">{error}</Typography>
+            </ExpandComp>
+        );
+    }
 
     return (
         <ExpandComp title="Members">
             <Grid container spacing={2}>
                 {workspace?.members?.map((member, index) => (
-                    <Fragment key={index}>
-                        <Grid item xs={12} sm={6} md={4} lg={2}>
+                    <Grid item key={index} xs={6} sm={4} md={3} lg={2}>
+                        <Tooltip title={`${member.name} (${member.email})`}>
                             <Box
-                                borderLeft={2}
-                                borderRight={2}
-                                borderTop={2}
-                                borderBottom={2}
-                                borderColor="divider"
-                                padding={1}
-                                display="flex"
-                                justifyContent="space-between"
-                                alignItems="center"
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    p: 1,
+                                    border: 1,
+                                    borderColor: 'divider',
+                                    borderRadius: 1,
+                                    position: 'relative',
+                                }}
                             >
-                                <ListItemText
-                                    primary={member.name}
-                                    secondary={member.email}
+                                <Avatar
+                                    sx={{ width: 60, height: 60, mb: 1 }}
+                                    alt={member.name}
+                                    src={`https://avatars.dicebear.com/api/initials/${member.name}.svg`}
                                 />
-                                <IconButton edge="end" aria-label="delete" onClick={() => removeMember(member)}>
-                                    <CloseIcon />
-                                </IconButton>
+                                <Typography variant="subtitle2" noWrap>
+                                    {member.name}
+                                </Typography>
+                                {member.id !== workspace.owner.id && (
+                                    <IconButton
+                                        size="small"
+                                        aria-label="delete"
+                                        onClick={() => removeMember(member)}
+                                        sx={{ position: 'absolute', top: 0, right: 0 }}
+                                    >
+                                        <CloseIcon fontSize="small" />
+                                    </IconButton>
+                                )}
                             </Box>
-                        </Grid>
-                    </Fragment>
+                        </Tooltip>
+                    </Grid>
                 ))}
             </Grid>
         </ExpandComp>

@@ -1,6 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { WorkspaceModel } from "model/WorkspaceModel";
-import { CardMedia, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
+import {
+    CardMedia,
+    CircularProgress,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle
+} from "@mui/material";
 import { deleteWorkspace, getWorkspace } from "service/Apis/WorkspaceApi";
 import { onAlert } from "component/modal/AlertModal";
 import { Strings } from "utils/strings";
@@ -12,10 +19,11 @@ import { SseEvent, SseType } from "model/GlobalModel";
 interface Props {
     data: WorkspaceModel;
     handleClose: () => void;
+    onDeleteSuccess: () => void;
 }
 
-const WorkspaceDetail = ({ data, handleClose }: Props) => {
-    const [detail, setDetail] = useState<WorkspaceModel>(data);
+const WorkspaceDetail = ({ data, handleClose, onDeleteSuccess }: Props) => {
+    const [detail, setDetail] = useState<WorkspaceModel | null>(null);
     const navigate = useNavigate();
 
     const fetchWorkspaceDetail = useCallback(async (id: number) => {
@@ -29,39 +37,48 @@ const WorkspaceDetail = ({ data, handleClose }: Props) => {
     }, []);
 
     useEffect(() => {
-        fetchWorkspaceDetail(data.id);
+        if (data && data.id) {
+            fetchWorkspaceDetail(data.id);
 
-        const handleSseMessage = (event: SseEvent) => {
-            if (event.type === SseType.WORKSPACE_UPDATE) {
-                const updatedWorkspace = JSON.parse(event.data);
-                if (updatedWorkspace.id === data.id) {
-                    fetchWorkspaceDetail(data.id);
+            const handleSseMessage = (event: SseEvent) => {
+                if (event.type === SseType.WORKSPACE_UPDATE) {
+                    const updatedWorkspace = JSON.parse(event.data);
+                    if (updatedWorkspace.id === data.id) {
+                        fetchWorkspaceDetail(data.id);
+                    }
                 }
-            }
-        };
+            };
 
-        eventBus.subscribe(SseType.WORKSPACE_UPDATE, handleSseMessage);
+            eventBus.subscribe(SseType.WORKSPACE_UPDATE, handleSseMessage);
 
-        return () => {
-            eventBus.unsubscribe(SseType.WORKSPACE_UPDATE, handleSseMessage);
-        };
-    }, [data.id, fetchWorkspaceDetail]);
+            return () => {
+                eventBus.unsubscribe(SseType.WORKSPACE_UPDATE, handleSseMessage);
+            };
+        }
+    }, [data, fetchWorkspaceDetail]);
 
     const handleEdit = () => {
         navigate("/workspace/editor", { state: { data: detail } });
     };
 
     const handleDelete = () => {
-        deleteWorkspace(detail.id)
-            .then((res) => {
-                handleClose();
-                onAlert(Strings.Common.apiSuccess);
-            })
-            .catch((err) => {
-                console.log(err);
-                onAlert(Strings.Common.apiFailed);
-            });
+        if (detail) {
+            deleteWorkspace(detail.id)
+                .then((res) => {
+                    handleClose();
+                    onDeleteSuccess();
+                    onAlert(Strings.Common.apiSuccess);
+                })
+                .catch((err) => {
+                    console.log(err);
+                    onAlert(Strings.Common.apiFailed);
+                });
+        }
     };
+
+    if (!detail) {
+        return <CircularProgress />;
+    }
 
     return (
         <>
@@ -69,7 +86,7 @@ const WorkspaceDetail = ({ data, handleClose }: Props) => {
             <DialogContent>
                 <DialogContentText
                     dangerouslySetInnerHTML={{
-                        __html: detail?.description || "",
+                        __html: detail.description || "",
                     }}
                 />
                 {detail.files?.map((file) => (

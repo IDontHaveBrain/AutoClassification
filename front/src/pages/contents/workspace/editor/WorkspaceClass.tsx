@@ -1,52 +1,95 @@
-import React from "react";
-import { Grid, IconButton, TextField } from "@mui/material";
+import React, { useState } from "react";
+import { Grid, IconButton, TextField, Chip, Autocomplete, CircularProgress, Typography } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import ExpandComp from "component/ExpandComp";
 
 interface Props {
-  classes: string[];
+  classes?: string[];
   onClassesChange: (classes: string[]) => void;
+  isLoading?: boolean;
+  error?: string | null;
 }
 
-const WorkspaceClass = ({classes, onClassesChange}: Props) => {
+const WorkspaceClass: React.FC<Props> = ({ classes, onClassesChange, isLoading = false, error = null }) => {
+  const [newClass, setNewClass] = useState<string>('');
 
-  const handleAdd= () => {
-    if (!classes) {
-      onClassesChange(['']);
-    } else {
-      onClassesChange([...classes, '']);
+  const handleAdd = () => {
+    if (newClass && !classes.includes(newClass)) {
+      onClassesChange([...classes, newClass]);
+      setNewClass('');
     }
   };
 
-  const handleRemove = (index) => {
-    onClassesChange(classes?.filter((_, i) => i !== index));
+  const handleRemove = (classToRemove: string) => {
+    onClassesChange(classes.filter((c) => c !== classToRemove));
   };
 
-  const handleInputChange = (index: number) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = event.target.value;
-    onClassesChange(classes?.map((item, i) => (i === index ? newValue : item)));
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNewClass(event.target.value);
   };
+
+  if (isLoading) {
+    return (
+      <ExpandComp title="Classify">
+        <Grid container justifyContent="center">
+          <CircularProgress />
+        </Grid>
+      </ExpandComp>
+    );
+  }
+
+  if (error) {
+    return (
+      <ExpandComp title="Classify">
+        <Typography color="error" align="center">{error}</Typography>
+      </ExpandComp>
+    );
+  }
 
   return (
-      <ExpandComp title="Classify">
-        <Grid container direction="row" spacing={2}>
-          {classes?.map((item, index) => (
-              <Grid item key={index}>
-                <TextField
-                    value={item}
-                    onChange={handleInputChange(index)}
-                />
-                <IconButton onClick={() => handleRemove(index)}>
-                  <RemoveCircleOutlineIcon />
-                </IconButton>
-              </Grid>
-          ))}
-          <IconButton onClick={handleAdd}>
+    <ExpandComp title="Classify">
+      <Grid container direction="column" spacing={2}>
+        <Grid item>
+          <Autocomplete
+            freeSolo
+            options={classes}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Add new class"
+                variant="outlined"
+                value={newClass}
+                onChange={handleInputChange}
+              />
+            )}
+            renderTags={(value: string[], getTagProps) =>
+              value.map((option: string, index: number) => (
+                <Chip key={option} variant="outlined" label={option} {...getTagProps({ index })} />
+              ))
+            }
+          />
+        </Grid>
+        <Grid item>
+          <IconButton onClick={handleAdd} color="primary">
             <AddCircleOutlineIcon />
           </IconButton>
         </Grid>
-      </ExpandComp>
+        <Grid item>
+          <Grid container spacing={1}>
+            {classes && classes.map((item, index) => (
+              <Grid item key={index}>
+                <Chip
+                  label={item}
+                  onDelete={() => handleRemove(item)}
+                  color="primary"
+                  variant="outlined"
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </Grid>
+      </Grid>
+    </ExpandComp>
   );
 };
 
