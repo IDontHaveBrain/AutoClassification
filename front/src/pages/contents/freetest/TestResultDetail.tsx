@@ -48,6 +48,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [tabValue, setTabValue] = useState(0);
+    const [allImages, setAllImages] = useState<any[]>([]);
 
     useEffect(() => {
         const loadData = async () => {
@@ -56,8 +57,17 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                 setError(null);
 
                 await new Promise(resolve => setTimeout(resolve, 1000));
-                setResult(data?.resultJson ? JSON.parse(data.resultJson) : null);
+                const parsedResult = data?.resultJson ? JSON.parse(data.resultJson) : null;
+                setResult(parsedResult);
                 setImages(data?.testFiles || []);
+                
+                // Populate allImages
+                if (parsedResult && data?.testFiles) {
+                    const allImgs = parsedResult.flatMap(item => 
+                        item.ids.map(id => data.testFiles.find(img => img.id === id))
+                    ).filter(Boolean);
+                    setAllImages(allImgs);
+                }
             } catch (err) {
                 console.error("Error loading data:", err);
                 setError("Failed to load test result data. Please try again.");
@@ -206,13 +216,22 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                                 </Grid>
                                 <Box sx={{ borderBottom: 1, borderColor: 'divider', mt: 2 }}>
                                     <Tabs value={tabValue} onChange={handleTabChange} aria-label="image categories">
+                                        <Tab label="ALL" id="simple-tab-all" aria-controls="simple-tabpanel-all" />
                                         {result?.map((item, index) => (
                                             <Tab label={item.label} id={`simple-tab-${index}`} aria-controls={`simple-tabpanel-${index}`} key={item.label} />
                                         ))}
                                     </Tabs>
                                 </Box>
+                                <TabPanel value={tabValue} index={0}>
+                                    <LabelledImageCard
+                                        label="All Images"
+                                        images={sortImages(allImages)}
+                                        onImageClick={handleImageClick}
+                                        imageSize="small"
+                                    />
+                                </TabPanel>
                                 {result?.map((item, index) => (
-                                    <TabPanel value={tabValue} index={index} key={item.label}>
+                                    <TabPanel value={tabValue} index={index + 1} key={item.label}>
                                         <LabelledImageCard
                                             label={item.label}
                                             images={sortImages(item.ids.map((id) => images.find((img) => img.id === id)))}
