@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Grid, Card, CardMedia, CardContent, Typography, CircularProgress, Box, Modal, IconButton, Skeleton } from "@mui/material";
+import { Grid, Card, CardMedia, CardContent, Typography, CircularProgress, Box, Modal, IconButton, Skeleton, Tooltip, Pagination } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
+import DeleteIcon from '@mui/icons-material/Delete';
 import ExpandComp from "component/ExpandComp";
 import { FileModel } from "model/GlobalModel";
 
@@ -9,10 +10,13 @@ interface Props {
     setState: React.Dispatch<React.SetStateAction<any>>;
     isLoading?: boolean;
     error?: string | null;
+    onDeleteImage?: (imageId: string) => void;
 }
 
-const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState, isLoading = false, error = null }) => {
+const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState, isLoading = false, error = null, onDeleteImage }) => {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [page, setPage] = useState(1);
+    const imagesPerPage = 12;
 
     const handleImageClick = (imageUrl: string) => {
         setSelectedImage(imageUrl);
@@ -20,6 +24,17 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState, isLoading = false, 
 
     const handleCloseModal = () => {
         setSelectedImage(null);
+    };
+
+    const handleChangePage = (event: React.ChangeEvent<unknown>, value: number) => {
+        setPage(value);
+    };
+
+    const handleDeleteImage = (event: React.MouseEvent, imageId: string) => {
+        event.stopPropagation();
+        if (onDeleteImage) {
+            onDeleteImage(imageId);
+        }
     };
 
     if (isLoading) {
@@ -45,41 +60,75 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState, isLoading = false, 
         );
     }
 
+    const startIndex = (page - 1) * imagesPerPage;
+    const endIndex = startIndex + imagesPerPage;
+    const displayedImages = imgs.slice(startIndex, endIndex);
+
     return (
         <ExpandComp title="DataSet">
             {imgs.length === 0 ? (
                 <Typography align="center">No images available</Typography>
             ) : (
-                <Grid container spacing={2}>
-                    {imgs.map((image, index) => (
-                        <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-                            <Card 
-                                onClick={() => handleImageClick(image.url)} 
-                                sx={{ 
-                                    cursor: 'pointer',
-                                    transition: '0.3s',
-                                    '&:hover': {
-                                        transform: 'scale(1.05)',
-                                        boxShadow: 3,
-                                    },
-                                }}
-                            >
-                                <CardMedia
-                                    component="img"
-                                    height="140"
-                                    image={image.url}
-                                    alt={image.fileName}
-                                    sx={{ objectFit: 'cover' }}
-                                />
-                                <CardContent>
-                                    <Typography variant="body2" color="text.secondary" noWrap>
-                                        {image.originalFileName}
-                                    </Typography>
-                                </CardContent>
-                            </Card>
-                        </Grid>
-                    ))}
-                </Grid>
+                <>
+                    <Grid container spacing={2}>
+                        {displayedImages.map((image, index) => (
+                            <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+                                <Card 
+                                    onClick={() => handleImageClick(image.url)} 
+                                    sx={{ 
+                                        cursor: 'pointer',
+                                        transition: '0.3s',
+                                        '&:hover': {
+                                            transform: 'scale(1.05)',
+                                            boxShadow: 3,
+                                        },
+                                        position: 'relative',
+                                    }}
+                                >
+                                    <CardMedia
+                                        component="img"
+                                        height="140"
+                                        image={image.url}
+                                        alt={image.fileName}
+                                        sx={{ objectFit: 'cover' }}
+                                    />
+                                    <CardContent>
+                                        <Typography variant="body2" color="text.secondary" noWrap>
+                                            {image.originalFileName}
+                                        </Typography>
+                                    </CardContent>
+                                    {onDeleteImage && (
+                                        <Tooltip title="Delete Image">
+                                            <IconButton
+                                                size="small"
+                                                onClick={(e) => handleDeleteImage(e, image.id)}
+                                                sx={{
+                                                    position: 'absolute',
+                                                    top: 5,
+                                                    right: 5,
+                                                    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                                                    '&:hover': {
+                                                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                                    },
+                                                }}
+                                            >
+                                                <DeleteIcon fontSize="small" />
+                                            </IconButton>
+                                        </Tooltip>
+                                    )}
+                                </Card>
+                            </Grid>
+                        ))}
+                    </Grid>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                        <Pagination 
+                            count={Math.ceil(imgs.length / imagesPerPage)} 
+                            page={page} 
+                            onChange={handleChangePage} 
+                            color="primary" 
+                        />
+                    </Box>
+                </>
             )}
             <Modal
                 open={!!selectedImage}
