@@ -70,7 +70,7 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
 
     const handleDelete = () => {
         if (detail) {
-            deleteWorkspace(detail.id)
+            deleteWorkspace(detail.id.toString())
                 .then(() => {
                     handleClose();
                     onDeleteSuccess();
