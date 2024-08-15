@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Grid, Card, CardMedia, CardContent, Typography, CircularProgress, Box, Modal, IconButton, Skeleton, Tooltip, Pagination } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -13,10 +13,16 @@ interface Props {
     onDeleteImage?: (imageId: number) => void;
 }
 
-const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState, isLoading = false, error = null, onDeleteImage }) => {
+const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState, isLoading = false, error = null, onDeleteImage, classes }) => {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [page, setPage] = useState(1);
+    const [selectedTab, setSelectedTab] = useState<string>("All"); // 기본 탭 "All"로 설정
     const imagesPerPage = 12;
+
+    useEffect(() => {
+        // 탭이 변경될 때마다 페이지를 1로 초기화
+        setPage(1);
+    }, [selectedTab]);
 
     const handleImageClick = (imageUrl: string) => {
         setSelectedImage(imageUrl);
@@ -28,6 +34,10 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState, isLoading = false, 
 
     const handleChangePage = (event: React.ChangeEvent<unknown>, value: number) => {
         setPage(value);
+    };
+
+    const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+        setSelectedTab(newValue);
     };
 
     const handleDeleteImage = (event: React.MouseEvent, imageId: number) => {
@@ -60,22 +70,42 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState, isLoading = false, 
         );
     }
 
+    // 선택된 탭에 따라 이미지 필터링
+    const filteredImages = imgs.filter((image) => {
+        if (selectedTab === "All") {
+            return true; // 모든 이미지 표시
+        } else if (selectedTab === "None") {
+            return !image.label || image.label.toLowerCase() === "none"; // 레이블이 없거나 "none"인 이미지 표시
+        } else {
+            return image.label === selectedTab; // 선택된 탭과 레이블이 일치하는 이미지 표시
+        }
+    });
+
     const startIndex = (page - 1) * imagesPerPage;
     const endIndex = startIndex + imagesPerPage;
-    const displayedImages = imgs.slice(startIndex, endIndex);
+    const displayedImages = filteredImages.slice(startIndex, endIndex);
 
     return (
         <ExpandComp title="DataSet">
-            {imgs.length === 0 ? (
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Tabs value={selectedTab} onChange={handleTabChange} aria-label="basic tabs example">
+                    <Tab label="All" value="All" />
+                    <Tab label="None" value="None" />
+                    {classes?.map((className) => (
+                        <Tab key={className} label={className} value={className} />
+                    ))}
+                </Tabs>
+            </Box>
+            {filteredImages.length === 0 ? (
                 <Typography align="center">No images available</Typography>
             ) : (
                 <>
-                    <Grid container spacing={2}>
+                    <Grid container spacing={2} sx={{ mt: 2 }}>
                         {displayedImages.map((image, index) => (
                             <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-                                <Card 
-                                    onClick={() => handleImageClick(image.url)} 
-                                    sx={{ 
+                                <Card
+                                    onClick={() => handleImageClick(image.url)}
+                                    sx={{
                                         cursor: 'pointer',
                                         transition: '0.3s',
                                         '&:hover': {
@@ -121,11 +151,11 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState, isLoading = false, 
                         ))}
                     </Grid>
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-                        <Pagination 
-                            count={Math.ceil(imgs.length / imagesPerPage)} 
-                            page={page} 
-                            onChange={handleChangePage} 
-                            color="primary" 
+                        <Pagination
+                            count={Math.ceil(filteredImages.length / imagesPerPage)}
+                            page={page}
+                            onChange={handleChangePage}
+                            color="primary"
                         />
                     </Box>
                 </>

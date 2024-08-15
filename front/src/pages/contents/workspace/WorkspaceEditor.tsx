@@ -6,8 +6,9 @@ import { Strings } from "utils/strings";
 import { WorkspaceModel } from "model/WorkspaceModel";
 import { Member } from "model/GlobalModel";
 import { 
-    Grid, Dialog, Divider, Button, Tabs, Tab, Box, CircularProgress, Snackbar, 
-    Paper, Typography, IconButton, Tooltip, DialogActions, DialogContent, DialogContentText, DialogTitle
+    Grid, Dialog, Divider, Button, Box, CircularProgress, Snackbar, 
+    Paper, Typography, IconButton, Tooltip, DialogActions, DialogContent, DialogContentText, DialogTitle,
+    Tabs, Tab
 } from "@mui/material";
 import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
@@ -19,6 +20,7 @@ import WorkspaceMember from "pages/contents/workspace/editor/WorkspaceMember";
 import MemberSearchModal from "component/modal/MemberSearchModal";
 
 const WorkspaceEditor = () => {
+    // ... (rest of the component code)
     const [workspace, setWorkspace] = useState<WorkspaceModel>();
     const [newFiles, setNewFiles] = useState<any>([]);
     const [isEdit, setIsEdit] = useState(false);
@@ -198,11 +200,12 @@ const WorkspaceEditor = () => {
                             <Box hidden={tabValue !== 2}>
                                 <WorkspaceDropZone onFilesChange={handleFilesChange} />
                                 <Divider sx={{ my: 2 }} />
-                                <WorkspaceDataSet 
-                                    imgs={workspace?.files || []} 
+                                <WorkspaceDataSet
+                                    imgs={workspace?.files || []}
                                     setState={setWorkspace}
                                     isLoading={isLoading}
                                     error={error}
+                                    classes={workspace?.classes} 
                                 />
                             </Box>
                             <Box hidden={tabValue !== 3}>
