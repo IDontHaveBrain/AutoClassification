@@ -60,8 +60,6 @@ export const MenuItems: MenuInfo[] = [
     },
     {
         name: "Workspace",
-        path: "/workspace",
-        element: <WorkspaceList/>,
         context: WorkspaceContext,
         subMenu: [
             {
