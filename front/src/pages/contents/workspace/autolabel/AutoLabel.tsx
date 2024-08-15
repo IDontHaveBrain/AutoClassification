@@ -27,7 +27,7 @@ const AutoLabel: React.FC = () => {
             .finally(() => setIsLoading(false));
     }, []);
 
-    const handleSelectChange = (e: React.ChangeEvent<{}>, newValue: WorkspaceModel | null) => {
+    const handleSelectChange = (_: React.SyntheticEvent, newValue: WorkspaceModel | null) => {
         if (newValue) {
             setIsLoading(true);
             getWorkspace(newValue.id)
