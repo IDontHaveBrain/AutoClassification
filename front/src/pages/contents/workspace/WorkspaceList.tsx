@@ -16,13 +16,13 @@ import { onAlert } from "component/modal/AlertModal";
 import { Strings } from "utils/strings";
 
 interface Search {
-    owner: string;
+    ownerEmail: string;
     name: string;
 }
 
 const WorkspaceList: React.FC = () => {
     const [pageable, setPageable] = useState<Pageable>(initPageable(10));
-    const [search, setSearch] = useState<Search>({owner: "", name: ""});
+    const [search, setSearch] = useState<Search>({ownerEmail: "", name: ""});
     const [openDetail, setOpenDetail] = useState(false);
     const [selectedWorkspace, setSelectedWorkspace] = useState<WorkspaceModel | null>(null);
     const [rows, setRows] = useState<WorkspaceModel[]>([]);
@@ -128,11 +128,11 @@ const WorkspaceList: React.FC = () => {
                         onChange={handleSearchChange}
                     />
                     <TextField
-                        name="owner"
-                        label="Owner"
+                        name="ownerEmail"
+                        label="OwnerEmail"
                         variant="outlined"
                         size="small"
-                        value={search.owner}
+                        value={search.ownerEmail}
                         onChange={handleSearchChange}
                     />
                     <Button variant="contained" onClick={handleSearch}>Search</Button>

@@ -9,11 +9,13 @@ import cc.nobrain.dev.userserver.domain.member.service.MemberService
 import cc.nobrain.dev.userserver.domain.train.entity.TrainFile
 import cc.nobrain.dev.userserver.domain.workspace.entity.Workspace
 import cc.nobrain.dev.userserver.domain.workspace.repository.WorkspaceRepository
+import cc.nobrain.dev.userserver.domain.workspace.repository.WorkspaceSpecs
 import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceReq
 import cc.nobrain.dev.userserver.domain.workspace.service.dto.WorkspaceRes
 import org.modelmapper.ModelMapper
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -26,6 +28,14 @@ class WorkspaceServiceImpl(
     private val modelMapper: ModelMapper,
     private val fileComponent: FileComponent
 ) : WorkspaceService {
+
+    override suspend fun searchWorkspaces(search: WorkspaceReq.Search, pageable: Pageable?): Page<WorkspaceRes> {
+        val spec = Specification.where(WorkspaceSpecs.nameLike(search.name))
+            .and(WorkspaceSpecs.ownerEmailLike(search.ownerEmail))
+
+        val workspaces = workspaceRepository.findAll(spec, pageable ?: Pageable.unpaged())
+        return workspaces.map { workspace -> modelMapper.map(workspace, WorkspaceRes::class.java) }
+    }
 
     @Transactional
     override suspend fun createWorkspace(create: WorkspaceReq.Create, files: Array<MultipartFile>?): WorkspaceRes {
@@ -73,13 +83,21 @@ class WorkspaceServiceImpl(
         return modelMapper.map(workspace, WorkspaceRes::class.java);
     }
 
-    override suspend fun getMyWorkspace(pageable: Pageable?): Page<WorkspaceRes.Owner> {
+    override suspend fun getMyWorkspace(search: WorkspaceReq.Search?, pageable: Pageable?): Page<WorkspaceRes.Owner> {
         val member = MemberUtil.instance.getCurrentMemberDto()
-            .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) };
+            .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
-        val workspace = workspaceRepository.findByMembers_IdOrOwner_Id(member.id!!, member.id!!, pageable);
+        var spec = Specification.where(WorkspaceSpecs.membersIdIn(listOf(member.id!!)))
+            .or(WorkspaceSpecs.ownerIdEq(member.id!!))
 
-        return workspace.map { space -> modelMapper.map(space, WorkspaceRes.Owner::class.java) }
+        if (search != null) {
+            val searchSpec = Specification.where(WorkspaceSpecs.nameLike(search.name))
+                .and(WorkspaceSpecs.ownerEmailLike(search.ownerEmail))
+            spec = spec.and(searchSpec)
+        }
+
+        val workspaces = workspaceRepository.findAll(spec, pageable ?: Pageable.unpaged())
+        return workspaces.map { space -> modelMapper.map(space, WorkspaceRes.Owner::class.java) }
     }
 
     @Transactional

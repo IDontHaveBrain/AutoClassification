@@ -13,7 +13,8 @@ interface WorkspaceService {
     suspend fun deleteWorkspace(id: Long)
 
     suspend fun getWorkspace(id: Long): WorkspaceRes
-    suspend fun getMyWorkspace(pageable: Pageable?): Page<WorkspaceRes.Owner>
+    suspend fun getMyWorkspace(search: WorkspaceReq.Search?, pageable: Pageable?): Page<WorkspaceRes.Owner>
+    suspend fun searchWorkspaces(search: WorkspaceReq.Search, pageable: Pageable?): Page<WorkspaceRes>
     suspend fun addMember(workspaceId: Long, memberId: Long)
     suspend fun removeMember(workspaceId: Long, memberId: Long)
     suspend fun invite(invite: WorkspaceReq.Invite)

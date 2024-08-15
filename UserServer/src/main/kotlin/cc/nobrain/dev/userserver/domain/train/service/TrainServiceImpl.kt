@@ -105,7 +105,7 @@ class TrainServiceImpl(
         val member = MemberUtil.instance.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
-        val workspaces = workspaceService.getMyWorkspace(null);
+        val workspaces = workspaceService.getMyWorkspace(null, null);
 
         val files = trainFileRepository.findByOwnerIndex_Id(member.id!!)
         return files.stream().map { file -> modelMapper.map(file, FileDto::class.java) }.toList()
@@ -130,7 +130,7 @@ class TrainServiceImpl(
     override suspend fun requestLabeling(workspaceId: Long): ResponseEntity<Any> {
         val member = MemberUtil.instance.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
-        val workspaceList = workspaceService.getMyWorkspace(null);
+        val workspaceList = workspaceService.getMyWorkspace(null, null);
         val workspace = workspaceList.stream().filter { w -> w.id == workspaceId }.findFirst()
             .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) }
 

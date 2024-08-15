@@ -177,7 +177,6 @@ class SseHandler(private val objectMapper: ObjectMapper) {
         userConnections.keys.forEach { userId ->
             sendEvent(userId, heartbeatEvent)
         }
-        logger.debug("Heartbeat sent to all connected users")
     }
 
     private fun serializeMessage(data: Any): String {

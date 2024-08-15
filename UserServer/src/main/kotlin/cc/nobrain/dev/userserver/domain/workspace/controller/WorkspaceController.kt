@@ -15,9 +15,17 @@ class WorkspaceController(
     private val workspaceService: WorkspaceService
 ) {
 
+    @GetMapping("/search")
+    suspend fun searchWorkspaces(
+        search: WorkspaceReq.Search,
+        pageable: Pageable?
+    ): Page<WorkspaceRes> {
+        return workspaceService.searchWorkspaces(search, pageable)
+    }
+
     @GetMapping("/my")
-    suspend fun getMyWorkspaces(pageable: Pageable?): Page<WorkspaceRes.Owner> {
-        return workspaceService.getMyWorkspace(pageable);
+    suspend fun getMyWorkspaces(search: WorkspaceReq.Search, pageable: Pageable?): Page<WorkspaceRes.Owner> {
+        return workspaceService.getMyWorkspace(search, pageable);
     }
 
     @GetMapping("/{id}")

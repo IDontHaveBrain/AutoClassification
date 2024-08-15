@@ -30,4 +30,9 @@ data class WorkspaceReq(
         var workspaceId: Long,
         var emails: List<String>
     )
+
+    data class Search(
+        var name: String?,
+        var ownerEmail: String?
+    )
 }
