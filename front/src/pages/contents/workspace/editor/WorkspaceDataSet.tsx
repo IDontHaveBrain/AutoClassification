@@ -10,7 +10,7 @@ interface Props {
     setState: React.Dispatch<React.SetStateAction<any>>;
     isLoading?: boolean;
     error?: string | null;
-    onDeleteImage?: (imageId: string) => void;
+    onDeleteImage?: (imageId: number) => void;
 }
 
 const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState, isLoading = false, error = null, onDeleteImage }) => {
@@ -30,7 +30,7 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState, isLoading = false, 
         setPage(value);
     };
 
-    const handleDeleteImage = (event: React.MouseEvent, imageId: string) => {
+    const handleDeleteImage = (event: React.MouseEvent, imageId: number) => {
         event.stopPropagation();
         if (onDeleteImage) {
             onDeleteImage(imageId);
