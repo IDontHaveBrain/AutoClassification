@@ -48,7 +48,7 @@ const WorkspaceList: React.FC = () => {
 
     useEffect(() => {
         fetchWorkspaces(pageable.page, pageable.size, pageable.sort, search);
-    }, [fetchWorkspaces, pageable, search]);
+    }, [fetchWorkspaces, pageable]); // 검색 조건 변경 시 자동 검색 제거
 
     const handlePageChange = (page: number, size: number, sort: string) => {
         setPageable(prevPageable => ({...prevPageable, page, size, sort}));
@@ -85,6 +85,7 @@ const WorkspaceList: React.FC = () => {
     };
 
     const handleSearch = () => {
+        setPageable(prevPageable => ({...prevPageable, page: 0})); // 검색 시 첫 페이지로 이동
         fetchWorkspaces(0, pageable.size, pageable.sort, search);
     };
 
