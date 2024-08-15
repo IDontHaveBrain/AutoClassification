@@ -65,6 +65,12 @@ export const MenuItems: MenuInfo[] = [
         context: WorkspaceContext,
         subMenu: [
             {
+                name: "Workspace List",
+                path: "/workspace",
+                element: <WorkspaceList/>,
+                context: WorkspaceContext,
+            },
+            {
                 name: "Workspace Editor",
                 path: "/workspace/editor",
                 element: <WorkspaceEditor/>,
@@ -83,6 +89,11 @@ export const MenuItems: MenuInfo[] = [
             },
         ],
         subTabMenu: [
+            {
+                name: "Workspace List",
+                path: "/workspace",
+                element: <WorkspaceList/>,
+            },
             {
                 name: "Auto Label",
                 path: "/workspace/auto-label",
