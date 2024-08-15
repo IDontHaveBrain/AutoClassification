@@ -15,6 +15,8 @@ import {
     ImageListItem,
     Paper,
     Modal,
+    Tabs,
+    Tab,
 } from "@mui/material";
 import { deleteWorkspace, getWorkspace } from "service/Apis/WorkspaceApi";
 import { onAlert } from "component/modal/AlertModal";
@@ -31,6 +33,23 @@ interface Props {
 const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }) => {
     const [detail, setDetail] = useState<WorkspaceModel | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [selectedTab, setSelectedTab] = useState<string>("All");
+
+    const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+        setSelectedTab(newValue);
+    };
+
+    const filteredFiles = () => {
+        if (!detail.files) return [];
+        if (selectedTab === 'All') {
+            return detail.files; // 모든 파일 표시
+        } else if (selectedTab === 'None') {
+            return detail.files.filter(file => !file.label || file.label.toLowerCase() === 'none');
+        } else if (detail.classes?.includes(selectedTab)) {
+            return detail.files.filter(file => file.label === selectedTab);
+        }
+        return [];
+    };
     const navigate = useNavigate();
 
     const fetchWorkspaceDetail = useCallback(async (id: number) => {
@@ -133,8 +152,15 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                         <Typography variant="h6" gutterBottom>
                             Images
                         </Typography>
+                        <Tabs value={selectedTab} onChange={handleTabChange} aria-label="image tabs">
+                            <Tab label="All" value="All" /> {/* 모든 파일 탭 */}
+                            <Tab label="None" value="None" /> {/* 분류되지 않은 파일 탭 */}
+                            {detail.classes?.map((className) => (
+                                <Tab key={className} label={className} value={className} />
+                            ))}
+                        </Tabs>
                         <ImageList sx={{ width: '100%', height: 450 }} cols={3} rowHeight={164}>
-                            {detail.files.map((file) => (
+                            {filteredFiles().map((file) => (
                                 <ImageListItem key={file.id} onClick={() => setSelectedImage(file.url)} style={{ cursor: 'pointer' }}>
                                     <img
                                         src={file.url}

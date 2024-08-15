@@ -155,7 +155,7 @@ const WorkspaceList: React.FC = () => {
                     getExpandedContent={getExpandedContent}
                 />
             )}
-            <Dialog open={openDetail} onClose={handleClose}>
+            <Dialog open={openDetail} onClose={handleClose} maxWidth="md" fullWidth>
                 {selectedWorkspace && (
                     <WorkspaceDetail
                         handleClose={handleClose}
