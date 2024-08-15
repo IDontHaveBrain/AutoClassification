@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Grid, Card, CardMedia, CardContent, Typography, CircularProgress, Box, Modal, IconButton, Skeleton, Tooltip, Pagination } from "@mui/material";
+import { Grid, Card, CardMedia, CardContent, Typography, CircularProgress, Box, Modal, IconButton, Skeleton, Tooltip, Pagination, Tabs, Tab } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ExpandComp from "component/ExpandComp";
@@ -11,6 +11,7 @@ interface Props {
     isLoading?: boolean;
     error?: string | null;
     onDeleteImage?: (imageId: number) => void;
+    classes?: string[];
 }
 
 const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState, isLoading = false, error = null, onDeleteImage, classes }) => {

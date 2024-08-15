@@ -20,7 +20,6 @@ import WorkspaceMember from "pages/contents/workspace/editor/WorkspaceMember";
 import MemberSearchModal from "component/modal/MemberSearchModal";
 
 const WorkspaceEditor = () => {
-    // ... (rest of the component code)
     const [workspace, setWorkspace] = useState<WorkspaceModel>();
     const [newFiles, setNewFiles] = useState<any>([]);
     const [isEdit, setIsEdit] = useState(false);
