@@ -8,6 +8,7 @@ import { onAlert } from "component/modal/AlertModal";
 import { Strings } from "utils/strings";
 import LabelledImages from "component/imgs/LabelledImages";
 import WorkspaceDataSet from "pages/contents/workspace/editor/WorkspaceDataSet";
+import { requestTrain } from "service/Apis/TrainApi";
 
 const Train = () => {
     const [workspaceList, setWorkspaceList] = useState<WorkspaceModel[]>([]);
@@ -54,7 +55,16 @@ const Train = () => {
             return;
         }
 
-        // TODO: 훈련 요청
+        setIsLoading(true);
+        requestTrain(selected.id)
+            .then(() => {
+                onAlert(Strings.Common.apiSuccess);
+            })
+            .catch((err) => {
+                console.error(err);
+                onAlert(Strings.Common.apiFailed);
+            })
+            .finally(() => setIsLoading(false));
     };
 
     return (

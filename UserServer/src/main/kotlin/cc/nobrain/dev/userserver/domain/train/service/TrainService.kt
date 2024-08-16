@@ -19,7 +19,7 @@ interface TrainService {
 
     suspend fun requestLabeling(workspaceId: Long): ResponseEntity<Any>
 
-    suspend fun requestTrain(): List<FileDto>
+    suspend fun requestTrain(workspaceId: Long): List<FileDto>
 
     suspend fun updateFileLabels(response: List<LabelAndIds>)
 

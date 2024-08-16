@@ -40,9 +40,9 @@ class TrainController(
         return trainService.requestLabeling(workspaceId);
     }
 
-    @PostMapping("/train")
-    suspend fun requestTrain(): List<FileDto> {
-        return trainService.requestTrain();
+    @PostMapping("/train/{workspaceId}")
+    suspend fun requestTrain(@PathVariable workspaceId: Long): List<FileDto> {
+        return trainService.requestTrain(workspaceId);
     }
 
     @DeleteMapping("/{id}")

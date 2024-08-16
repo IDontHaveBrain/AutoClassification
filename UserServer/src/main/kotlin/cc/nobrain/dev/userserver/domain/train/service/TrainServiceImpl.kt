@@ -146,33 +146,12 @@ class TrainServiceImpl(
             "testImages" to testImages
         )
 
-//        CoroutineScope(Dispatchers.IO).launch {
-//            try {
-//                val response: List<LabelAndIds> = webClient.post()
-//                    .uri("${urlProps.ai}/api/classify")
-//                    .header("x-api-key", "test")
-//                    .bodyValue(requestBody)
-//                    .retrieve()
-//                    .bodyToFlux(LabelAndIds::class.java)
-//                    .collectList()
-//                    .block() ?: emptyList()
-//
-//                println(response);
-//                updateFileLabels(response);
-//
-//                alarmService.sendAlarmToMember(member.id, "라벨링 결과가 도착했습니다.", "라벨링 결과가 도착했습니다.");
-//            } catch (e: Exception) {
-//                e.printStackTrace();
-//                alarmService.sendAlarmToMember(member.id, "라벨링 요청이 실패하였습니다.", "라벨링 요청이 실패하였습니다.");
-//            }
-//        }
-
         rabbitEventPublisher.publish(CLASSIFY_QUEUE, objectMapper.writeValueAsString(requestBody));
 
         return ResponseEntity.ok().build();
     }
 
-    override suspend fun requestTrain(): List<FileDto> {
+    override suspend fun requestTrain(workspaceId: Long): List<FileDto> {
         val member = MemberUtil.instance.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
