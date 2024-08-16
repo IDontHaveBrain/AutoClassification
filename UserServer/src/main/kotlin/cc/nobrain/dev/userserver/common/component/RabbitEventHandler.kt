@@ -14,6 +14,10 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import org.slf4j.LoggerFactory
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory
+import org.springframework.amqp.rabbit.connection.ConnectionFactory
+import org.springframework.amqp.rabbit.core.RabbitAdmin
+import org.springframework.context.annotation.Bean
 
 interface EventPublisher {
     fun publish(routingKey: String, message: Any)

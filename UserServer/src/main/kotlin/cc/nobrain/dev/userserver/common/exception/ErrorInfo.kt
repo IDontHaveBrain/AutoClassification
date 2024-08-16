@@ -8,4 +8,5 @@ enum class ErrorInfo(val code: String, val message: String, val status: Int) {
     TARGET_NOT_FOUND("U005", "Target not found", 404),
     DUPLICATE_EMAIL("U006", "Duplicate Email", 400),
     INSUFFICIENT_LABELED_DATA("U007", "Insufficient labeled data", 400),
+    TRAIN_QUEUE_FULL("U008", "Train queue is full", 429),
 }
