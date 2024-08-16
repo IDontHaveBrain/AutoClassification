@@ -2,6 +2,7 @@ package cc.nobrain.dev.userserver.common.config
 
 import org.springframework.amqp.core.*
 import org.springframework.amqp.rabbit.connection.ConnectionFactory
+import org.springframework.amqp.rabbit.core.RabbitAdmin
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.context.annotation.Bean
@@ -16,6 +17,11 @@ class RabbitMqConfiguration {
         const val RESPONSE_QUEUE = "ResponseQueue"
         const val TRAIN_EXCHANGE = "TrainExchange"
         const val TRAIN_QUEUE = "TrainQueue"
+    }
+
+    @Bean
+    fun rabbitAdmin(connectionFactory: ConnectionFactory): RabbitAdmin {
+        return RabbitAdmin(connectionFactory)
     }
 
     @Bean
