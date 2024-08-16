@@ -91,6 +91,7 @@ const Train = () => {
                                 imgs={selected.files || []}
                                 setState={setSelected}
                                 isLoading={isLoading}
+                                classes={selected.classes || []}
                             />
                         </Grid>
                         <Grid item xs={12}>
