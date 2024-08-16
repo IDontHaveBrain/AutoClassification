@@ -48,7 +48,8 @@ const WorkspaceList: React.FC = () => {
 
     useEffect(() => {
         fetchWorkspaces(pageable.page, pageable.size, pageable.sort, search);
-    }, [fetchWorkspaces, pageable]); // 검색 조건 변경 시 자동 검색 제거
+        // eslint-disable-next-line
+    }, []);
 
     const handlePageChange = (page: number, size: number, sort: string) => {
         setPageable(prevPageable => ({...prevPageable, page, size, sort}));
