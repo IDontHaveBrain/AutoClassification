@@ -8,6 +8,7 @@ from pika.exceptions import AMQPConnectionError, AMQPError, StreamLostError
 from config import config
 from services.data_processor import DataProcessor
 from exceptions.custom_exceptions import RabbitMQConnectionError, MessageProcessingError
+from services.operation_enum import Operation
 
 RABBITMQ_RESPONSE_EXCHANGE = 'ClassifyResponseExchange'
 TRAIN_EXCHANGE = 'TrainExchange'
@@ -206,14 +207,14 @@ class RabbitMQHandler:
 
     def process_data_wrapper(self, ch: pika.channel.Channel, method: pika.spec.Basic.Deliver, 
                              properties: pika.spec.BasicProperties, body: bytes) -> None:
-        self._process_message(ch, method, properties, body, "classify")
+        self._process_message(ch, method, properties, body, Operation.CLASSIFY)
 
     def process_train_wrapper(self, ch: pika.channel.Channel, method: pika.spec.Basic.Deliver, 
                               properties: pika.spec.BasicProperties, body: bytes) -> None:
-        self._process_message(ch, method, properties, body, "train")
+        self._process_message(ch, method, properties, body, Operation.TRAIN)
 
     def _process_message(self, ch: pika.channel.Channel, method: pika.spec.Basic.Deliver, 
-                         properties: pika.spec.BasicProperties, body: bytes, operation: str) -> None:
+                         properties: pika.spec.BasicProperties, body: bytes, operation: Operation) -> None:
         """
         수신되는 RabbitMQ 메시지를 처리하는 래퍼 메서드.
 
@@ -224,7 +225,7 @@ class RabbitMQHandler:
             method (pika.spec.Basic.Deliver): 메서드 프레임.
             properties (pika.spec.BasicProperties): 메시지의 속성.
             body (bytes): 메시지 본문.
-            operation (str): 수행할 작업 유형 ("classify" 또는 "train")
+            operation (Operation): 수행할 작업 유형 (Operation.CLASSIFY 또는 Operation.TRAIN)
 
         Note:
             이 메서드는 다양한 예외 상황을 처리하며, 오류 발생 시 적절한 로깅을 수행합니다.
@@ -236,9 +237,9 @@ class RabbitMQHandler:
 
             result = self.data_processor.process_data(dummy_request, operation)
             
-            if operation == "classify":
+            if operation == Operation.CLASSIFY:
                 response = self._create_response(message, result)
-            else:  # train
+            else:  # Operation.TRAIN
                 response = self._create_train_response(message, result)
 
             self.send_response_to_queue(properties.correlation_id, response)
