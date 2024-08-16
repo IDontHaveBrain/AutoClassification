@@ -3,12 +3,12 @@ from typing import List, Optional
 
 class ImageDto(BaseModel):
     """
-    Data Transfer Object for image information.
+    이미지 정보를 위한 데이터 전송 객체.
 
-    Attributes:
-        id (str): Unique identifier for the image.
-        url (str): URL where the image can be accessed.
-        fileName (str): Name of the image file.
+    속성:
+        id (str): 이미지의 고유 식별자.
+        url (str): 이미지에 접근할 수 있는 URL.
+        fileName (str): 이미지 파일의 이름.
     """
     id: str
     url: str
@@ -16,12 +16,12 @@ class ImageDto(BaseModel):
 
 class ClassificationRequest(BaseModel):
     """
-    Model for a classification request.
+    분류 요청을 위한 모델.
 
-    Attributes:
-        workspaceId (int): ID of the workspace where the classification is performed.
-        testClass (List[str]): List of classification categories to test against.
-        testImages (List[ImageDto]): List of images to be classified.
+    속성:
+        workspaceId (int): 분류가 수행되는 작업 공간의 ID.
+        testClass (List[str]): 테스트할 분류 카테고리 목록.
+        testImages (List[ImageDto]): 분류할 이미지 목록.
     """
     workspaceId: int
     testClass: List[str]
@@ -29,20 +29,20 @@ class ClassificationRequest(BaseModel):
 
 class ClassificationResult(BaseModel):
     """
-    Model for a single classification result.
+    단일 분류 결과를 위한 모델.
 
-    Attributes:
-        label (str): The classification label assigned.
-        ids (List[str]): List of image IDs that were classified with this label.
+    속성:
+        label (str): 할당된 분류 레이블.
+        ids (List[str]): 이 레이블로 분류된 이미지 ID 목록.
     """
     label: str
     ids: List[str]
 
 class ClassificationResponse(BaseModel):
     """
-    Model for the overall classification response.
+    전체 분류 응답을 위한 모델.
 
-    Attributes:
-        labels_and_ids (List[ClassificationResult]): List of classification results.
+    속성:
+        labels_and_ids (List[ClassificationResult]): 분류 결과 목록.
     """
     labels_and_ids: List[ClassificationResult]
