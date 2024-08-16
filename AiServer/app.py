@@ -7,7 +7,9 @@ from config import Config
 from services.consumer import Consumer
 from api.routes import api_bp
 from api.error_handlers import register_error_handlers
+from utils.logger import setup_logging
 
+setup_logging()
 app = Flask(__name__)
 app.config.from_object(Config)
 app.register_blueprint(api_bp)

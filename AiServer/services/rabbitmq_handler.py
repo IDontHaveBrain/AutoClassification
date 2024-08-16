@@ -9,6 +9,8 @@ from config import config
 from services.data_processor import DataProcessor
 from exceptions.custom_exceptions import RabbitMQConnectionError, MessageProcessingError
 
+RABBITMQ_RESPONSE_EXCHANGE = 'ClassifyResponseExchange'
+
 logger = logging.getLogger(__name__)
 
 class RabbitMQConnection:
@@ -84,9 +86,21 @@ class RabbitMQConnection:
                 )
                 self._channel = self._connection.channel()
                 self._channel.queue_declare(
+                    queue=config.RABBITMQ_QUEUE, durable=True
+                )
+                self._channel.exchange_declare(
+                    exchange=RABBITMQ_RESPONSE_EXCHANGE,
+                    exchange_type='fanout',
+                    durable=True
+                )
+                self._channel.queue_declare(
                     queue=config.RABBITMQ_RESPONSE_QUEUE, durable=True
                 )
-                logger.info("RabbitMQ 연결 성공")
+                self._channel.queue_bind(
+                    exchange=RABBITMQ_RESPONSE_EXCHANGE,
+                    queue=config.RABBITMQ_RESPONSE_QUEUE
+                )
+                logger.info("RabbitMQ 연결 및 exchange 설정 성공")
                 return
             except AMQPConnectionError as e:
                 retry_count += 1
@@ -152,14 +166,14 @@ class RabbitMQHandler:
                 channel = connection.get_channel()
                 message = json.dumps(response_data)
                 channel.basic_publish(
-                    exchange="",
-                    routing_key=config.RABBITMQ_RESPONSE_QUEUE,
+                    exchange=RABBITMQ_RESPONSE_EXCHANGE,
+                    routing_key='',
                     body=message,
                     properties=pika.BasicProperties(
                         delivery_mode=2, correlation_id=correlation_id
                     ),
                 )
-                logger.info(f"ClassifyResponseQueue에 응답 전송 완료. 상관 ID: {correlation_id}")
+                logger.info(f"{config.RABBITMQ_RESPONSE_QUEUE}에 응답 전송 완료. 상관 ID: {correlation_id}")
                 return
             except AMQPError as e:
                 retry_count += 1
@@ -170,8 +184,10 @@ class RabbitMQHandler:
         logger.error(f"RabbitMQ에 메시지 전송 실패: 최대 재시도 횟수 ({max_retries})를 초과했습니다.")
         raise RabbitMQConnectionError("메시지 전송 중 오류가 발생했습니다.")
 
-    @staticmethod
-    def process_data_wrapper(ch: pika.channel.Channel, method: pika.spec.Basic.Deliver, 
+    def __init__(self):
+        self.data_processor = DataProcessor()
+
+    def process_data_wrapper(self, ch: pika.channel.Channel, method: pika.spec.Basic.Deliver, 
                              properties: pika.spec.BasicProperties, body: bytes) -> None:
         """
         수신되는 RabbitMQ 메시지를 처리하는 래퍼 메서드.
@@ -189,14 +205,13 @@ class RabbitMQHandler:
         """
         try:
             logger.info("메시지 수신")
-            message = RabbitMQHandler._parse_message(body)
-            dummy_request = RabbitMQHandler._create_dummy_request(message)
-            
-            operation = "auto"
-            labels_and_ids = DataProcessor.process_data(dummy_request, operation)
-            result = RabbitMQHandler._create_response(message, labels_and_ids)
+            message = self._parse_message(body)
+            dummy_request = self._create_dummy_request(message)
 
-            RabbitMQHandler.send_response_to_queue(properties.correlation_id, result)
+            labels_and_ids = self.data_processor.process_data(dummy_request, "classify")
+            result = self._create_response(message, labels_and_ids)
+
+            self.send_response_to_queue(properties.correlation_id, result)
             ch.basic_ack(delivery_tag=method.delivery_tag)
 
         except StreamLostError:

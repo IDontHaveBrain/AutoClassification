@@ -12,12 +12,14 @@ def setup_logging():
     로깅 레벨은 설정 파일에서 가져오며, 로그 메시지에 특정 형식을 사용합니다.
     """
     log_level = getattr(logging, config.LOG_LEVEL.upper(), logging.INFO)
-    logging.basicConfig(level=log_level)
-    logger = logging.getLogger()
+    
+    # 루트 로거 설정
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level)
 
     # 기존 핸들러 제거
-    for handler in logger.handlers[:]:
-        logger.removeHandler(handler)
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
 
     # 콘솔 핸들러 설정
     console_handler = logging.StreamHandler(sys.stdout)
@@ -43,9 +45,12 @@ def setup_logging():
     error_file_handler.setFormatter(formatter)
 
     # 핸들러 추가
-    logger.addHandler(console_handler)
-    logger.addHandler(file_handler)
-    logger.addHandler(error_file_handler)
+    root_logger.addHandler(console_handler)
+    root_logger.addHandler(file_handler)
+    root_logger.addHandler(error_file_handler)
+
+    # 로깅 설정 확인
+    root_logger.info("로깅 설정이 완료되었습니다. 로그 레벨: %s", logging.getLevelName(log_level))
 
 def get_logger(name):
     """
