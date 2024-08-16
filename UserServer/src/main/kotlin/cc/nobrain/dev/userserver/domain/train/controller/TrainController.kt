@@ -41,7 +41,7 @@ class TrainController(
     }
 
     @PostMapping("/train/{workspaceId}")
-    suspend fun requestTrain(@PathVariable workspaceId: Long): List<FileDto> {
+    suspend fun requestTrain(@PathVariable workspaceId: Long): ResponseEntity<Any> {
         return trainService.requestTrain(workspaceId);
     }
 

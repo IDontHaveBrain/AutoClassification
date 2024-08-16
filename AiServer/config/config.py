@@ -12,7 +12,7 @@ class Config:
     RABBITMQ_HOST: str = os.getenv('RABBITMQ_HOST', 'dev.nobrain.cc')
     RABBITMQ_PORT: int = int(os.getenv('RABBITMQ_PORT', '5672'))
     RABBITMQ_QUEUE: str = os.getenv('RABBITMQ_QUEUE', 'ClassifyQueue')
-    RABBITMQ_RESPONSE_QUEUE: str = os.getenv('RABBITMQ_RESPONSE_QUEUE', 'ClassifyResponseQueue')
+    RABBITMQ_RESPONSE_QUEUE: str = os.getenv('RABBITMQ_RESPONSE_QUEUE', 'ResponseQueue')
     RABBITMQ_EXCHANGE: str = os.getenv('RABBITMQ_EXCHANGE', 'ClassifyExchange')
     BASE_DIR: str = os.getenv('BASE_DIR', 'C:/AutoClass')
     API_KEY: str = os.getenv('API_KEY', 'test')

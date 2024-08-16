@@ -10,6 +10,8 @@ from services.data_processor import DataProcessor
 from exceptions.custom_exceptions import RabbitMQConnectionError, MessageProcessingError
 
 RABBITMQ_RESPONSE_EXCHANGE = 'ClassifyResponseExchange'
+TRAIN_EXCHANGE = 'TrainExchange'
+TRAIN_QUEUE = 'TrainQueue'
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +102,22 @@ class RabbitMQConnection:
                     exchange=RABBITMQ_RESPONSE_EXCHANGE,
                     queue=config.RABBITMQ_RESPONSE_QUEUE
                 )
-                logger.info("RabbitMQ 연결 및 exchange 설정 성공")
+                
+                # TRAIN_QUEUE 설정
+                self._channel.exchange_declare(
+                    exchange=TRAIN_EXCHANGE,
+                    exchange_type='fanout',
+                    durable=True
+                )
+                self._channel.queue_declare(
+                    queue=TRAIN_QUEUE, durable=True
+                )
+                self._channel.queue_bind(
+                    exchange=TRAIN_EXCHANGE,
+                    queue=TRAIN_QUEUE
+                )
+                
+                logger.info("RabbitMQ 연결 및 exchange 설정 성공 (TRAIN_QUEUE 포함)")
                 return
             except AMQPConnectionError as e:
                 retry_count += 1
@@ -189,6 +206,14 @@ class RabbitMQHandler:
 
     def process_data_wrapper(self, ch: pika.channel.Channel, method: pika.spec.Basic.Deliver, 
                              properties: pika.spec.BasicProperties, body: bytes) -> None:
+        self._process_message(ch, method, properties, body, "classify")
+
+    def process_train_wrapper(self, ch: pika.channel.Channel, method: pika.spec.Basic.Deliver, 
+                              properties: pika.spec.BasicProperties, body: bytes) -> None:
+        self._process_message(ch, method, properties, body, "train")
+
+    def _process_message(self, ch: pika.channel.Channel, method: pika.spec.Basic.Deliver, 
+                         properties: pika.spec.BasicProperties, body: bytes, operation: str) -> None:
         """
         수신되는 RabbitMQ 메시지를 처리하는 래퍼 메서드.
 
@@ -199,19 +224,24 @@ class RabbitMQHandler:
             method (pika.spec.Basic.Deliver): 메서드 프레임.
             properties (pika.spec.BasicProperties): 메시지의 속성.
             body (bytes): 메시지 본문.
+            operation (str): 수행할 작업 유형 ("classify" 또는 "train")
 
         Note:
             이 메서드는 다양한 예외 상황을 처리하며, 오류 발생 시 적절한 로깅을 수행합니다.
         """
         try:
-            logger.info("메시지 수신")
+            logger.info(f"{operation} 메시지 수신")
             message = self._parse_message(body)
             dummy_request = self._create_dummy_request(message)
 
-            labels_and_ids = self.data_processor.process_data(dummy_request, "classify")
-            result = self._create_response(message, labels_and_ids)
+            result = self.data_processor.process_data(dummy_request, operation)
+            
+            if operation == "classify":
+                response = self._create_response(message, result)
+            else:  # train
+                response = self._create_train_response(message, result)
 
-            self.send_response_to_queue(properties.correlation_id, result)
+            self.send_response_to_queue(properties.correlation_id, response)
             ch.basic_ack(delivery_tag=method.delivery_tag)
 
         except StreamLostError:
@@ -266,7 +296,7 @@ class RabbitMQHandler:
     @staticmethod
     def _create_response(message: Dict[str, Any], labels_and_ids: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        응답 데이터를 생성합니다.
+        분류 응답 데이터를 생성합니다.
 
         Args:
             message (Dict[str, Any]): 원본 메시지 데이터.
@@ -279,4 +309,22 @@ class RabbitMQHandler:
             "requesterId": message.get("requesterId"),
             "workspaceId": message.get("workspaceId"),
             "labelsAndIds": labels_and_ids,
+        }
+
+    @staticmethod
+    def _create_train_response(message: Dict[str, Any], train_result: Any) -> Dict[str, Any]:
+        """
+        훈련 응답 데이터를 생성합니다.
+
+        Args:
+            message (Dict[str, Any]): 원본 메시지 데이터.
+            train_result (Any): 훈련 결과 데이터.
+
+        Returns:
+            Dict[str, Any]: 생성된 응답 데이터.
+        """
+        return {
+            "requesterId": message.get("requesterId"),
+            "workspaceId": message.get("workspaceId"),
+            "trainResult": train_result,
         }
