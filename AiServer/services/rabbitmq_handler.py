@@ -8,11 +8,17 @@ from pika.exceptions import AMQPConnectionError, AMQPError, StreamLostError
 from config import config
 from services.data_processor import DataProcessor
 from exceptions.custom_exceptions import RabbitMQConnectionError, MessageProcessingError
+from services.image_service import ImageService
 from services.operation_enum import Operation
+from ultralytics import YOLO
+from services.yolo_service import YOLOService
+from services.sse_manager import SSEManager
 
 RABBITMQ_RESPONSE_EXCHANGE = 'ClassifyResponseExchange'
 TRAIN_EXCHANGE = 'TrainExchange'
 TRAIN_QUEUE = 'TrainQueue'
+PROGRESS_EXCHANGE = 'ProgressExchange'
+PROGRESS_QUEUE = 'ProgressQueue'
 
 logger = logging.getLogger(__name__)
 
@@ -117,8 +123,22 @@ class RabbitMQConnection:
                     exchange=TRAIN_EXCHANGE,
                     queue=TRAIN_QUEUE
                 )
+
+                # PROGRESS_QUEUE 설정
+                self._channel.exchange_declare(
+                    exchange=PROGRESS_EXCHANGE,
+                    exchange_type='fanout',
+                    durable=True
+                )
+                self._channel.queue_declare(
+                    queue=PROGRESS_QUEUE, durable=True
+                )
+                self._channel.queue_bind(
+                    exchange=PROGRESS_EXCHANGE,
+                    queue=PROGRESS_QUEUE
+                )
                 
-                logger.info("RabbitMQ 연결 및 exchange 설정 성공 (TRAIN_QUEUE 포함)")
+                logger.info("RabbitMQ 연결 및 exchange 설정 성공 (TRAIN_QUEUE 및 PROGRESS_QUEUE 포함)")
                 return
             except AMQPConnectionError as e:
                 retry_count += 1
@@ -184,8 +204,8 @@ class RabbitMQHandler:
                 channel = connection.get_channel()
                 message = json.dumps(response_data)
                 channel.basic_publish(
-                    exchange=RABBITMQ_RESPONSE_EXCHANGE,
-                    routing_key='',
+                    exchange='',
+                    routing_key=config.RABBITMQ_RESPONSE_QUEUE,
                     body=message,
                     properties=pika.BasicProperties(
                         delivery_mode=2, correlation_id=correlation_id
@@ -211,7 +231,94 @@ class RabbitMQHandler:
 
     def process_train_wrapper(self, ch: pika.channel.Channel, method: pika.spec.Basic.Deliver, 
                               properties: pika.spec.BasicProperties, body: bytes) -> None:
-        self._process_message(ch, method, properties, body, Operation.TRAIN)
+        try:
+            logger.info(f"{Operation.TRAIN} 메시지 수신")
+            message = self._parse_message(body)
+            workspace_id = message.get("workspaceId")
+            requester_id = message.get("requesterId")
+
+            if workspace_id is None or requester_id is None:
+                raise MessageProcessingError("workspaceId 또는 requesterId가 제공되지 않았습니다.")
+
+            # 작업 공간 이미지 정리
+            ImageService.organize_workspace_images(workspace_id)
+
+            # YOLO 모델 훈련 로직
+            yolo_service = YOLOService()
+            epochs = message.get("epochs", 10)  # 기본값 10
+            imgsz = message.get("imgsz", 416)   # 기본값 416
+
+            def progress_callback(progress):
+                progress_message = {
+                    "workspaceId": workspace_id,
+                    "requesterId": requester_id,
+                    "progress": progress
+                }
+                SSEManager.send_event(requester_id, 'train_progress', json.dumps(progress_message))
+
+            results = yolo_service.train(workspace_id, epochs=epochs, imgsz=imgsz, progress_callback=progress_callback)
+
+            response = self._create_train_response(message, results)
+            self.send_response_to_queue(properties.correlation_id, response)
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON 디코딩 오류: {e}")
+            self._send_error_response(properties.correlation_id, "JSON_DECODE_ERROR", str(e))
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+        except MessageProcessingError as e:
+            logger.error(f"메시지 처리 오류: {e}")
+            self._send_error_response(properties.correlation_id, "MESSAGE_PROCESSING_ERROR", str(e))
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+        except Exception as e:
+            logger.error(f"예기치 않은 오류 발생: {e}")
+            self._send_error_response(properties.correlation_id, "UNEXPECTED_ERROR", str(e))
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+
+    def process_export_wrapper(self, ch: pika.channel.Channel, method: pika.spec.Basic.Deliver, 
+                               properties: pika.spec.BasicProperties, body: bytes) -> None:
+        try:
+            logger.info(f"{Operation.EXPORT} 메시지 수신")
+            message = self._parse_message(body)
+            workspace_id = message.get("workspaceId")
+            requester_id = message.get("requesterId")
+            version = message.get("version")
+            export_format = message.get("format", "onnx")
+
+            if workspace_id is None or requester_id is None:
+                raise MessageProcessingError("workspaceId 또는 requesterId가 제공되지 않았습니다.")
+
+            yolo_service = YOLOService()
+            exported_path = yolo_service.export_model(workspace_id, version, export_format)
+
+            response = {
+                "requesterId": requester_id,
+                "workspaceId": workspace_id,
+                "exportedPath": exported_path,
+                "format": export_format
+            }
+            self.send_response_to_queue(properties.correlation_id, response)
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+
+            # SSE를 통해 내보내기 완료 알림 전송
+            SSEManager.send_event(requester_id, 'export_complete', json.dumps(response))
+
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON 디코딩 오류: {e}")
+            self._send_error_response(properties.correlation_id, "JSON_DECODE_ERROR", str(e))
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+        except MessageProcessingError as e:
+            logger.error(f"메시지 처리 오류: {e}")
+            self._send_error_response(properties.correlation_id, "MESSAGE_PROCESSING_ERROR", str(e))
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+        except ValueError as e:
+            logger.error(f"값 오류: {e}")
+            self._send_error_response(properties.correlation_id, "VALUE_ERROR", str(e))
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+        except Exception as e:
+            logger.error(f"예기치 않은 오류 발생: {e}")
+            self._send_error_response(properties.correlation_id, "UNEXPECTED_ERROR", str(e))
+            ch.basic_ack(delivery_tag=method.delivery_tag)
 
     def _process_message(self, ch: pika.channel.Channel, method: pika.spec.Basic.Deliver, 
                          properties: pika.spec.BasicProperties, body: bytes, operation: Operation) -> None:
@@ -329,3 +436,20 @@ class RabbitMQHandler:
             "workspaceId": message.get("workspaceId"),
             "trainResult": train_result,
         }
+
+    def _send_error_response(self, correlation_id: str, error_code: str, error_message: str) -> None:
+        """
+        오류 응답을 RabbitMQ 큐로 전송합니다.
+
+        Args:
+            correlation_id (str): 메시지의 상관 ID.
+            error_code (str): 오류 코드.
+            error_message (str): 오류 메시지.
+        """
+        error_response = {
+            "error": {
+                "code": error_code,
+                "message": error_message
+            }
+        }
+        self.send_response_to_queue(correlation_id, error_response)

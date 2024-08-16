@@ -17,11 +17,15 @@ import org.slf4j.LoggerFactory
 
 interface EventPublisher {
     fun publish(routingKey: String, message: Any)
+    fun getQueueStatus(queueName: String): QueueStatus
 }
+
+data class QueueStatus(val messageCount: Int, val consumerCount: Int)
 
 @Component
 class RabbitEventPublisher(
     private val rabbitTemplate: RabbitTemplate,
+    private val rabbitAdmin: RabbitAdmin
 ) : EventPublisher {
     private val logger = LoggerFactory.getLogger(RabbitEventPublisher::class.java)
 
@@ -43,6 +47,26 @@ class RabbitEventPublisher(
             logger.error("Error publishing message with correlationId: $correlationId", e)
             throw e
         }
+    }
+
+    override fun getQueueStatus(queueName: String): QueueStatus {
+        val properties = rabbitAdmin.getQueueProperties(queueName)
+        return QueueStatus(
+            messageCount = properties?.get(RabbitAdmin.QUEUE_MESSAGE_COUNT)?.toString()?.toIntOrNull() ?: 0,
+            consumerCount = properties?.get(RabbitAdmin.QUEUE_CONSUMER_COUNT)?.toString()?.toIntOrNull() ?: 0
+        )
+    }
+}
+
+@Component
+class RabbitConfig {
+    @Bean
+    fun simpleRabbitListenerContainerFactory(connectionFactory: ConnectionFactory): SimpleRabbitListenerContainerFactory {
+        val factory = SimpleRabbitListenerContainerFactory()
+        factory.setConnectionFactory(connectionFactory)
+        factory.setConcurrentConsumers(3)
+        factory.setMaxConcurrentConsumers(3)
+        return factory
     }
 }
 

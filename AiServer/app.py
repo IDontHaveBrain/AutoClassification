@@ -2,12 +2,13 @@ import threading
 import signal
 import sys
 import time
-from flask import Flask
+from flask import Flask, request
 from config import Config
 from services.consumer import Consumer
 from api.routes import api_bp
 from api.error_handlers import register_error_handlers
 from utils.logger import setup_logging
+from services.sse_manager import SSEManager
 
 setup_logging()
 app = Flask(__name__)
@@ -17,6 +18,14 @@ register_error_handlers(app)
 
 shutdown_event = threading.Event()
 consumer_thread_stopped = threading.Event()
+
+@app.route('/sse')
+def sse():
+    client_id = request.args.get('client_id')
+    if not client_id:
+        return "Client ID is required", 400
+    SSEManager.register_client(client_id)
+    return SSEManager.sse_response(client_id)
 
 def start_flask():
     """Flask 애플리케이션을 시작합니다."""

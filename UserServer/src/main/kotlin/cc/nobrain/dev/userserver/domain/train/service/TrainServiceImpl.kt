@@ -170,6 +170,11 @@ class TrainServiceImpl(
                 "classes" to workspace.classes
             )
 
+            val queueStatus = rabbitEventPublisher.getQueueStatus(TRAIN_QUEUE)
+            if (queueStatus.messageCount >= 5) {
+                throw CustomException(ErrorInfo.TRAIN_QUEUE_FULL)
+            }
+
             rabbitEventPublisher.publish(TRAIN_QUEUE, objectMapper.writeValueAsString(requestBody))
             return ResponseEntity.ok().build()
         } else {

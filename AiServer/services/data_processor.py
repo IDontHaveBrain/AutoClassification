@@ -4,6 +4,7 @@ from flask import jsonify
 from config import config
 from services.image_service import ImageService
 from services.classification_service import ClassificationService
+from services.yolo_service import YOLOService
 
 
 class DataProcessor:
@@ -15,15 +16,17 @@ class DataProcessor:
 
     Attributes:
         classification_service (ClassificationService): 이미지 분류 서비스 인스턴스.
+        yolo_service (YOLOService): YOLO 모델 훈련 및 추론 서비스 인스턴스.
     """
 
     def __init__(self):
         """
         DataProcessor 인스턴스를 초기화합니다.
 
-        ClassificationService 인스턴스를 생성하여 이미지 분류 기능을 준비합니다.
+        ClassificationService와 YOLOService 인스턴스를 생성하여 이미지 분류 및 YOLO 모델 기능을 준비합니다.
         """
         self.classification_service = ClassificationService()
+        self.yolo_service = YOLOService()
 
     def process_data(self, request, operation):
         """

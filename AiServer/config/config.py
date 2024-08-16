@@ -14,6 +14,7 @@ class Config:
     RABBITMQ_QUEUE: str = os.getenv('RABBITMQ_QUEUE', 'ClassifyQueue')
     RABBITMQ_RESPONSE_QUEUE: str = os.getenv('RABBITMQ_RESPONSE_QUEUE', 'ResponseQueue')
     RABBITMQ_EXCHANGE: str = os.getenv('RABBITMQ_EXCHANGE', 'ClassifyExchange')
+    RABBITMQ_TRAIN_QUEUE: str = os.getenv('RABBITMQ_TRAIN_QUEUE', 'TrainQueue')
     BASE_DIR: str = os.getenv('BASE_DIR', 'C:/AutoClass')
     API_KEY: str = os.getenv('API_KEY', 'test')
     DATABASE_URI: str = os.getenv('DATABASE_URI', 'sqlite:///dev.db')
