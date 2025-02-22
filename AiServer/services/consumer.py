@@ -26,17 +26,38 @@ class Consumer:
                 try:
                     channel = connection.get_channel()
                     
-                    queue_name = config.RABBITMQ_QUEUE
-                    channel.queue_declare(queue=queue_name, durable=True)
+                    # ClassifyQueue 설정
+                    classify_queue = config.RABBITMQ_QUEUE
+                    channel.queue_declare(queue=classify_queue, durable=True)
                     channel.basic_qos(prefetch_count=1)
                     rabbitmq_handler = RabbitMQHandler()
                     channel.basic_consume(
-                        queue=queue_name,
+                        queue=classify_queue,
                         on_message_callback=rabbitmq_handler.process_data_wrapper,
                         auto_ack=False,
                     )
 
-                    logger.info(" [*] Waiting for messages. To exit press CTRL+C")
+                    # TrainQueue 설정
+                    train_queue = config.RABBITMQ_TRAIN_QUEUE
+                    channel.queue_declare(queue=train_queue, durable=True)
+                    channel.basic_qos(prefetch_count=1)
+                    channel.basic_consume(
+                        queue=train_queue,
+                        on_message_callback=rabbitmq_handler.process_train_wrapper,
+                        auto_ack=False,
+                    )
+
+                    # ExportQueue 설정
+                    export_queue = config.RABBITMQ_EXPORT_QUEUE
+                    channel.queue_declare(queue=export_queue, durable=True)
+                    channel.basic_qos(prefetch_count=1)
+                    channel.basic_consume(
+                        queue=export_queue,
+                        on_message_callback=rabbitmq_handler.process_export_wrapper,
+                        auto_ack=False,
+                    )
+
+                    logger.info(" [*] Waiting for messages on ClassifyQueue, TrainQueue, and ExportQueue. To exit press CTRL+C")
                 
                     while not shutdown_event.is_set():
                         connection.check_connection()

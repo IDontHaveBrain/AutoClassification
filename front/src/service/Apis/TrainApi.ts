@@ -11,5 +11,9 @@ export const testGetResult = (params?): AxiosPromise => {
 }
 
 export const requestAutoLabel = (workspaceId): AxiosPromise => {
+    return UserApi.post(`${URLS.API.TRAIN.LABEL}/${workspaceId}`);
+}
+
+export const requestTrain = (workspaceId): AxiosPromise => {
     return UserApi.post(`${URLS.API.TRAIN.POST}/${workspaceId}`);
 }

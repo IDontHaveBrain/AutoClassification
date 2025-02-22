@@ -97,16 +97,42 @@ class ImageService:
             requests.RequestException: 이미지 다운로드 중 오류 발생 시.
             IOError: 이미지 저장 중 오류 발생 시.
         """
-        dir_path = os.path.join(config.BASE_DIR, "workspace", str(workspace_id), label)
-        os.makedirs(dir_path, exist_ok=True)
+        workspace_dir = os.path.join(config.BASE_DIR, "workspace", str(workspace_id))
+        label_dir = os.path.join(workspace_dir, label)
+        os.makedirs(label_dir, exist_ok=True)
 
-        image_path = os.path.join(dir_path, f"{file_name}.jpg")
+        image_path = os.path.join(label_dir, f"{file_name}.jpg")
         response = requests.get(image_url)
         response.raise_for_status()
         with open(image_path, "wb") as img_file:
             img_file.write(response.content)
 
         return image_path
+
+    @staticmethod
+    def organize_workspace_images(workspace_id):
+        """
+        지정된 작업 공간의 이미지를 레이블별로 정리합니다.
+
+        Args:
+            workspace_id (int): 정리할 작업 공간의 ID.
+
+        Returns:
+            dict: 각 레이블별 이미지 경로 목록을 포함하는 딕셔너리.
+        """
+        workspace_dir = os.path.join(config.BASE_DIR, "workspace", str(workspace_id))
+        organized_images = {}
+
+        for label in os.listdir(workspace_dir):
+            label_dir = os.path.join(workspace_dir, label)
+            if os.path.isdir(label_dir):
+                organized_images[label] = [
+                    os.path.join(label_dir, img)
+                    for img in os.listdir(label_dir)
+                    if img.lower().endswith(('.png', '.jpg', '.jpeg'))
+                ]
+
+        return organized_images
 
     @staticmethod
     def prepare_images_for_ai(images):

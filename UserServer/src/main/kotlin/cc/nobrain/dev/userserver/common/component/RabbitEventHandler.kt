@@ -1,6 +1,6 @@
 package cc.nobrain.dev.userserver.common.component
 
-import cc.nobrain.dev.userserver.common.config.RabbitMqConfiguration.Companion.CLASSIFY_RESPONSE_QUEUE
+import cc.nobrain.dev.userserver.common.config.RabbitMqConfiguration.Companion.RESPONSE_QUEUE
 import cc.nobrain.dev.userserver.domain.alarm.service.AlarmService
 import cc.nobrain.dev.userserver.domain.train.service.TrainService
 import cc.nobrain.dev.userserver.domain.train.service.dto.WorkspaceClassfiy
@@ -14,14 +14,22 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import org.slf4j.LoggerFactory
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory
+import org.springframework.amqp.rabbit.connection.ConnectionFactory
+import org.springframework.amqp.rabbit.core.RabbitAdmin
+import org.springframework.context.annotation.Bean
 
 interface EventPublisher {
     fun publish(routingKey: String, message: Any)
+    fun getQueueStatus(queueName: String): QueueStatus
 }
+
+data class QueueStatus(val messageCount: Int, val consumerCount: Int)
 
 @Component
 class RabbitEventPublisher(
     private val rabbitTemplate: RabbitTemplate,
+    private val rabbitAdmin: RabbitAdmin
 ) : EventPublisher {
     private val logger = LoggerFactory.getLogger(RabbitEventPublisher::class.java)
 
@@ -44,6 +52,26 @@ class RabbitEventPublisher(
             throw e
         }
     }
+
+    override fun getQueueStatus(queueName: String): QueueStatus {
+        val properties = rabbitAdmin.getQueueProperties(queueName)
+        return QueueStatus(
+            messageCount = properties?.get(RabbitAdmin.QUEUE_MESSAGE_COUNT)?.toString()?.toIntOrNull() ?: 0,
+            consumerCount = properties?.get(RabbitAdmin.QUEUE_CONSUMER_COUNT)?.toString()?.toIntOrNull() ?: 0
+        )
+    }
+}
+
+@Component
+class RabbitConfig {
+    @Bean
+    fun simpleRabbitListenerContainerFactory(connectionFactory: ConnectionFactory): SimpleRabbitListenerContainerFactory {
+        val factory = SimpleRabbitListenerContainerFactory()
+        factory.setConnectionFactory(connectionFactory)
+        factory.setConcurrentConsumers(3)
+        factory.setMaxConcurrentConsumers(3)
+        return factory
+    }
 }
 
 @Component
@@ -54,7 +82,7 @@ class MessageReceiver(
 ) {
     private val logger = LoggerFactory.getLogger(MessageReceiver::class.java)
 
-    @RabbitListener(queues = [CLASSIFY_RESPONSE_QUEUE])
+    @RabbitListener(queues = [RESPONSE_QUEUE])
     @Transactional
     @Retryable(
         value = [Exception::class],

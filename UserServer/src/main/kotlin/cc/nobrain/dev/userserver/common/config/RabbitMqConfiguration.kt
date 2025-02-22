@@ -2,6 +2,7 @@ package cc.nobrain.dev.userserver.common.config
 
 import org.springframework.amqp.core.*
 import org.springframework.amqp.rabbit.connection.ConnectionFactory
+import org.springframework.amqp.rabbit.core.RabbitAdmin
 import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.context.annotation.Bean
@@ -13,7 +14,14 @@ class RabbitMqConfiguration {
     companion object {
         const val CLASSIFY_EXCHANGE = "ClassifyExchange"
         const val CLASSIFY_QUEUE = "ClassifyQueue"
-        const val CLASSIFY_RESPONSE_QUEUE = "ClassifyResponseQueue"
+        const val RESPONSE_QUEUE = "ResponseQueue"
+        const val TRAIN_EXCHANGE = "TrainExchange"
+        const val TRAIN_QUEUE = "TrainQueue"
+    }
+
+    @Bean
+    fun rabbitAdmin(connectionFactory: ConnectionFactory): RabbitAdmin {
+        return RabbitAdmin(connectionFactory)
     }
 
     @Bean
@@ -23,15 +31,25 @@ class RabbitMqConfiguration {
     fun classifyQueue(): Queue = Queue(CLASSIFY_QUEUE, true)
 
     @Bean
-    fun classifyResponseQueue(): Queue = Queue(CLASSIFY_RESPONSE_QUEUE, true)
+    fun responseQueue(): Queue = Queue(RESPONSE_QUEUE, true)
 
     @Bean
     fun bindingClassifyQueue(classifyQueue: Queue, classifyExchange: FanoutExchange): Binding =
         BindingBuilder.bind(classifyQueue).to(classifyExchange)
 
     @Bean
-    fun bindingClassifyResponseQueue(classifyResponseQueue: Queue, classifyExchange: FanoutExchange): Binding =
-        BindingBuilder.bind(classifyResponseQueue).to(classifyExchange)
+    fun bindingResponseQueue(responseQueue: Queue, classifyExchange: FanoutExchange): Binding =
+        BindingBuilder.bind(responseQueue).to(classifyExchange)
+
+    @Bean
+    fun trainExchange(): FanoutExchange = FanoutExchange(TRAIN_EXCHANGE)
+
+    @Bean
+    fun trainQueue(): Queue = Queue(TRAIN_QUEUE, true)
+
+    @Bean
+    fun bindingTrainQueue(trainQueue: Queue, trainExchange: FanoutExchange): Binding =
+        BindingBuilder.bind(trainQueue).to(trainExchange)
 
     @Bean
     fun rabbitTemplate(connectionFactory: ConnectionFactory): RabbitTemplate =

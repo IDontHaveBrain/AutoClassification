@@ -3,6 +3,7 @@ package cc.nobrain.dev.userserver.domain.train.service
 import cc.nobrain.dev.userserver.common.component.FileComponent
 import cc.nobrain.dev.userserver.common.component.RabbitEventPublisher
 import cc.nobrain.dev.userserver.common.config.RabbitMqConfiguration.Companion.CLASSIFY_QUEUE
+import cc.nobrain.dev.userserver.common.config.RabbitMqConfiguration.Companion.TRAIN_QUEUE
 import cc.nobrain.dev.userserver.common.exception.CustomException
 import cc.nobrain.dev.userserver.common.exception.ErrorInfo
 import cc.nobrain.dev.userserver.common.properties.UrlProps
@@ -146,41 +147,39 @@ class TrainServiceImpl(
             "testImages" to testImages
         )
 
-//        CoroutineScope(Dispatchers.IO).launch {
-//            try {
-//                val response: List<LabelAndIds> = webClient.post()
-//                    .uri("${urlProps.ai}/api/classify")
-//                    .header("x-api-key", "test")
-//                    .bodyValue(requestBody)
-//                    .retrieve()
-//                    .bodyToFlux(LabelAndIds::class.java)
-//                    .collectList()
-//                    .block() ?: emptyList()
-//
-//                println(response);
-//                updateFileLabels(response);
-//
-//                alarmService.sendAlarmToMember(member.id, "라벨링 결과가 도착했습니다.", "라벨링 결과가 도착했습니다.");
-//            } catch (e: Exception) {
-//                e.printStackTrace();
-//                alarmService.sendAlarmToMember(member.id, "라벨링 요청이 실패하였습니다.", "라벨링 요청이 실패하였습니다.");
-//            }
-//        }
-
         rabbitEventPublisher.publish(CLASSIFY_QUEUE, objectMapper.writeValueAsString(requestBody));
 
         return ResponseEntity.ok().build();
     }
 
-    override suspend fun requestTrain(): List<FileDto> {
+    @Transactional
+    @EntityGraph(attributePaths = ["files"])
+    override suspend fun requestTrain(workspaceId: Long): ResponseEntity<Any> {
         val member = MemberUtil.instance.getCurrentMemberDto()
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
-        val files = trainFileRepository.findByOwnerIndex_Id(member.id!!)
+        val workspace = workspaceRepository.findById(workspaceId)
+            .orElseThrow { CustomException(ErrorInfo.WORKSPACE_NOT_FOUND) }
 
-        TODO("Not yet implemented")
+        val validFiles = workspace.files.filter { it.label != null && it.label != "none" }
 
-        return files.stream().map { file -> modelMapper.map(file, FileDto::class.java) }.toList()
+        if (validFiles.size >= 20) {
+            val requestBody = mapOf(
+                "requesterId" to member.id,
+                "workspaceId" to workspace.id,
+                "classes" to workspace.classes
+            )
+
+            val queueStatus = rabbitEventPublisher.getQueueStatus(TRAIN_QUEUE)
+            if (queueStatus.messageCount >= 5) {
+                throw CustomException(ErrorInfo.TRAIN_QUEUE_FULL)
+            }
+
+            rabbitEventPublisher.publish(TRAIN_QUEUE, objectMapper.writeValueAsString(requestBody))
+            return ResponseEntity.ok().build()
+        } else {
+            throw CustomException(ErrorInfo.INSUFFICIENT_LABELED_DATA)
+        }
     }
 
     @Transactional
