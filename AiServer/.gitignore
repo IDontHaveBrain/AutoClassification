@@ -208,12 +208,17 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.venv
+.venv/
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+
+# uv (Python package manager)
+.uv/
+# uv.lock (typically committed for reproducible builds, uncomment to ignore)
+#uv.lock
 
 # Spyder project settings
 .spyderproject
