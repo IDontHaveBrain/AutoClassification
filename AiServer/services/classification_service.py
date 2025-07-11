@@ -5,6 +5,7 @@ from litellm import acompletion
 from config import config
 from services.image_service import ImageService
 from utils.function_schemas import get_image_classification_tool
+from exceptions.custom_exceptions import InvalidAPIKeyError
 
 
 class ClassificationService:
@@ -56,7 +57,13 @@ class ClassificationService:
             이 메서드는 비동기적으로 실행되며, 'await' 키워드와 함께 사용해야 합니다.
         """
         if not self.available_configs:
-            raise ValueError("No API keys available for classification")
+            raise InvalidAPIKeyError(
+                "No API keys available for classification",
+                details={
+                    'operation': 'image_classification',
+                    'available_providers': ['OPENROUTER', 'GEMINI', 'OPENAI', 'ANTHROPIC']
+                }
+            )
         
         images_for_ai = ImageService.prepare_images_for_ai(images)
         tool = get_image_classification_tool(categories)

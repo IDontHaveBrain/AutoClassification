@@ -1,6 +1,7 @@
 from typing import Any
 import os
 from dotenv import load_dotenv
+from exceptions.custom_exceptions import InvalidAPIKeyError
 
 load_dotenv()
 
@@ -62,7 +63,13 @@ class Config:
         """
         configs = self.get_all_available_llm_configs()
         if not configs:
-            raise ValueError("No valid API key found. Please set at least one of: OPENROUTER_API_KEY, GEMINI_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY")
+            raise InvalidAPIKeyError(
+                "No valid API key found. Please set at least one of: OPENROUTER_API_KEY, GEMINI_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY",
+                details={
+                    'available_providers': ['OPENROUTER', 'GEMINI', 'OPENAI', 'ANTHROPIC'],
+                    'config_section': 'API_KEYS'
+                }
+            )
         return configs[0]
     
     def get_all_available_llm_configs(self) -> list:
