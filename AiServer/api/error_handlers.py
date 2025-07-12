@@ -52,7 +52,7 @@ def register_error_handlers(app):
         return response
 
     # =============================================================================
-    # Authentication and Authorization Exception Handlers
+    # 인증 및 권한 예외 핸들러
     # =============================================================================
 
     @app.errorhandler(InvalidAPIKeyError)
@@ -98,7 +98,7 @@ def register_error_handlers(app):
         return ErrorResponseBuilder.create_response(problem, 403)
 
     # =============================================================================
-    # Validation Exception Handlers
+    # 유효성 검사 예외 핸들러
     # =============================================================================
 
     @app.errorhandler(ValidationError)
@@ -130,7 +130,7 @@ def register_error_handlers(app):
         return ErrorResponseBuilder.create_response(problem, 400)
 
     # =============================================================================
-    # Resource Exception Handlers
+    # 리소스 예외 핸들러
     # =============================================================================
 
     @app.errorhandler(ResourceNotFoundError)
@@ -176,7 +176,7 @@ def register_error_handlers(app):
         return ErrorResponseBuilder.create_response(problem, 404)
 
     # =============================================================================
-    # AI/ML Exception Handlers
+    # AI/ML 예외 핸들러
     # =============================================================================
 
     @app.errorhandler(ModelError)
@@ -278,7 +278,7 @@ def register_error_handlers(app):
         return ErrorResponseBuilder.create_response(problem, 400)
 
     # =============================================================================
-    # File and Processing Exception Handlers
+    # 파일 및 처리 예외 핸들러
     # =============================================================================
 
     @app.errorhandler(ImageProcessingError)
@@ -310,7 +310,7 @@ def register_error_handlers(app):
         return ErrorResponseBuilder.create_response(problem, 500)
 
     # =============================================================================
-    # External Service Exception Handlers
+    # 외부 서비스 예외 핸들러
     # =============================================================================
 
     @app.errorhandler(ExternalServiceError)
@@ -398,7 +398,7 @@ def register_error_handlers(app):
         return ErrorResponseBuilder.create_response(problem, 500)
 
     # =============================================================================
-    # Generic Exception Handlers
+    # 일반 예외 핸들러
     # =============================================================================
 
     @app.errorhandler(BaseCustomException)

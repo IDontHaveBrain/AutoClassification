@@ -38,11 +38,11 @@ class CircuitBreaker:
         self.recovery_timeout = recovery_timeout
         self.failure_count = 0
         self.last_failure_time = None
-        self.state = 'CLOSED'  # CLOSED, OPEN, HALF_OPEN
+        self.state = 'CLOSED'  # CLOSED(닫힘), OPEN(열림), HALF_OPEN(반열림)
         self._lock = threading.Lock()
     
     def can_execute(self) -> bool:
-        """Check if the circuit allows execution."""
+        """회로가 실행을 허용하는지 확인합니다."""
         with self._lock:
             if self.state == 'CLOSED':
                 return True
@@ -55,13 +55,13 @@ class CircuitBreaker:
                 return True
     
     def record_success(self):
-        """Record a successful operation."""
+        """성공적인 작업을 기록합니다."""
         with self._lock:
             self.failure_count = 0
             self.state = 'CLOSED'
     
     def record_failure(self):
-        """Record a failed operation."""
+        """실패한 작업을 기록합니다."""
         with self._lock:
             self.failure_count += 1
             self.last_failure_time = time.time()
@@ -259,7 +259,7 @@ class RabbitMQConnection:
         )
         
         raise RabbitMQConnectionError(
-            f"RabbitMQ 연결 실패: 최대 재시도 횟수 ({max_retries})를 초과했습니다.",
+            f"RabbitMQ connection failed: Maximum retry count ({max_retries}) exceeded.",
             details={
                 'connection_id': self._connection_id,
                 'connection_attempts': self._connection_attempts,
@@ -305,12 +305,12 @@ class RabbitMQConnection:
             bool: 연결이 활성 상태이면 True, 그렇지 않으면 False
         """
         if self._connection is None or self._connection.is_closed:
-            logger.info("RabbitMQ 연결이 닫혀있거나 없습니다. 재연결을 시도합니다.")
+            logger.info("RabbitMQ connection is closed or does not exist. Attempting to reconnect.")
             try:
                 self._connect()
                 return True
             except RabbitMQConnectionError:
-                logger.error("RabbitMQ 재연결 실패")
+                logger.error("RabbitMQ reconnection failed")
                 return False
         return True
 
@@ -319,7 +319,7 @@ class RabbitMQConnection:
         RabbitMQ 연결을 안전하게 종료합니다.
         """
         if self._connection and self._connection.is_open:
-            logger.info("RabbitMQ 연결을 종료합니다.")
+            logger.info("Closing RabbitMQ connection")
             self._connection.close()
 
 class RabbitMQHandler:
@@ -359,16 +359,16 @@ class RabbitMQHandler:
                         delivery_mode=2, correlation_id=correlation_id
                     ),
                 )
-                logger.info(f"{config.RABBITMQ_RESPONSE_QUEUE}에 응답 전송 완료. 상관 ID: {correlation_id}")
+                logger.info(f"Response sent to {config.RABBITMQ_RESPONSE_QUEUE} successfully. Correlation ID: {correlation_id}")
                 return
             except AMQPError as e:
                 retry_count += 1
                 wait_time = min(30, 5 * (2 ** retry_count))  # 지수 백오프 적용, 최대 30초
-                logger.warning(f"RabbitMQ에 메시지 전송 실패 (시도 {retry_count}/{max_retries}): {e}")
+                logger.warning(f"Failed to send message to RabbitMQ (attempt {retry_count}/{max_retries}): {e}")
                 time.sleep(wait_time)
         
-        logger.error(f"RabbitMQ에 메시지 전송 실패: 최대 재시도 횟수 ({max_retries})를 초과했습니다.")
-        raise RabbitMQConnectionError("메시지 전송 중 오류가 발생했습니다.")
+        logger.error(f"Failed to send message to RabbitMQ: Maximum retry count ({max_retries}) exceeded")
+        raise RabbitMQConnectionError("An error occurred during message transmission.")
 
     def __init__(self):
         self.data_processor = DataProcessor()
@@ -380,13 +380,13 @@ class RabbitMQHandler:
     def process_train_wrapper(self, ch: pika.channel.Channel, method: pika.spec.Basic.Deliver, 
                               properties: pika.spec.BasicProperties, body: bytes) -> None:
         try:
-            logger.info(f"{Operation.TRAIN} 메시지 수신")
+            logger.info(f"{Operation.TRAIN} message received")
             message = self._parse_message(body)
             workspace_id = message.get("workspaceId")
             requester_id = message.get("requesterId")
 
             if workspace_id is None or requester_id is None:
-                raise MessageProcessingError("workspaceId 또는 requesterId가 제공되지 않았습니다.")
+                raise MessageProcessingError("workspaceId or requesterId was not provided.")
 
             # 작업 공간 이미지 정리
             ImageService.organize_workspace_images(workspace_id)
@@ -462,7 +462,7 @@ class RabbitMQHandler:
     def process_export_wrapper(self, ch: pika.channel.Channel, method: pika.spec.Basic.Deliver, 
                                properties: pika.spec.BasicProperties, body: bytes) -> None:
         try:
-            logger.info(f"{Operation.EXPORT} 메시지 수신")
+            logger.info(f"{Operation.EXPORT} message received")
             message = self._parse_message(body)
             workspace_id = message.get("workspaceId")
             requester_id = message.get("requesterId")
@@ -470,7 +470,7 @@ class RabbitMQHandler:
             export_format = message.get("format", "onnx")
 
             if workspace_id is None or requester_id is None:
-                raise MessageProcessingError("workspaceId 또는 requesterId가 제공되지 않았습니다.")
+                raise MessageProcessingError("workspaceId or requesterId was not provided.")
 
             yolo_service = YOLOService()
             exported_path = yolo_service.export_model(workspace_id, version, export_format)
@@ -557,7 +557,7 @@ class RabbitMQHandler:
             이 메서드는 다양한 예외 상황을 처리하며, 오류 발생 시 적절한 로깅을 수행합니다.
         """
         try:
-            logger.info(f"{operation} 메시지 수신")
+            logger.info(f"{operation} message received")
             message = self._parse_message(body)
             dummy_request = self._create_dummy_request(message)
 
@@ -572,16 +572,16 @@ class RabbitMQHandler:
             ch.basic_ack(delivery_tag=method.delivery_tag)
 
         except StreamLostError:
-            logger.error("연결이 끊겼습니다. 재연결을 시도합니다...")
+            logger.error("Connection lost. Attempting to reconnect...")
             ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
         except json.JSONDecodeError as e:
-            logger.error(f"JSON 디코딩 오류: {e}")
+            logger.error(f"JSON decoding error: {e}")
             ch.basic_ack(delivery_tag=method.delivery_tag)  # 잘못된 메시지는 버림
         except MessageProcessingError as e:
-            logger.error(f"메시지 처리 오류: {e}")
+            logger.error(f"Message processing error: {e}")
             ch.basic_ack(delivery_tag=method.delivery_tag)  # 처리할 수 없는 메시지는 버림
         except Exception as e:
-            logger.error(f"예기치 않은 오류 발생: {e}")
+            logger.error(f"Unexpected error occurred: {e}")
             ch.basic_ack(delivery_tag=method.delivery_tag)  # 오류 발생 시 메시지 버림
 
     @staticmethod
@@ -601,7 +601,7 @@ class RabbitMQHandler:
         try:
             return json.loads(json.loads(body.decode("utf-8")))
         except json.JSONDecodeError as e:
-            raise MessageProcessingError(f"메시지 파싱 오류: {e}")
+            raise MessageProcessingError(f"Message parsing error: {e}")
 
     @staticmethod
     def _create_dummy_request(message: Dict[str, Any]):

@@ -12,4 +12,4 @@ def health_check():
     Returns:
         tuple: 응답 문자열과 HTTP 상태 코드를 포함하는 튜플.
     """
-    return "정상", 200
+    return "OK", 200

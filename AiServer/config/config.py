@@ -6,7 +6,7 @@ from exceptions.custom_exceptions import InvalidAPIKeyError
 load_dotenv()
 
 class Config:
-    """Base configuration."""
+    """기본 설정."""
     SECRET_KEY: str = os.getenv('SECRET_KEY', 'my_precious_secret_key')
     DEBUG: bool = os.getenv('DEBUG', 'False').lower() in ('true', '1', 'yes')
     TESTING: bool = os.getenv('TESTING', 'False').lower() in ('true', '1', 'yes')
@@ -21,7 +21,7 @@ class Config:
     DATABASE_URI: str = os.getenv('DATABASE_URI', 'sqlite:///dev.db')
     LOG_LEVEL: str = os.getenv('LOG_LEVEL', 'DEBUG')
     
-    # API Keys in priority order
+    # API 키 우선순위 순서
     OPENROUTER_API_KEY: str = os.getenv('OPENROUTER_API_KEY', '')
     GEMINI_API_KEY: str = os.getenv('GEMINI_API_KEY', '')
     OPENAI_API_KEY: str = os.getenv('OPENAI_API_KEY', '')

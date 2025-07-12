@@ -6,6 +6,6 @@ else
   echo "Network share-net already exists"
 fi
 
-cd docker-env
+cd env-classfiy
 
 docker compose up -d

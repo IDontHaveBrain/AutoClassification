@@ -239,6 +239,6 @@ class YOLOService:
         export_path = os.path.join(self.models_dir, f"exported_{workspace_id}_{version or 'latest'}.{format.lower()}")
         self.model.export(format=format, save_dir=os.path.dirname(export_path), filename=os.path.basename(export_path))
 
-        logger.info(f"모델 내보내기 성공: {export_path}")
+        logger.info(f"Model export successful: {export_path}")
         return export_path
 

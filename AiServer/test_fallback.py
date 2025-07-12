@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Test script to verify the fallback functionality of ClassificationService.
-This script tests the API status and fallback logic without making actual API calls.
+ClassificationService의 폴백 기능을 검증하는 테스트 스크립트입니다.
+이 스크립트는 실제 API 호출 없이 API 상태와 폴백 로직을 테스트합니다.
 """
 
 import sys
@@ -11,18 +11,18 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from services.classification_service import ClassificationService
 import logging
 
-# Configure logging to see the fallback messages
+# 폴백 메시지를 볼 수 있도록 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def test_fallback_logic():
-    """Test the fallback logic implementation"""
+    """폴백 로직 구현을 테스트합니다"""
     print("Testing ClassificationService fallback logic...")
     
     try:
-        # Initialize the service
+        # 서비스 초기화
         service = ClassificationService()
         
-        # Check API status
+        # API 상태 확인
         status = service.get_api_status()
         print(f"\nAPI Status:")
         print(f"  Available APIs: {status['available_apis']}")

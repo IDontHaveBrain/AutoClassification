@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Test script to verify the priority-based liteLLM API system
-Tests API key fallback and model selection according to priority:
+우선순위 기반 liteLLM API 시스템을 검증하는 테스트 스크립트
+우선순위에 따른 API 키 폴백 및 모델 선택을 테스트합니다:
 1. OPENROUTER_API_KEY → google/gemini-2.5-flash
 2. GEMINI_API_KEY → gemini/gemini-2.5-flash  
 3. OPENAI_API_KEY → gpt-4.1-mini
@@ -12,12 +12,12 @@ import sys
 import logging
 from pathlib import Path
 
-# Add project root to path
+# 프로젝트 루트를 경로에 추가
 sys.path.append(str(Path(__file__).parent))
 
 from config.config import Config
 
-# Setup logging
+# 로깅 설정
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
@@ -25,10 +25,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def test_api_key_configuration():
-    """Test API key configuration and priority system"""
+    """API 키 구성 및 우선순위 시스템 테스트"""
     logger.info("🔍 Testing API key configuration...")
     
-    # Check environment variables
+    # 환경 변수 확인
     api_keys = {
         'OPENROUTER_API_KEY': os.getenv('OPENROUTER_API_KEY', ''),
         'GEMINI_API_KEY': os.getenv('GEMINI_API_KEY', ''),
@@ -49,20 +49,20 @@ def test_api_key_configuration():
     return True
 
 def test_priority_system():
-    """Test the priority-based configuration system"""
+    """우선순위 기반 구성 시스템 테스트"""
     logger.info("\n🎯 Testing priority-based configuration system...")
     
     try:
         config = Config()
         
-        # Test primary configuration
+        # 기본 설정 테스트
         primary_config = config.get_llm_config()
         if primary_config:
-            logger.info(f"✅ Primary config: {primary_config['provider']} → {primary_config['model']}")
+            logger.info(f"✅ Primary configuration: {primary_config['provider']} → {primary_config['model']}")
         else:
-            logger.warning("⚠️ No primary configuration available")
+            logger.warning("⚠️ Primary configuration is not available")
         
-        # Test all available configurations
+        # 모든 사용 가능한 설정 테스트
         all_configs = config.get_all_available_llm_configs()
         logger.info(f"📊 Total available configurations: {len(all_configs)}")
         
@@ -80,22 +80,22 @@ def test_priority_system():
             
             logger.info(f"  {priority}. {provider} → {model}")
             
-            # Verify expected priority order
+            # 예상 우선순위 순서 확인
             if idx < len(expected_priority):
                 expected_provider, expected_model = expected_priority[idx]
                 if provider == expected_provider and model == expected_model:
                     logger.info(f"    ✅ Priority {priority} matches expected configuration")
                 else:
-                    logger.warning(f"    ⚠️ Priority {priority} doesn't match expected: {expected_provider} → {expected_model}")
+                    logger.warning(f"    ⚠️ Priority {priority} differs from expected: {expected_provider} → {expected_model}")
         
         return len(all_configs) > 0
         
     except Exception as e:
-        logger.error(f"❌ Error testing priority system: {str(e)}")
+        logger.error(f"❌ Priority system test error: {str(e)}")
         return False
 
 def test_model_naming():
-    """Test if model names match the exact requirements"""
+    """모델 이름이 정확한 요구사항과 일치하는지 테스트"""
     logger.info("\n🏷️ Testing model naming conventions...")
     
     try:
@@ -125,11 +125,11 @@ def test_model_naming():
         return True
         
     except Exception as e:
-        logger.error(f"❌ Error testing model naming: {str(e)}")
+        logger.error(f"❌ Model naming test error: {str(e)}")
         return False
 
 def main():
-    """Main test function"""
+    """메인 테스트 함수"""
     logger.info("🚀 Starting priority-based liteLLM system test")
     logger.info("=" * 60)
     
@@ -145,11 +145,11 @@ def main():
             result = test_func()
             results.append((test_name, result))
         except Exception as e:
-            logger.error(f"❌ {test_name} failed with exception: {str(e)}")
+            logger.error(f"❌ {test_name} failed due to exception: {str(e)}")
             results.append((test_name, False))
     
-    # Summary
-    logger.info("\n📋 Test Results Summary:")
+    # 요약
+    logger.info("\n📋 Test results summary:")
     logger.info("=" * 60)
     
     passed = 0
@@ -159,13 +159,13 @@ def main():
         if result:
             passed += 1
     
-    logger.info(f"\n🏆 Tests passed: {passed}/{len(results)}")
+    logger.info(f"\n🏆 Passed tests: {passed}/{len(results)}")
     
     if passed == len(results):
         logger.info("🎉 All tests passed! Priority-based liteLLM system is working correctly.")
         return True
     else:
-        logger.error("❌ Some tests failed. Please check the configuration.")
+        logger.error("❌ Some tests failed. Please check your configuration.")
         return False
 
 if __name__ == "__main__":

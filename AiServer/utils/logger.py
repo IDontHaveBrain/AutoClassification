@@ -50,7 +50,7 @@ def setup_logging():
     root_logger.addHandler(error_file_handler)
 
     # 로깅 설정 확인
-    root_logger.info("로깅 설정이 완료되었습니다. 로그 레벨: %s", logging.getLevelName(log_level))
+    root_logger.info("Logging configuration completed. Log level: %s", logging.getLevelName(log_level))
 
 def get_logger(name):
     """

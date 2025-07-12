@@ -28,7 +28,7 @@ class BaseCustomException(Exception):
         return result
 
 # =============================================================================
-# Authentication and Authorization Exceptions
+# 인증 및 권한 관련 예외
 # =============================================================================
 
 class InvalidAPIKeyError(BaseCustomException):
@@ -57,7 +57,7 @@ class AuthorizationError(BaseCustomException):
 
 
 # =============================================================================
-# Validation Exceptions
+# 검증 관련 예외
 # =============================================================================
 
 class ValidationError(BaseCustomException):
@@ -76,7 +76,7 @@ class ConfigurationError(BaseCustomException):
             self.details.update({'config_key': config_key})
 
 # =============================================================================
-# File and Data Processing Exceptions
+# 파일 및 데이터 처리 관련 예외
 # =============================================================================
 
 class ImageProcessingError(BaseCustomException):
@@ -110,7 +110,7 @@ class ResourceNotFoundError(BaseCustomException):
             self.details.update({'resource_id': resource_id})
 
 # =============================================================================
-# AI/ML Specific Exceptions
+# AI/ML 전용 예외
 # =============================================================================
 
 class ModelError(BaseCustomException):
@@ -190,7 +190,7 @@ class InsufficientDataError(DatasetError):
             self.details.update({'actual_count': actual_count})
 
 # =============================================================================
-# Database and Storage Exceptions
+# 데이터베이스 및 저장소 관련 예외
 # =============================================================================
 
 class DatabaseError(BaseCustomException):
@@ -206,7 +206,7 @@ class DatabaseError(BaseCustomException):
             self.details.update({'operation': operation})
 
 # =============================================================================
-# Messaging and External Service Exceptions
+# 메시징 및 외부 서비스 관련 예외
 # =============================================================================
 
 class ExternalServiceError(BaseCustomException):
@@ -267,7 +267,7 @@ class WorkspaceNotFoundError(ResourceNotFoundError):
 
 
 # =============================================================================
-# Exception Utility Functions
+# 예외 유틸리티 함수
 # =============================================================================
 
 def get_exception_for_error_code(error_code: str) -> type:

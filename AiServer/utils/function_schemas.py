@@ -15,7 +15,7 @@ def get_image_classification_tool(categories):
         "type": "function",
         "function": {
             "name": "classify_images",
-            "description": "Classify images into predefined categories",
+            "description": "이미지를 미리 정의된 카테고리로 분류합니다",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -32,7 +32,7 @@ def get_image_classification_tool(categories):
                             },
                             "required": ["index", "category"],
                         },
-                        "description": "The classifications for each image, including their index. Use 'NONE' if no category fits.",
+                        "description": "각 이미지의 분류 결과와 인덱스입니다. 적합한 카테고리가 없는 경우 'NONE'을 사용하세요.",
                     }
                 },
                 "required": ["classifications"],

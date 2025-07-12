@@ -133,3 +133,15 @@ dmypy.json
 .pyre/
 .pytype/
 cython_debug/
+
+# 환경 변수 파일 제외 (보안상 중요)
+# Environment variable files exclusion (security critical)
+.env
+.env.local
+.env.*.local
+*.env
+.env.development
+.env.production
+.env.test
+.env.staging
+.env.example.local
