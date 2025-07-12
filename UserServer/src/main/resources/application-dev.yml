@@ -1,4 +1,27 @@
 spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://autoclassify_postgres:5432/postgres
+    username: ${DB_USERNAME:jnj}
+    password: ${DB_PASSWORD:sqisoft}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 60000
+      connection-timeout: 30000
+
+  data:
+    redis:
+      host: autoclassify-redis
+      port: 6379
+      timeout: 5000
+
+  rabbitmq:
+    host: autoclassify-rabbit
+    port: 5672
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
   web:
     resources:
       static-locations:
@@ -13,6 +36,3 @@ app:
     resourcePath: public/
     maxFileSize: 104857600
 
-jasypt:
-  encryptor:
-    password: testKey

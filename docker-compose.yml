@@ -16,6 +16,15 @@ services:
    - share-net
   environment:
    TZ: "Asia/Seoul"
+   # Database Configuration
+   DB_USERNAME: ${POSTGRES_USER:-jnj}
+   DB_PASSWORD: ${POSTGRES_PASSWORD:-sqisoft}
+   # RabbitMQ Configuration
+   RABBITMQ_USERNAME: ${RABBITMQ_USER:-guest}
+   RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+   # Email Configuration
+   MAIL_USERNAME: ${MAIL_USERNAME:-jonamjun.dev@gmail.com}
+   MAIL_PASSWORD: ${MAIL_PASSWORD}
 
  AiServer:
   build:

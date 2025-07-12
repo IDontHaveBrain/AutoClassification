@@ -30,8 +30,8 @@ services:
     networks:
       - share-net
     environment:
-      POSTGRES_USER: "jnj"
-      POSTGRES_PASSWORD: "sqisoft"
+      POSTGRES_USER: ${POSTGRES_USER:-jnj}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sqisoft}
       TZ: "Asia/Seoul"
 
   jenkins:
@@ -85,6 +85,8 @@ services:
       - 5672:5672
       - 15672:15672
     environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
       TZ: "Asia/Seoul"
 
 networks:

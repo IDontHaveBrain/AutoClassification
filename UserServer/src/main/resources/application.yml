@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://dev.nobrain.cc:5433/postgres
-    username: ENC(6aKtMRnd5GebEPCt5+jVMQ==)
-    password: ENC(aMOduL5xVmfJ8LPlNY863w==)
+    url: jdbc:postgresql://autoclassify_postgres:5432/postgres
+    username: ${DB_USERNAME:jnj}
+    password: ${DB_PASSWORD:sqisoft}
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5
@@ -24,15 +24,15 @@ spring:
 
   data:
     redis:
-      host: dev.nobrain.cc
-      port: 6378
+      host: autoclassify-redis
+      port: 6379
       timeout: 5000
 
   rabbitmq:
-    host: dev.nobrain.cc
+    host: autoclassify-rabbit
     port: 5672
-    username: guest
-    password: guest
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
     listener:
       simple:
         concurrency: 5
@@ -67,8 +67,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: jonamjun.dev@gmail.com
-    password: xood lixw sfby ejqd
+    username: ${MAIL_USERNAME:jonamjun.dev@gmail.com}
+    password: ${MAIL_PASSWORD:xood lixw sfby ejqd}
     properties:
       mail:
         smtp:
@@ -100,9 +100,6 @@ app:
     resourcePath: public/
     maxFileSize: 104857600
 
-jasypt:
-  encryptor:
-    password: testKey
 
 server:
   tomcat:
