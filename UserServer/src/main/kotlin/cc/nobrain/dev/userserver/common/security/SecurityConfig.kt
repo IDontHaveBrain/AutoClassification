@@ -156,6 +156,25 @@ class SecurityConfig(
                     
                     // 기본값 - 인증 필요
                     .anyRequest().authenticated()
+            }
+            .exceptionHandling { exceptions ->
+                exceptions.authenticationEntryPoint { request, response, authException ->
+                    // Custom authentication entry point for public endpoints
+                    val requestURI = request.requestURI
+                    if (requestURI == "/api/member/register" || 
+                        requestURI == "/api/member/duplicate" || 
+                        requestURI == "/api/member/verify" || 
+                        requestURI == "/api/health" ||
+                        requestURI.startsWith("/auth/") ||
+                        requestURI.startsWith("/public/") ||
+                        requestURI.startsWith("/swagger-ui/") ||
+                        requestURI.startsWith("/v3/api-docs/")) {
+                        // Let the request proceed - it should be handled by permitAll()
+                        response.status = 200
+                        return@authenticationEntryPoint
+                    }
+                    response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED, "Authentication required")
+                }
             };
 
         return http.build();
