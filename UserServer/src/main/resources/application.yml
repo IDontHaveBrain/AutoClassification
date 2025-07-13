@@ -13,13 +13,17 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+    show-sql: true
     properties:
       hibernate:
         format_sql: true
+        show_sql: true
         jdbc:
           batch_size: 50
         order_inserts: true
         order_updates: true
+        hbm2ddl:
+          auto: update
 
   data:
     redis:
@@ -86,7 +90,10 @@ logging:
     root: info
     cc.nobrain.dev.userserver: debug
     org.springframework.web: info
-    org.hibernate: info
+    org.hibernate: debug
+    org.hibernate.SQL: debug
+    org.hibernate.engine.jdbc.spi.SqlExceptionHelper: debug
+    org.hibernate.tool.schema: debug
     cc.nobrain.dev.userserver.domain.sse: debug
     org.springframework.amqp: info
 

@@ -149,7 +149,7 @@ class SecurityConfig(
     @Bean
     @Order(2)
     @Throws(Exception::class)
-    fun defaultSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
+    fun defaultSecurityFilterChain(http: HttpSecurity, jwtDecoder: JwtDecoder): SecurityFilterChain {
         http
             .securityMatcher("/**")
             .cors { cors -> cors.configurationSource(corsConfigurationSource) }
@@ -157,6 +157,12 @@ class SecurityConfig(
             .formLogin { form -> form.disable() }
             .httpBasic { httpBasic -> httpBasic.disable() }
             .sessionManagement { session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .oauth2ResourceServer { oauth2 ->
+                oauth2.jwt { jwt ->
+                    jwt.decoder(jwtDecoder)
+                    jwt.jwtAuthenticationConverter(CustomJwtAuthenticationConverter(customUserDetailService))
+                }
+            }
             .authorizeHttpRequests { authorize ->
                 authorize
                     // 공개 API 엔드포인트 - 인증 불필요

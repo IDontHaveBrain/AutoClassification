@@ -486,7 +486,7 @@ abstract class DockerIntegrationTest {
         expectedStatus: org.springframework.http.HttpStatus
     ) {
         assert(response.statusCode == expectedStatus) {
-            "예상 상태 $expectedStatus이지만 ${response.statusCode}를 받았습니다. 응답 본문: ${response.body}"
+            "Expected status $expectedStatus but received ${response.statusCode}. Response body: ${response.body}"
         }
     }
 
@@ -519,7 +519,7 @@ abstract class DockerIntegrationTest {
             "'$arrayFieldName' 필드는 배열이어야 합니다. 응답: $response"
         }
         assert(arrayNode.size() == expectedSize) {
-            "배열 '$arrayFieldName'은 크기 $expectedSize를 가져야 하지만 ${arrayNode.size()}를 가지고 있습니다. 응답: $response"
+            "Array '$arrayFieldName' should have size $expectedSize but has ${arrayNode.size()}. Response: $response"
         }
     }
 
