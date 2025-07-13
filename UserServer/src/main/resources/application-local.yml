@@ -1,0 +1,40 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/postgres
+    username: ${DB_USERNAME:jnj}
+    password: ${DB_PASSWORD:sqisoft}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 60000
+      connection-timeout: 30000
+
+  data:
+    redis:
+      host: localhost
+      port: 6378
+      timeout: 5000
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
+  mail:
+    test-connection: false
+
+  web:
+    resources:
+      static-locations:
+        - file:/data/docker/toy/resource/
+
+app:
+  url:
+    ai: http://localhost:5000
+
+  storage:
+    path: /data/docker/toy/resource/
+    resourcePath: public/
+    maxFileSize: 104857600

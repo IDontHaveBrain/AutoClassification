@@ -84,6 +84,7 @@ class SecurityConfig(
     ): SecurityFilterChain {
         val authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer()
         http
+            .securityMatcher("/auth/**", "/authorize")
             .with(authorizationServerConfigurer) { oauth2 ->
                 oauth2
                     .tokenGenerator(tokenGenerator)
@@ -134,10 +135,30 @@ class SecurityConfig(
             }}
             .authorizeHttpRequests { authorize ->
                 authorize
-                    // OAuth2 및 인증 엔드포인트 - 공개
+                    // OAuth2 및 인증 엔드포인트만 처리 - 공개
                     .requestMatchers("/auth/**").permitAll()
                     .requestMatchers("/authorize").permitAll()
                     
+                    // 기본값 - 인증 필요
+                    .anyRequest().authenticated()
+            }
+
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
+    @Throws(Exception::class)
+    fun defaultSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        http
+            .securityMatcher("/**")
+            .cors { cors -> cors.configurationSource(corsConfigurationSource) }
+            .csrf { csrf -> csrf.disable() }
+            .formLogin { form -> form.disable() }
+            .httpBasic { httpBasic -> httpBasic.disable() }
+            .sessionManagement { session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .authorizeHttpRequests { authorize ->
+                authorize
                     // 공개 API 엔드포인트 - 인증 불필요
                     .requestMatchers("/api/health").permitAll()
                     .requestMatchers("/api/member/register").permitAll()
@@ -149,6 +170,7 @@ class SecurityConfig(
                     .requestMatchers("/swagger-ui/**").permitAll()
                     .requestMatchers("/v3/api-docs/**").permitAll()
                     .requestMatchers("/swagger-resources/**").permitAll()
+                    .requestMatchers("/actuator/health").permitAll()
                     
                     // 기타 모든 API 엔드포인트는 인증 필요
                     .requestMatchers("/api/**").authenticated()
@@ -157,27 +179,8 @@ class SecurityConfig(
                     // 기본값 - 인증 필요
                     .anyRequest().authenticated()
             }
-            .exceptionHandling { exceptions ->
-                exceptions.authenticationEntryPoint { request, response, authException ->
-                    // Custom authentication entry point for public endpoints
-                    val requestURI = request.requestURI
-                    if (requestURI == "/api/member/register" || 
-                        requestURI == "/api/member/duplicate" || 
-                        requestURI == "/api/member/verify" || 
-                        requestURI == "/api/health" ||
-                        requestURI.startsWith("/auth/") ||
-                        requestURI.startsWith("/public/") ||
-                        requestURI.startsWith("/swagger-ui/") ||
-                        requestURI.startsWith("/v3/api-docs/")) {
-                        // Let the request proceed - it should be handled by permitAll()
-                        response.status = 200
-                        return@authenticationEntryPoint
-                    }
-                    response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED, "Authentication required")
-                }
-            };
-
-        return http.build();
+        
+        return http.build()
     }
 
     @Bean

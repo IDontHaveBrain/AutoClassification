@@ -70,8 +70,8 @@ services:
       - share-net
     expose:
       - 7081
-    #    ports:
-    #      - 8087:8087
+    ports:
+      - 8087:7081
     environment:
       TZ: "Asia/Seoul"
 
