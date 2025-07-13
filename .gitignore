@@ -88,6 +88,9 @@ out
 gen
 .aider*
 
+# Serena (IDE specific directories)
+.serena/
+
 # Python
 __pycache__/
 *.py[cod]
