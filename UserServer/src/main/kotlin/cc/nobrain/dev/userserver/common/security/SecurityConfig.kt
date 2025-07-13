@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
+import org.springframework.core.env.Environment
 import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -34,6 +35,8 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings
 import org.springframework.security.oauth2.server.authorization.token.*
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2RefreshTokenAuthenticationProvider
+import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2RefreshTokenAuthenticationConverter
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.web.cors.CorsConfigurationSource
 import java.nio.charset.StandardCharsets
@@ -51,7 +54,8 @@ import java.util.*
 @EnableWebSecurity
 class SecurityConfig(
     private val corsConfigurationSource: CorsConfigurationSource,
-    private val customUserDetailService: CustomUserDetailService
+    private val customUserDetailService: CustomUserDetailService,
+    private val environment: Environment
 ) {
 
     @Value("\${spring.security.jwt.privateKey}")
@@ -95,6 +99,7 @@ class SecurityConfig(
                     .tokenEndpoint { tokenEndpoint ->
                         tokenEndpoint.accessTokenRequestConverters { converters ->
                             converters.add(PasswordConverter())
+                            converters.add(OAuth2RefreshTokenAuthenticationConverter())
                         }
                             .authenticationProviders { providers ->
                                 providers.add(
@@ -103,6 +108,12 @@ class SecurityConfig(
                                         tokenGenerator,
                                         customUserDetailService,
                                         rsaHelper
+                                    )
+                                )
+                                providers.add(
+                                    OAuth2RefreshTokenAuthenticationProvider(
+                                        authorizationService,
+                                        tokenGenerator
                                     )
                                 )
                             }
@@ -125,14 +136,27 @@ class SecurityConfig(
             }}
             .authorizeHttpRequests { authorize ->
                 authorize
+                    // OAuth2 and auth endpoints - public
                     .requestMatchers("/auth/**").permitAll()
-                    .requestMatchers("/api/**").permitAll()
                     .requestMatchers("/authorize").permitAll()
+                    
+                    // Public API endpoints - no authentication required
+                    .requestMatchers("/api/health").permitAll()
+                    .requestMatchers("/api/member/register").permitAll()
+                    .requestMatchers("/api/member/duplicate").permitAll()
+                    .requestMatchers("/api/member/verify").permitAll()
+                    
+                    // Documentation and public resources - public
                     .requestMatchers("/public/**").permitAll()
-                    .requestMatchers("/workspace/**").permitAll()
                     .requestMatchers("/swagger-ui/**").permitAll()
                     .requestMatchers("/v3/api-docs/**").permitAll()
                     .requestMatchers("/swagger-resources/**").permitAll()
+                    
+                    // All other API endpoints require authentication
+                    .requestMatchers("/api/**").authenticated()
+                    .requestMatchers("/workspace/**").authenticated()
+                    
+                    // Default - require authentication
                     .anyRequest().authenticated()
             };
 
@@ -140,12 +164,20 @@ class SecurityConfig(
     }
 
     @Bean
+    @org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
     fun registeredClientRepository(passwordEncoder: PasswordEncoder): RegisteredClientRepository {
+        
+        // For test environment, use plain text client secret to avoid BCrypt issues
+        val clientSecret = if (environment.acceptsProfiles("test")) {
+            "{noop}public"  // NoOpPasswordEncoder prefix for test profile
+        } else {
+            passwordEncoder.encode("public")
+        }
 
         val registeredClientRepository = RegisteredClient.withId("public")
             .clientId("public")
             .clientName("public")
-            .clientSecret("\$2a\$10\$d5nJ4FfbF0yLD2sgQ3EbpOqOBEQJn5rX2v/Fv/nGHPjfurbGl9tXy")
+            .clientSecret(clientSecret)
             .clientAuthenticationMethods { methods ->
                 methods.add(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                 methods.add(ClientAuthenticationMethod.NONE)

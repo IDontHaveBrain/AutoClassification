@@ -68,6 +68,12 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    // TestContainers for Docker-based integration testing
+    testImplementation platform('org.testcontainers:testcontainers-bom:1.20.3')
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:postgresql'
+    testImplementation 'org.testcontainers:rabbitmq'
+
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
     implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.9'
     implementation 'org.modelmapper:modelmapper:3.2.4'
@@ -76,9 +82,27 @@ dependencies {
 }
 
 def snippetsDir = file('build/generated-snippets')
+
 test {
     outputs.dir snippetsDir
-            useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags 'docker'
+    }
+    description = 'Run fast H2-based unit and integration tests'
+    group = 'verification'
+}
+
+task dockerTest(type: Test) {
+    outputs.dir snippetsDir
+    useJUnitPlatform {
+        includeTags 'docker'
+    }
+    description = 'Run Docker-based integration tests with TestContainers'
+    group = 'verification'
+    
+    // Ensure Docker tests have more time and resources
+    maxHeapSize = '2048m'
+    systemProperty 'junit.jupiter.execution.timeout.default', '5m'
 }
 
 asciidoctor {

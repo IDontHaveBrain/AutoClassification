@@ -52,7 +52,7 @@ class NoticeServiceImpl(
     }
 
     @Transactional
-    override suspend fun deleteNotice(id: Long) = withContext(CoroutineUtil.securedIO) {
+    override suspend fun deleteNotice(id: Long) {
         noticeRepository.deleteById(id)
     }
 }

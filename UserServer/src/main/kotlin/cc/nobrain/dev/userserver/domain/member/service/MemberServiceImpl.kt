@@ -90,6 +90,7 @@ class MemberServiceImpl(
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
         member = findMemberByEmail(member!!.username)
+            ?: throw CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND)
 
         return modelMapper.map(member, MemberDto::class.java)
     }

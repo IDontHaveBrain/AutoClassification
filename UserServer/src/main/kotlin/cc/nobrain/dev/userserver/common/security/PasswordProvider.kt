@@ -70,8 +70,9 @@ class PasswordProvider(
         )
 
         val authorizationBuilder = OAuth2Authorization.withRegisteredClient(registeredClient)
-                .principalName(clientPrincipal.name)
+                .principalName(usernamePasswordAuthenticationToken.name)
                 .authorizationGrantType(passwordAuthenticationToken.grantType)
+                .attribute(java.security.Principal::class.java.name, usernamePasswordAuthenticationToken)
 
         if (generatedAccessToken is ClaimAccessor) {
             authorizationBuilder.token(accessToken) { metadata ->

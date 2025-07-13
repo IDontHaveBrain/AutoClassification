@@ -1,96 +1,125 @@
 package cc.nobrain.dev.userserver.domain.notice.service
 
+import cc.nobrain.dev.userserver.common.BaseIntegrationTest
 import cc.nobrain.dev.userserver.common.exception.CustomException
 import cc.nobrain.dev.userserver.domain.notice.entity.Notice
-import cc.nobrain.dev.userserver.domain.notice.repository.NoticeRepository
 import cc.nobrain.dev.userserver.domain.notice.service.dto.NoticeReq
 import cc.nobrain.dev.userserver.domain.notice.service.dto.NoticeRes
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.mockito.Mockito.*
-import org.springframework.data.domain.Page
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
-import org.modelmapper.ModelMapper
-import java.util.*
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.transaction.annotation.Transactional
 
-@SpringBootTest
-@Transactional
-class NoticeServiceImplTest {
+class NoticeServiceImplTest : BaseIntegrationTest() {
 
-    private val noticeRepository: NoticeRepository = mock(NoticeRepository::class.java)
-    private val modelMapper: ModelMapper = mock(ModelMapper::class.java)
-    private val noticeService: NoticeServiceImpl = NoticeServiceImpl(noticeRepository, modelMapper)
+    @Autowired
+    private lateinit var noticeService: NoticeService
 
     @Test
     fun `searchNoticeList should return a page of NoticeRes`(): Unit = runBlocking {
-        val search = NoticeReq.Search(title = "Sample Title", createMember = "User")
-        val pageable: Pageable = mock(Pageable::class.java)
-        val notice: Notice = Notice(title = "Sample Notice Title")
-        val noticeRes: NoticeRes = NoticeRes()
-        val page: Page<Notice> = mock(Page::class.java) as Page<Notice>
+        // Given: 테스트 공지사항을 데이터베이스에 저장
+        testDataFactory.createTestNotice(
+            title = "Sample Title",
+            content = "Sample content"
+        )
+        testDataFactory.createTestNotice(
+            title = "Another Notice",
+            content = "Another content"
+        )
+        
+        val search = NoticeReq.Search(title = "Sample", createMember = null)
+        val pageable: Pageable = PageRequest.of(0, 10)
 
-        `when`(noticeRepository.findAll(any(), eq(pageable))).thenReturn(page)
-        `when`(modelMapper.map(notice, NoticeRes::class.java)).thenReturn(noticeRes)
-
+        // When: 공지사항 검색을 수행
         val result = noticeService.searchNoticeList(search, pageable)
 
+        // Then: 결과가 올바르게 반환되어야 함
         assertNotNull(result)
-        verify(noticeRepository).findAll(any(), eq(pageable))
+        assertTrue(result.content.isNotEmpty())
+        assertTrue(result.content.any { notice -> notice.title?.contains("Sample") == true })
     }
 
     @Test
     fun `createNotice should save a new notice`(): Unit = runBlocking {
+        // Given: 공지사항 생성 요청
         val createReq = NoticeReq.Create(
             title = "Sample Notice Title",
             content = "This is a sample content for the notice.",
             sticky = false,
             attachments = null
         )
-        val notice: Notice = Notice(title = "Sample Notice Title", content = "This is a sample content for the notice.")
+        
+        val initialCount = noticeRepository.count()
 
-        `when`(modelMapper.map(createReq, Notice::class.java)).thenReturn(notice)
-
+        // When: 공지사항을 생성
         noticeService.createNotice(createReq)
 
-        verify(noticeRepository).save(notice)
+        // Then: 데이터베이스에 공지사항이 저장되어야 함
+        val finalCount = noticeRepository.count()
+        assertEquals(initialCount + 1, finalCount)
+        
+        val savedNotice = noticeRepository.findAll().first { notice -> notice.title == "Sample Notice Title" }
+        assertEquals("Sample Notice Title", savedNotice.title)
+        assertEquals("This is a sample content for the notice.", savedNotice.content)
+        assertEquals(false, savedNotice.sticky)
     }
 
     @Test
     fun `updateNotice should update an existing notice`(): Unit = runBlocking {
-        val id = 1L
-        val updateReq = NoticeReq.Create(
-            title = "Updated Notice Title",
-            content = "This is the updated content for the notice.",
-            sticky = false,
-            attachments = null
-        )
-        val existingNotice: Notice = Notice(
+        // Given: 기존 공지사항을 데이터베이스에 저장
+        val existingNotice = testDataFactory.createTestNotice(
             title = "Existing Notice Title",
             content = "This is the existing content for the notice."
         )
+        
+        val updateReq = NoticeReq.Create(
+            title = "Updated Notice Title",
+            content = "This is the updated content for the notice.",
+            sticky = true,
+            attachments = null
+        )
 
-        `when`(noticeRepository.findById(id)).thenReturn(Optional.of(existingNotice))
+        // When: 공지사항을 업데이트
+        noticeService.updateNotice(existingNotice.id!!, updateReq)
 
-        noticeService.updateNotice(id, updateReq)
-
-        verify(noticeRepository).save(existingNotice)
+        // Then: 공지사항이 업데이트되어야 함
+        val updatedNotice = noticeRepository.findById(existingNotice.id!!).orElse(null)
+        assertNotNull(updatedNotice)
+        assertEquals("Updated Notice Title", updatedNotice.title)
+        assertEquals("This is the updated content for the notice.", updatedNotice.content)
+        assertEquals(true, updatedNotice.sticky)
     }
 
     @Test
     fun `deleteNotice should delete an existing notice`() = runBlocking {
-        val id = 1L
+        // Given: 기존 공지사항을 데이터베이스에 저장
+        val existingNotice = testDataFactory.createTestNotice(
+            title = "Notice to Delete",
+            content = "This notice will be deleted."
+        )
+        
+        // 생성된 공지사항이 존재하는지 확인
+        assertTrue(noticeRepository.existsById(existingNotice.id!!))
 
-        noticeService.deleteNotice(id)
+        // When: 공지사항을 삭제
+        noticeService.deleteNotice(existingNotice.id!!)
 
-        verify(noticeRepository).deleteById(id)
+        // Then: 공지사항이 삭제되어야 함
+        assertFalse(noticeRepository.existsById(existingNotice.id!!))
+        
+        // 추가 검증: 삭제된 공지사항을 조회하면 null이어야 함
+        val deletedNotice = noticeRepository.findById(existingNotice.id!!).orElse(null)
+        assertNull(deletedNotice)
     }
 
     @Test
     fun `createNotice should throw CustomException when create request is null`(): Unit = runBlocking {
+        // Given: null 생성 요청
+        
+        // When & Then: CustomException이 발생해야 함
         val exception = assertThrows<CustomException> {
             runBlocking { noticeService.createNotice(null) }
         }
@@ -99,18 +128,21 @@ class NoticeServiceImplTest {
 
     @Test
     fun `updateNotice should throw CustomException when notice not found`(): Unit = runBlocking {
-        val id = 1L
+        // Given: 존재하지 않는 공지사항 ID
+        val nonExistentId = 999999L
         val updateReq = NoticeReq.Create(
             title = "Updated Notice Title",
             content = "This is the updated content for the notice.",
             sticky = false,
             attachments = null
         )
+        
+        // 해당 ID의 공지사항이 존재하지 않는지 확인
+        assertFalse(noticeRepository.existsById(nonExistentId))
 
-        `when`(noticeRepository.findById(id)).thenReturn(Optional.empty())
-
+        // When & Then: CustomException이 발생해야 함
         assertThrows<CustomException> {
-            noticeService.updateNotice(id, updateReq)
+            noticeService.updateNotice(nonExistentId, updateReq)
         }
     }
 }
