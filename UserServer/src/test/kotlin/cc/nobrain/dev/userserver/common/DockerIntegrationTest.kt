@@ -137,7 +137,7 @@ abstract class DockerIntegrationTest {
         @JvmStatic
         val rabbitMQContainer: RabbitMQContainer = RabbitMQContainer("rabbitmq:3.12-management-alpine")
             .withUser("guest", "guest")
-            .waitingFor(Wait.forListeningPort())
+            .waitingFor(Wait.forLogMessage(".*Server startup complete.*", 1))
             .withStartupTimeout(Duration.ofMinutes(3))
 
         /**
@@ -177,22 +177,22 @@ abstract class DockerIntegrationTest {
         @JvmStatic
         fun setUpContainers() {
             // 컨테이너들이 시작되었는지 확인
-            println("=== Docker Containers Status ===")
-            println("PostgreSQL: ${if (postgreSQLContainer.isRunning) "RUNNING" else "STOPPED"} " +
-                    "- Port: ${postgreSQLContainer.getMappedPort(5432)}")
-            println("Redis: ${if (redisContainer.isRunning) "RUNNING" else "STOPPED"} " +
-                    "- Port: ${redisContainer.getMappedPort(6379)}")
-            println("RabbitMQ: ${if (rabbitMQContainer.isRunning) "RUNNING" else "STOPPED"} " +
-                    "- AMQP Port: ${rabbitMQContainer.getMappedPort(5672)}, " +
-                    "Management Port: ${rabbitMQContainer.getMappedPort(15672)}")
-            println("================================")
+            println("=== Docker 컨테이너 상태 ===")
+            println("PostgreSQL: ${if (postgreSQLContainer.isRunning) "실행중" else "중지됨"} " +
+                    "- 포트: ${postgreSQLContainer.getMappedPort(5432)}")
+            println("Redis: ${if (redisContainer.isRunning) "실행중" else "중지됨"} " +
+                    "- 포트: ${redisContainer.getMappedPort(6379)}")
+            println("RabbitMQ: ${if (rabbitMQContainer.isRunning) "실행중" else "중지됨"} " +
+                    "- AMQP 포트: ${rabbitMQContainer.getMappedPort(5672)}, " +
+                    "관리 포트: ${rabbitMQContainer.getMappedPort(15672)}")
+            println("===============================")
         }
 
         @AfterAll
         @JvmStatic
         fun tearDownContainers() {
             // TestContainers가 자동으로 정리하지만, 명시적으로 정리할 수도 있음
-            println("=== Cleaning up Docker Containers ===")
+            println("=== Docker 컨테이너 정리 ===")
             
             try {
                 if (rabbitMQContainer.isRunning) {
@@ -205,10 +205,10 @@ abstract class DockerIntegrationTest {
                     postgreSQLContainer.stop()
                 }
             } catch (e: Exception) {
-                println("Warning: Error during container cleanup: ${e.message}")
+                println("경고: 컨테이너 정리 중 오류 발생: ${e.message}")
             }
             
-            println("======================================")
+            println("=============================")
         }
     }
 
@@ -256,7 +256,7 @@ abstract class DockerIntegrationTest {
             memberRepository.deleteAll()
         } catch (e: Exception) {
             // 정리 중 오류 발생 시 로그 출력하지만 테스트는 계속 진행
-            println("Warning: Error during test data cleanup: ${e.message}")
+            println("경고: 테스트 데이터 정리 중 오류 발생: ${e.message}")
         }
     }
 
@@ -270,7 +270,7 @@ abstract class DockerIntegrationTest {
                 storageDir.mkdirs()
             }
         } catch (e: Exception) {
-            println("Warning: Error creating test storage directory: ${e.message}")
+            println("경고: 테스트 스토리지 디렉토리 생성 중 오류 발생: ${e.message}")
         }
     }
 
@@ -284,7 +284,7 @@ abstract class DockerIntegrationTest {
                 storageDir.deleteRecursively()
             }
         } catch (e: Exception) {
-            println("Warning: Error cleaning up test storage directory: ${e.message}")
+            println("경고: 테스트 스토리지 디렉토리 정리 중 오류 발생: ${e.message}")
         }
     }
 
@@ -292,9 +292,9 @@ abstract class DockerIntegrationTest {
      * 컨테이너 상태를 확인합니다.
      */
     protected fun verifyContainerStatus() {
-        assert(postgreSQLContainer.isRunning) { "PostgreSQL container should be running" }
-        assert(redisContainer.isRunning) { "Redis container should be running" }
-        assert(rabbitMQContainer.isRunning) { "RabbitMQ container should be running" }
+        assert(postgreSQLContainer.isRunning) { "PostgreSQL 컨테이너가 실행 중이어야 합니다" }
+        assert(redisContainer.isRunning) { "Redis 컨테이너가 실행 중이어야 합니다" }
+        assert(rabbitMQContainer.isRunning) { "RabbitMQ 컨테이너가 실행 중이어야 합니다" }
     }
 
     /**
@@ -486,7 +486,7 @@ abstract class DockerIntegrationTest {
         expectedStatus: org.springframework.http.HttpStatus
     ) {
         assert(response.statusCode == expectedStatus) {
-            "Expected status $expectedStatus but got ${response.statusCode}. Response body: ${response.body}"
+            "예상 상태 $expectedStatus이지만 ${response.statusCode}를 받았습니다. 응답 본문: ${response.body}"
         }
     }
 
@@ -495,7 +495,7 @@ abstract class DockerIntegrationTest {
      */
     protected fun assertResponseNotEmpty(response: org.springframework.http.ResponseEntity<String>) {
         assert(!response.body.isNullOrBlank()) {
-            "Response body should not be empty"
+            "응답 본문이 비어있지 않아야 합니다"
         }
     }
 
@@ -505,7 +505,7 @@ abstract class DockerIntegrationTest {
     protected fun assertJsonFieldExists(response: String, fieldName: String) {
         val jsonNode = objectMapper.readTree(response)
         assert(jsonNode.has(fieldName)) {
-            "JSON response should contain field '$fieldName'. Response: $response"
+            "JSON 응답에 '$fieldName' 필드가 포함되어야 합니다. 응답: $response"
         }
     }
 
@@ -516,10 +516,10 @@ abstract class DockerIntegrationTest {
         val jsonNode = objectMapper.readTree(response)
         val arrayNode = jsonNode.get(arrayFieldName)
         assert(arrayNode?.isArray == true) {
-            "Field '$arrayFieldName' should be an array. Response: $response"
+            "'$arrayFieldName' 필드는 배열이어야 합니다. 응답: $response"
         }
         assert(arrayNode.size() == expectedSize) {
-            "Array '$arrayFieldName' should have size $expectedSize but has ${arrayNode.size()}. Response: $response"
+            "배열 '$arrayFieldName'은 크기 $expectedSize를 가져야 하지만 ${arrayNode.size()}를 가지고 있습니다. 응답: $response"
         }
     }
 
@@ -527,11 +527,11 @@ abstract class DockerIntegrationTest {
      * Docker 컨테이너 정보를 출력합니다 (디버깅용).
      */
     protected fun printContainerInfo() {
-        println("=== Container Information ===")
+        println("=== 컨테이너 정보 ===")
         println("PostgreSQL JDBC URL: jdbc:postgresql://localhost:${postgreSQLContainer.getMappedPort(5432)}/postgres")
         println("Redis URL: redis://localhost:${redisContainer.getMappedPort(6379)}")
         println("RabbitMQ URL: amqp://guest:guest@localhost:${rabbitMQContainer.getMappedPort(5672)}")
         println("RabbitMQ Management: http://localhost:${rabbitMQContainer.getMappedPort(15672)}")
-        println("============================")
+        println("=========================")
     }
 }

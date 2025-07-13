@@ -15,19 +15,19 @@ fun main() {
     val hashedSecret = encoder.encode(plainSecret)
     
     println("=== BCrypt 해시 생성 결과 ===")
-    println("Plain text: $plainSecret")
-    println("BCrypt hash: $hashedSecret")
+    println("평문: $plainSecret")
+    println("BCrypt 해시: $hashedSecret")
     
     // SecurityConfig에서 현재 사용 중인 해시와 비교 검증
     val currentHash = "\$2a\$10\$d5nJ4FfbF0yLD2sgQ3EbpOqOBEQJn5rX2v/Fv/nGHPjfurbGl9tXy"
     val matches = encoder.matches(plainSecret, currentHash)
     
     println("\n=== 기존 해시 검증 ===")
-    println("Current hash: $currentHash")
-    println("Current hash matches 'public': $matches")
+    println("현재 해시: $currentHash")
+    println("현재 해시 일치 ('public'): $matches")
     
     println("\n=== 새 해시 검증 ===")
-    println("New hash matches 'public': ${encoder.matches(plainSecret, hashedSecret)}")
+    println("새 해시 일치 ('public'): ${encoder.matches(plainSecret, hashedSecret)}")
     
     if (!matches) {
         println("\n⚠️  경고: 현재 SecurityConfig의 해시가 'public'과 일치하지 않습니다!")

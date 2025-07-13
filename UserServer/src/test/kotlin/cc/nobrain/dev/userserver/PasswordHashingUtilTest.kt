@@ -61,25 +61,25 @@ class PasswordHashingUtilTest {
         val currentHash = "\$2a\$10\$d5nJ4FfbF0yLD2sgQ3EbpOqOBEQJn5rX2v/Fv/nGHPjfurbGl9tXy"
         val matches = encoder.matches(plainSecret, currentHash)
         
-        println("Plain text: $plainSecret")
-        println("Current hash: $currentHash")
-        println("Current hash matches 'public': $matches")
+        println("평문: $plainSecret")
+        println("현재 해시: $currentHash")
+        println("현재 해시가 'public'과 일치: $matches")
         
         // 현재 해시가 일치하지 않을 경우 새로운 해시 생성
         if (!matches) {
             val newHash = encoder.encode(plainSecret)
-            println("Generated new hash: $newHash")
-            println("New hash matches 'public': ${encoder.matches(plainSecret, newHash)}")
+            println("새로 생성된 해시: $newHash")
+            println("새 해시가 'public'과 일치: ${encoder.matches(plainSecret, newHash)}")
         }
         
         // 테스트 성능 최적화를 위한 사전 해시된 테스트 패스워드 생성
         // 반복적인 테스트에서 BCrypt 연산 시간을 절약하기 위함
         val testPassword = "123123!"
         val testPasswordHash = encoder.encode(testPassword)
-        println("\n--- TEST PASSWORD HASH FOR PERFORMANCE ---")
-        println("Test password: $testPassword")
-        println("Pre-hashed: $testPasswordHash")
-        println("Hash matches test password: ${encoder.matches(testPassword, testPasswordHash)}")
-        println("Use this constant: PRE_HASHED_TEST_PASSWORD = \"$testPasswordHash\"")
+        println("\n--- 성능 최적화용 테스트 패스워드 해시 ---")
+        println("테스트 패스워드: $testPassword")
+        println("사전 해시: $testPasswordHash")
+        println("해시가 테스트 패스워드와 일치: ${encoder.matches(testPassword, testPasswordHash)}")
+        println("이 상수를 사용하세요: PRE_HASHED_TEST_PASSWORD = \"$testPasswordHash\"")
     }
 }

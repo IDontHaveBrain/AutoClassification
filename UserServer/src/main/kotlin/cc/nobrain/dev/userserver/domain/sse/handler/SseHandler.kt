@@ -89,8 +89,7 @@ class SseHandler(private val objectMapper: ObjectMapper) {
             sinks.forEach { sink ->
                 val result = sink.tryEmitNext(serverSentEvent)
                 if (result.isSuccess) {
-                    lastActivityTime[userId]?.values?.forEach { it.plusSeconds(0) } // Update last activity time for all connections
-//                    logger.debug("Event sent to user $userId: ${event.type}")
+                    lastActivityTime[userId]?.values?.forEach { it.plusSeconds(0) }
                 } else {
                     logger.warn("Failed to send event to user $userId, queueing message")
                     queueMessage(userId, event)

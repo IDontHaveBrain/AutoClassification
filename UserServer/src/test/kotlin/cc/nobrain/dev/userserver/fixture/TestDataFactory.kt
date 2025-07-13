@@ -79,7 +79,7 @@ class TestDataFactory {
             owner = workspaceOwner
         )
         
-        // Add owner to members list to maintain consistency
+        // 일관성 유지를 위해 소유자를 멤버 목록에 추가
         workspace.addMember(workspaceOwner)
         
         return workspaceRepository.save(workspace)
@@ -112,11 +112,11 @@ class TestDataFactory {
             this.url = url
         }
         
-        // Establish bidirectional relationship properly
+        // 양방향 관계를 올바르게 설정
         trainFile.setRelation(targetWorkspace)
         
         val savedFile = trainFileRepository.save(trainFile)
-        // Save workspace to persist the relationship
+        // 관계를 영속화하기 위해 워크스페이스 저장
         workspaceRepository.save(targetWorkspace)
         
         return savedFile

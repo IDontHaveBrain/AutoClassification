@@ -24,8 +24,6 @@ class RedisCacheConfig {
     @Bean
     @Primary
     fun redisCacheManager(@Qualifier("redisConnectionFactory") redisConnectionFactory: RedisConnectionFactory): RedisCacheManager {
-//        val redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig();
-
         val cacheConfigurations = mapOf(
             "member" to RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(30L)),
             "default" to RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(5L))

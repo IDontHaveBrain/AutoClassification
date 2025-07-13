@@ -1,14 +1,14 @@
--- Initialize test database for DockerIntegrationTest
--- This script is executed when the PostgreSQL TestContainer starts
+-- DockerIntegrationTest용 테스트 데이터베이스 초기화
+-- 이 스크립트는 PostgreSQL TestContainer 시작 시 실행됩니다
 
--- Enable required extensions
+-- 필수 확장 기능 활성화
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Create any additional test-specific configurations if needed
--- The actual schema will be created by Hibernate with ddl-auto: create-drop
+-- 필요시 추가 테스트 전용 설정 생성
+-- 실제 스키마는 Hibernate의 ddl-auto: create-drop으로 생성됩니다
 
--- Set timezone for consistent testing
+-- 일관된 테스트를 위한 시간대 설정
 SET timezone = 'UTC';
 
--- Log initialization
-SELECT 'Test database initialized successfully' AS status;
+-- 초기화 로그
+SELECT '테스트 데이터베이스가 성공적으로 초기화되었습니다' AS status;

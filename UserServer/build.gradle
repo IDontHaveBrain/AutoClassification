@@ -68,7 +68,7 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    // TestContainers for Docker-based integration testing
+    // 도커 기반 통합 테스트를 위한 TestContainers
     testImplementation platform('org.testcontainers:testcontainers-bom:1.20.3')
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:postgresql'
@@ -94,13 +94,12 @@ test {
 
 task dockerTest(type: Test) {
     outputs.dir snippetsDir
-    useJUnitPlatform {
-        includeTags 'docker'
-    }
-    description = 'Run Docker-based integration tests with TestContainers'
+    useJUnitPlatform()  // 모든 테스트를 실행하기 위해 태그 필터링 제거
+    systemProperty 'spring.profiles.active', 'docker'  // Docker 인프라를 위해 docker 프로필 사용
+    description = 'Run all tests with Docker infrastructure (PostgreSQL, Redis, RabbitMQ)'
     group = 'verification'
     
-    // Ensure Docker tests have more time and resources
+    // Docker 테스트에 더 많은 시간과 리소스 할당
     maxHeapSize = '2048m'
     systemProperty 'junit.jupiter.execution.timeout.default', '5m'
 }
@@ -110,10 +109,6 @@ asciidoctor {
             dependsOn test
 }
 
-//task buildWithoutTest {
-//    dependsOn 'clean', 'build'
-//    test.enabled = false
-//}
 
 clean {
     doLast {

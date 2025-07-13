@@ -75,25 +75,25 @@ class OAuth2ConfigDebugTest : BaseIntegrationTest() {
         // "public" 클라이언트 ID로 등록된 OAuth2 클라이언트 조회
         val client = registeredClientRepository.findByClientId("public")
         
-        println("=== OAUTH2 DEBUG INFO ===")
+        println("=== OAUTH2 디버그 정보 ===")
         
         // 주입된 빈들의 실제 구현체 클래스 확인
-        println("Bean class: ${registeredClientRepository::class.java.name}")
-        println("PasswordEncoder class: ${passwordEncoder.javaClass.name}")
-        println("Client found: ${client != null}")
+        println("빈 클래스: ${registeredClientRepository::class.java.name}")
+        println("패스워드 인코더 클래스: ${passwordEncoder.javaClass.name}")
+        println("클라이언트 발견: ${client != null}")
         
         // 클라이언트 정보가 존재할 경우 상세 정보 출력
         if (client != null) {
-            println("Client ID: ${client.clientId}")
-            println("Client secret: ${client.clientSecret}")
+            println("클라이언트 ID: ${client.clientId}")
+            println("클라이언트 시크릿: ${client.clientSecret}")
             
             // NoOp 인코더 사용 여부 확인 (보안 위험 요소)
-            println("Client secret starts with {noop}: ${client.clientSecret?.startsWith("{noop}") ?: false}")
+            println("클라이언트 시크릿이 {noop}로 시작: ${client.clientSecret?.startsWith("{noop}") ?: false}")
             
             // 패스워드 인코더를 통한 시크릿 매칭 테스트
             // 평문 "public"과 저장된 해시가 일치하는지 확인
-            println("Password encoder matches 'public': ${passwordEncoder.matches("public", client.clientSecret ?: "")}")
+            println("패스워드 인코더 'public' 일치: ${passwordEncoder.matches("public", client.clientSecret ?: "")}")
         }
-        println("=========================")
+        println("=========================================")
     }
 }

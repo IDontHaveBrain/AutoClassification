@@ -86,10 +86,10 @@ class RsaKeyGeneratorUtilTest {
         val encodedPrivateKey = Base64.getEncoder().encodeToString(keyPair.private.encoded)
 
         // 환경변수 설정용 키 값 출력
-        println("Public : $encodedPublicKey")
-        println("Private : $encodedPrivateKey")
+        println("공개키 : $encodedPublicKey")
+        println("개인키 : $encodedPrivateKey")
 
-        println("Finish")
+        println("완료")
     }
 
     /**

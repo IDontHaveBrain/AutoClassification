@@ -21,60 +21,60 @@ import org.springframework.security.core.context.SecurityContextHolder
 import java.util.*
 
 /**
- * OAuth2/JWT 기반 인증 및 인가 시스템의 통합 테스트
+ * OAuth2/JWT 기반 인증 및 권한 부여 시스템 통합 테스트
  * 
  * 이 테스트 클래스는 AutoClassification 시스템의 보안 아키텍처를 검증합니다.
- * RSA 암호화, JWT 토큰 기반 인증, OAuth2 플로우의 전체적인 동작을 테스트합니다.
+ * RSA 암호화, JWT 토큰 기반 인증, OAuth2 플로우의 완전한 동작을 테스트합니다.
  * 
  * 테스트 범위:
  * - OAuth2 Password Grant 타입 인증 플로우
  * - JWT 액세스 토큰 생성, 검증 및 만료 처리
- * - 리프레시 토큰을 통한 토큰 갱신 메커니즘
- * - 보호된 API 엔드포인트의 인가 및 접근 제어
- * - 공개 엔드포인트의 무인증 접근 허용
+ * - 리프레시 토큰을 사용한 토큰 갱신 메커니즘
+ * - 보호된 API 엔드포인트에 대한 권한 부여 및 접근 제어
+ * - 공개 엔드포인트에 대한 비인증 접근
  * - Spring Security 필터 체인 및 CORS 설정 동작
  * - 다중 사용자 세션 관리 및 보안 헤더 설정
  * 
  * 의존성:
  * - BaseIntegrationTest: 통합 테스트 환경 및 테스트 데이터 팩토리 제공
  * - Spring Security OAuth2: Password Grant 및 Refresh Token 지원
- * - RSA 암호화: 비밀번호 전송 시 보안 강화
+ * - RSA 암호화: 비밀번호 전송 보안 강화
  * - PostgreSQL: 사용자 데이터 저장 및 조회
  * 
  * 주요 설정:
- * - 테스트용 RSA 키페어 사용 (공개키 조회 가능)
- * - OAuth2 클라이언트: public/public (테스트용 클라이언트)
+ * - 테스트용 RSA 키 쌍 사용 (공개키 조회 가능)
+ * - OAuth2 클라이언트: public/public (테스트 클라이언트)
  * - JWT 토큰 만료 시간: 24시간 (access_token), 7일 (refresh_token)
- * - CSRF 보호 활성화 (폼 기반 요청에서)
+ * - CSRF 보호 활성화 (폼 기반 요청용)
  */
-@DisplayName("인증 및 인가 통합 테스트")
+@DisplayName("인증 및 권한 부여 통합 테스트")
 class AuthIntegrationTest : BaseIntegrationTest() {
 
     @Test
-    @DisplayName("공개 키 조회 - 인증 없이 접근 가능")
+    @DisplayName("공개키 조회 - 인증 없이 접근 가능")
     fun `should get public key without authentication`() {
-        // Given: 인증되지 않은 상태
+        // Given: 비인증 상태
 
-        // When: 공개 키 조회 요청
+        // When: 공개키 조회 요청
         val response = performGet("/auth/key")
 
-        // Then: 성공적으로 공개 키를 반환해야 함
+        // Then: 공개키가 성공적으로 반환되어야 함
         assertResponseStatus(response, HttpStatus.OK)
         assertResponseNotEmpty(response)
         
-        // 응답이 Base64 인코딩된 RSA 공개 키 형태인지 확인
-        // 클라이언트에서 비밀번호 암호화에 사용될 공개 키
+        // Base64 인코딩된 RSA 공개키 형식인지 확인
+        // 클라이언트 측에서 비밀번호 암호화에 사용될 공개키
         val publicKey = response.body
         assertThat(publicKey).isNotNull
         assertThat(publicKey).isNotBlank
-        // Base64 인코딩된 공개 키는 일반적으로 길이가 300자 이상
+        // Base64 인코딩된 공개키는 일반적으로 100자 이상의 길이를 가짐
         assertThat(publicKey!!.length).isGreaterThan(100)
     }
 
     @Test
-    @DisplayName("OAuth2 토큰 발급 - 유효한 사용자 정보로 로그인")
+    @DisplayName("OAuth2 토큰 발급 성공 - 유효한 사용자 자격증명")
     fun `should issue OAuth2 token with valid credentials`() {
-        // Given: 인증된 테스트 사용자 생성 (이메일 인증 완료 상태)
+        // Given: 인증된 테스트 사용자 생성 (이메일 인증 완료)
         val testEmail = "authtest@test.com"
         val testPassword = "123123!"
         val testMember = testDataFactory.createTestMember(
@@ -85,13 +85,13 @@ class AuthIntegrationTest : BaseIntegrationTest() {
         )
 
         // OAuth2 Password Grant 토큰 요청 파라미터 준비
-        // 보안을 위해 비밀번호는 RSA 공개키로 암호화하여 전송
+        // 전송 중 보안을 위해 RSA 공개키로 암호화된 비밀번호 사용
         val tokenParams: MultiValueMap<String, String> = LinkedMultiValueMap()
         tokenParams.add("grant_type", "password")          // Password Grant 타입
         tokenParams.add("username", testEmail)             // 사용자 이메일 (로그인 ID)
         tokenParams.add("password", encryptPassword(testPassword))  // RSA 암호화된 비밀번호
-        tokenParams.add("client_id", "public")             // 테스트용 OAuth2 클라이언트 ID
-        tokenParams.add("client_secret", "public")         // 테스트용 OAuth2 클라이언트 시크릿
+        tokenParams.add("client_id", "public")             // 테스트 OAuth2 클라이언트 ID
+        tokenParams.add("client_secret", "public")         // 테스트 OAuth2 클라이언트 시크릿
 
         // When: OAuth2 토큰 발급 요청
         val response = mockMvc.perform(
@@ -115,12 +115,12 @@ class AuthIntegrationTest : BaseIntegrationTest() {
         val accessToken = tokenResponse["access_token"] as String
         val refreshToken = tokenResponse["refresh_token"] as String
         
-        // 토큰 값 유효성 검증
+        // 토큰 값 검증
         assertThat(accessToken).isNotBlank
         assertThat(refreshToken).isNotBlank
         assertThat(tokenResponse["token_type"]).isEqualTo("Bearer")
         
-        // JWT 토큰 구조 검증 (헤더.페이로드.서명 형태)
+        // JWT 토큰 구조 검증 (header.payload.signature 형식)
         assertThat(accessToken.split(".")).hasSize(3)
     }
 

@@ -44,7 +44,7 @@ class Workspace (
         if (members.isNullOrEmpty()) {
             members = ArrayList()
         }
-        // Avoid duplicate members
+        // 중복 멤버 방지
         if (!members.contains(member)) {
             members.add(member)
             member.workspace.add(this)

@@ -11,25 +11,25 @@ import java.util.concurrent.ConcurrentHashMap
 class WithMockMemberSecurityContextFactory : WithSecurityContextFactory<WithMockMember> {
     
     companion object {
-        // Registry to hold database members for test synchronization
+        // 테스트 동기화를 위한 데이터베이스 멤버 레지스트리
         private val memberRegistry = ConcurrentHashMap<String, Member>()
         
         /**
-         * Register a database member for use in mock security context
+         * 모의 보안 컨텍스트에서 사용할 데이터베이스 멤버를 등록합니다
          */
         fun registerMember(email: String, member: Member) {
             memberRegistry[email] = member
         }
         
         /**
-         * Clear all registered members (call in test cleanup)
+         * 등록된 모든 멤버를 삭제합니다 (테스트 정리 시 호출)
          */
         fun clearRegistry() {
             memberRegistry.clear()
         }
         
         /**
-         * Get registered member by email
+         * 이메일로 등록된 멤버를 조회합니다
          */
         fun getRegisteredMember(email: String): Member? {
             return memberRegistry[email]
@@ -39,7 +39,7 @@ class WithMockMemberSecurityContextFactory : WithSecurityContextFactory<WithMock
     override fun createSecurityContext(withMockMember: WithMockMember): SecurityContext {
         val context = SecurityContextHolder.createEmptyContext()
 
-        // Try to use registered database member first, fallback to mock member
+        // 등록된 데이터베이스 멤버를 우선 사용하고, 없으면 모의 멤버로 대체
         val testMember = getRegisteredMember(withMockMember.username) ?: Member(
             id = withMockMember.id,
             email = withMockMember.username,

@@ -82,8 +82,6 @@ class SecurityConfig(
         rsaHelper: RsaHelper,
         jwtDecoder: JwtDecoder
     ): SecurityFilterChain {
-//        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http)
-//        http.getConfigurer(OAuth2AuthorizationServerConfigurer::class.java)
         val authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer()
         http
             .with(authorizationServerConfigurer) { oauth2 ->
@@ -136,27 +134,27 @@ class SecurityConfig(
             }}
             .authorizeHttpRequests { authorize ->
                 authorize
-                    // OAuth2 and auth endpoints - public
+                    // OAuth2 및 인증 엔드포인트 - 공개
                     .requestMatchers("/auth/**").permitAll()
                     .requestMatchers("/authorize").permitAll()
                     
-                    // Public API endpoints - no authentication required
+                    // 공개 API 엔드포인트 - 인증 불필요
                     .requestMatchers("/api/health").permitAll()
                     .requestMatchers("/api/member/register").permitAll()
                     .requestMatchers("/api/member/duplicate").permitAll()
                     .requestMatchers("/api/member/verify").permitAll()
                     
-                    // Documentation and public resources - public
+                    // 문서 및 공개 리소스 - 공개
                     .requestMatchers("/public/**").permitAll()
                     .requestMatchers("/swagger-ui/**").permitAll()
                     .requestMatchers("/v3/api-docs/**").permitAll()
                     .requestMatchers("/swagger-resources/**").permitAll()
                     
-                    // All other API endpoints require authentication
+                    // 기타 모든 API 엔드포인트는 인증 필요
                     .requestMatchers("/api/**").authenticated()
                     .requestMatchers("/workspace/**").authenticated()
                     
-                    // Default - require authentication
+                    // 기본값 - 인증 필요
                     .anyRequest().authenticated()
             };
 
@@ -167,9 +165,9 @@ class SecurityConfig(
     @org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
     fun registeredClientRepository(passwordEncoder: PasswordEncoder): RegisteredClientRepository {
         
-        // For test environment, use plain text client secret to avoid BCrypt issues
+        // 테스트 환경용, BCrypt 문제 회피를 위해 평문 클라이언트 시크릿 사용
         val clientSecret = if (environment.acceptsProfiles("test")) {
-            "{noop}public"  // NoOpPasswordEncoder prefix for test profile
+            "{noop}public"  // 테스트 프로필용 NoOpPasswordEncoder 접두사
         } else {
             passwordEncoder.encode("public")
         }
@@ -278,6 +276,7 @@ class SecurityConfig(
         return TokenSettings.builder()
             .accessTokenTimeToLive(Duration.ofSeconds(accessTokenValiditySeconds.toLong()))
             .refreshTokenTimeToLive(Duration.ofSeconds(refreshTokenValiditySeconds.toLong()))
+            .reuseRefreshTokens(false)  // 토큰 순환 활성화
             .build()
     }
 }

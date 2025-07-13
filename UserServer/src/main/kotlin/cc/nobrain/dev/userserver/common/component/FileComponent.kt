@@ -73,7 +73,6 @@ class FileComponent(
                 val content = zis.readAllBytes()
                 val uploadStream = ByteArrayInputStream(content)
 
-//                val extension = FileUtil.getExtension(entry.name)
                 val path = Paths.get(entry.name)
                 val contentType = Files.probeContentType(path)
 
