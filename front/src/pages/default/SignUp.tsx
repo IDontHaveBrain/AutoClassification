@@ -7,6 +7,9 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
@@ -61,7 +64,7 @@ export default function SignUp() {
         if (name === 'password') {
             const passwordValid = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,}$/.test(value);
             if (!passwordValid) {
-                setPasswordError('Password must be at least 6 characters, include at least one number and one special character');
+                setPasswordError(Strings.Auth.passwordValidationError);
             } else {
                 setPasswordError('');
             }
@@ -133,6 +136,31 @@ export default function SignUp() {
                                 />
                             </Grid>
                             <Grid item xs={12}>
+                                <Box sx={{ mb: 2 }}>
+                                    <Typography variant="body2" color="text.secondary" gutterBottom>
+                                        {Strings.Auth.passwordRequirements}
+                                    </Typography>
+                                    <List dense sx={{ py: 0 }}>
+                                        <ListItem sx={{ py: 0, px: 0 }}>
+                                            <ListItemText 
+                                                primary={Strings.Auth.passwordMinLength}
+                                                primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                                            />
+                                        </ListItem>
+                                        <ListItem sx={{ py: 0, px: 0 }}>
+                                            <ListItemText 
+                                                primary={Strings.Auth.passwordMustHaveNumber}
+                                                primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                                            />
+                                        </ListItem>
+                                        <ListItem sx={{ py: 0, px: 0 }}>
+                                            <ListItemText 
+                                                primary={Strings.Auth.passwordMustHaveSpecial}
+                                                primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
+                                            />
+                                        </ListItem>
+                                    </List>
+                                </Box>
                                 <TextField
                                     required
                                     fullWidth={true}

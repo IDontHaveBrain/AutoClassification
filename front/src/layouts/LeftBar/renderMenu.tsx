@@ -45,16 +45,21 @@ const RenderMenu = ({
 
   return (
     <>
-      <ListItemButton
-        onClick={handleOnClickMenuItem}
-        style={{ paddingLeft: `${level * 16}px` }}
+      <Tooltip 
+        title={!open ? item.name : ""} 
+        placement="right" 
+        arrow
+        enterDelay={500}
+        leaveDelay={200}
+        disableHoverListener={open}
       >
-        <Tooltip title={item.name}>
+        <ListItemButton
+          onClick={handleOnClickMenuItem}
+          style={{ paddingLeft: `${level * 16}px` }}
+        >
           <ListItemIcon style={{ marginRight: "-16px" }}>
             {item.icon ? item.icon : <AssignmentIcon />}
           </ListItemIcon>
-        </Tooltip>
-        <Tooltip title={item.name}>
           <ListItemText
             primary={item.name}
             primaryTypographyProps={{
@@ -66,16 +71,16 @@ const RenderMenu = ({
               },
             }}
           />
-        </Tooltip>
-        {item.subMenu?.length && open && ( !item.path || !item.element ||
-            item.subMenu.some(subItem => !subItem.invisible)) ? (
-          isSubMenuOpen ? (
-            <ExpandLessIcon />
-          ) : (
-            <ExpandMoreIcon />
-          )
-        ) : null}
-      </ListItemButton>
+          {item.subMenu?.length && open && ( !item.path || !item.element ||
+              item.subMenu.some(subItem => !subItem.invisible)) ? (
+            isSubMenuOpen ? (
+              <ExpandLessIcon />
+            ) : (
+              <ExpandMoreIcon />
+            )
+          ) : null}
+        </ListItemButton>
+      </Tooltip>
 
       {item.subMenu?.length ? (
         <Collapse in={isSubMenuOpen} timeout="auto" unmountOnExit>

@@ -10,18 +10,20 @@ interface Props {
   error?: string | null;
 }
 
-const WorkspaceClass: React.FC<Props> = ({ classes, onClassesChange, isLoading = false, error = null }) => {
+const WorkspaceClass: React.FC<Props> = ({ classes = [], onClassesChange, isLoading = false, error = null }) => {
   const [newClass, setNewClass] = useState<string>('');
 
   const handleAdd = () => {
-    if (newClass && !classes.includes(newClass)) {
-      onClassesChange([...classes, newClass]);
+    const safeClasses = classes ?? [];
+    if (newClass && !safeClasses.includes(newClass)) {
+      onClassesChange([...safeClasses, newClass]);
       setNewClass('');
     }
   };
 
   const handleRemove = (classToRemove: string) => {
-    onClassesChange(classes.filter((c) => c !== classToRemove));
+    const safeClasses = classes ?? [];
+    onClassesChange(safeClasses.filter((c) => c !== classToRemove));
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,7 +54,7 @@ const WorkspaceClass: React.FC<Props> = ({ classes, onClassesChange, isLoading =
         <Grid item>
           <Autocomplete
             freeSolo
-            options={classes}
+            options={classes ?? []}
             renderInput={(params) => (
               <TextField
                 {...params}
