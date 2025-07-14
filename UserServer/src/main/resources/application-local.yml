@@ -28,6 +28,7 @@ spring:
   web:
     resources:
       static-locations:
+        - file:/data/docker/toy/resource/public/
         - file:/data/docker/toy/resource/
 
 app:

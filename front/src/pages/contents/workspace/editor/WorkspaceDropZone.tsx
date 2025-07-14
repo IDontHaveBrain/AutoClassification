@@ -1,8 +1,9 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import FileDropzone from "component/FileDropzone";
 import { Avatar, Chip, LinearProgress, Typography, Box, Button } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import ExpandComp from "component/ExpandComp";
+import { FileRejection } from "react-dropzone";
 
 interface WorkspaceDropZoneProps {
     onFilesChange: (files: CustomFile[]) => void;
@@ -16,16 +17,36 @@ const WorkspaceDropZone: React.FC<WorkspaceDropZoneProps> = ({ onFilesChange }) 
     const [newFiles, setNewFiles] = useState<CustomFile[]>([]);
     const [uploadProgress, setUploadProgress] = useState<number>(0);
 
+    // Add cleanup effect to prevent memory leaks
+    useEffect(() => {
+        return () => {
+            // Cleanup object URLs when component unmounts
+            newFiles.forEach((file) => {
+                if (file.preview) {
+                    URL.revokeObjectURL(file.preview);
+                }
+            });
+        };
+    }, [newFiles]);
+
     const onDrop = useCallback(
-        (files: File[]) => {
-            const updatedFiles = files.map((file) =>
+        (acceptedFiles: File[], fileRejections: FileRejection[]) => {
+            // Handle rejected files
+            if (fileRejections.length > 0) {
+                console.error("Rejected files:", fileRejections);
+            }
+
+            const updatedFiles = acceptedFiles.map((file) =>
                 Object.assign(file, {
                     preview: URL.createObjectURL(file),
                 }) as CustomFile
             );
 
-            setNewFiles((prevFiles) => [...prevFiles, ...updatedFiles]);
-            onFilesChange([...newFiles, ...updatedFiles]);
+            setNewFiles((prevFiles) => {
+                const combinedFiles = [...prevFiles, ...updatedFiles];
+                onFilesChange(combinedFiles);
+                return combinedFiles;
+            });
 
             // Simulating upload progress
             let progress = 0;
@@ -38,16 +59,26 @@ const WorkspaceDropZone: React.FC<WorkspaceDropZoneProps> = ({ onFilesChange }) 
                 }
             }, 200);
         },
-        [onFilesChange, newFiles]
+        [onFilesChange] // Remove 'newFiles' from dependencies
     );
 
     const handleRemoveFile = (index: number) => {
+        const fileToRemove = newFiles[index];
+        if (fileToRemove?.preview) {
+            URL.revokeObjectURL(fileToRemove.preview);
+        }
         const updatedFiles = newFiles.filter((_, i) => i !== index);
         setNewFiles(updatedFiles);
         onFilesChange(updatedFiles);
     };
 
     const handleClearAll = () => {
+        // Cleanup all object URLs
+        newFiles.forEach((file) => {
+            if (file.preview) {
+                URL.revokeObjectURL(file.preview);
+            }
+        });
         setNewFiles([]);
         onFilesChange([]);
     };

@@ -1,8 +1,11 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
+import { FileRejection } from "react-dropzone";
 import Box from "@mui/material/Box";
 import FileDropzone from "component/FileDropzone";
 import Grid from "@mui/material/Grid";
 import {
+    Alert,
+    CircularProgress,
     Divider,
     IconButton,
     List,
@@ -21,9 +24,27 @@ import ClassInputCard from "component/ClassInputCard";
 const TEST_MAX_CLASSES_COUNT = 5;
 const TEST_MIN_CLASSES_COUNT = 2;
 
+interface CustomFile extends File {
+    preview: string;
+}
+
 const TestClassify: React.FC = () => {
-    const [files, setFiles] = useState<File[]>([]);
+    const [files, setFiles] = useState<CustomFile[]>([]);
     const [classList, setClassList] = useState<string[]>(["", ""]);
+
+    // Add cleanup effect to prevent memory leaks
+    useEffect(() => {
+        return () => {
+            // Cleanup object URLs when component unmounts
+            files.forEach((file) => {
+                if (file.preview) {
+                    URL.revokeObjectURL(file.preview);
+                }
+            });
+        };
+    }, [files]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [apiError, setApiError] = useState<string | null>(null);
 
     const addClass = () => {
         if (classList.length < TEST_MAX_CLASSES_COUNT) {
@@ -49,52 +70,158 @@ const TestClassify: React.FC = () => {
     };
 
     const onDrop = useCallback(
-        (droppedFiles: File[]) => {
-            if (droppedFiles.length > 30) {
+        (acceptedFiles: File[], fileRejections: FileRejection[]) => {
+            // 파일 거부 처리 - 구체적인 오류 메시지 제공
+            if (fileRejections.length > 0) {
+                const rejectionReasons = fileRejections.map(rejection => {
+                    const errors = rejection.errors.map(error => {
+                        switch (error.code) {
+                            case 'file-invalid-type':
+                                return '지원되지 않는 파일 형식입니다. (JPEG, PNG, GIF만 지원)';
+                            case 'file-too-large':
+                                return '파일 크기가 너무 큽니다. (최대 5MB)';
+                            case 'too-many-files':
+                                return '파일 개수가 너무 많습니다.';
+                            default:
+                                return '파일 업로드 중 오류가 발생했습니다.';
+                        }
+                    }).join(', ');
+                    return `${rejection.file.name}: ${errors}`;
+                }).join('\n');
+                
+                onAlert(`파일 업로드 실패:\n${rejectionReasons}`);
+                return;
+            }
+
+            // Check total file count including existing files
+            if (files.length + acceptedFiles.length > 30) {
                 onAlert("분류 테스트는 이미지 30개 이하로 테스트 가능합니다.");
                 return;
             }
 
-            setFiles(
-                droppedFiles.map((file) =>
-                    Object.assign(file, {
-                        preview: URL.createObjectURL(file),
-                    }),
-                ),
+            const processedFiles = acceptedFiles.map((file) =>
+                Object.assign(file, {
+                    preview: URL.createObjectURL(file),
+                }) as CustomFile
             );
+
+            setFiles(prevFiles => [...prevFiles, ...processedFiles]);
+            setApiError(null); // 성공적으로 파일이 추가되면 이전 API 에러 클리어
         },
-        [],
+        [files, onAlert],
     );
 
-    const onSave = () => {
+    // 요청 전 유효성 검사
+    const validCheck = (): boolean => {
         if (classList.some(item => item.trim() === "")) {
             onAlert(Strings.Common.notEmpty);
-            return;
+            return false;
         }
-        const formData = new FormData();
-        files.forEach((file) => {
-            formData.append("files", file);
-        });
-        formData.append("data", new Blob([JSON.stringify(classList)], { type: "application/json" }));
         
-        testUploadImg(formData)
-            .then(() => {
-                setClassList(["", ""]);
-                setFiles([]);
-                onAlert(Strings.FreeTest.requestTest);
-            })
-            .catch((err) => {
-                console.error("Error:", err);
-                onAlert(Strings.Common.apiFailed);
+        if (files.length === 0) {
+            onAlert("분류할 이미지를 업로드해주세요.");
+            return false;
+        }
+        
+        if (files.length > 30) {
+            onAlert("분류 테스트는 이미지 30개 이하로 테스트 가능합니다.");
+            return false;
+        }
+        
+        return true;
+    };
+
+    const onSave = async () => {
+        if (!validCheck()) return;
+        
+        setIsLoading(true);
+        setApiError(null);
+        
+        try {
+            const formData = new FormData();
+            files.forEach((file) => {
+                formData.append("files", file);
             });
+            formData.append("data", new Blob([JSON.stringify(classList)], { type: "application/json" }));
+            
+            const response = await testUploadImg(formData);
+            
+            // API 응답 성공 처리
+            setClassList(["", ""]);
+            // Cleanup object URLs before clearing files
+            files.forEach((file) => {
+                if (file.preview) {
+                    URL.revokeObjectURL(file.preview);
+                }
+            });
+            setFiles([]);
+            onAlert(Strings.FreeTest.requestTest);
+            
+        } catch (error: any) {
+            let errorMessage = "분류 테스트 요청이 실패했습니다.";
+            
+            // 구체적인 오류 메시지 처리
+            if (error.response) {
+                const status = error.response.status;
+                const data = error.response.data;
+                
+                switch (status) {
+                    case 400:
+                        errorMessage = data?.message || "잘못된 요청입니다. 입력 데이터를 확인해주세요.";
+                        break;
+                    case 401:
+                        errorMessage = "인증이 만료되었습니다. 다시 로그인해주세요.";
+                        break;
+                    case 403:
+                        errorMessage = "접근 권한이 없습니다.";
+                        break;
+                    case 413:
+                        errorMessage = "업로드 파일 크기가 너무 큽니다.";
+                        break;
+                    case 422:
+                        errorMessage = data?.message || "파일 형식이나 데이터가 올바르지 않습니다.";
+                        break;
+                    case 500:
+                        errorMessage = "서버 내부 오류입니다. 잠시 후 다시 시도해주세요.";
+                        break;
+                    case 503:
+                        errorMessage = "AI 서비스가 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해주세요.";
+                        break;
+                    default:
+                        errorMessage = data?.message || `서버 오류 (${status})`;
+                }
+            } else if (error.code === 'NETWORK_ERROR' || error.message.includes('Network Error')) {
+                errorMessage = "네트워크 연결을 확인해주세요.";
+            } else if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+                errorMessage = "요청 시간이 초과되었습니다. 다시 시도해주세요.";
+            } else {
+                errorMessage = error.message || errorMessage;
+            }
+            
+            console.error("API Error:", error);
+            setApiError(errorMessage);
+            onAlert(errorMessage);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const onRemove = (index: number) => {
+        const fileToRemove = files[index];
+        if (fileToRemove?.preview) {
+            URL.revokeObjectURL(fileToRemove.preview);
+        }
         const newFiles = files.filter((_, i) => i !== index);
         setFiles(newFiles);
     };
 
     const onRemoveAll = () => {
+        // Cleanup all object URLs
+        files.forEach((file) => {
+            if (file.preview) {
+                URL.revokeObjectURL(file.preview);
+            }
+        });
         setFiles([]);
     };
 
@@ -122,32 +249,52 @@ const TestClassify: React.FC = () => {
                 </Grid>
                 <Grid item xs={12} md={6}>
                     <Typography variant="h6" gutterBottom>파일 업로드</Typography>
-                    <FileDropzone onDrop={onDrop} />
+                    <FileDropzone 
+                        onDrop={onDrop}
+                        accept={{
+                            'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.bmp', '.webp']
+                        }}
+                        maxSize={5 * 1024 * 1024} // 5MB 제한
+                        maxFiles={30} // 최대 30개 파일
+                        disabled={isLoading}
+                    />
                     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2 }}>
-                        <Typography variant="subtitle1">{`업로드된 이미지: ${files.length}`}</Typography>
+                        <Box>
+                            <Typography variant="subtitle1">업로드된 이미지: {files.length} / 30</Typography>
+                            {files.length > 0 && (
+                                <Typography variant="caption" color="textSecondary">
+                                    총 용량: {(files.reduce((sum, file) => sum + file.size, 0) / 1024 / 1024).toFixed(1)}MB
+                                </Typography>
+                            )}
+                        </Box>
                         <Button
                             variant="outlined"
                             color="error"
                             startIcon={<DeleteIcon />}
                             onClick={onRemoveAll}
-                            disabled={files.length === 0}
+                            disabled={files.length === 0 || isLoading}
                         >
                             모든 이미지 삭제
                         </Button>
                     </Box>
                     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 2 }}>
-                        {files.map((file: any, index) => (
+                        {files.map((file, index) => (
                             <Box key={`${index}-${file.name}`} sx={{ position: "relative" }}>
                                 <img src={file.preview} style={{ width: "100px", height: "100px", objectFit: "cover" }} alt="preview" />
                                 <IconButton
                                     size="small"
                                     onClick={() => onRemove(index)}
+                                    disabled={isLoading}
                                     sx={{
                                         position: "absolute",
                                         top: 0,
                                         right: 0,
                                         bgcolor: 'rgba(255, 255, 255, 0.7)',
                                         '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.9)' },
+                                        '&:disabled': { 
+                                            bgcolor: 'rgba(200, 200, 200, 0.7)',
+                                            color: 'rgba(0, 0, 0, 0.3)'
+                                        },
                                     }}
                                 >
                                     X
@@ -157,8 +304,33 @@ const TestClassify: React.FC = () => {
                     </Box>
                 </Grid>
             </Grid>
-            <Button onClick={onSave} color="secondary" variant="contained" sx={{ alignSelf: 'flex-start' }}>
-                {Strings.FreeTest.classifyTest}
+            
+            {/* 로딩 상태 표시 */}
+            {isLoading && (
+                <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
+                    <CircularProgress size={24} />
+                    <Typography variant="body2" ml={1}>
+                        분류 테스트 처리 중...
+                    </Typography>
+                </Box>
+            )}
+
+            {/* API 에러 상태 표시 */}
+            {apiError && (
+                <Alert severity="error" sx={{ mt: 2 }}>
+                    {apiError}
+                </Alert>
+            )}
+
+            <Button 
+                onClick={onSave} 
+                color="secondary" 
+                variant="contained" 
+                sx={{ alignSelf: 'flex-start' }}
+                disabled={isLoading || files.length === 0}
+                startIcon={isLoading ? <CircularProgress size={16} /> : undefined}
+            >
+                {isLoading ? "처리 중..." : Strings.FreeTest.classifyTest}
             </Button>
             <Divider />
             <List>

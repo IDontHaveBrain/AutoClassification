@@ -24,15 +24,37 @@ spring:
 
   mail:
     test-connection: false
+    host: localhost
+    port: 25
+    username: ""
+    password: ""
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.starttls.enable: false
 
   web:
     resources:
       static-locations:
+        - file:/data/docker/toy/resource/public/
         - file:/data/docker/toy/resource/
+
+management:
+  health:
+    mail:
+      enabled: false
+    defaults:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
 
 app:
   url:
-    ai: http://AiServer:5000
+    ai: http://localhost:5000
 
   storage:
     path: /data/docker/toy/resource/

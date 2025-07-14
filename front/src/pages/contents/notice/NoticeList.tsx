@@ -53,10 +53,10 @@ const NoticeList: React.FC = () => {
             fetchNotices(pageable.page, pageable.size, pageable.sort, search);
         };
 
-        eventBus.subscribe(SseType.NOTICE_UPDATE, handleNoticeUpdate);
+        eventBus.subscribe(SseType.NOTICE, handleNoticeUpdate);
 
         return () => {
-            eventBus.unsubscribe(SseType.NOTICE_UPDATE, handleNoticeUpdate);
+            eventBus.unsubscribe(SseType.NOTICE, handleNoticeUpdate);
         };
     }, [fetchNotices, pageable, search]);
 

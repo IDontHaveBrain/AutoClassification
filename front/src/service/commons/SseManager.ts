@@ -17,8 +17,11 @@ class SseManager {
     private connectionStatusHandlers: Set<ConnectionStatusHandler> = new Set();
     private url: string = "";
     private reconnectTimeout: NodeJS.Timeout | null = null;
-    private readonly MAX_RECONNECT_ATTEMPTS = 5;
+    private heartbeatMonitorTimeout: NodeJS.Timeout | null = null;
+    private lastHeartbeatReceived: number = 0;
+    private readonly MAX_RECONNECT_ATTEMPTS = 10;
     private readonly INITIAL_RECONNECT_DELAY = 1000;
+    private readonly HEARTBEAT_TIMEOUT = 60000; // 60 seconds
 
     private constructor() {}
 
@@ -48,7 +51,7 @@ class SseManager {
                 headers: {
                     Authorization: `Bearer ${accessToken}`
                 },
-                heartbeatTimeout: 180000, // 3 minutes
+                heartbeatTimeout: this.HEARTBEAT_TIMEOUT, // 60 seconds
                 withCredentials: true
             });
 
@@ -65,6 +68,8 @@ class SseManager {
         console.log("SSE connection opened", event);
         this.isConnected = true;
         this.reconnectAttempts = 0;
+        this.lastHeartbeatReceived = Date.now();
+        this.startHeartbeatMonitoring();
         this.processMessageQueue();
         this.notifyConnectionStatusChange(true);
     }
@@ -86,6 +91,8 @@ class SseManager {
 
             if (parsedData.type === SseType.HEARTBEAT) {
                 console.log("Received heartbeat");
+                this.lastHeartbeatReceived = Date.now();
+                this.sendHeartbeatResponse();
                 return;
             }
 
@@ -109,6 +116,7 @@ class SseManager {
             this.eventSource = null;
         }
         this.isConnected = false;
+        this.stopHeartbeatMonitoring();
         this.notifyConnectionStatusChange(false);
         if (this.reconnectTimeout) {
             clearTimeout(this.reconnectTimeout);
@@ -188,6 +196,44 @@ class SseManager {
 
     private notifyConnectionStatusChange(isConnected: boolean): void {
         this.connectionStatusHandlers.forEach(handler => handler(isConnected));
+    }
+
+    private startHeartbeatMonitoring(): void {
+        this.stopHeartbeatMonitoring();
+        this.heartbeatMonitorTimeout = setInterval(() => {
+            const now = Date.now();
+            if (this.isConnected && 
+                this.lastHeartbeatReceived > 0 && 
+                now - this.lastHeartbeatReceived > this.HEARTBEAT_TIMEOUT) {
+                console.warn("Heartbeat timeout detected, reconnecting...");
+                this.handleError(new Error("Heartbeat timeout"));
+            }
+        }, 30000) as NodeJS.Timeout; // Check every 30 seconds
+    }
+
+    private stopHeartbeatMonitoring(): void {
+        if (this.heartbeatMonitorTimeout) {
+            clearInterval(this.heartbeatMonitorTimeout);
+            this.heartbeatMonitorTimeout = null;
+        }
+    }
+
+    private sendHeartbeatResponse(): void {
+        try {
+            const accessToken = sessionStorage.getItem(CONSTANT.ACCESS_TOKEN);
+            fetch('/api/sse/heartbeat-response', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ timestamp: Date.now() })
+            }).catch(error => {
+                console.error("Failed to send heartbeat response:", error);
+            });
+        } catch (error) {
+            console.error("Error preparing heartbeat response:", error);
+        }
     }
 }
 

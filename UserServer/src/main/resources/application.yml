@@ -65,6 +65,7 @@ spring:
   web:
     resources:
       static-locations:
+        - file:C:/Work/test/public/
         - file:C:/Work/test/
 
   mail:
