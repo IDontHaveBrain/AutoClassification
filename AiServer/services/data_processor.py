@@ -41,14 +41,8 @@ class DataProcessor:
 
         Returns:
             list: 레이블과 해당하는 이미지 ID를 포함하는 딕셔너리 목록.
-
-        Raises:
-            ValueError: API 키가 유효하지 않은 경우.
         """
-        api_key = request.headers.get("x-api-key")
-        if not api_key or api_key != config.API_KEY:
-            return jsonify({"message": "Invalid API key"}), 403
-
+        # API key validation is handled at the route level
         data = request.json
         workspace_id = data.get("workspaceId")
         test_class = data.get("testClass", [])
@@ -60,6 +54,13 @@ class DataProcessor:
             for dto, url in zip(test_dtos, test_images)
             if ImageService.is_url_image(url)
         ]
+        
+        # Debug logging
+        logging.info(f"Total test images: {len(test_images)}")
+        logging.info(f"Filtered images after validation: {len(filtered_dto_image_pairs)}")
+        for dto, url in zip(test_dtos, test_images):
+            is_valid = ImageService.is_url_image(url)
+            logging.info(f"Image URL: {url} - Valid: {is_valid}")
         chunks = self._chunk_list(filtered_dto_image_pairs, 100)
 
         labels_to_ids = asyncio.run(

@@ -28,4 +28,11 @@ export const Strings = {
     updateFailed: "워크스페이스 수정에 실패했습니다.",
     addFailed: "워크스페이스 등록에 실패했습니다.",
   },
+  Auth: {
+    passwordRequirements: "Password Requirements:",
+    passwordMinLength: "• At least 6 characters",
+    passwordMustHaveNumber: "• At least one number (0-9)",
+    passwordMustHaveSpecial: "• At least one special character (!@#$%^&*)",
+    passwordValidationError: "Password must be at least 6 characters, include at least one number and one special character",
+  },
 };

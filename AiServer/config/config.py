@@ -16,6 +16,7 @@ class Config:
     RABBITMQ_RESPONSE_QUEUE: str = os.getenv('RABBITMQ_RESPONSE_QUEUE', 'ResponseQueue')
     RABBITMQ_EXCHANGE: str = os.getenv('RABBITMQ_EXCHANGE', 'ClassifyExchange')
     RABBITMQ_TRAIN_QUEUE: str = os.getenv('RABBITMQ_TRAIN_QUEUE', 'TrainQueue')
+    RABBITMQ_EXPORT_QUEUE: str = os.getenv('RABBITMQ_EXPORT_QUEUE', 'ExportQueue')
     BASE_DIR: str = os.getenv('BASE_DIR', 'C:/AutoClass')
     API_KEY: str = os.getenv('API_KEY', 'test')
     DATABASE_URI: str = os.getenv('DATABASE_URI', 'sqlite:///dev.db')
@@ -85,7 +86,7 @@ class Config:
         if self.OPENROUTER_API_KEY:
             configs.append({
                 'api_key': self.OPENROUTER_API_KEY,
-                'model': 'google/gemini-2.5-flash',
+                'model': 'openrouter/google/gemini-2.5-flash-preview',
                 'base_url': 'https://openrouter.ai/api/v1',
                 'provider': 'openrouter'
             })

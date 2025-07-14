@@ -66,7 +66,7 @@ const WorkspaceEditor = () => {
                         name: editorState.title,
                         description: editorState.content,
                         classes: workspace?.classes,
-                        members: workspace?.members,
+                        memberIds: workspace?.members?.map(member => member.id),
                     }),
                 ],
                 { type: "application/json" },

@@ -42,6 +42,8 @@ const eventBus = {
 const BackGround: React.FC = () => {
     const { enqueueSnackbar } = useSnackbar();
     const [isConnected, setIsConnected] = useState(false);
+    const [showReconnectingMessage, setShowReconnectingMessage] = useState(false);
+    const [reconnectMessageTimeout, setReconnectMessageTimeout] = useState<NodeJS.Timeout | null>(null);
     const isAuthenticated = useAppSelector((state) => !!state.userInfo.access_token);
 
     const handleSseMessage = useCallback((event: SseEvent) => {
@@ -92,12 +94,29 @@ const BackGround: React.FC = () => {
     const handleConnectionStatus = useCallback((status: boolean) => {
         console.log("SSE connection status changed:", status);
         setIsConnected(status);
+        
+        // Clear any existing timeout
+        if (reconnectMessageTimeout) {
+            clearTimeout(reconnectMessageTimeout);
+            setReconnectMessageTimeout(null);
+        }
+        
         if (status) {
+            // Connection restored
+            setShowReconnectingMessage(false);
             enqueueSnackbar("SSE connection established", { variant: "success" });
         } else {
-            enqueueSnackbar("SSE connection lost. Attempting to reconnect...", { variant: "warning" });
+            // Connection lost - show reconnecting message after 3 seconds delay
+            const timeout = setTimeout(() => {
+                if (isAuthenticated) {
+                    setShowReconnectingMessage(true);
+                    enqueueSnackbar("SSE connection lost. Attempting to reconnect...", { variant: "warning" });
+                }
+            }, 3000); // 3 second delay before showing reconnecting message
+            
+            setReconnectMessageTimeout(timeout);
         }
-    }, [enqueueSnackbar]);
+    }, [enqueueSnackbar, isAuthenticated, reconnectMessageTimeout]);
 
     useEffect(() => {
         const initializeSSE = () => {
@@ -122,6 +141,12 @@ const BackGround: React.FC = () => {
 
         return () => {
             console.log("Cleaning up SSE connection...");
+            
+            // Clear reconnect message timeout
+            if (reconnectMessageTimeout) {
+                clearTimeout(reconnectMessageTimeout);
+            }
+            
             const sseManager = SseManager.getInstance();
             sseManager.removeMessageHandler(handleSseMessage);
             sseManager.removeErrorHandler(handleSseError);
@@ -129,14 +154,14 @@ const BackGround: React.FC = () => {
             sseManager.disconnect();
             window.removeEventListener('userLoggedIn', initializeSSE);
         };
-    }, [handleSseMessage, handleSseError, handleConnectionStatus]);
+    }, [handleSseMessage, handleSseError, handleConnectionStatus, reconnectMessageTimeout]);
 
     return (
         <>
             <AlertModal />
-            {!isConnected && isAuthenticated && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, backgroundColor: 'yellow', color: 'black', textAlign: 'center', padding: '5px' }}>
-                    Reconnecting to server...
+            {showReconnectingMessage && isAuthenticated && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, backgroundColor: 'orange', color: 'white', textAlign: 'center', padding: '8px', zIndex: 9999, fontSize: '14px', fontWeight: 'bold' }}>
+                    ⚠️ Connection lost. Reconnecting to server...
                 </div>
             )}
         </>
