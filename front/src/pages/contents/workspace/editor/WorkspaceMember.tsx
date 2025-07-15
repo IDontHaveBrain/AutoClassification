@@ -35,7 +35,7 @@ const WorkspaceMember: React.FC<Props> = ({ workspace, removeMember, isLoading =
         <ExpandComp title="Members">
             <Grid container spacing={2}>
                 {workspace?.members?.map((member) => (
-                    <Grid item key={member.email} xs={6} sm={4} md={3} lg={2}>
+                    <Grid size={{ xs: 6, sm: 4, md: 3, lg: 2 }} key={member.email}>
                         <Tooltip title={`${member.name} (${member.email})`}>
                             <Box
                                 sx={{

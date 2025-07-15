@@ -213,7 +213,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
             }}>
                 <Grid container spacing={{ xs: 2, sm: 3 }}>
                     {/* Metadata Section */}
-                    <Grid item xs={12} lg={4}>
+                    <Grid size={{ xs: 12, lg: 4 }}>
                         <Card elevation={2} sx={{ height: 'fit-content' }}>
                             <CardContent sx={{ pb: '16px !important' }}>
                                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
@@ -244,7 +244,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                     </Grid>
 
                     {/* Result Summary Section */}
-                    <Grid item xs={12} lg={8}>
+                    <Grid size={{ xs: 12, lg: 8 }}>
                         <Card elevation={2} sx={{ height: 'fit-content' }}>
                             <CardContent sx={{ pb: '16px !important' }}>
                                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
@@ -280,7 +280,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                     </Grid>
 
                     {/* Detailed Results Section */}
-                    <Grid item xs={12}>
+                    <Grid size={{ xs: 12 }}>
                         <Card elevation={2}>
                             <CardContent sx={{ pb: '16px !important' }}>
                                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
@@ -290,7 +290,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                                 {/* Controls Section */}
                                 <Box sx={{ mb: 3 }}>
                                     <Grid container spacing={2} alignItems="center">
-                                        <Grid item xs={12} sm={6} md={4}>
+                                        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                                             <FormControl fullWidth size="small">
                                                 <InputLabel id="sort-select-label">Sort Images</InputLabel>
                                                 <Select
@@ -306,7 +306,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                                                 </Select>
                                             </FormControl>
                                         </Grid>
-                                        <Grid item xs={12} sm={6} md={4}>
+                                        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                                             <Button
                                                 variant="contained"
                                                 color="primary"
@@ -361,7 +361,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                                         <TabPanel value={tabValue} index={0}>
                                             <LabelledImageCard
                                                 label="All Images"
-                                                images={sortImages(allImages)}
+                                                images={sortImages(allImages).map(img => ({ ...img, id: img.id.toString() }))}
                                                 onImageClick={handleImageClick}
                                                 imageSize="tiny"
                                             />
@@ -370,7 +370,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                                             <TabPanel value={tabValue} index={index + 1} key={item.label}>
                                                 <LabelledImageCard
                                                     label={item.label}
-                                                    images={sortImages(item.ids.map((id) => images.find((img) => img.id === id)).filter((img): img is TestFile => img !== undefined))}
+                                                    images={sortImages(item.ids.map((id) => images.find((img) => img.id === id)).filter((img): img is TestFile => img !== undefined)).map(img => ({ ...img, id: img.id.toString() }))}
                                                     onImageClick={handleImageClick}
                                                     imageSize="tiny"
                                                 />

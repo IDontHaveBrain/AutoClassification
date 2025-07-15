@@ -60,7 +60,8 @@ const MemberSearchModal: React.FC<Props> = ({ close, setData }) => {
     }, [search]);
 
     useEffect(() => {
-        loadRows(pageable.page, pageable.size, pageable.sort);
+        const sortValue = Array.isArray(pageable.sort) ? pageable.sort.join(',') : (pageable.sort || '');
+        loadRows(pageable.page, pageable.size, sortValue);
     }, [loadRows, pageable.page, pageable.size, pageable.sort]);
 
     return (

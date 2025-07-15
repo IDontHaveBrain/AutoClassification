@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
+import { type SxProps, type Theme } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
@@ -8,16 +9,17 @@ interface BaseInputFieldProps {
     value?: string;
     onChange?: (_event: React.ChangeEvent<HTMLInputElement>) => void;
     readOnly?: boolean;
+    sx?: SxProps<Theme>;
 }
 
-const BaseInputField = ({ label, value, onChange, readOnly = false }: BaseInputFieldProps) => {
+const BaseInputField = ({ label, value, onChange, readOnly = false, sx }: BaseInputFieldProps) => {
   return (
       <Box>
         <Grid container direction="row" alignItems="center" spacing={2}>
-          <Grid item>
+          <Grid size="auto">
             <Typography variant="h6">{label}</Typography>
           </Grid>
-          <Grid item>
+          <Grid size="auto">
             <TextField
                 id="custom-input"
                 variant="outlined"
@@ -43,6 +45,7 @@ const BaseInputField = ({ label, value, onChange, readOnly = false }: BaseInputF
                             borderColor: readOnly ? 'rgba(0, 0, 0, 0.23)' : 'inherit',
                         },
                     },
+                    ...sx,
                 }}
             />
           </Grid>

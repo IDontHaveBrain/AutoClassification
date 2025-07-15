@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Dialog } from '@mui/material';
 import Box from '@mui/material/Box';
-import { type GridColDef } from '@mui/x-data-grid';
+import { type GridColDef, type GridRowParams } from '@mui/x-data-grid';
 import BaseTable from 'component/baseBoard/BaseTable';
 import { initPageable,type Pageable } from 'model/GlobalModel';
 import TestResultDetail from 'pages/contents/freetest/TestResultDetail';
@@ -56,8 +56,8 @@ const TestResultList: React.FC = () => {
         fetchResults(updatedPageable);
     };
 
-    const handleRowClick = (data: { row: TestResultData }) => {
-        setDetailData(data.row);
+    const handleRowClick = (params: GridRowParams<TestResultData>) => {
+        setDetailData(params.row);
     };
 
     const handleClose = () => {
@@ -88,7 +88,7 @@ const TestResultList: React.FC = () => {
             headerName: 'Date',
             flex: 2,
             type: 'dateTime',
-            valueFormatter: (params) => CommonUtil.dateFormat({ value: params.value }),
+            valueFormatter: (params: { value: string }) => CommonUtil.dateFormat({ value: params.value }),
         },
     ];
 

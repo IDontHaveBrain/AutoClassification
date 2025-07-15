@@ -12,7 +12,7 @@ interface ExpandCompProps {
 }
 
 const ExpandComp = ({ children, title, titleStyle, contentStyle }: ExpandCompProps) => (
-    <Grid item md>
+    <Grid size={{ md: 12 }}>
         <Accordion sx={titleStyle ? titleStyle : { border: '2px solid #c4c4c4' }}>
             <AccordionSummary sx={{ bgcolor: green[300] }} expandIcon={<ExpandMoreIcon />}>
                 {title}

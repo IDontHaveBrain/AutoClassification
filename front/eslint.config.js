@@ -47,7 +47,7 @@ export default [
       },
       globals: {
         ...globals.browser,
-        ...globals.es2021,
+        ...globals.es2024,
         ...globals.node,
         // React 전역 변수
         React: 'readonly',

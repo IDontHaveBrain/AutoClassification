@@ -128,7 +128,7 @@ const WorkspaceEditor = () => {
     return (
         <Paper elevation={3} sx={{ p: 3, m: 2 }}>
             <Grid container direction="column" spacing={3}>
-                <Grid item container justifyContent="space-between" alignItems="center">
+                <Grid size="auto" container justifyContent="space-between" alignItems="center">
                     <Typography variant="h4" component="h1">
                         {isEdit ? 'Edit Workspace' : 'Create Workspace'}
                     </Typography>
@@ -145,7 +145,7 @@ const WorkspaceEditor = () => {
                         </Tooltip>
                     </Box>
                 </Grid>
-                <Grid item container justifyContent="center">
+                <Grid size="auto" container justifyContent="center">
                     <Box sx={{ width: '100%', maxWidth: 600 }}>
                         <Tabs
                             value={tabValue}
@@ -176,7 +176,7 @@ const WorkspaceEditor = () => {
                         </Tabs>
                     </Box>
                 </Grid>
-                <Grid item>
+                <Grid size="auto">
                     {isLoading ? (
                         <Box display="flex" justifyContent="center" alignItems="center" height="200px">
                             <CircularProgress />
@@ -206,7 +206,6 @@ const WorkspaceEditor = () => {
                                 <Divider sx={{ my: 2 }} />
                                 <WorkspaceDataSet
                                     imgs={workspace?.files || []}
-                                    setState={setWorkspace}
                                     isLoading={isLoading}
                                     error={error}
                                     classes={workspace?.classes}

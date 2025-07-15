@@ -10,9 +10,13 @@ const MenuComponent = ({ menu }: {menu: MenuInfo}) => {
     let element = null;
     const [state, setState] = useState();
 
+    const resetState = () => {
+        setState(undefined);
+    };
+
     if (menu.context) {
         element = (
-            <menu.context.Provider value={{ state, setState }}>
+            <menu.context.Provider value={{ state, setState, resetState }}>
                 {menu.element}
             </menu.context.Provider>
         );

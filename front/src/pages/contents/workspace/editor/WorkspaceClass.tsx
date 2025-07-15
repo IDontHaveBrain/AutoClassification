@@ -51,7 +51,7 @@ const WorkspaceClass: React.FC<Props> = ({ classes = [], onClassesChange, isLoad
   return (
     <ExpandComp title="Classify">
       <Grid container direction="column" spacing={2}>
-        <Grid item>
+        <Grid size="auto">
           <Autocomplete
             freeSolo
             options={classes ?? []}
@@ -71,15 +71,15 @@ const WorkspaceClass: React.FC<Props> = ({ classes = [], onClassesChange, isLoad
             }
           />
         </Grid>
-        <Grid item>
+        <Grid size="auto">
           <IconButton onClick={handleAdd} color="primary">
             <AddCircleOutlineIcon />
           </IconButton>
         </Grid>
-        <Grid item>
+        <Grid size="auto">
           <Grid container spacing={1}>
             {classes && classes.map((item) => (
-              <Grid item key={item}>
+              <Grid size="auto" key={item}>
                 <Chip
                   label={item}
                   onDelete={() => handleRemove(item)}

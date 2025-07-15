@@ -17,7 +17,7 @@ import {
     Tabs,
     Typography,
 } from '@mui/material';
-import { type SseEvent, SseType } from 'model/GlobalModel';
+import { SseType } from 'model/GlobalModel';
 import { type WorkspaceModel } from 'model/WorkspaceModel';
 import { deleteWorkspace, getWorkspace } from 'service/Apis/WorkspaceApi';
 
@@ -66,12 +66,9 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
         if (data && data.id) {
             fetchWorkspaceDetail(data.id);
 
-            const handleSseMessage = (event: SseEvent) => {
-                if (event.type === SseType.WORKSPACE_UPDATE) {
-                    const updatedWorkspace = JSON.parse(event.data);
-                    if (updatedWorkspace.id === data.id) {
-                        fetchWorkspaceDetail(data.id);
-                    }
+            const handleSseMessage = (updatedWorkspace: WorkspaceModel) => {
+                if (updatedWorkspace.id === data.id) {
+                    fetchWorkspaceDetail(data.id);
                 }
             };
 
@@ -206,7 +203,7 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                         </Typography>
                         <Grid container spacing={2}>
                             {detail.members.map((member) => (
-                                <Grid item key={member.id}>
+                                <Grid size="auto" key={member.id}>
                                     <Box display="flex" alignItems="center">
                                         <Avatar sx={{ mr: 1 }}>{member.name[0]}</Avatar>
                                         <Typography variant="body2">{member.name}</Typography>

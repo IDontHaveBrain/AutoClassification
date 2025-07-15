@@ -1,5 +1,7 @@
 import { type WorkspaceModel } from './WorkspaceModel';
 
+export { type WorkspaceModel };
+
 export interface AlarmModel {
     id: number;
     title: string;

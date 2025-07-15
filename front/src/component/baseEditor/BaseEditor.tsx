@@ -28,7 +28,7 @@ const BaseEditor = ({ handleSave, defaultTitle, defaultContent }: Props, ref) =>
         <Box>
             {/* 제목 및 저장 섹션 */}
             <Grid container spacing={3} alignItems="end" sx={{ mb: 3 }}>
-                <Grid item xs={12} sm={9} md={10}>
+                <Grid size={{ xs: 12, sm: 9, md: 10 }}>
                     <BaseInputField
                         label="Title : "
                         value={editorTitle}
@@ -40,7 +40,7 @@ const BaseEditor = ({ handleSave, defaultTitle, defaultContent }: Props, ref) =>
                         }}
                     />
                 </Grid>
-                <Grid item xs={12} sm={3} md={2}>
+                <Grid size={{ xs: 12, sm: 3, md: 2 }}>
                     <Button
                         variant="contained"
                         color="success"

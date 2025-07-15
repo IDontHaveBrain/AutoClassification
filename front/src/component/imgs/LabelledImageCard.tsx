@@ -74,8 +74,7 @@ const LabelledImageCard = ({ label, images, onImageClick, imageSize = 'tiny' }: 
             >
                 {images.map((image) => (
                     <Grid
-                        item
-                        {...getGridItemSize()}
+                        size={getGridItemSize()}
                         key={image.id}
                         role="listitem"
                     >

@@ -7,7 +7,7 @@ import { type FileModel } from 'model/GlobalModel';
 
 interface Props {
     imgs: FileModel[];
-    setState: React.Dispatch<React.SetStateAction<FileModel[]>>;
+    setState?: React.Dispatch<React.SetStateAction<FileModel[]>>;
     isLoading?: boolean;
     error?: string | null;
     onDeleteImage?: (_imageId: number) => void;
@@ -55,7 +55,7 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState: _setState, isLoadin
                     {[...Array(8)].map((_, index) => {
                         const skeletonId = `skeleton-loader-${8 - index}`;
                         return (
-                            <Grid item xs={12} sm={6} md={4} lg={3} key={skeletonId}>
+                            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={skeletonId}>
                                 <Skeleton variant="rectangular" height={140} />
                                 <Skeleton variant="text" />
                             </Grid>
@@ -106,7 +106,7 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState: _setState, isLoadin
                 <>
                     <Grid container spacing={2} sx={{ mt: 2 }}>
                         {displayedImages.map((image) => (
-                            <Grid item xs={12} sm={6} md={4} lg={3} key={image.id}>
+                            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={image.id}>
                                 <Card
                                     onClick={() => handleImageClick(image.url)}
                                     sx={{

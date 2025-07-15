@@ -232,7 +232,7 @@ const TestClassify: React.FC = () => {
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <Typography variant="h6" gutterBottom>클래스 입력</Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                         {classList.map((item, index) => (
@@ -251,7 +251,7 @@ const TestClassify: React.FC = () => {
                         )}
                     </Box>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     <Typography variant="h6" gutterBottom>파일 업로드</Typography>
                     <FileDropzone
                         onDrop={onDrop}

@@ -33,6 +33,11 @@ const NoticeList: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
+    const normalizeSort = (sort: string | string[] | undefined): string => {
+        if (!sort) return '';
+        return Array.isArray(sort) ? sort.join(',') : sort;
+    };
+
     const fetchNotices = useCallback(async (page: number, size: number, sort: string, searchParams: SearchParams) => {
         setLoading(true);
         try {
@@ -48,10 +53,10 @@ const NoticeList: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        fetchNotices(pageable.page, pageable.size, pageable.sort, search);
+        fetchNotices(pageable.page, pageable.size, normalizeSort(pageable.sort), search);
 
         const handleNoticeUpdate = () => {
-            fetchNotices(pageable.page, pageable.size, pageable.sort, search);
+            fetchNotices(pageable.page, pageable.size, normalizeSort(pageable.sort), search);
         };
 
         eventBus.subscribe(SseType.NOTICE, handleNoticeUpdate);
@@ -80,7 +85,7 @@ const NoticeList: React.FC = () => {
     };
 
     const onSearch = () => {
-        fetchNotices(0, pageable.size, pageable.sort, search);
+        fetchNotices(0, pageable.size, normalizeSort(pageable.sort), search);
     };
 
     const columns: GridColDef[] = [
@@ -108,14 +113,6 @@ const NoticeList: React.FC = () => {
         return `Title: ${row.title}\nCreated by: ${row.createMember}\nCreated at: ${CommonUtil.dateFormat({ value: row.createDateTime })}\nUpdated by: ${row.updateMember}\nUpdated at: ${CommonUtil.dateFormat({ value: row.updateDateTime })}`;
     };
 
-    const getExpandedContent = (row: NoticeModel) => {
-        return (
-            <Box sx={{ p: 2 }}>
-                <p><strong>Content:</strong> {row.content}</p>
-            </Box>
-        );
-    };
-
     return (
         <Paper elevation={3} sx={{ p: 4, m: 2, borderRadius: 2 }}>
             <BaseTitle title={'공지사항'} />
@@ -123,7 +120,7 @@ const NoticeList: React.FC = () => {
             <Box sx={{ mb: 4, mt: 3 }}>
                 <BaseSearch>
                     <Grid container spacing={3} alignItems="end">
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <TextField
                                 name="title"
                                 label="Title"
@@ -138,7 +135,7 @@ const NoticeList: React.FC = () => {
                                 }}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <TextField
                                 name="createMember"
                                 label="Creator"
@@ -153,7 +150,7 @@ const NoticeList: React.FC = () => {
                                 }}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <TextField
                                 name="content"
                                 label="Content"
@@ -168,7 +165,7 @@ const NoticeList: React.FC = () => {
                                 }}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6} md={1.5}>
+                        <Grid size={{ xs: 12, sm: 6, md: 1.5 }}>
                             <Button
                                 variant="contained"
                                 onClick={onSearch}
@@ -189,7 +186,7 @@ const NoticeList: React.FC = () => {
                                 Search
                             </Button>
                         </Grid>
-                        <Grid item xs={12} sm={6} md={1.5}>
+                        <Grid size={{ xs: 12, sm: 6, md: 1.5 }}>
                             <Button
                                 color="success"
                                 variant="contained"
@@ -248,7 +245,6 @@ const NoticeList: React.FC = () => {
                             loadRows={handlePageChange}
                             onClick={handleRowClick}
                             getTooltipContent={getTooltipContent}
-                            getExpandedContent={getExpandedContent}
                         />
                     )}
                 </Box>

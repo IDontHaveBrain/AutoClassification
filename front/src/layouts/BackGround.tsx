@@ -51,8 +51,18 @@ const BackGround: React.FC = () => {
                     eventBus.publish(SseType.ALARM, alarmData);
                 }
             }
-            eventBus.publish(event.type, event.data);
+            // Parse string data to appropriate type based on event type
+            try {
+                const parsedData = JSON.parse(event.data);
+                eventBus.publish(event.type, parsedData);
+            } catch (_parseError) {
+                // If parsing fails, only publish for HEARTBEAT type with timestamp
+                if (event.type === SseType.HEARTBEAT) {
+                    eventBus.publish(event.type, { timestamp: event.timestamp });
+                }
+            }
         } catch (_error) {
+            // 메시지 처리 중 오류 무시
         }
     }, [enqueueSnackbar]);
 

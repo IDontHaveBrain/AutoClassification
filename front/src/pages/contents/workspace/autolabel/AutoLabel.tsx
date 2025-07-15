@@ -71,7 +71,7 @@ const AutoLabel: React.FC = () => {
             {/* Control Section */}
             <Box sx={{ mb: 4, mt: 3 }}>
                 <Grid container spacing={3} alignItems="end">
-                    <Grid item xs={12} sm={8} md={7} lg={6} xl={5}>
+                    <Grid size={{ xs: 12, sm: 8, md: 7, lg: 6, xl: 5 }}>
                         <Autocomplete
                             options={workspaceList}
                             getOptionLabel={(option) => option.name}
@@ -160,7 +160,7 @@ const AutoLabel: React.FC = () => {
                             }}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={4} md={3}>
+                    <Grid size={{ xs: 12, sm: 4, md: 3 }}>
                         <Button
                             onClick={handleLabelingRequest}
                             variant="contained"
@@ -202,7 +202,7 @@ const AutoLabel: React.FC = () => {
             {selected && (
                 <Box sx={{ mt: 4 }}>
                     <Grid container spacing={4}>
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <Typography
                                 variant="h6"
                                 gutterBottom
@@ -223,13 +223,12 @@ const AutoLabel: React.FC = () => {
                             }}>
                                 <WorkspaceDataSet
                                     imgs={selected.files || []}
-                                    setState={setSelected}
                                     isLoading={isLoading}
                                     classes={selected.classes || []}
                                 />
                             </Box>
                         </Grid>
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                             <Typography
                                 variant="h6"
                                 gutterBottom

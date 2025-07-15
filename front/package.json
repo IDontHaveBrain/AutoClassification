@@ -55,7 +55,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "lint-fix": "eslint src/**/*.{js,jsx,ts,tsx} --color --fix"
+    "lint": "eslint src/**/*.{js,jsx,ts,tsx} --color --fix"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",

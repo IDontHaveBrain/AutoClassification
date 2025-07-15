@@ -32,6 +32,11 @@ const WorkspaceList: React.FC = () => {
     const navigate = useNavigate();
     const { setState } = useContext(WorkspaceContext);
 
+    const normalizeSort = (sort: string | string[] | undefined): string => {
+        if (!sort) return '';
+        return Array.isArray(sort) ? sort.join(',') : sort;
+    };
+
     const fetchWorkspaces = useCallback(async (page: number, size: number, sort: string, search: Search) => {
         setLoading(true);
         try {
@@ -47,7 +52,7 @@ const WorkspaceList: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        fetchWorkspaces(pageable.page, pageable.size, pageable.sort, search);
+        fetchWorkspaces(pageable.page, pageable.size, normalizeSort(pageable.sort), search);
         // eslint-disable-next-line
     }, []);
 
@@ -70,7 +75,7 @@ const WorkspaceList: React.FC = () => {
     };
 
     const handleDeleteSuccess = () => {
-        fetchWorkspaces(pageable.page, pageable.size, pageable.sort, search);
+        fetchWorkspaces(pageable.page, pageable.size, normalizeSort(pageable.sort), search);
     };
     const handleRowClick = (params: GridRowParams) => {
         const workspace = params.row as WorkspaceModel;
@@ -87,7 +92,7 @@ const WorkspaceList: React.FC = () => {
 
     const handleSearch = () => {
         setPageable(prevPageable => ({ ...prevPageable, page: 0 })); // 검색 시 첫 페이지로 이동
-        fetchWorkspaces(0, pageable.size, pageable.sort, search);
+        fetchWorkspaces(0, pageable.size, normalizeSort(pageable.sort), search);
     };
 
     const columns: GridColDef[] = [
@@ -105,16 +110,6 @@ const WorkspaceList: React.FC = () => {
         return `Name: ${row.name}\nDescription: ${row.description}\nCreated by: ${row.createMember}\nCreated at: ${CommonUtil.dateFormat({ value: row.createDateTime })}`;
     };
 
-    const getExpandedContent = (row: WorkspaceModel) => {
-        return (
-            <Box sx={{ p: 2 }}>
-                <p><strong>Description:</strong> {row.description}</p>
-                <p><strong>Members:</strong> {row.members?.map(member => member.name).join(', ')}</p>
-                <p><strong>Classes:</strong> {row.classes?.join(', ')}</p>
-            </Box>
-        );
-    };
-
     return (
         <Paper elevation={3} sx={{ p: 4, m: 2, borderRadius: 2 }}>
             <BaseTitle title={'MyWorkspace'} />
@@ -122,7 +117,7 @@ const WorkspaceList: React.FC = () => {
             <Box sx={{ mb: 4, mt: 3 }}>
                 <BaseSearch>
                     <Grid container spacing={3} alignItems="end">
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <TextField
                                 name="name"
                                 label="Workspace Name"
@@ -137,7 +132,7 @@ const WorkspaceList: React.FC = () => {
                                 }}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <TextField
                                 name="ownerEmail"
                                 label="Owner Email"
@@ -152,7 +147,7 @@ const WorkspaceList: React.FC = () => {
                                 }}
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <Button
                                 variant="contained"
                                 onClick={handleSearch}
@@ -173,7 +168,7 @@ const WorkspaceList: React.FC = () => {
                                 Search
                             </Button>
                         </Grid>
-                        <Grid item xs={12} sm={6} md={3}>
+                        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <Button
                                 color="success"
                                 variant="contained"
@@ -233,7 +228,6 @@ const WorkspaceList: React.FC = () => {
                             loadRows={handlePageChange}
                             onClick={handleRowClick}
                             getTooltipContent={getTooltipContent}
-                            getExpandedContent={getExpandedContent}
                         />
                     )}
                 </Box>

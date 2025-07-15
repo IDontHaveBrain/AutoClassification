@@ -187,14 +187,14 @@ export const getCurrentMenuInfo = (
 
         if (menu.subMenu) {
             const found = getCurrentMenuInfo(menu.subMenu, path);
-            if (found.length > 0) {
+            if (found) {
                 return found;
             }
         }
 
         if (menu.subTabMenu) {
             const found = getCurrentMenuInfo(menu.subTabMenu, path);
-            if (found.length > 0) {
+            if (found) {
                 return found;
             }
         }

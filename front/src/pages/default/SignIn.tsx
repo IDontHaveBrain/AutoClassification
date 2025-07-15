@@ -190,7 +190,7 @@ export default function SignIn() {
                                 Sign In
                             </Button>
                             <Grid container>
-                                <Grid item>
+                                <Grid size="auto">
                                     <Link to={'/sign-up'}>{"Don't have an account? Sign Up"}</Link>
                                 </Grid>
                             </Grid>

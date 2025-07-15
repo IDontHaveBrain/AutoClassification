@@ -80,7 +80,7 @@ export default function SignUp() {
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         signUp(form).then((_res) => {
-            onAlert(Strings.Common.apiSuccess, navigate('/sign-in'));
+            onAlert(Strings.Common.apiSuccess, () => navigate('/sign-in'));
         }).catch((_err) => {
             onAlert(Strings.Common.apiFailed);
         });
@@ -111,7 +111,7 @@ export default function SignUp() {
                         sx={{ mt: 3 }}
                     >
                         <Grid container spacing={2}>
-                            <Grid item xs={12}>
+                            <Grid size={{ xs: 12 }}>
                                 <TextField
                                     autoComplete="given-name"
                                     name="name"
@@ -123,7 +123,7 @@ export default function SignUp() {
                                     onChange={handleChange}
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid size={{ xs: 12 }}>
                                 <TextField
                                     required
                                     fullWidth
@@ -136,7 +136,7 @@ export default function SignUp() {
                                     helperText={emailError}
                                 />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid size={{ xs: 12 }}>
                                 <Box sx={{ mb: 2 }}>
                                     <Typography variant="body2" color="text.secondary" gutterBottom>
                                         {Strings.Auth.passwordRequirements}
@@ -175,8 +175,7 @@ export default function SignUp() {
                                     helperText={passwordError}
                                 />
                             </Grid>
-                            <Grid item xs={12}>
-                            </Grid>
+                            <Grid size={{ xs: 12 }} />
                         </Grid>
                         <Button
                             type="submit"
@@ -187,7 +186,7 @@ export default function SignUp() {
                             Sign Up
                         </Button>
                         <Grid container justifyContent="flex-end">
-                            <Grid item>
+                            <Grid size="auto">
                                 <Link to="/sign-in">
                                     Already have an account? Sign in
                                 </Link>
