@@ -3,8 +3,10 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { type AppBarProps, Box,IconButton, styled, Toolbar } from '@mui/material';
 import MuiAppBar from '@mui/material/AppBar';
 import Typography from '@mui/material/Typography';
-import Notification from 'component/notification/Notification';
-import UserInfo from 'component/user/UserInfo';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from 'components/LanguageSwitcher/LanguageSwitcher';
+import Notification from 'components/notification/Notification';
+import UserInfo from 'components/user/UserInfo';
 import { useAppSelector } from 'stores/rootHook';
 
 interface MyAppBarProps extends AppBarProps {
@@ -21,6 +23,7 @@ interface TopBarProps {
 
 const TopBar = ({ open, openMenu, width, children: _children }: TopBarProps) => {
     const user = useAppSelector((state) => state.userInfo.user);
+    const { t } = useTranslation();
 
     useEffect(() => {
         const tokenCheck = sessionStorage.getItem('access_token');
@@ -51,9 +54,10 @@ const TopBar = ({ open, openMenu, width, children: _children }: TopBarProps) => 
                     noWrap
                     sx={{ flexGrow: 1 }}
                 >
-                    Dashboard
+                    {t('dashboard')}
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <LanguageSwitcher variant="compact" />
                     <UserInfo user={user} />
                     <Notification />
                 </Box>

@@ -2,10 +2,10 @@ import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Divider, Tab, Tabs } from '@mui/material';
 import {
+  useMenuItems,
   findMenuPath,
   type MenuInfo,
-  MenuItems,
-} from 'service/commons/MenuItem';
+} from 'hooks/useMenuItems';
 
 interface SubTabBarProps {
   subTabMenu?: MenuInfo[];
@@ -14,12 +14,13 @@ interface SubTabBarProps {
 const SubTabBar = ({ subTabMenu: _subTabMenu }: SubTabBarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const menuItems = useMenuItems();
 
   const handleChange = (event, newValue: string) => {
     navigate(newValue);
   };
 
-  const breadcrumbs = findMenuPath(MenuItems, location.pathname);
+  const breadcrumbs = findMenuPath(menuItems, location.pathname);
   const rootMenu = breadcrumbs[0];
   const fullSubTabMenu = [rootMenu].concat(rootMenu.subTabMenu || []);
 
