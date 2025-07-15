@@ -3,9 +3,13 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { type AppBarProps, Box,IconButton, styled, Toolbar } from '@mui/material';
 import MuiAppBar from '@mui/material/AppBar';
 import Typography from '@mui/material/Typography';
-import Notification from 'component/notification/Notification';
-import UserInfo from 'component/user/UserInfo';
+import { useTranslation } from 'hooks/useTranslation';
 import { useAppSelector } from 'stores/rootHook';
+
+import Notification from 'components/notification/Notification';
+import UserInfo from 'components/user/UserInfo';
+
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
 interface MyAppBarProps extends AppBarProps {
     open: boolean;
@@ -21,6 +25,7 @@ interface TopBarProps {
 
 const TopBar = ({ open, openMenu, width, children: _children }: TopBarProps) => {
     const user = useAppSelector((state) => state.userInfo.user);
+    const { t } = useTranslation('navigation');
 
     useEffect(() => {
         const tokenCheck = sessionStorage.getItem('access_token');
@@ -51,9 +56,10 @@ const TopBar = ({ open, openMenu, width, children: _children }: TopBarProps) => 
                     noWrap
                     sx={{ flexGrow: 1 }}
                 >
-                    Dashboard
+                    {t('menu.dashboard')}
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <LanguageSwitcher variant="compact" />
                     <UserInfo user={user} />
                     <Notification />
                 </Box>

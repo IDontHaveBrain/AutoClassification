@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { Autocomplete, Chip, CircularProgress, Grid, IconButton, TextField, Typography } from '@mui/material';
-import ExpandComp from 'component/ExpandComp';
+import { useTranslation } from 'hooks/useTranslation';
+
+import ExpandComp from 'components/ExpandComp';
 
 interface Props {
   classes?: string[];
@@ -11,6 +13,7 @@ interface Props {
 }
 
 const WorkspaceClass: React.FC<Props> = ({ classes = [], onClassesChange, isLoading = false, error = null }) => {
+  const { t } = useTranslation('workspace');
   const [newClass, setNewClass] = useState<string>('');
 
   const handleAdd = () => {
@@ -32,7 +35,7 @@ const WorkspaceClass: React.FC<Props> = ({ classes = [], onClassesChange, isLoad
 
   if (isLoading) {
     return (
-      <ExpandComp title="Classify">
+      <ExpandComp title={t('editor.class.title')}>
         <Grid container justifyContent="center">
           <CircularProgress />
         </Grid>
@@ -42,14 +45,14 @@ const WorkspaceClass: React.FC<Props> = ({ classes = [], onClassesChange, isLoad
 
   if (error) {
     return (
-      <ExpandComp title="Classify">
+      <ExpandComp title={t('editor.class.title')}>
         <Typography color="error" align="center">{error}</Typography>
       </ExpandComp>
     );
   }
 
   return (
-    <ExpandComp title="Classify">
+    <ExpandComp title={t('editor.class.title')}>
       <Grid container direction="column" spacing={2}>
         <Grid size="auto">
           <Autocomplete
@@ -58,7 +61,7 @@ const WorkspaceClass: React.FC<Props> = ({ classes = [], onClassesChange, isLoad
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Add new class"
+                label={t('editor.class.addNewClass')}
                 variant="outlined"
                 value={newClass}
                 onChange={handleInputChange}

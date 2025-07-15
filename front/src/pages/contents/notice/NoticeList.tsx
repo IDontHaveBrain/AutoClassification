@@ -1,18 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CircularProgress, Dialog, Grid, Paper, TextField, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import { type GridColDef, type GridRowParams } from '@mui/x-data-grid';
-import BaseSearch from 'component/baseBoard/BaseSearch';
-import BaseTable from 'component/baseBoard/BaseTable';
-import BaseTitle from 'component/baseBoard/BaseTitle';
-import { initPageable, type NoticeModel, type Pageable, SseType } from 'model/GlobalModel';
+import { useTranslation } from 'hooks/useTranslation';
+import { initPageable, type NoticeModel, type Pageable } from 'model/GlobalModel';
 import { getNoticeList } from 'service/Apis/NoticeApi';
 
+import BaseSearch from 'components/baseBoard/BaseSearch';
+import BaseTable from 'components/baseBoard/BaseTable';
+import BaseTitle from 'components/baseBoard/BaseTitle';
 import { onAlert } from 'utils/alert';
 import { CommonUtil } from 'utils/CommonUtil';
-import { eventBus } from 'utils/eventBus';
 import { Strings } from 'utils/strings';
 
 import NoticeDetail from './NoticeDetail';
@@ -32,13 +32,15 @@ const NoticeList: React.FC = () => {
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const { t } = useTranslation('notice');
+    const { t: commonT } = useTranslation('common');
 
     const normalizeSort = (sort: string | string[] | undefined): string => {
         if (!sort) return '';
         return Array.isArray(sort) ? sort.join(',') : sort;
     };
 
-    const fetchNotices = useCallback(async (page: number, size: number, sort: string, searchParams: SearchParams) => {
+    const fetchNotices = async (page: number, size: number, sort: string, searchParams: SearchParams) => {
         setLoading(true);
         try {
             const params = { ...searchParams, page, size, sort };
@@ -50,25 +52,15 @@ const NoticeList: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    };
 
+    // Fetch notices when pagination or search parameters change
     useEffect(() => {
         fetchNotices(pageable.page, pageable.size, normalizeSort(pageable.sort), search);
-
-        const handleNoticeUpdate = () => {
-            fetchNotices(pageable.page, pageable.size, normalizeSort(pageable.sort), search);
-        };
-
-        eventBus.subscribe(SseType.NOTICE, handleNoticeUpdate);
-
-        return () => {
-            eventBus.unsubscribe(SseType.NOTICE, handleNoticeUpdate);
-        };
-    }, [fetchNotices, pageable, search]);
+    }, [pageable.page, pageable.size, pageable.sort, search]);
 
     const handlePageChange = (page: number, size: number, sort: string) => {
         setPageable(prevPageable => ({ ...prevPageable, page, size, sort }));
-        fetchNotices(page, size, sort, search);
     };
 
     const handleRowClick = (params: GridRowParams) => {
@@ -85,23 +77,23 @@ const NoticeList: React.FC = () => {
     };
 
     const onSearch = () => {
-        fetchNotices(0, pageable.size, normalizeSort(pageable.sort), search);
+        setPageable(prevPageable => ({ ...prevPageable, page: 0 }));
     };
 
     const columns: GridColDef[] = [
         { field: 'id', headerName: 'ID', flex: 1 },
-        { field: 'title', headerName: '제목', flex: 2 },
-        { field: 'createMember', headerName: '작성자', flex: 2 },
+        { field: 'title', headerName: t('table.title'), flex: 2 },
+        { field: 'createMember', headerName: t('table.creator'), flex: 2 },
         {
             field: 'createDateTime',
-            headerName: '작성일',
+            headerName: t('table.createdAt'),
             flex: 2,
             valueFormatter: CommonUtil.dateFormat,
         },
-        { field: 'updateMember', headerName: '수정자', flex: 2 },
+        { field: 'updateMember', headerName: t('table.updater'), flex: 2 },
         {
             field: 'updateDateTime',
-            headerName: '수정일',
+            headerName: t('table.updatedAt'),
             flex: 2,
             valueFormatter: CommonUtil.dateFormat,
         },
@@ -115,7 +107,7 @@ const NoticeList: React.FC = () => {
 
     return (
         <Paper elevation={3} sx={{ p: 4, m: 2, borderRadius: 2 }}>
-            <BaseTitle title={'공지사항'} />
+            <BaseTitle title={t('general.title')} />
 
             <Box sx={{ mb: 4, mt: 3 }}>
                 <BaseSearch>
@@ -123,7 +115,7 @@ const NoticeList: React.FC = () => {
                         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <TextField
                                 name="title"
-                                label="Title"
+                                label={t('search.title')}
                                 variant="outlined"
                                 fullWidth
                                 value={search.title}
@@ -138,7 +130,7 @@ const NoticeList: React.FC = () => {
                         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <TextField
                                 name="createMember"
-                                label="Creator"
+                                label={t('search.creator')}
                                 variant="outlined"
                                 fullWidth
                                 value={search.createMember}
@@ -153,7 +145,7 @@ const NoticeList: React.FC = () => {
                         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <TextField
                                 name="content"
-                                label="Content"
+                                label={t('search.content')}
                                 variant="outlined"
                                 fullWidth
                                 value={search.content}
@@ -183,7 +175,7 @@ const NoticeList: React.FC = () => {
                                     transition: 'all 0.2s ease-in-out',
                                 }}
                             >
-                                Search
+                                {commonT('buttons.search')}
                             </Button>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6, md: 1.5 }}>
@@ -207,7 +199,7 @@ const NoticeList: React.FC = () => {
                                     transition: 'all 0.2s ease-in-out',
                                 }}
                             >
-                                작성하기
+                                {t('actions.create')}
                             </Button>
                         </Grid>
                     </Grid>
@@ -223,7 +215,7 @@ const NoticeList: React.FC = () => {
                         mb: 2,
                     }}
                 >
-                    Notice List
+                    {t('general.noticeList')}
                 </Typography>
                 <Box sx={{
                     border: '1px solid',

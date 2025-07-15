@@ -7,17 +7,19 @@ Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogConte
 Divider,     Grid, IconButton,     Paper, Snackbar,
 Tab,
     Tabs, Tooltip, Typography } from '@mui/material';
-import BaseEditor from 'component/baseEditor/BaseEditor';
-import MemberSearchModal from 'component/modal/MemberSearchModal';
+import { useTranslation } from 'hooks/useTranslation';
 import { type Member } from 'model/GlobalModel';
+import { SseType } from 'model/GlobalModel';
 import { type WorkspaceModel } from 'model/WorkspaceModel';
 import WorkspaceClass from 'pages/contents/workspace/editor/WorkspaceClass';
 import WorkspaceDataSet from 'pages/contents/workspace/editor/WorkspaceDataSet';
 import WorkspaceMember from 'pages/contents/workspace/editor/WorkspaceMember';
 import { createWorkspace, updateWorkspace } from 'service/Apis/WorkspaceApi';
 
+import BaseEditor from 'components/baseEditor/BaseEditor';
+import MemberSearchModal from 'components/modal/MemberSearchModal';
 import { onAlert } from 'utils/alert';
-import { Strings } from 'utils/strings';
+import { eventBus } from 'utils/eventBus';
 
 import WorkspaceDropZone from './editor/WorkspaceDropZone';
 
@@ -26,6 +28,7 @@ interface CustomFile extends File {
 }
 
 const WorkspaceEditor = () => {
+    const { t } = useTranslation('workspace');
     const [workspace, setWorkspace] = useState<WorkspaceModel>();
     const [newFiles, setNewFiles] = useState<CustomFile[]>([]);
     const [isEdit, setIsEdit] = useState(false);
@@ -51,7 +54,7 @@ const WorkspaceEditor = () => {
         const editorState = editorRef.current.getEditorState();
 
         if (!editorState.title.trim() || !editorState.content.trim()) {
-            setError('Title and description are required.');
+            setError(t('editor.validation.titleAndDescriptionRequired'));
             return;
         }
 
@@ -88,15 +91,19 @@ const WorkspaceEditor = () => {
 
         try {
             if (isEdit) {
-                await updateWorkspace(workspace.id, formData);
-                onAlert(Strings.Workspace.update);
+                const response = await updateWorkspace(workspace.id, formData);
+                // Publish event to trigger workspace updates
+                eventBus.publish(SseType.WORKSPACE_UPDATE, response.data);
+                onAlert(t('messages.update'));
             } else {
-                await createWorkspace(formData);
-                onAlert(Strings.Workspace.add);
+                const response = await createWorkspace(formData);
+                // Publish event to trigger workspace updates
+                eventBus.publish(SseType.WORKSPACE_UPDATE, response.data);
+                onAlert(t('messages.add'));
             }
             navigate(-1);
         } catch (_err) {
-            setError(isEdit ? Strings.Workspace.updateFailed : Strings.Workspace.addFailed);
+            setError(isEdit ? t('messages.updateFailed') : t('messages.addFailed'));
         } finally {
             setIsLoading(false);
         }
@@ -130,15 +137,15 @@ const WorkspaceEditor = () => {
             <Grid container direction="column" spacing={3}>
                 <Grid size="auto" container justifyContent="space-between" alignItems="center">
                     <Typography variant="h4" component="h1">
-                        {isEdit ? 'Edit Workspace' : 'Create Workspace'}
+                        {isEdit ? t('general.editWorkspace') : t('general.createWorkspace')}
                     </Typography>
                     <Box>
-                        <Tooltip title="Save">
+                        <Tooltip title={t('editor.tooltips.save')}>
                             <IconButton color="primary" onClick={handleSave} disabled={isLoading}>
                                 <SaveIcon />
                             </IconButton>
                         </Tooltip>
-                        <Tooltip title="Close">
+                        <Tooltip title={t('editor.tooltips.close')}>
                             <IconButton color="secondary" onClick={() => navigate(-1)}>
                                 <CloseIcon />
                             </IconButton>
@@ -169,10 +176,10 @@ const WorkspaceEditor = () => {
                                 },
                             }}
                         >
-                            <Tab label="Details" />
-                            <Tab label="Classes" />
-                            <Tab label="Files" />
-                            <Tab label="Members" />
+                            <Tab label={t('editor.tabs.details')} />
+                            <Tab label={t('editor.tabs.classes')} />
+                            <Tab label={t('editor.tabs.files')} />
+                            <Tab label={t('editor.tabs.members')} />
                         </Tabs>
                     </Box>
                 </Grid>
@@ -220,7 +227,7 @@ const WorkspaceEditor = () => {
                                 />
                                 <Grid container justifyContent="center" sx={{ mt: 2 }}>
                                     <Button variant="contained" color="primary" onClick={() => setOpenMemberModal(true)}>
-                                        Add Member
+                                        {t('members.addMember')}
                                     </Button>
                                 </Grid>
                             </Box>
@@ -237,18 +244,18 @@ const WorkspaceEditor = () => {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
             >
-                <DialogTitle id="alert-dialog-title">{'Confirm Save'}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{t('editor.dialogs.confirmSave')}</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        Are you sure you want to save these changes?
+                        {t('editor.dialogs.confirmSaveMessage')}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenConfirmDialog(false)} color="primary">
-                        Cancel
+                        {t('actions.cancel')}
                     </Button>
                     <Button onClick={confirmSave} color="primary">
-                        Confirm
+                        {t('editor.dialogs.confirm')}
                     </Button>
                 </DialogActions>
             </Dialog>

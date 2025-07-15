@@ -2,11 +2,12 @@ import React, { useCallback, useEffect,useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import { Alert, Box, Button, Card, CardContent, CircularProgress, DialogActions, DialogContent, DialogTitle, Divider,FormControl, Grid, IconButton, InputLabel, MenuItem, Modal, Select, type SelectChangeEvent, Stack, Tab, Tabs, Typography, useMediaQuery, useTheme } from '@mui/material';
-import BaseTable from 'component/baseBoard/BaseTable';
-import BaseTitle from 'component/baseBoard/BaseTitle';
-import BaseInputField from 'component/BaseInputField';
-import LabelledImageCard from 'component/imgs/LabelledImageCard';
+import { useTranslation } from 'hooks/useTranslation';
 
+import BaseTable from 'components/baseBoard/BaseTable';
+import BaseTitle from 'components/baseBoard/BaseTitle';
+import BaseInputField from 'components/BaseInputField';
+import LabelledImageCard from 'components/imgs/LabelledImageCard';
 import { CommonUtil } from 'utils/CommonUtil';
 
 interface TestFile {
@@ -67,6 +68,7 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
+    const { t } = useTranslation('test');
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [result, setResult] = useState<TestResultItem[] | null>(null);
@@ -99,13 +101,13 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                     setAllImages([]);
                 }
             } catch (_err) {
-                setError('Failed to load test result data. Please try again.');
+                setError(t('result.loadFailed'));
             } finally {
                 setLoading(false);
             }
         };
         loadData();
-    }, [data]);
+    }, [data, t]);
 
     const handleImageClick = (imageUrl: string) => {
         setSelectedImage(imageUrl);
@@ -116,8 +118,8 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
     };
 
     const columns = [
-        { field: 'label', headerName: 'Label', flex: 1 },
-        { field: 'count', headerName: 'Count', flex: 1 },
+        { field: 'label', headerName: t('result.columns.label'), flex: 1 },
+        { field: 'count', headerName: t('result.columns.count'), flex: 1 },
     ];
 
     const rows = result?.map((item, index) => ({
@@ -168,7 +170,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                     gap={2}
                 >
                     <CircularProgress />
-                    <Typography variant="body1">Loading test result data...</Typography>
+                    <Typography variant="body1">{t('result.loadingData')}</Typography>
                 </Box>
             </DialogContent>
         );
@@ -189,7 +191,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
     return (
         <>
             <DialogTitle>
-                <BaseTitle title={`Test Result: ${data?.id}`} />
+                <BaseTitle title={t('result.testResultTitle', { id: data?.id })} />
             </DialogTitle>
             <DialogContent sx={{
                 px: { xs: 2, sm: 3 },
@@ -217,25 +219,25 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                         <Card elevation={2} sx={{ height: 'fit-content' }}>
                             <CardContent sx={{ pb: '16px !important' }}>
                                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
-                                    Metadata
+                                    {t('result.metadata')}
                                 </Typography>
                                 <Stack spacing={2}>
                                     <BaseInputField
-                                        label="Classes"
+                                        label={t('result.classes')}
                                         value={data?.classes.join(', ')}
-                                        aria-label="Classes"
+                                        aria-label={t('result.classes')}
                                         readOnly
                                     />
                                     <BaseInputField
-                                        label="Created At"
+                                        label={t('result.createdAt')}
                                         value={CommonUtil.dateFormat({ value: data?.createDateTime })}
-                                        aria-label="Created At"
+                                        aria-label={t('result.createdAt')}
                                         readOnly
                                     />
                                     <BaseInputField
-                                        label="Total Images"
+                                        label={t('result.totalImages')}
                                         value={allImages?.length.toString()}
-                                        aria-label="Total Images"
+                                        aria-label={t('result.totalImages')}
                                         readOnly
                                     />
                                 </Stack>
@@ -248,7 +250,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                         <Card elevation={2} sx={{ height: 'fit-content' }}>
                             <CardContent sx={{ pb: '16px !important' }}>
                                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
-                                    Result Summary
+                                    {t('result.resultSummary')}
                                 </Typography>
                                 <Box sx={{
                                     minHeight: '160px',
@@ -284,7 +286,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                         <Card elevation={2}>
                             <CardContent sx={{ pb: '16px !important' }}>
                                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
-                                    Detailed Results
+                                    {t('result.detailedResults')}
                                 </Typography>
 
                                 {/* Controls Section */}
@@ -292,17 +294,17 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                                     <Grid container spacing={2} alignItems="center">
                                         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                                             <FormControl fullWidth size="small">
-                                                <InputLabel id="sort-select-label">Sort Images</InputLabel>
+                                                <InputLabel id="sort-select-label">{t('result.sortImages')}</InputLabel>
                                                 <Select
                                                     labelId="sort-select-label"
                                                     value={sortOption}
                                                     onChange={handleSortChange}
-                                                    aria-label="Sort images"
-                                                    label="Sort Images"
+                                                    aria-label={t('result.sortImages')}
+                                                    label={t('result.sortImages')}
                                                 >
-                                                    <MenuItem value="default">Default</MenuItem>
-                                                    <MenuItem value="name">By Name</MenuItem>
-                                                    <MenuItem value="size">By Size</MenuItem>
+                                                    <MenuItem value="default">{t('result.sortDefault')}</MenuItem>
+                                                    <MenuItem value="name">{t('result.sortByName')}</MenuItem>
+                                                    <MenuItem value="size">{t('result.sortBySize')}</MenuItem>
                                                 </Select>
                                             </FormControl>
                                         </Grid>
@@ -312,11 +314,11 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                                                 color="primary"
                                                 startIcon={<GetAppIcon />}
                                                 onClick={() => downloadImages(images)}
-                                                aria-label="Download all images"
+                                                aria-label={t('result.downloadAllImages')}
                                                 fullWidth={isMobile}
                                                 size="small"
                                             >
-                                                Download All Images
+                                                {t('result.downloadAllImages')}
                                             </Button>
                                         </Grid>
                                     </Grid>
@@ -341,7 +343,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                                                 allowScrollButtonsMobile
                                             >
                                                 <Tab
-                                                    label="ALL"
+                                                    label={t('result.allTab')}
                                                     id="simple-tab-all"
                                                     aria-controls="simple-tabpanel-all"
                                                     sx={{ minWidth: { xs: 'auto', sm: 120 } }}
@@ -360,7 +362,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                                         {/* Tab Content */}
                                         <TabPanel value={tabValue} index={0}>
                                             <LabelledImageCard
-                                                label="All Images"
+                                                label={t('result.allImages')}
                                                 images={sortImages(allImages).map(img => ({ ...img, id: img.id.toString() }))}
                                                 onImageClick={handleImageClick}
                                                 imageSize="tiny"
@@ -388,10 +390,10 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                                         gap: 2,
                                     }}>
                                         <Typography variant="h6" color="textSecondary">
-                                            No classification results available
+                                            {t('result.noResults')}
                                         </Typography>
                                         <Typography variant="body2" color="textSecondary">
-                                            This test may not have completed successfully or no objects were detected in the uploaded images.
+                                            {t('result.noResultsDetail')}
                                         </Typography>
                                     </Box>
                                 )}
@@ -412,10 +414,10 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                     onClick={handleClose}
                     color="primary"
                     variant="contained"
-                    aria-label="Close dialog"
+                    aria-label={t('result.close')}
                     sx={{ minWidth: 100 }}
                 >
-                    Close
+                    {t('result.close')}
                 </Button>
             </DialogActions>
             {/* Enhanced Image Modal */}
@@ -456,7 +458,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                                 bgcolor: 'rgba(0, 0, 0, 0.7)',
                             },
                         }}
-                        aria-label="Close image"
+                        aria-label={t('result.closeImage')}
                     >
                         <CloseIcon />
                     </IconButton>
@@ -471,7 +473,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                     }}>
                         <img
                             src={selectedImage || ''}
-                            alt="Enlarged view"
+                            alt={t('result.enlargedView')}
                             style={{
                                 maxWidth: '100%',
                                 maxHeight: '100%',

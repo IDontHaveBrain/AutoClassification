@@ -3,18 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { Box, CircularProgress, Dialog, Grid, Paper, TextField, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import { type GridColDef, type GridRowParams } from '@mui/x-data-grid';
-import BaseSearch from 'component/baseBoard/BaseSearch';
-import BaseTable from 'component/baseBoard/BaseTable';
-import BaseTitle from 'component/baseBoard/BaseTitle';
+import { useTranslation } from 'hooks/useTranslation';
 import { initPageable, type Pageable } from 'model/GlobalModel';
 import { type WorkspaceModel } from 'model/WorkspaceModel';
 import WorkspaceDetail from 'pages/contents/workspace/WorkspaceDetail';
 import { getMyWorkspaceList } from 'service/Apis/WorkspaceApi';
 
+import BaseSearch from 'components/baseBoard/BaseSearch';
+import BaseTable from 'components/baseBoard/BaseTable';
+import BaseTitle from 'components/baseBoard/BaseTitle';
 import { onAlert } from 'utils/alert';
 import { CommonUtil } from 'utils/CommonUtil';
 import { WorkspaceContext } from 'utils/ContextManager';
-import { Strings } from 'utils/strings';
 
 interface Search {
     ownerEmail: string;
@@ -22,6 +22,9 @@ interface Search {
 }
 
 const WorkspaceList: React.FC = () => {
+    const { t: commonT } = useTranslation('common');
+    const { t: workspaceT } = useTranslation('workspace');
+
     const [pageable, setPageable] = useState<Pageable>(initPageable(10));
     const [search, setSearch] = useState<Search>({ ownerEmail: '', name: '' });
     const [openDetail, setOpenDetail] = useState(false);
@@ -45,11 +48,11 @@ const WorkspaceList: React.FC = () => {
             setRows(res.data.content);
             setTotal(res.data.totalElements);
         } catch (_error) {
-            onAlert(Strings.Common.apiFailed);
+            onAlert(commonT('messages.apiFailed') || 'An error occurred');
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [commonT]);
 
     useEffect(() => {
         fetchWorkspaces(pageable.page, pageable.size, normalizeSort(pageable.sort), search);
@@ -91,28 +94,28 @@ const WorkspaceList: React.FC = () => {
     };
 
     const handleSearch = () => {
-        setPageable(prevPageable => ({ ...prevPageable, page: 0 })); // 검색 시 첫 페이지로 이동
+        setPageable(prevPageable => ({ ...prevPageable, page: 0 })); // Reset to first page when searching
         fetchWorkspaces(0, pageable.size, normalizeSort(pageable.sort), search);
     };
 
     const columns: GridColDef[] = [
-        { field: 'name', headerName: '제목', flex: 2 },
-        { field: 'createMember', headerName: '생성자', flex: 2 },
+        { field: 'name', headerName: workspaceT('table.name'), flex: 2 },
+        { field: 'createMember', headerName: workspaceT('table.creator'), flex: 2 },
         {
             field: 'createDateTime',
-            headerName: '생성일',
+            headerName: workspaceT('table.createdAt'),
             flex: 2,
             valueFormatter: CommonUtil.dateFormat,
         },
     ];
 
     const getTooltipContent = (row: WorkspaceModel) => {
-        return `Name: ${row.name}\nDescription: ${row.description}\nCreated by: ${row.createMember}\nCreated at: ${CommonUtil.dateFormat({ value: row.createDateTime })}`;
+        return `${workspaceT('table.name')}: ${row.name}\n${workspaceT('detail.description')}: ${row.description}\n${workspaceT('table.creator')}: ${row.createMember}\n${workspaceT('table.createdAt')}: ${CommonUtil.dateFormat({ value: row.createDateTime })}`;
     };
 
     return (
         <Paper elevation={3} sx={{ p: 4, m: 2, borderRadius: 2 }}>
-            <BaseTitle title={'MyWorkspace'} />
+            <BaseTitle title={workspaceT('general.myWorkspace')} />
 
             <Box sx={{ mb: 4, mt: 3 }}>
                 <BaseSearch>
@@ -120,7 +123,7 @@ const WorkspaceList: React.FC = () => {
                         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <TextField
                                 name="name"
-                                label="Workspace Name"
+                                label={workspaceT('general.workspaceName')}
                                 variant="outlined"
                                 fullWidth
                                 value={search.name}
@@ -135,7 +138,7 @@ const WorkspaceList: React.FC = () => {
                         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <TextField
                                 name="ownerEmail"
-                                label="Owner Email"
+                                label={workspaceT('table.ownerEmail')}
                                 variant="outlined"
                                 fullWidth
                                 value={search.ownerEmail}
@@ -165,7 +168,7 @@ const WorkspaceList: React.FC = () => {
                                     transition: 'all 0.2s ease-in-out',
                                 }}
                             >
-                                Search
+                                {commonT('buttons.search')}
                             </Button>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -189,7 +192,7 @@ const WorkspaceList: React.FC = () => {
                                     transition: 'all 0.2s ease-in-out',
                                 }}
                             >
-                                추가
+                                {commonT('buttons.add')}
                             </Button>
                         </Grid>
                     </Grid>
@@ -206,7 +209,7 @@ const WorkspaceList: React.FC = () => {
                         mb: 2,
                     }}
                 >
-                    Workspace List
+                    {workspaceT('general.workspaceList')}
                 </Typography>
                 <Box sx={{
                     border: '1px solid',
@@ -218,6 +221,9 @@ const WorkspaceList: React.FC = () => {
                     {loading ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                             <CircularProgress />
+                            <Typography variant="body2" sx={{ ml: 2 }}>
+                                {commonT('messages.loadingData') || 'Loading...'}
+                            </Typography>
                         </Box>
                     ) : (
                         <BaseTable

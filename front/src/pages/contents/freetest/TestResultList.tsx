@@ -2,11 +2,12 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Dialog } from '@mui/material';
 import Box from '@mui/material/Box';
 import { type GridColDef, type GridRowParams } from '@mui/x-data-grid';
-import BaseTable from 'component/baseBoard/BaseTable';
+import { useTranslation } from 'hooks/useTranslation';
 import { initPageable,type Pageable } from 'model/GlobalModel';
 import TestResultDetail from 'pages/contents/freetest/TestResultDetail';
 import { testGetResult } from 'service/Apis/TrainApi';
 
+import BaseTable from 'components/baseBoard/BaseTable';
 import { CommonUtil } from 'utils/CommonUtil';
 
 interface TestFile {
@@ -31,6 +32,7 @@ interface TestResultData {
 }
 
 const TestResultList: React.FC = () => {
+    const { t } = useTranslation('test');
     const [pageable, setPageable] = useState<Pageable>(initPageable(10));
     const [resultList, setResultList] = useState<TestResultData[]>([]);
     const [total, setTotal] = useState(0);
@@ -69,23 +71,23 @@ const TestResultList: React.FC = () => {
             const parsed = JSON.parse(resultJson);
             return parsed.map((item: TestResultItem) => `${item.label}: ${item.ids.length}`).join(', ');
         } catch (_error) {
-            return 'Invalid JSON';
+            return t('result.invalidJson');
         }
     };
 
     const columns: GridColDef[] = [
-        { field: 'id', headerName: 'ID', width: 70, align: 'right', type: 'number' },
-        { field: 'classes', headerName: 'Classes', flex: 2, type: 'string' },
+        { field: 'id', headerName: t('result.columns.id'), width: 70, align: 'right', type: 'number' },
+        { field: 'classes', headerName: t('result.columns.classes'), flex: 2, type: 'string' },
         {
             field: 'resultJson',
-            headerName: 'Result Summary',
+            headerName: t('result.columns.resultSummary'),
             flex: 3,
             type: 'string',
             renderCell: (params) => parseResultJson(params.value),
         },
         {
             field: 'createDateTime',
-            headerName: 'Date',
+            headerName: t('result.columns.date'),
             flex: 2,
             type: 'dateTime',
             valueFormatter: (params: { value: string }) => CommonUtil.dateFormat({ value: params.value }),

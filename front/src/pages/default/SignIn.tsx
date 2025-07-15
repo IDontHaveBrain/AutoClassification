@@ -11,6 +11,8 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
+import { useTranslation } from 'hooks/useTranslation';
+import { withI18nInitialization, withTranslationErrorBoundary } from 'i18n';
 import { Loading } from 'pages/default/Loading';
 import { getPublicKey, type LoginData, signIn } from 'service/Apis/AuthApi';
 import { useAppDispatch } from 'stores/rootHook';
@@ -19,9 +21,9 @@ import { setUserInfo } from 'stores/rootSlice';
 import { onAlert } from 'utils/alert';
 import AuthUtils from 'utils/authUtils';
 import { CONSTANT } from 'utils/constant';
-import { Strings } from 'utils/strings';
 
 function Copyright(props: TypographyProps) {
+    const { t, ready } = useTranslation('common');
     return (
         <Typography
             variant="body2"
@@ -29,16 +31,24 @@ function Copyright(props: TypographyProps) {
             align="center"
             {...props}
         >
-            {'Copyright © '}
+            {ready ? t('copyright') : 'Copyright © '}
             {new Date().getFullYear()}
             {'.'}
         </Typography>
     );
 }
 
-export default function SignIn() {
+function SignIn() {
+    const { t: authT, ready: authReady } = useTranslation('auth');
+    const { t: commonT, ready: commonReady } = useTranslation('common');
+
+    // Check if all i18n hooks are ready
+    const isI18nReady = authReady && commonReady;
+
     const [publicKey, setPublicKey] = useState('');
     const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [validationErrors, setValidationErrors] = useState({});
     const [rememberMe, setRememberMe] = useState(
         !!localStorage.getItem(CONSTANT.REMEMBER_ME),
     );
@@ -68,47 +78,105 @@ export default function SignIn() {
         }
     }, []);
 
+    // Simple form validation with error messages
+    const validateForm = (formData: { username: string; password: string }) => {
+        const errors: Record<string, string> = {};
+
+        // Email validation
+        if (!formData.username) {
+            errors.username = isI18nReady ? authT('validation.required') : 'This field is required';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.username)) {
+            errors.username = isI18nReady ? authT('validation.invalidEmail') : 'Please enter a valid email address';
+        }
+
+        // Password validation
+        if (!formData.password) {
+            errors.password = isI18nReady ? authT('validation.required') : 'This field is required';
+        }
+
+        setValidationErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
 
-        AuthUtils.encrypt(data.get('password') as string, publicKey)
-            .then((res) => {
-                const params: LoginData = {
-                    username: data.get('username') as string,
-                    password: res as string,
-                };
+        const formData = {
+            username: data.get('username') as string,
+            password: data.get('password') as string,
+        };
 
-                signIn(params)
-                    .then((res) => {
-                        if (res.data.access_token) {
-                            sessionStorage.setItem(
-                                CONSTANT.ACCESS_TOKEN,
-                                res.data.access_token,
-                            );
-                            dispatch(setUserInfo(res.data));
-                            onAlert(Strings.Common.loginSuccess);
-                            if (rememberMe) {
-                                localStorage.setItem(CONSTANT.REMEMBER_ME, res.data.user.email);
-                            } else {
-                                localStorage.removeItem(CONSTANT.REMEMBER_ME);
-                            }
-                            navigate('/');
-                        }
-                    })
-                    .catch((_err) => {
-                        onAlert(Strings.Common.loginFailed);
-                    });
+        // Form validation before submission
+        if (!validateForm(formData)) {
+            onAlert(isI18nReady ? commonT('messages.validationFailed') : 'Please check your input and try again.');
+            return;
+        }
+
+        const encryptedPassword = AuthUtils.encrypt(formData.password, publicKey);
+
+        const params: LoginData = {
+            username: formData.username,
+            password: encryptedPassword,
+        };
+
+        signIn(params)
+            .then((res) => {
+                if (res.data.access_token) {
+                    sessionStorage.setItem(
+                        CONSTANT.ACCESS_TOKEN,
+                        res.data.access_token,
+                    );
+                    dispatch(setUserInfo(res.data));
+                    onAlert(isI18nReady ? authT('login.loginSuccess') : 'Login successful!');
+                    if (rememberMe) {
+                        localStorage.setItem(CONSTANT.REMEMBER_ME, res.data.user.email);
+                    } else {
+                        localStorage.removeItem(CONSTANT.REMEMBER_ME);
+                    }
+                    navigate('/');
+                }
             })
-            .catch((_err) => {
-                onAlert(Strings.Common.loginFailed);
+            .catch((error) => {
+                // Simple error handling
+                let errorMessage = isI18nReady ? commonT('messages.apiFailed') : 'An error occurred';
+
+                if (error?.response?.data?.message) {
+                    errorMessage = error.response.data.message;
+                } else if (error?.message) {
+                    errorMessage = error.message;
+                }
+
+                onAlert(errorMessage);
             });
     };
 
     const onChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(e.target.value);
+
+        // Real-time validation with i18n error messages
+        if (validationErrors.username) {
+            const { value } = e.target;
+            const hasValidEmail = value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+            if (hasValidEmail) {
+                setValidationErrors(prev => ({ ...prev, username: '' }));
+            }
+        }
+
         if (rememberMe) {
             localStorage.setItem(CONSTANT.REMEMBER_ME, e.target.value);
+        }
+    };
+
+    const onChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPassword(e.target.value);
+
+        // Real-time validation with i18n error messages
+        if (validationErrors.password) {
+            const { value } = e.target;
+            if (value) {
+                setValidationErrors(prev => ({ ...prev, password: '' }));
+            }
         }
     };
 
@@ -123,7 +191,7 @@ export default function SignIn() {
 
     return (
         <>
-            {!publicKey ? (
+            {!publicKey || !isI18nReady ? (
                 <Loading />
             ) : (
                 <Container component="main" maxWidth="xs">
@@ -140,7 +208,7 @@ export default function SignIn() {
                             <LockOutlinedIcon/>
                         </Avatar>
                         <Typography component="h1" variant="h5">
-                            Sign in
+                            {authT('login.title')}
                         </Typography>
                         <Box
                             component="form"
@@ -153,22 +221,28 @@ export default function SignIn() {
                                 required
                                 fullWidth
                                 id="username"
-                                label="Email Address"
+                                label={isI18nReady ? authT('login.email') : 'Email'}
                                 name="username"
                                 autoComplete="email"
                                 inputRef={emailInputRef}
                                 value={email}
                                 onChange={onChangeEmail}
+                                error={!!validationErrors.username}
+                                helperText={validationErrors.username}
                             />
                             <TextField
                                 margin="normal"
                                 required
                                 fullWidth
                                 name="password"
-                                label="Password"
+                                label={isI18nReady ? authT('login.password') : 'Password'}
                                 type="password"
                                 id="password"
                                 autoComplete="current-password"
+                                value={password}
+                                onChange={onChangePassword}
+                                error={!!validationErrors.password}
+                                helperText={validationErrors.password}
                             />
                             <FormControlLabel
                                 control={
@@ -179,7 +253,7 @@ export default function SignIn() {
                                         onChange={changeRememberMe}
                                     />
                                 }
-                                label="Remember me"
+                                label={isI18nReady ? authT('login.rememberMe') : 'Remember Me'}
                             />
                             <Button
                                 type="submit"
@@ -187,11 +261,13 @@ export default function SignIn() {
                                 variant="contained"
                                 sx={{ mt: 3, mb: 2 }}
                             >
-                                Sign In
+                                {isI18nReady ? authT('login.loginButton') : 'Sign In'}
                             </Button>
                             <Grid container>
                                 <Grid size="auto">
-                                    <Link to={'/sign-up'}>{"Don't have an account? Sign Up"}</Link>
+                                    <Link to={'/sign-up'}>
+                                        {isI18nReady ? `${authT('login.noAccount')} ${authT('login.signUp')}` : 'Don\'t have an account? Sign Up'}
+                                    </Link>
                                 </Grid>
                             </Grid>
                         </Box>
@@ -202,3 +278,11 @@ export default function SignIn() {
         </>
     );
 }
+
+// Export SignIn with both i18n initialization and error boundary protection
+export default withTranslationErrorBoundary(
+    withI18nInitialization(SignIn, {
+        showLoadingWhileInitializing: true,
+        fallbackComponent: Loading,
+    }),
+);

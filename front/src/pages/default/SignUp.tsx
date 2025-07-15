@@ -13,12 +13,13 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import TextField from '@mui/material/TextField';
 import Typography, { type TypographyProps } from '@mui/material/Typography';
+import { useTranslation } from 'hooks/useTranslation';
 import { signUp } from 'service/Apis/AuthApi';
 
 import { onAlert } from 'utils/alert';
-import { Strings } from 'utils/strings';
 
 function Copyright(props: TypographyProps) {
+    const { t } = useTranslation('common');
     return (
         <Typography
             variant="body2"
@@ -26,7 +27,7 @@ function Copyright(props: TypographyProps) {
             align="center"
             {...props}
         >
-            {'Copyright © '}
+            {t('copyright')}
             {new Date().getFullYear()}
             {'.'}
         </Typography>
@@ -43,6 +44,7 @@ export default function SignUp() {
     const [passwordError, setPasswordError] = useState('');
     const navigate = useNavigate();
     const nameInputRef = useRef<HTMLInputElement>(null);
+    const { t: authT } = useTranslation('auth');
 
     useEffect(() => {
         // 컴포넌트 마운트 시 이름 입력에 포커스
@@ -61,7 +63,7 @@ export default function SignUp() {
         if (name === 'email') {
             const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
             if (!emailValid) {
-                setEmailError('Please enter a valid email address');
+                setEmailError(authT('register.invalidEmailAddress'));
             } else {
                 setEmailError('');
             }
@@ -70,7 +72,7 @@ export default function SignUp() {
         if (name === 'password') {
             const passwordValid = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,}$/.test(value);
             if (!passwordValid) {
-                setPasswordError(Strings.Auth.passwordValidationError);
+                setPasswordError(authT('password.validationError'));
             } else {
                 setPasswordError('');
             }
@@ -80,9 +82,9 @@ export default function SignUp() {
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         signUp(form).then((_res) => {
-            onAlert(Strings.Common.apiSuccess, () => navigate('/sign-in'));
+            onAlert(authT('register.registerSuccess'), () => navigate('/sign-in'));
         }).catch((_err) => {
-            onAlert(Strings.Common.apiFailed);
+            onAlert(authT('register.registerFailed'));
         });
     };
 
@@ -102,7 +104,7 @@ export default function SignUp() {
                         <LockOutlinedIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Sign up
+                        {authT('register.title')}
                     </Typography>
                     <Box
                         component="form"
@@ -118,7 +120,7 @@ export default function SignUp() {
                                     required
                                     fullWidth
                                     id="name"
-                                    label="Full Name"
+                                    label={authT('register.fullName')}
                                     inputRef={nameInputRef}
                                     onChange={handleChange}
                                 />
@@ -128,7 +130,7 @@ export default function SignUp() {
                                     required
                                     fullWidth
                                     id="email"
-                                    label="Email Address"
+                                    label={authT('register.email')}
                                     name="email"
                                     autoComplete="email"
                                     onChange={handleChange}
@@ -139,24 +141,24 @@ export default function SignUp() {
                             <Grid size={{ xs: 12 }}>
                                 <Box sx={{ mb: 2 }}>
                                     <Typography variant="body2" color="text.secondary" gutterBottom>
-                                        {Strings.Auth.passwordRequirements}
+                                        {authT('password.requirements')}
                                     </Typography>
                                     <List dense sx={{ py: 0 }}>
                                         <ListItem sx={{ py: 0, px: 0 }}>
                                             <ListItemText
-                                                primary={Strings.Auth.passwordMinLength}
+                                                primary={authT('password.minLength')}
                                                 primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
                                             />
                                         </ListItem>
                                         <ListItem sx={{ py: 0, px: 0 }}>
                                             <ListItemText
-                                                primary={Strings.Auth.passwordMustHaveNumber}
+                                                primary={authT('password.mustHaveNumber')}
                                                 primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
                                             />
                                         </ListItem>
                                         <ListItem sx={{ py: 0, px: 0 }}>
                                             <ListItemText
-                                                primary={Strings.Auth.passwordMustHaveSpecial}
+                                                primary={authT('password.mustHaveSpecial')}
                                                 primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
                                             />
                                         </ListItem>
@@ -166,7 +168,7 @@ export default function SignUp() {
                                     required
                                     fullWidth
                                     name="password"
-                                    label="Password"
+                                    label={authT('register.password')}
                                     type="password"
                                     id="password"
                                     autoComplete="new-password"
@@ -183,12 +185,12 @@ export default function SignUp() {
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
                         >
-                            Sign Up
+                            {authT('register.signUpButton')}
                         </Button>
                         <Grid container justifyContent="flex-end">
                             <Grid size="auto">
                                 <Link to="/sign-in">
-                                    Already have an account? Sign in
+                                    {authT('register.alreadyHaveAccount')} {authT('register.signIn')}
                                 </Link>
                             </Grid>
                         </Grid>

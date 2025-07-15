@@ -2,8 +2,10 @@ import React, { useEffect,useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, Card, CardContent, CardMedia, Grid, IconButton, Modal, Pagination, Skeleton, Tab,Tabs, Tooltip, Typography } from '@mui/material';
-import ExpandComp from 'component/ExpandComp';
+import { useTranslation } from 'hooks/useTranslation';
 import { type FileModel } from 'model/GlobalModel';
+
+import ExpandComp from 'components/ExpandComp';
 
 interface Props {
     imgs: FileModel[];
@@ -15,9 +17,13 @@ interface Props {
 }
 
 const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState: _setState, isLoading = false, error = null, onDeleteImage, classes }) => {
+    const { t } = useTranslation('workspace');
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [page, setPage] = useState(1);
-    const [selectedTab, setSelectedTab] = useState<string>('All');
+    const TAB_ALL = 'All';
+    const TAB_NONE = 'None';
+
+    const [selectedTab, setSelectedTab] = useState<string>(TAB_ALL);
     const imagesPerPage = 12;
 
     useEffect(() => {
@@ -50,7 +56,7 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState: _setState, isLoadin
 
     if (isLoading) {
         return (
-            <ExpandComp title="DataSet">
+            <ExpandComp title={t('editor.dataset.title')}>
                 <Grid container spacing={2}>
                     {[...Array(8)].map((_, index) => {
                         const skeletonId = `skeleton-loader-${8 - index}`;
@@ -68,7 +74,7 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState: _setState, isLoadin
 
     if (error) {
         return (
-            <ExpandComp title="DataSet">
+            <ExpandComp title={t('editor.dataset.title')}>
                 <Typography color="error" align="center">{error}</Typography>
             </ExpandComp>
         );
@@ -76,9 +82,9 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState: _setState, isLoadin
 
     // 선택된 탭에 따라 이미지 필터링
     const filteredImages = imgs.filter((image) => {
-        if (selectedTab === 'All') {
+        if (selectedTab === TAB_ALL) {
             return true;
-        } else if (selectedTab === 'None') {
+        } else if (selectedTab === TAB_NONE) {
             return !image.label || image.label.toLowerCase() === 'none';
         } else {
             return image.label === selectedTab;
@@ -90,18 +96,18 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState: _setState, isLoadin
     const displayedImages = filteredImages.slice(startIndex, endIndex);
 
     return (
-        <ExpandComp title="DataSet">
+        <ExpandComp title={t('editor.dataset.title')}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs value={selectedTab} onChange={handleTabChange} aria-label="basic tabs example">
-                    <Tab label="All" value="All" />
-                    <Tab label="None" value="None" />
+                    <Tab label={t('detail.all')} value={TAB_ALL} />
+                    <Tab label={t('detail.none')} value={TAB_NONE} />
                     {classes?.map((className) => (
                         <Tab key={className} label={className} value={className} />
                     ))}
                 </Tabs>
             </Box>
             {filteredImages.length === 0 ? (
-                <Typography align="center">No images available</Typography>
+                <Typography align="center">{t('editor.dataset.noImagesAvailable')}</Typography>
             ) : (
                 <>
                     <Grid container spacing={2} sx={{ mt: 2 }}>
@@ -132,7 +138,7 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState: _setState, isLoadin
                                         </Typography>
                                     </CardContent>
                                     {onDeleteImage && (
-                                        <Tooltip title="Delete Image">
+                                        <Tooltip title={t('editor.dataset.deleteImage')}>
                                             <IconButton
                                                 size="small"
                                                 onClick={(e) => handleDeleteImage(e, image.id)}
@@ -197,7 +203,7 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState: _setState, isLoadin
                     </IconButton>
                     <img
                         src={selectedImage}
-                        alt="Expanded view"
+                        alt={t('editor.dataset.expandedView')}
                         style={{
                             maxWidth: '100%',
                             maxHeight: 'calc(90vh - 48px)',

@@ -1,0 +1,95 @@
+{
+  "buttons": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "add": "Add",
+    "search": "Search",
+    "refresh": "Refresh",
+    "submit": "Submit",
+    "close": "Close"
+  },
+  "messages": {
+    "apiSuccess": "Request successful.",
+    "apiFailed": "Request failed.",
+    "noData": "No data available.",
+    "notEmpty": "Please fill in the required fields.",
+    "wait": "Please wait a moment.",
+    "loadingData": "Loading data...",
+    "savingData": "Saving data...",
+    "processingRequest": "Processing request..."
+  },
+  "status": {
+    "success": "Success",
+    "failed": "Failed",
+    "pending": "Pending",
+    "processing": "Processing",
+    "completed": "Completed",
+    "error": "Error"
+  },
+  "time": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This Week",
+    "thisMonth": "This Month",
+    "lastMonth": "Last Month"
+  },
+  "editor": {
+    "bold": "Bold",
+    "italic": "Italic",
+    "strikethrough": "Strikethrough",
+    "heading1": "Heading 1",
+    "heading2": "Heading 2",
+    "paragraph": "Paragraph",
+    "bulletList": "Bullet List",
+    "numberedList": "Numbered List",
+    "quote": "Quote",
+    "codeBlock": "Code Block"
+  },
+  "language": "Language",
+  "notice": "Notice",
+  "forms": {
+    "title": "Title",
+    "content": "Content",
+    "description": "Description",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "required": "Required",
+    "optional": "Optional",
+    "validation": {
+      "required": "This field is required"
+    }
+  },
+  "modals": {
+    "alert": "Alert",
+    "memberSearch": "Member Search",
+    "confirmDelete": "Confirm Delete",
+    "confirmation": "Confirmation"
+  },
+  "table": {
+    "id": "ID",
+    "email": "Email",
+    "name": "Name",
+    "actions": "Actions",
+    "noResults": "No results found",
+    "loading": "Loading..."
+  },
+  "fileUpload": {
+    "disabled": "File upload is disabled.",
+    "dropHere": "Drop the files here...",
+    "dragAndDrop": "Drag & drop files here, or click to select files"
+  },
+  "notifications": {
+    "markAllAsRead": "Mark all as read"
+  },
+  "images": {
+    "imageAlt": "Image",
+    "preview": "Preview",
+    "enlargedView": "Enlarged view"
+  },
+  "copyright": "Copyright © "
+}

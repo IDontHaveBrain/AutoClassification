@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
 import ContentPath from 'layouts/ContentPath';
 import SubTabBar from 'layouts/SubTabBar';
-import { findMenuPath, type MenuInfo, MenuItems } from 'service/commons/MenuItem';
+import { findMenuPath, type MenuInfo, useMenuItems } from 'service/commons/MenuItem';
 
 import LeftBar from './LeftBar';
 import TopBar from './TopBar';
@@ -13,14 +13,14 @@ import TopBar from './TopBar';
 export const Layout = () => {
   const location = useLocation();
   const [open, setOpen] = useState(true);
-  const [menu] = useState<MenuInfo[]>(MenuItems);
+  const menu = useMenuItems();
   const [menuwidth] = useState(240);
 
   const openMenu = () => {
     setOpen(!open);
   };
 
-  const currentMenuPath = findMenuPath(MenuItems, location.pathname);
+  const currentMenuPath = findMenuPath(menu, location.pathname);
   const subTabMenu = currentMenuPath
     ?.filter((menu) => menu.path === location.pathname)
     ?.flatMap((menu) => menu.subTabMenu);

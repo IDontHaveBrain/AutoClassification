@@ -15,12 +15,12 @@ import {
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
-import ClassInputCard from 'component/ClassInputCard';
-import FileDropzone from 'component/FileDropzone';
+import { useTranslation } from 'hooks/useTranslation';
 import { testUploadImg } from 'service/Apis/TrainApi';
 
+import ClassInputCard from 'components/ClassInputCard';
+import FileDropzone from 'components/FileDropzone';
 import { onAlert } from 'utils/alert';
-import { Strings } from 'utils/strings';
 
 const TEST_MAX_CLASSES_COUNT = 5;
 const TEST_MIN_CLASSES_COUNT = 2;
@@ -30,6 +30,8 @@ interface CustomFile extends File {
 }
 
 const TestClassify: React.FC = () => {
+    const { t } = useTranslation('test');
+    const { t: tCommon } = useTranslation('common');
     const idPrefix = useId();
     const [files, setFiles] = useState<CustomFile[]>([]);
     const [classList, setClassList] = useState<string[]>(['', '']);
@@ -51,7 +53,7 @@ const TestClassify: React.FC = () => {
         if (classList.length < TEST_MAX_CLASSES_COUNT) {
             setClassList([...classList, '']);
         } else {
-            onAlert(`최대 ${TEST_MAX_CLASSES_COUNT}개의 클래스만 추가할 수 있습니다.`);
+            onAlert(t('classify.maxClassesAlert', { count: TEST_MAX_CLASSES_COUNT }));
         }
     };
 
@@ -63,7 +65,7 @@ const TestClassify: React.FC = () => {
 
     const removeClass = (index: number) => {
         if (classList.length <= TEST_MIN_CLASSES_COUNT) {
-            onAlert(`최소 ${TEST_MIN_CLASSES_COUNT}개의 클래스를 유지해야 합니다.`);
+            onAlert(t('classify.minClassesAlert', { count: TEST_MIN_CLASSES_COUNT }));
         } else {
             const newClassList = classList.filter((_, i) => i !== index);
             setClassList(newClassList);
@@ -77,24 +79,24 @@ const TestClassify: React.FC = () => {
                     const errors = rejection.errors.map(error => {
                         switch (error.code) {
                             case 'file-invalid-type':
-                                return '지원되지 않는 파일 형식입니다. (JPEG, PNG, GIF만 지원)';
+                                return t('classify.unsupportedFileFormat');
                             case 'file-too-large':
-                                return '파일 크기가 너무 큽니다. (최대 5MB)';
+                                return t('classify.fileTooLarge');
                             case 'too-many-files':
-                                return '파일 개수가 너무 많습니다.';
+                                return t('classify.tooManyFiles');
                             default:
-                                return '파일 업로드 중 오류가 발생했습니다.';
+                                return t('classify.fileUploadError');
                         }
                     }).join(', ');
                     return `${rejection.file.name}: ${errors}`;
                 }).join('\n');
 
-                onAlert(`파일 업로드 실패:\n${rejectionReasons}`);
+                onAlert(`${t('classify.fileUploadFailed')}\n${rejectionReasons}`);
                 return;
             }
 
             if (files.length + acceptedFiles.length > 30) {
-                onAlert('분류 테스트는 이미지 30개 이하로 테스트 가능합니다.');
+                onAlert(t('classify.maxImageLimitAlert'));
                 return;
             }
 
@@ -107,22 +109,22 @@ const TestClassify: React.FC = () => {
             setFiles(prevFiles => [...prevFiles, ...processedFiles]);
             setApiError(null);
         },
-        [files],
+        [files, t],
     );
 
     const validCheck = (): boolean => {
         if (classList.some(item => item.trim() === '')) {
-            onAlert(Strings.Common.notEmpty);
+            onAlert(tCommon('messages.notEmpty'));
             return false;
         }
 
         if (files.length === 0) {
-            onAlert('분류할 이미지를 업로드해주세요.');
+            onAlert(t('classify.uploadImageAlert'));
             return false;
         }
 
         if (files.length > 30) {
-            onAlert('분류 테스트는 이미지 30개 이하로 테스트 가능합니다.');
+            onAlert(t('classify.maxImageLimitAlert'));
             return false;
         }
 
@@ -151,10 +153,10 @@ const TestClassify: React.FC = () => {
                 }
             });
             setFiles([]);
-            onAlert(Strings.FreeTest.requestTest);
+            onAlert(t('classify.requestTest'));
 
         } catch (error: unknown) {
-            let errorMessage = '분류 테스트 요청이 실패했습니다.';
+            let errorMessage = t('classify.classifyTestFailed');
 
             if (error && typeof error === 'object' && 'response' in error) {
                 const axiosError = error as {
@@ -172,33 +174,33 @@ const TestClassify: React.FC = () => {
 
                 switch (status) {
                     case 400:
-                        errorMessage = data?.message || '잘못된 요청입니다. 입력 데이터를 확인해주세요.';
+                        errorMessage = data?.message || t('classify.errors.badRequest');
                         break;
                     case 401:
-                        errorMessage = '인증이 만료되었습니다. 다시 로그인해주세요.';
+                        errorMessage = t('classify.errors.unauthorized');
                         break;
                     case 403:
-                        errorMessage = '접근 권한이 없습니다.';
+                        errorMessage = t('classify.errors.forbidden');
                         break;
                     case 413:
-                        errorMessage = '업로드 파일 크기가 너무 큽니다.';
+                        errorMessage = t('classify.errors.payloadTooLarge');
                         break;
                     case 422:
-                        errorMessage = data?.message || '파일 형식이나 데이터가 올바르지 않습니다.';
+                        errorMessage = data?.message || t('classify.errors.unprocessableEntity');
                         break;
                     case 500:
-                        errorMessage = '서버 내부 오류입니다. 잠시 후 다시 시도해주세요.';
+                        errorMessage = t('classify.errors.internalServerError');
                         break;
                     case 503:
-                        errorMessage = 'AI 서비스가 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해주세요.';
+                        errorMessage = t('classify.errors.serviceUnavailable');
                         break;
                     default:
-                        errorMessage = data?.message || `서버 오류 (${status})`;
+                        errorMessage = data?.message || t('classify.errors.defaultError', { status });
                 }
                 } else if (axiosError.code === 'NETWORK_ERROR' || (axiosError.message && axiosError.message.includes('Network Error'))) {
-                    errorMessage = '네트워크 연결을 확인해주세요.';
+                    errorMessage = t('classify.errors.networkError');
                 } else if (axiosError.code === 'ECONNABORTED' || (axiosError.message && axiosError.message.includes('timeout'))) {
-                    errorMessage = '요청 시간이 초과되었습니다. 다시 시도해주세요.';
+                    errorMessage = t('classify.errors.timeout');
                 } else if (axiosError.message) {
                     errorMessage = axiosError.message;
                 }
@@ -233,7 +235,7 @@ const TestClassify: React.FC = () => {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Grid container spacing={2}>
                 <Grid size={{ xs: 12, md: 6 }}>
-                    <Typography variant="h6" gutterBottom>클래스 입력</Typography>
+                    <Typography variant="h6" gutterBottom>{t('classify.classInput')}</Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                         {classList.map((item, index) => (
                             <ClassInputCard
@@ -252,7 +254,7 @@ const TestClassify: React.FC = () => {
                     </Box>
                 </Grid>
                 <Grid size={{ xs: 12, md: 6 }}>
-                    <Typography variant="h6" gutterBottom>파일 업로드</Typography>
+                    <Typography variant="h6" gutterBottom>{t('classify.fileUpload')}</Typography>
                     <FileDropzone
                         onDrop={onDrop}
                         accept={{
@@ -264,10 +266,10 @@ const TestClassify: React.FC = () => {
                     />
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
                         <Box>
-                            <Typography variant="subtitle1">업로드된 이미지: {files.length} / 30</Typography>
+                            <Typography variant="subtitle1">{t('classify.uploadedImages')}: {files.length} / 30</Typography>
                             {files.length > 0 && (
                                 <Typography variant="caption" color="textSecondary">
-                                    총 용량: {(files.reduce((sum, file) => sum + file.size, 0) / 1024 / 1024).toFixed(1)}MB
+                                    {t('classify.totalCapacity')}: {(files.reduce((sum, file) => sum + file.size, 0) / 1024 / 1024).toFixed(1)}MB
                                 </Typography>
                             )}
                         </Box>
@@ -278,7 +280,7 @@ const TestClassify: React.FC = () => {
                             onClick={onRemoveAll}
                             disabled={files.length === 0 || isLoading}
                         >
-                            모든 이미지 삭제
+                            {t('classify.deleteAllImages')}
                         </Button>
                     </Box>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2 }}>
@@ -313,7 +315,7 @@ const TestClassify: React.FC = () => {
                 <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
                     <CircularProgress size={24} />
                     <Typography variant="body2" ml={1}>
-                        분류 테스트 처리 중...
+                        {t('classify.classifyTestProcessing')}
                     </Typography>
                 </Box>
             )}
@@ -332,7 +334,7 @@ const TestClassify: React.FC = () => {
                 disabled={isLoading || files.length === 0}
                 startIcon={isLoading ? <CircularProgress size={16} /> : undefined}
             >
-                {isLoading ? '처리 중...' : Strings.FreeTest.classifyTest}
+                {isLoading ? t('classify.processing') : t('classify.classifyTest')}
             </Button>
             <Divider />
             <List>

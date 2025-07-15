@@ -1,0 +1,53 @@
+{
+  "classify": {
+    "title": "Classification Test",
+    "classifyTest": "Classification Test",
+    "requestTest": "Classification request sent. Please wait for the results.",
+    "testResult": "Test Result",
+    "testResultList": "Test Result List",
+    "testResultDetail": "Test Result Detail",
+    "startTest": "Start Test",
+    "stopTest": "Stop Test",
+    "testCompleted": "Test has been completed.",
+    "testFailed": "Test failed.",
+    "testInProgress": "Test in progress...",
+    "uploadImage": "Upload Image",
+    "selectImage": "Select Image",
+    "classificationResult": "Classification Result",
+    "confidence": "Confidence",
+    "accuracy": "Accuracy",
+    "noResults": "No results available.",
+    "loadingResults": "Loading results...",
+    "processingImage": "Processing image...",
+    "analysisComplete": "Analysis Complete",
+    "retryTest": "Retry Test",
+    "downloadResults": "Download Results",
+    "exportResults": "Export Results"
+  },
+  "history": {
+    "title": "Test History",
+    "testHistory": "Test History",
+    "recentTests": "Recent Tests",
+    "testDate": "Test Date",
+    "testStatus": "Test Status",
+    "viewDetails": "View Details",
+    "deleteHistory": "Delete History",
+    "clearHistory": "Clear History",
+    "noHistory": "No test history available.",
+    "loadingHistory": "Loading history...",
+    "historyDeleted": "History has been deleted.",
+    "historyCleared": "History has been cleared."
+  },
+  "settings": {
+    "title": "Test Settings",
+    "testSettings": "Test Settings",
+    "maxImageSize": "Max Image Size",
+    "supportedFormats": "Supported Formats",
+    "timeout": "Timeout",
+    "retryAttempts": "Retry Attempts",
+    "saveSettings": "Save Settings",
+    "resetSettings": "Reset Settings",
+    "settingsSaved": "Settings have been saved.",
+    "settingsReset": "Settings have been reset."
+  }
+}

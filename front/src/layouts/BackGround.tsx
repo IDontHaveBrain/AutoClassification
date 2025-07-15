@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import AlertModal from 'component/modal/AlertModal';
 import { type SseEvent, SseType } from 'model/GlobalModel';
 import { closeSnackbar, SnackbarProvider, type SnackbarProviderProps,useSnackbar } from 'notistack';
 import SseManager, { type ErrorHandler } from 'service/commons/SseManager';
 import { useAppSelector } from 'stores/rootHook';
 
+import AlertModal from 'components/modal/AlertModal';
 import { CONSTANT, URLS } from 'utils/constant';
 import { eventBus } from 'utils/eventBus';
 

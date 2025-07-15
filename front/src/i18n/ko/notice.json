@@ -1,0 +1,72 @@
+{
+  "general": {
+    "title": "공지사항",
+    "noticeList": "공지사항 목록",
+    "noticeDetail": "공지사항 상세",
+    "noticeEditor": "공지사항 편집",
+    "createNotice": "공지사항 작성",
+    "editNotice": "공지사항 수정",
+    "deleteNotice": "공지사항 삭제",
+    "noticeTitle": "공지사항 제목",
+    "noticeContent": "공지사항 내용",
+    "author": "작성자",
+    "createdAt": "작성일",
+    "updatedAt": "수정일",
+    "viewCount": "조회수"
+  },
+  "actions": {
+    "create": "작성",
+    "update": "수정",
+    "delete": "삭제",
+    "save": "저장",
+    "cancel": "취소",
+    "publish": "게시",
+    "unpublish": "게시 취소",
+    "pin": "상단 고정",
+    "unpin": "고정 해제"
+  },
+  "messages": {
+    "update": "공지사항 수정이 완료되었습니다.",
+    "add": "공지사항 등록이 완료되었습니다.",
+    "updateFailed": "공지사항 수정에 실패했습니다.",
+    "addFailed": "공지사항 등록에 실패했습니다.",
+    "deleteFailed": "공지사항 삭제에 실패했습니다.",
+    "deleteSuccess": "공지사항이 삭제되었습니다.",
+    "deleteConfirm": "정말로 이 공지사항을 삭제하시겠습니까?",
+    "noNotices": "공지사항이 없습니다.",
+    "loadingNotices": "공지사항을 불러오는 중...",
+    "savingNotice": "공지사항을 저장하는 중...",
+    "published": "공지사항이 게시되었습니다.",
+    "unpublished": "공지사항 게시가 취소되었습니다.",
+    "pinned": "공지사항이 상단에 고정되었습니다.",
+    "unpinned": "공지사항 고정이 해제되었습니다."
+  },
+  "status": {
+    "published": "게시됨",
+    "unpublished": "게시 안됨",
+    "draft": "초안",
+    "pinned": "고정됨",
+    "normal": "일반"
+  },
+  "form": {
+    "titlePlaceholder": "공지사항 제목을 입력하세요",
+    "contentPlaceholder": "공지사항 내용을 입력하세요",
+    "titleRequired": "제목을 입력하세요",
+    "contentRequired": "내용을 입력하세요",
+    "attachments": "첨부파일",
+    "addAttachment": "첨부파일 추가",
+    "removeAttachment": "첨부파일 제거",
+    "maxFileSize": "최대 파일 크기: 10MB",
+    "allowedFileTypes": "허용되는 파일 형식: jpg, png, pdf, doc, docx"
+  },
+  "search": {
+    "searchNotices": "공지사항 검색",
+    "searchPlaceholder": "검색어를 입력하세요",
+    "searchResults": "검색 결과",
+    "noSearchResults": "검색 결과가 없습니다.",
+    "searchBy": "검색 기준",
+    "searchByTitle": "제목으로 검색",
+    "searchByContent": "내용으로 검색",
+    "searchByAuthor": "작성자로 검색"
+  }
+}

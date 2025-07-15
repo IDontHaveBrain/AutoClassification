@@ -2,8 +2,10 @@ import React, { useCallback, useEffect,useState } from 'react';
 import { type FileRejection } from 'react-dropzone';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Avatar, Box, Button,Chip, LinearProgress, Typography } from '@mui/material';
-import ExpandComp from 'component/ExpandComp';
-import FileDropzone from 'component/FileDropzone';
+import { useTranslation } from 'hooks/useTranslation';
+
+import ExpandComp from 'components/ExpandComp';
+import FileDropzone from 'components/FileDropzone';
 
 interface WorkspaceDropZoneProps {
     onFilesChange: (_files: CustomFile[]) => void;
@@ -14,6 +16,7 @@ interface CustomFile extends File {
 }
 
 const WorkspaceDropZone: React.FC<WorkspaceDropZoneProps> = ({ onFilesChange }) => {
+    const { t } = useTranslation('workspace');
     const [newFiles, setNewFiles] = useState<CustomFile[]>([]);
     const [uploadProgress, setUploadProgress] = useState<number>(0);
 
@@ -86,7 +89,7 @@ const WorkspaceDropZone: React.FC<WorkspaceDropZoneProps> = ({ onFilesChange }) 
     };
 
     return (
-        <ExpandComp title="Add Images">
+        <ExpandComp title={t('editor.dropzone.title')}>
             <FileDropzone
                 onDrop={onDrop}
                 accept={{
@@ -134,12 +137,12 @@ const WorkspaceDropZone: React.FC<WorkspaceDropZoneProps> = ({ onFilesChange }) 
                         startIcon={<DeleteIcon />}
                         onClick={handleClearAll}
                     >
-                        Clear All
+                        {t('editor.dropzone.clearAll')}
                     </Button>
                 </Box>
             )}
             <Typography variant="caption" color="textSecondary" sx={{ mt: 2, display: 'block' }}>
-                Allowed file types: JPEG, PNG, GIF. Max size: 5MB
+                {t('editor.dropzone.allowedFileTypes')}
             </Typography>
         </ExpandComp>
     );

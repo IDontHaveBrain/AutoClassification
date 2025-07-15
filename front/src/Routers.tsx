@@ -4,7 +4,7 @@ import { Layout } from 'layouts/Layout';
 import { NotFound } from 'pages/default/NotFound';
 import SignIn from 'pages/default/SignIn';
 import SignUp from 'pages/default/SignUp';
-import { type MenuInfo, MenuItems } from 'service/commons/MenuItem';
+import { type MenuInfo, useMenuItems } from 'service/commons/MenuItem';
 
 const MenuComponent = ({ menu }: {menu: MenuInfo}) => {
     let element = null;
@@ -34,45 +34,58 @@ const createRouteFromMenu = (menu: MenuInfo): RouteObject => {
     };
 };
 
-const childRoutes: RouteObject[] = [];
-MenuItems.forEach((menu) => {
-    if (menu.path && menu.element) {
-        childRoutes.push(createRouteFromMenu(menu));
-    }
-    if (menu.subMenu) {
-        menu.subMenu.forEach((subMenu) => {
-            if (subMenu.path && subMenu.element) {
-                childRoutes.push(createRouteFromMenu(subMenu));
-            }
-        });
-    }
-    if (menu.subTabMenu) {
-        menu.subTabMenu.forEach((subMenu) => {
-            if (subMenu.path && subMenu.element) {
-                childRoutes.push(createRouteFromMenu(subMenu));
-            }
-        });
-    }
-});
+const createChildRoutes = (menuItems: MenuInfo[]): RouteObject[] => {
+    const childRoutes: RouteObject[] = [];
+    
+    menuItems.forEach((menu) => {
+        if (menu.path && menu.element) {
+            childRoutes.push(createRouteFromMenu(menu));
+        }
+        if (menu.subMenu) {
+            menu.subMenu.forEach((subMenu) => {
+                if (subMenu.path && subMenu.element) {
+                    childRoutes.push(createRouteFromMenu(subMenu));
+                }
+            });
+        }
+        if (menu.subTabMenu) {
+            menu.subTabMenu.forEach((subMenu) => {
+                if (subMenu.path && subMenu.element) {
+                    childRoutes.push(createRouteFromMenu(subMenu));
+                }
+            });
+        }
+    });
+    
+    return childRoutes;
+};
 
-const routes: RouteObject[] = [
-    {
-        path: '/sign-in',
-        element: <SignIn/>,
-    },
-    {
-        path: '/sign-up',
-        element: <SignUp/>,
-    },
-    {
-        path: '/',
-        element: <Layout/>,
-        children: [...childRoutes],
-    },
-    {
-        path: '*',
-        element: <NotFound/>,
-    },
-];
+const createRoutes = (menuItems: MenuInfo[]): RouteObject[] => {
+    const childRoutes = createChildRoutes(menuItems);
+    
+    return [
+        {
+            path: '/sign-in',
+            element: <SignIn/>,
+        },
+        {
+            path: '/sign-up',
+            element: <SignUp/>,
+        },
+        {
+            path: '/',
+            element: <Layout/>,
+            children: [...childRoutes],
+        },
+        {
+            path: '*',
+            element: <NotFound/>,
+        },
+    ];
+};
 
-export const baseRouter = createBrowserRouter(routes);
+export const useRouter = () => {
+    const menuItems = useMenuItems();
+    const routes = createRoutes(menuItems);
+    return createBrowserRouter(routes);
+};

@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { Autocomplete, Box,Button, CircularProgress, Grid, Paper, TextField, Typography } from '@mui/material';
-import BaseTitle from 'component/baseBoard/BaseTitle';
-import LabelledImages from 'component/imgs/LabelledImages';
+import { useTranslation } from 'hooks/useTranslation';
 import { type WorkspaceModel } from 'model/WorkspaceModel';
 import WorkspaceDataSet from 'pages/contents/workspace/editor/WorkspaceDataSet';
 import { requestTrain } from 'service/Apis/TrainApi';
 import { getMyWorkspaceList, getWorkspace } from 'service/Apis/WorkspaceApi';
 
+import BaseTitle from 'components/baseBoard/BaseTitle';
+import LabelledImages from 'components/imgs/LabelledImages';
 import { onAlert } from 'utils/alert';
-import { Strings } from 'utils/strings';
 
 const Train: React.FC = () => {
+    const { t: wt } = useTranslation('workspace');
+    const { t: ct } = useTranslation('common');
     const [workspaceList, setWorkspaceList] = useState<WorkspaceModel[]>([]);
     const [selected, setSelected] = useState<WorkspaceModel | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -22,10 +24,10 @@ const Train: React.FC = () => {
                 setWorkspaceList(res.data.content);
             })
             .catch((_err) => {
-                onAlert(Strings.Common.apiFailed);
+                onAlert(ct('messages.apiFailed'));
             })
             .finally(() => setIsLoading(false));
-    }, []);
+    }, [ct]);
 
     const handleSelectChange = (_: React.SyntheticEvent, newValue: WorkspaceModel | null) => {
         if (newValue) {
@@ -35,7 +37,7 @@ const Train: React.FC = () => {
                     setSelected(res.data);
                 })
                 .catch(_err => {
-                    onAlert(Strings.Common.apiFailed);
+                    onAlert(ct('messages.apiFailed'));
                 })
                 .finally(() => setIsLoading(false));
         } else {
@@ -45,28 +47,28 @@ const Train: React.FC = () => {
 
     const handleTrainRequest = () => {
         if (!selected) {
-            onAlert('Select Workspace');
+            onAlert(wt('training.selectWorkspace'));
             return;
         }
         if (!selected.files || selected.files.length === 0) {
-            onAlert('No images to label');
+            onAlert(wt('training.noImagesToLabel'));
             return;
         }
 
         setIsLoading(true);
         requestTrain(selected.id)
             .then(() => {
-                onAlert(Strings.Common.apiSuccess);
+                onAlert(ct('messages.apiSuccess'));
             })
             .catch((_err) => {
-                onAlert(Strings.Common.apiFailed);
+                onAlert(ct('messages.apiFailed'));
             })
             .finally(() => setIsLoading(false));
     };
 
     return (
         <Paper elevation={3} sx={{ p: 4, m: 2, borderRadius: 2 }}>
-            <BaseTitle title={'Train'} />
+            <BaseTitle title={wt('training.title')} />
 
             {/* Control Section */}
             <Box sx={{ mb: 4, mt: 3 }}>
@@ -80,7 +82,7 @@ const Train: React.FC = () => {
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
-                                    label="Select Workspace"
+                                    label={wt('training.selectWorkspace')}
                                     variant="outlined"
                                     fullWidth
                                     sx={{
@@ -191,7 +193,7 @@ const Train: React.FC = () => {
                             {isLoading ? (
                                 <CircularProgress size={24} color="inherit" />
                             ) : (
-                                'TRAIN REQUEST'
+                                wt('training.trainRequest')
                             )}
                         </Button>
                     </Grid>
@@ -212,7 +214,7 @@ const Train: React.FC = () => {
                                     mb: 2,
                                 }}
                             >
-                                Workspace Data
+                                {wt('training.workspaceData')}
                             </Typography>
                             <Box sx={{
                                 border: '1px solid',
@@ -238,7 +240,7 @@ const Train: React.FC = () => {
                                     mb: 2,
                                 }}
                             >
-                                Labelled Images
+                                {wt('training.labelledImages')}
                             </Typography>
                             <Box sx={{
                                 border: '1px solid',
