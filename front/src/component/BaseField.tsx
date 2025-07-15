@@ -1,7 +1,7 @@
-import TextField, { TextFieldProps } from "@mui/material/TextField";
-import { StandardTextFieldProps } from "@mui/material/TextField/TextField";
+import TextField from '@mui/material/TextField';
+import { type StandardTextFieldProps } from '@mui/material/TextField/TextField';
 
-interface BaseFieldProps extends StandardTextFieldProps {}
+type BaseFieldProps = StandardTextFieldProps;
 
 const BaseField = (props: BaseFieldProps) => {
   return <TextField {...props} />;

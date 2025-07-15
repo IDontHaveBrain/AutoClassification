@@ -1,19 +1,17 @@
-import { Divider, Tab, Tabs } from "@mui/material";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Divider, Tab, Tabs } from '@mui/material';
 import {
-  findMenuPath, findSiblingTabs,
-  findSubTabs,
-  getCurrentMenuInfo,
-  MenuInfo,
+  findMenuPath,
+  type MenuInfo,
   MenuItems,
-} from "service/commons/MenuItem";
-import { useMemo } from "react";
+} from 'service/commons/MenuItem';
 
 interface SubTabBarProps {
   subTabMenu?: MenuInfo[];
 }
 
-const SubTabBar = ({ subTabMenu }: SubTabBarProps) => {
+const SubTabBar = ({ subTabMenu: _subTabMenu }: SubTabBarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -21,10 +19,7 @@ const SubTabBar = ({ subTabMenu }: SubTabBarProps) => {
     navigate(newValue);
   };
 
-  // Get the current menu and its parent
   const breadcrumbs = findMenuPath(MenuItems, location.pathname);
-
-  // Add root item to subTabMenu
   const rootMenu = breadcrumbs[0];
   const fullSubTabMenu = [rootMenu].concat(rootMenu.subTabMenu || []);
 
@@ -40,12 +35,12 @@ const SubTabBar = ({ subTabMenu }: SubTabBarProps) => {
           variant="scrollable"
           scrollButtons="auto"
           sx={{
-            borderBottom: "1px solid #e8e8e8",
-            borderRight: "2px solid #e8e8e8",
+            borderBottom: '1px solid #e8e8e8',
+            borderRight: '2px solid #e8e8e8',
           }}
       >
-        {filteredSubTabMenu.map((tab, index) => (
-            <Tab key={index} label={tab.name} value={tab.path} />
+        {filteredSubTabMenu.map((tab) => (
+            <Tab key={tab.path || tab.name} label={tab.name} value={tab.path} />
         ))}
         <Divider />
       </Tabs>

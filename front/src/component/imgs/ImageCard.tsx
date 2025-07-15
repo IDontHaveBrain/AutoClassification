@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { Card, CardMedia, IconButton, Typography, CircularProgress, Box } from "@mui/material";
+import React, { useEffect,useState } from 'react';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
-import { SvgIcon } from '@mui/material';
+import { Box,Card, CardMedia, CircularProgress, IconButton, SvgIcon,Typography  } from '@mui/material';
 
 interface ImageCardProps {
-    id?: string;
     url: string;
     originalFileName?: string;
     onClick: () => void;
     size?: 'tiny' | 'small' | 'medium' | 'large';
 }
 
-const ImageCard = ({ id, url, originalFileName, onClick, size = 'medium' }: ImageCardProps) => {
+const ImageCard = ({ url, originalFileName, onClick, size = 'medium' }: ImageCardProps) => {
     const cardStyle = {
         margin: '5px',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
@@ -32,7 +30,7 @@ const ImageCard = ({ id, url, originalFileName, onClick, size = 'medium' }: Imag
         };
         img.onerror = () => {
             setLoading(false);
-            setError("Failed to load image");
+            setError('Failed to load image');
         };
     }, [url]);
 
@@ -52,12 +50,12 @@ const ImageCard = ({ id, url, originalFileName, onClick, size = 'medium' }: Imag
                     <CardMedia
                         component="img"
                         image={url}
-                        alt={originalFileName || "Image"}
+                        alt={originalFileName || 'Image'}
                         sx={{
                             objectFit: 'contain',
                             maxHeight: '100%',
                             maxWidth: '100%',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
                         }}
                         onClick={onClick}
                     />
@@ -71,15 +69,15 @@ const ImageCard = ({ id, url, originalFileName, onClick, size = 'medium' }: Imag
                         backgroundColor: 'rgba(255, 255, 255, 0.7)',
                         '&:hover': {
                             backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                        }
+                        },
                     }}
-                    aria-label={`Zoom in ${originalFileName || "image"}`}
+                    aria-label={`Zoom in ${originalFileName || 'image'}`}
                 >
                     <SvgIcon component={ZoomInIcon} fontSize="small" />
                 </IconButton>
             </Box>
         </Card>
     );
-}
+};
 
 export default ImageCard;

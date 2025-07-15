@@ -1,13 +1,13 @@
-import { createContext, useState, FunctionComponent, ReactNode } from "react";
+import { createContext } from 'react';
 
-type ContextType = {
-    state: any;
-    setState: React.Dispatch<React.SetStateAction<any>> | null;
+export type ContextType<T = unknown> = {
+    state: T;
+    setState: React.Dispatch<React.SetStateAction<T>> | null;
     resetState: () => void;
 };
 
-const createContextState = () => {
-    const context = createContext<ContextType | null>(null);
+const createContextState = <T = unknown>() => {
+    const context = createContext<ContextType<T> | null>(null);
 
     return [context, context.Provider] as const;
 };

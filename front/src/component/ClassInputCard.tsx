@@ -1,10 +1,10 @@
 import React from 'react';
-import { Card, CardContent, TextField, IconButton, Box } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { Box,Card, CardContent, IconButton, TextField } from '@mui/material';
 
 interface ClassInputCardProps {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (_value: string) => void;
   onDelete: () => void;
   isRequired: boolean;
 }

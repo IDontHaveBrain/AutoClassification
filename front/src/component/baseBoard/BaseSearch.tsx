@@ -1,5 +1,4 @@
-import Container from "@mui/material/Container";
-import Box from "@mui/material/Box";
+import Box from '@mui/material/Box';
 
 interface Props {
   children: React.ReactNode;
@@ -7,7 +6,7 @@ interface Props {
 
 const BaseSearch = ({ children }: Props) => {
   return (
-    <Box style={{ display: "flex", justifyContent: "space-between" }}>
+    <Box style={{ display: 'flex', justifyContent: 'space-between' }}>
       {children}
     </Box>
   );

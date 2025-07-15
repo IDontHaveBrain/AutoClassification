@@ -1,17 +1,19 @@
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import {Context, ReactNode} from "react";
-import {Home} from "pages/default/Home";
-import SignIn from "pages/default/SignIn";
-import SignUp from "pages/default/SignUp";
-import NoticeEditor from "pages/contents/notice/NoticeEditor";
-import NoticeList from "pages/contents/notice/NoticeList";
-import TestClassfiy from "pages/contents/freetest/TestClassfiy";
-import WorkspaceList from "../../pages/contents/workspace/WorkspaceList";
-import WorkspaceEditor from "pages/contents/workspace/WorkspaceEditor";
-import {NoticeContext, WorkspaceContext} from "utils/ContextManager";
-import Train from "pages/contents/workspace/training/Train";
-import TestResultList from "pages/contents/freetest/TestResultList";
-import AutoLabel from "pages/contents/workspace/autolabel/AutoLabel";
+import { type Context, type ReactNode } from 'react';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import TestClassfiy from 'pages/contents/freetest/TestClassfiy';
+import TestResultList from 'pages/contents/freetest/TestResultList';
+import NoticeEditor from 'pages/contents/notice/NoticeEditor';
+import NoticeList from 'pages/contents/notice/NoticeList';
+import AutoLabel from 'pages/contents/workspace/autolabel/AutoLabel';
+import Train from 'pages/contents/workspace/training/Train';
+import WorkspaceEditor from 'pages/contents/workspace/WorkspaceEditor';
+import { Home } from 'pages/default/Home';
+import SignIn from 'pages/default/SignIn';
+import SignUp from 'pages/default/SignUp';
+
+import { type ContextType,NoticeContext, WorkspaceContext } from 'utils/ContextManager';
+
+import WorkspaceList from '../../pages/contents/workspace/WorkspaceList';
 
 export interface MenuInfo {
     name: string;
@@ -19,39 +21,39 @@ export interface MenuInfo {
     invisible?: boolean;
     icon?: ReactNode;
     element?: ReactNode;
-    context?: Context<any>;
+    context?: Context<ContextType<unknown> | null>;
     subMenu?: MenuInfo[];
     subTabMenu?: MenuInfo[];
 }
 
 export const MenuItems: MenuInfo[] = [
     {
-        name: "Home",
-        path: "/",
+        name: 'Home',
+        path: '/',
         icon: <AssignmentIcon/>,
         element: <Home/>,
         subTabMenu: [
             {
-                name: "Sign In",
-                path: "/sign-in",
+                name: 'Sign In',
+                path: '/sign-in',
                 element: <SignIn/>,
             },
             {
-                name: "Sign Up",
-                path: "/sign-up",
+                name: 'Sign Up',
+                path: '/sign-up',
                 element: <SignUp/>,
             },
         ],
     },
     {
-        name: "공지사항",
-        path: "/notice",
+        name: '공지사항',
+        path: '/notice',
         element: <NoticeList/>,
         context: NoticeContext,
         subMenu: [
             {
-                name: "공지사항 작성",
-                path: "/notice/write",
+                name: '공지사항 작성',
+                path: '/notice/write',
                 element: <NoticeEditor/>,
                 context: NoticeContext,
                 invisible: true,
@@ -59,102 +61,78 @@ export const MenuItems: MenuInfo[] = [
         ],
     },
     {
-        name: "Workspace",
+        name: 'Workspace',
         context: WorkspaceContext,
         subMenu: [
             {
-                name: "Workspace List",
-                path: "/workspace",
+                name: 'Workspace List',
+                path: '/workspace',
                 element: <WorkspaceList/>,
                 context: WorkspaceContext,
             },
             {
-                name: "Workspace Editor",
-                path: "/workspace/editor",
+                name: 'Workspace Editor',
+                path: '/workspace/editor',
                 element: <WorkspaceEditor/>,
                 context: WorkspaceContext,
                 invisible: true,
             },
             {
-                name: "Auto Label",
-                path: "/workspace/auto-label",
+                name: 'Auto Label',
+                path: '/workspace/auto-label',
                 element: <AutoLabel/>,
             },
             {
-                name: "Training",
-                path: "/workspace/training",
+                name: 'Training',
+                path: '/workspace/training',
                 element: <Train/>,
             },
         ],
         subTabMenu: [
             {
-                name: "Workspace List",
-                path: "/workspace",
+                name: 'Workspace List',
+                path: '/workspace',
                 element: <WorkspaceList/>,
             },
             {
-                name: "Auto Label",
-                path: "/workspace/auto-label",
+                name: 'Auto Label',
+                path: '/workspace/auto-label',
                 element: <AutoLabel/>,
             },
             {
-                name: "Training",
-                path: "/workspace/training",
+                name: 'Training',
+                path: '/workspace/training',
                 element: <Train/>,
             },
         ],
     },
     {
-        name: "Service",
+        name: 'Service',
         subMenu: [
             {
-                name: "TestClassfiy",
-                path: "/test/classfiy",
+                name: 'TestClassfiy',
+                path: '/test/classfiy',
                 element: <TestClassfiy/>,
             },
             {
-                name: "TestResult",
-                path: "/test/result",
+                name: 'TestResult',
+                path: '/test/result',
                 element: <TestResultList/>,
-            }
+            },
         ],
         subTabMenu: [
             {
-                name: "Classfiy",
-                path: "/test/classfiy",
+                name: 'Classfiy',
+                path: '/test/classfiy',
                 element: <TestClassfiy/>,
             },
             {
-                name: "Result",
-                path: "/test/result",
+                name: 'Result',
+                path: '/test/result',
                 element: <TestResultList/>,
-            }
+            },
         ],
     },
-    // {
-    //     name: "My Page",
-    //     subMenu: [
-    //         {
-    //             name: "Not Found",
-    //             path: "/not-found",
-    //             element: <NotFound/>,
-    //         },
-    //         {
-    //             name: "Test Submenu2",
-    //             subMenu: [
-    //                 {
-    //                     name: "Test Submenu3",
-    //                     subMenu: [
-    //                         {
-    //                             name: "Test Submenu4",
-    //                             path: "/test-submenu4",
-    //                         },
-    //                     ],
-    //                 },
-    //             ],
-    //         },
-    //     ],
-    // },
 ];
 
 export const findMenuPath = (menus: MenuInfo[], path: string): MenuInfo[] => {
@@ -209,14 +187,14 @@ export const getCurrentMenuInfo = (
 
         if (menu.subMenu) {
             const found = getCurrentMenuInfo(menu.subMenu, path);
-            if (found) {
+            if (found.length > 0) {
                 return found;
             }
         }
 
         if (menu.subTabMenu) {
             const found = getCurrentMenuInfo(menu.subTabMenu, path);
-            if (found) {
+            if (found.length > 0) {
                 return found;
             }
         }
@@ -233,7 +211,7 @@ export const findSiblingTabs = (menus: MenuInfo[], path: string): MenuInfo[] => 
 
         if (menu.subMenu) {
             const found = findSiblingTabs(menu.subMenu, path);
-            if (found) {
+            if (found.length > 0) {
                 return found;
             }
         }

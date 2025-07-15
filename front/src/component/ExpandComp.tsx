@@ -1,8 +1,8 @@
-import { Accordion, AccordionDetails, AccordionSummary, Grid, Theme } from "@mui/material";
-import {green} from "@mui/material/colors";
+import { type ReactNode } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { ReactNode } from "react";
-import { SxProps } from "@mui/system";
+import { Accordion, AccordionDetails, AccordionSummary, Grid, type Theme } from '@mui/material';
+import { green } from '@mui/material/colors';
+import { type SxProps } from '@mui/system';
 
 interface ExpandCompProps {
     children: ReactNode;
@@ -11,10 +11,10 @@ interface ExpandCompProps {
     contentStyle?: SxProps<Theme>;
 }
 
-const ExpandComp = ({children, title, titleStyle, contentStyle}: ExpandCompProps) => (
-    <Grid item md={true}>
-        <Accordion sx={titleStyle ? titleStyle : {border: '2px solid #c4c4c4'}}>
-            <AccordionSummary sx={{bgcolor: green[300]}} expandIcon={<ExpandMoreIcon />}>
+const ExpandComp = ({ children, title, titleStyle, contentStyle }: ExpandCompProps) => (
+    <Grid item md>
+        <Accordion sx={titleStyle ? titleStyle : { border: '2px solid #c4c4c4' }}>
+            <AccordionSummary sx={{ bgcolor: green[300] }} expandIcon={<ExpandMoreIcon />}>
                 {title}
             </AccordionSummary>
             <AccordionDetails sx={contentStyle ? contentStyle : null}>

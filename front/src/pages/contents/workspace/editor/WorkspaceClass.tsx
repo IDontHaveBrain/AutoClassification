@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { Grid, IconButton, TextField, Chip, Autocomplete, CircularProgress, Typography } from "@mui/material";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import ExpandComp from "component/ExpandComp";
+import React, { useState } from 'react';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { Autocomplete, Chip, CircularProgress, Grid, IconButton, TextField, Typography } from '@mui/material';
+import ExpandComp from 'component/ExpandComp';
 
 interface Props {
   classes?: string[];
-  onClassesChange: (classes: string[]) => void;
+  onClassesChange: (_classes: string[]) => void;
   isLoading?: boolean;
   error?: string | null;
 }
@@ -78,8 +78,8 @@ const WorkspaceClass: React.FC<Props> = ({ classes = [], onClassesChange, isLoad
         </Grid>
         <Grid item>
           <Grid container spacing={1}>
-            {classes && classes.map((item, index) => (
-              <Grid item key={index}>
+            {classes && classes.map((item) => (
+              <Grid item key={item}>
                 <Chip
                   label={item}
                   onDelete={() => handleRemove(item)}

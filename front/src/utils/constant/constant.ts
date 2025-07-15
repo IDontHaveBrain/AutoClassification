@@ -1,10 +1,10 @@
 const CONSTANT = {
-  BASE_URL: process.env.REACT_APP_API_URL,
-  AUTH_API_URL: `${process.env.REACT_APP_API_URL}/auth`,
-  API_URL: `${process.env.REACT_APP_API_URL}/api`,
-  PUBLIC_FILES_URL: `${process.env.REACT_APP_API_URL}/public`,
-  ACCESS_TOKEN: "access_token",
-  REMEMBER_ME: "remember_me",
+  BASE_URL: import.meta.env.VITE_API_URL,
+  AUTH_API_URL: `${import.meta.env.VITE_API_URL}/auth`,
+  API_URL: `${import.meta.env.VITE_API_URL}/api`,
+  PUBLIC_FILES_URL: `${import.meta.env.VITE_API_URL}/public`,
+  ACCESS_TOKEN: 'access_token',
+  REMEMBER_ME: 'remember_me',
   PAGE_SIZE: [10, 25, 50],
 };
 

@@ -1,28 +1,29 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { WorkspaceModel } from "model/WorkspaceModel";
+import React, { useCallback,useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
+    Avatar,
     Box,
-    Typography,
+    Button,
+    Chip,
     CircularProgress,
     DialogActions,
     DialogContent,
-    Button,
     Grid,
-    Avatar,
-    Chip,
     ImageList,
     ImageListItem,
-    Paper,
     Modal,
-    Tabs,
+    Paper,
     Tab,
-} from "@mui/material";
-import { deleteWorkspace, getWorkspace } from "service/Apis/WorkspaceApi";
-import { onAlert } from "component/modal/AlertModal";
-import { Strings } from "utils/strings";
-import { eventBus } from "layouts/BackGround";
-import { SseEvent, SseType } from "model/GlobalModel";
+    Tabs,
+    Typography,
+} from '@mui/material';
+import { type SseEvent, SseType } from 'model/GlobalModel';
+import { type WorkspaceModel } from 'model/WorkspaceModel';
+import { deleteWorkspace, getWorkspace } from 'service/Apis/WorkspaceApi';
+
+import { onAlert } from 'utils/alert';
+import { eventBus } from 'utils/eventBus';
+import { Strings } from 'utils/strings';
 
 interface Props {
     data: WorkspaceModel;
@@ -33,7 +34,7 @@ interface Props {
 const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }) => {
     const [detail, setDetail] = useState<WorkspaceModel | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
-    const [selectedTab, setSelectedTab] = useState<string>("All");
+    const [selectedTab, setSelectedTab] = useState<string>('All');
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue);
@@ -42,7 +43,7 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
     const filteredFiles = () => {
         if (!detail.files) return [];
         if (selectedTab === 'All') {
-            return detail.files; // 모든 파일 표시
+            return detail.files;
         } else if (selectedTab === 'None') {
             return detail.files.filter(file => !file.label || file.label.toLowerCase() === 'none');
         } else if (detail.classes?.includes(selectedTab)) {
@@ -56,8 +57,7 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
         try {
             const res = await getWorkspace(id);
             setDetail(res.data);
-        } catch (err) {
-            console.error(err);
+        } catch (_err) {
             onAlert(Strings.Common.apiFailed);
         }
     }, []);
@@ -84,7 +84,7 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
     }, [data, fetchWorkspaceDetail]);
 
     const handleEdit = () => {
-        navigate("/workspace/editor", { state: { data: detail } });
+        navigate('/workspace/editor', { state: { data: detail } });
     };
 
     const handleDelete = () => {
@@ -95,8 +95,7 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                     onDeleteSuccess();
                     onAlert(Strings.Common.apiSuccess);
                 })
-                .catch((err) => {
-                    console.error(err);
+                .catch((_err) => {
                     onAlert(Strings.Common.apiFailed);
                 });
         }
@@ -129,7 +128,7 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                     <Typography
                         variant="body1"
                         dangerouslySetInnerHTML={{
-                            __html: detail.description || "No description available.",
+                            __html: detail.description || 'No description available.',
                         }}
                     />
                 </Paper>
@@ -140,8 +139,8 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                             Classes
                         </Typography>
                         <Box display="flex" flexWrap="wrap" gap={1}>
-                            {detail.classes.map((cls, index) => (
-                                <Chip key={index} label={cls} color="primary" variant="outlined" />
+                            {detail.classes.map((cls) => (
+                                <Chip key={cls} label={cls} color="primary" variant="outlined" />
                             ))}
                         </Box>
                     </Paper>
@@ -153,8 +152,8 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                             Images
                         </Typography>
                         <Tabs value={selectedTab} onChange={handleTabChange} aria-label="image tabs">
-                            <Tab label="All" value="All" /> {/* 모든 파일 탭 */}
-                            <Tab label="None" value="None" /> {/* 분류되지 않은 파일 탭 */}
+                            <Tab label="All" value="All" />
+                            <Tab label="None" value="None" />
                             {detail.classes?.map((className) => (
                                 <Tab key={className} label={className} value={className} />
                             ))}
@@ -225,7 +224,7 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                 <Button onClick={handleEdit} color="primary">
                     Edit
                 </Button>
-                <Button onClick={handleClose} color="primary" autoFocus>
+                <Button onClick={handleClose} color="primary">
                     Close
                 </Button>
             </DialogActions>

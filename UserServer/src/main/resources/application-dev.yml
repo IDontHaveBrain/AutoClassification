@@ -1,14 +1,16 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://autoclassify_postgres:5432/postgres
+    url: jdbc:postgresql://autoclassify_postgres:5433/postgres
     username: ${DB_USERNAME:jnj}
     password: ${DB_PASSWORD:sqisoft}
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
+      maximum-pool-size: 40  # Increased for concurrent image processing
+      minimum-idle: 20  # Increased proportionally
       idle-timeout: 60000
       connection-timeout: 30000
+      max-lifetime: 1800000  # 30 minutes
+      leak-detection-threshold: 60000  # 60 seconds
 
   data:
     redis:
@@ -21,6 +23,11 @@ spring:
     port: 5672
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        concurrency: 15  # Increased for concurrent processing
+        max-concurrency: 25  # Increased for concurrent processing
+        prefetch: 4
 
   mail:
     test-connection: false
@@ -31,6 +38,13 @@ spring:
     properties:
       mail.smtp.auth: false
       mail.smtp.starttls.enable: false
+
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 2GB  # 12 images * 200MB + overhead
+      file-size-threshold: 10MB  # Write to disk after 10MB
+      location: /tmp/uploads
 
   web:
     resources:
@@ -50,14 +64,31 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics
 
 app:
   url:
-    ai: http://localhost:5000
+    ai: ${AI_URL:http://localhost:5000}
 
   storage:
     path: /data/docker/toy/resource/
     resourcePath: public/
-    maxFileSize: 104857600
+    maxFileSize: 209715200  # 200MB
+
+server:
+  tomcat:
+    max-connections: 5000  # Increased from default 8192 (balanced for dev)
+    accept-count: 150  # Increased from default 100
+    max-parameter-count: 50000
+    max-http-form-post-size: 2GB  # Match max-request-size
+    # Thread pool configuration for concurrent processing
+    threads:
+      max: 250  # Increased from default 200
+      min-spare: 15  # Increased from default 10
+    # Connection management
+    connection-timeout: 30000
+    keep-alive-timeout: 30000
+    max-keep-alive-requests: 100
+    # Additional multipart limits
+    max-swallow-size: 2GB
 

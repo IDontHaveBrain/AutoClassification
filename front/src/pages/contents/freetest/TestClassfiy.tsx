@@ -1,8 +1,7 @@
-import React, { useCallback, useState, useEffect } from "react";
-import { FileRejection } from "react-dropzone";
-import Box from "@mui/material/Box";
-import FileDropzone from "component/FileDropzone";
-import Grid from "@mui/material/Grid";
+import React, { useCallback, useEffect, useId,useState } from 'react';
+import { type FileRejection } from 'react-dropzone';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
     Alert,
     CircularProgress,
@@ -12,14 +11,16 @@ import {
     ListItem,
     ListItemText,
     Typography,
-} from "@mui/material";
-import Button from "@mui/material/Button";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { testUploadImg } from "service/Apis/TrainApi";
-import { onAlert } from "component/modal/AlertModal";
-import { Strings } from "utils/strings";
-import ClassInputCard from "component/ClassInputCard";
+} from '@mui/material';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import ClassInputCard from 'component/ClassInputCard';
+import FileDropzone from 'component/FileDropzone';
+import { testUploadImg } from 'service/Apis/TrainApi';
+
+import { onAlert } from 'utils/alert';
+import { Strings } from 'utils/strings';
 
 const TEST_MAX_CLASSES_COUNT = 5;
 const TEST_MIN_CLASSES_COUNT = 2;
@@ -29,13 +30,13 @@ interface CustomFile extends File {
 }
 
 const TestClassify: React.FC = () => {
+    const idPrefix = useId();
     const [files, setFiles] = useState<CustomFile[]>([]);
-    const [classList, setClassList] = useState<string[]>(["", ""]);
+    const [classList, setClassList] = useState<string[]>(['', '']);
 
-    // Add cleanup effect to prevent memory leaks
+    // 컴포넌트 언마운트 시 메모리 누수를 방지하기 위한 정리 작업
     useEffect(() => {
         return () => {
-            // Cleanup object URLs when component unmounts
             files.forEach((file) => {
                 if (file.preview) {
                     URL.revokeObjectURL(file.preview);
@@ -48,7 +49,7 @@ const TestClassify: React.FC = () => {
 
     const addClass = () => {
         if (classList.length < TEST_MAX_CLASSES_COUNT) {
-            setClassList([...classList, ""]);
+            setClassList([...classList, '']);
         } else {
             onAlert(`최대 ${TEST_MAX_CLASSES_COUNT}개의 클래스만 추가할 수 있습니다.`);
         }
@@ -71,7 +72,6 @@ const TestClassify: React.FC = () => {
 
     const onDrop = useCallback(
         (acceptedFiles: File[], fileRejections: FileRejection[]) => {
-            // 파일 거부 처리 - 구체적인 오류 메시지 제공
             if (fileRejections.length > 0) {
                 const rejectionReasons = fileRejections.map(rejection => {
                     const errors = rejection.errors.map(error => {
@@ -88,67 +88,63 @@ const TestClassify: React.FC = () => {
                     }).join(', ');
                     return `${rejection.file.name}: ${errors}`;
                 }).join('\n');
-                
+
                 onAlert(`파일 업로드 실패:\n${rejectionReasons}`);
                 return;
             }
 
-            // Check total file count including existing files
             if (files.length + acceptedFiles.length > 30) {
-                onAlert("분류 테스트는 이미지 30개 이하로 테스트 가능합니다.");
+                onAlert('분류 테스트는 이미지 30개 이하로 테스트 가능합니다.');
                 return;
             }
 
             const processedFiles = acceptedFiles.map((file) =>
                 Object.assign(file, {
                     preview: URL.createObjectURL(file),
-                }) as CustomFile
+                }) as CustomFile,
             );
 
             setFiles(prevFiles => [...prevFiles, ...processedFiles]);
-            setApiError(null); // 성공적으로 파일이 추가되면 이전 API 에러 클리어
+            setApiError(null);
         },
-        [files, onAlert],
+        [files],
     );
 
-    // 요청 전 유효성 검사
     const validCheck = (): boolean => {
-        if (classList.some(item => item.trim() === "")) {
+        if (classList.some(item => item.trim() === '')) {
             onAlert(Strings.Common.notEmpty);
             return false;
         }
-        
+
         if (files.length === 0) {
-            onAlert("분류할 이미지를 업로드해주세요.");
+            onAlert('분류할 이미지를 업로드해주세요.');
             return false;
         }
-        
+
         if (files.length > 30) {
-            onAlert("분류 테스트는 이미지 30개 이하로 테스트 가능합니다.");
+            onAlert('분류 테스트는 이미지 30개 이하로 테스트 가능합니다.');
             return false;
         }
-        
+
         return true;
     };
 
     const onSave = async () => {
         if (!validCheck()) return;
-        
+
         setIsLoading(true);
         setApiError(null);
-        
+
         try {
             const formData = new FormData();
             files.forEach((file) => {
-                formData.append("files", file);
+                formData.append('files', file);
             });
-            formData.append("data", new Blob([JSON.stringify(classList)], { type: "application/json" }));
-            
-            const response = await testUploadImg(formData);
-            
-            // API 응답 성공 처리
-            setClassList(["", ""]);
-            // Cleanup object URLs before clearing files
+            formData.append('data', new Blob([JSON.stringify(classList)], { type: 'application/json' }));
+
+            await testUploadImg(formData);
+
+            setClassList(['', '']);
             files.forEach((file) => {
                 if (file.preview) {
                     URL.revokeObjectURL(file.preview);
@@ -156,49 +152,58 @@ const TestClassify: React.FC = () => {
             });
             setFiles([]);
             onAlert(Strings.FreeTest.requestTest);
-            
-        } catch (error: any) {
-            let errorMessage = "분류 테스트 요청이 실패했습니다.";
-            
-            // 구체적인 오류 메시지 처리
-            if (error.response) {
-                const status = error.response.status;
-                const data = error.response.data;
-                
+
+        } catch (error: unknown) {
+            let errorMessage = '분류 테스트 요청이 실패했습니다.';
+
+            if (error && typeof error === 'object' && 'response' in error) {
+                const axiosError = error as {
+                    response?: {
+                        status: number;
+                        data?: { message?: string }
+                    };
+                    code?: string;
+                    message?: string;
+                };
+
+                if (axiosError.response) {
+                    const { status } = axiosError.response;
+                    const { data } = axiosError.response;
+
                 switch (status) {
                     case 400:
-                        errorMessage = data?.message || "잘못된 요청입니다. 입력 데이터를 확인해주세요.";
+                        errorMessage = data?.message || '잘못된 요청입니다. 입력 데이터를 확인해주세요.';
                         break;
                     case 401:
-                        errorMessage = "인증이 만료되었습니다. 다시 로그인해주세요.";
+                        errorMessage = '인증이 만료되었습니다. 다시 로그인해주세요.';
                         break;
                     case 403:
-                        errorMessage = "접근 권한이 없습니다.";
+                        errorMessage = '접근 권한이 없습니다.';
                         break;
                     case 413:
-                        errorMessage = "업로드 파일 크기가 너무 큽니다.";
+                        errorMessage = '업로드 파일 크기가 너무 큽니다.';
                         break;
                     case 422:
-                        errorMessage = data?.message || "파일 형식이나 데이터가 올바르지 않습니다.";
+                        errorMessage = data?.message || '파일 형식이나 데이터가 올바르지 않습니다.';
                         break;
                     case 500:
-                        errorMessage = "서버 내부 오류입니다. 잠시 후 다시 시도해주세요.";
+                        errorMessage = '서버 내부 오류입니다. 잠시 후 다시 시도해주세요.';
                         break;
                     case 503:
-                        errorMessage = "AI 서비스가 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해주세요.";
+                        errorMessage = 'AI 서비스가 일시적으로 사용할 수 없습니다. 잠시 후 다시 시도해주세요.';
                         break;
                     default:
                         errorMessage = data?.message || `서버 오류 (${status})`;
                 }
-            } else if (error.code === 'NETWORK_ERROR' || error.message.includes('Network Error')) {
-                errorMessage = "네트워크 연결을 확인해주세요.";
-            } else if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-                errorMessage = "요청 시간이 초과되었습니다. 다시 시도해주세요.";
-            } else {
-                errorMessage = error.message || errorMessage;
+                } else if (axiosError.code === 'NETWORK_ERROR' || (axiosError.message && axiosError.message.includes('Network Error'))) {
+                    errorMessage = '네트워크 연결을 확인해주세요.';
+                } else if (axiosError.code === 'ECONNABORTED' || (axiosError.message && axiosError.message.includes('timeout'))) {
+                    errorMessage = '요청 시간이 초과되었습니다. 다시 시도해주세요.';
+                } else if (axiosError.message) {
+                    errorMessage = axiosError.message;
+                }
             }
-            
-            console.error("API Error:", error);
+
             setApiError(errorMessage);
             onAlert(errorMessage);
         } finally {
@@ -216,7 +221,6 @@ const TestClassify: React.FC = () => {
     };
 
     const onRemoveAll = () => {
-        // Cleanup all object URLs
         files.forEach((file) => {
             if (file.preview) {
                 URL.revokeObjectURL(file.preview);
@@ -233,7 +237,7 @@ const TestClassify: React.FC = () => {
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                         {classList.map((item, index) => (
                             <ClassInputCard
-                                key={index}
+                                key={`${idPrefix}-class-${classList.indexOf(item)}-${classList.length}`}
                                 value={item}
                                 onChange={(newValue) => handleInputChange(index, newValue)}
                                 onDelete={() => removeClass(index)}
@@ -249,16 +253,16 @@ const TestClassify: React.FC = () => {
                 </Grid>
                 <Grid item xs={12} md={6}>
                     <Typography variant="h6" gutterBottom>파일 업로드</Typography>
-                    <FileDropzone 
+                    <FileDropzone
                         onDrop={onDrop}
                         accept={{
-                            'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.bmp', '.webp']
+                            'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.bmp', '.webp'],
                         }}
                         maxSize={5 * 1024 * 1024} // 5MB 제한
                         maxFiles={30} // 최대 30개 파일
                         disabled={isLoading}
                     />
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mt: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
                         <Box>
                             <Typography variant="subtitle1">업로드된 이미지: {files.length} / 30</Typography>
                             {files.length > 0 && (
@@ -277,23 +281,23 @@ const TestClassify: React.FC = () => {
                             모든 이미지 삭제
                         </Button>
                     </Box>
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 2 }}>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 2 }}>
                         {files.map((file, index) => (
-                            <Box key={`${index}-${file.name}`} sx={{ position: "relative" }}>
-                                <img src={file.preview} style={{ width: "100px", height: "100px", objectFit: "cover" }} alt="preview" />
+                            <Box key={`${file.name}-${file.size}-${file.lastModified}`} sx={{ position: 'relative' }}>
+                                <img src={file.preview} style={{ width: '100px', height: '100px', objectFit: 'cover' }} alt="preview" />
                                 <IconButton
                                     size="small"
                                     onClick={() => onRemove(index)}
                                     disabled={isLoading}
                                     sx={{
-                                        position: "absolute",
+                                        position: 'absolute',
                                         top: 0,
                                         right: 0,
                                         bgcolor: 'rgba(255, 255, 255, 0.7)',
                                         '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.9)' },
-                                        '&:disabled': { 
+                                        '&:disabled': {
                                             bgcolor: 'rgba(200, 200, 200, 0.7)',
-                                            color: 'rgba(0, 0, 0, 0.3)'
+                                            color: 'rgba(0, 0, 0, 0.3)',
                                         },
                                     }}
                                 >
@@ -304,8 +308,7 @@ const TestClassify: React.FC = () => {
                     </Box>
                 </Grid>
             </Grid>
-            
-            {/* 로딩 상태 표시 */}
+
             {isLoading && (
                 <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
                     <CircularProgress size={24} />
@@ -315,27 +318,26 @@ const TestClassify: React.FC = () => {
                 </Box>
             )}
 
-            {/* API 에러 상태 표시 */}
             {apiError && (
                 <Alert severity="error" sx={{ mt: 2 }}>
                     {apiError}
                 </Alert>
             )}
 
-            <Button 
-                onClick={onSave} 
-                color="secondary" 
-                variant="contained" 
+            <Button
+                onClick={onSave}
+                color="secondary"
+                variant="contained"
                 sx={{ alignSelf: 'flex-start' }}
                 disabled={isLoading || files.length === 0}
                 startIcon={isLoading ? <CircularProgress size={16} /> : undefined}
             >
-                {isLoading ? "처리 중..." : Strings.FreeTest.classifyTest}
+                {isLoading ? '처리 중...' : Strings.FreeTest.classifyTest}
             </Button>
             <Divider />
             <List>
-                {files.map((file, index) => (
-                    <ListItem key={index}>
+                {files.map((file) => (
+                    <ListItem key={`list-${file.name}-${file.size}-${file.lastModified}`}>
                         <ListItemText primary={file.name} />
                     </ListItem>
                 ))}

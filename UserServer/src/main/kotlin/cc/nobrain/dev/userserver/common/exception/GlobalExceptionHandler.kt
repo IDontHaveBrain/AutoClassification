@@ -1,5 +1,6 @@
 package cc.nobrain.dev.userserver.common.exception
 
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.FieldError
@@ -14,6 +15,8 @@ import org.springframework.web.bind.support.WebExchangeBindException
  */
 @RestControllerAdvice
 class GlobalExceptionHandler {
+    
+    private val logger = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
 
     /**
      * 유효성 검사 실패 예외 처리 (일반적인 @Valid 검증)
@@ -76,6 +79,8 @@ class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception::class)
     fun handleGeneralException(ex: Exception): ResponseEntity<Map<String, Any>> {
+        logger.error("Unhandled exception occurred", ex)
+        
         val response = mapOf(
             "status" to HttpStatus.INTERNAL_SERVER_ERROR.value(),
             "error" to "Internal Server Error",

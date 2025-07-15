@@ -1,20 +1,20 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+
 import {
-  AlarmModel,
-  AlertDetail,
-  Member,
-  MemberInfo,
-} from "../model/GlobalModel";
-import SseManager from "../service/commons/SseManager";
+  type AlarmModel,
+  type AlertDetail,
+  type Member,
+  type MemberInfo,
+} from '../model/GlobalModel';
 
 const userInfoSlice = createSlice({
-  name: "userInfo",
+  name: 'userInfo',
   initialState: {
-    access_token: "",
-    refresh_token: "",
+    access_token: '',
+    refresh_token: '',
     user: {
-      email: "",
-      name: "",
+      email: '',
+      name: '',
     } as Member,
   } as MemberInfo,
   reducers: {
@@ -24,20 +24,20 @@ const userInfoSlice = createSlice({
       state.user = action.payload.user;
     },
     resetUserInfo: (state) => {
-      state.access_token = "";
-      state.refresh_token = "";
+      state.access_token = '';
+      state.refresh_token = '';
       state.user = {
-        email: "",
-        name: "",
+        email: '',
+        name: '',
       };
     },
   },
 });
 
 const alertSlice = createSlice({
-  name: "alert",
+  name: 'alert',
   initialState: {
-    message: "",
+    message: '',
     open: false,
     callback: null,
   },
@@ -48,7 +48,7 @@ const alertSlice = createSlice({
       state.callback = action.payload?.callback;
     },
     closeAlert: (state) => {
-      state.message = "";
+      state.message = '';
       state.open = false;
       state.callback = null;
     },
@@ -56,7 +56,7 @@ const alertSlice = createSlice({
 });
 
 const sseSlice = createSlice({
-  name: "sse",
+  name: 'sse',
   initialState: {
     sseEvents: [] as AlarmModel[],
   },
