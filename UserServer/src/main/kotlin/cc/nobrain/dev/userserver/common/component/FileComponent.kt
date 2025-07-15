@@ -43,7 +43,6 @@ class FileComponent(
             Files.delete(filePath)
             fileRepository.delete(file)
         } else {
-            println("File not found")
             fileRepository.delete(file)
         }
         fileRepository.delete(file)

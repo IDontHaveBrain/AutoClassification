@@ -85,7 +85,6 @@ class SseService(
                 val responseTime = System.currentTimeMillis() - timestamp.toLong()
                 logger.debug("Heartbeat round-trip time for user $userId: ${responseTime}ms")
                 
-                // Here you could update connection activity or store metrics
                 sseHandler.updateUserActivity(userId)
             } else {
                 logger.warn("Heartbeat response from user $userId missing timestamp")

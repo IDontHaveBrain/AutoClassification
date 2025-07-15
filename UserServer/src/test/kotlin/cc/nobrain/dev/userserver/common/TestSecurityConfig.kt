@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings
 import org.springframework.mail.javamail.JavaMailSender
+import org.springframework.mail.javamail.JavaMailSenderImpl
 import cc.nobrain.dev.userserver.domain.base.service.EmailService
 import java.time.Duration
 
@@ -83,6 +84,13 @@ class TestSecurityConfig {
      */
     @MockBean
     lateinit var javaMailSender: JavaMailSender
+
+    /**
+     * 테스트 중 실제 이메일 전송을 방지하기 위한 Mock JavaMailSenderImpl입니다.
+     * Spring Boot 자동 구성에서 구체적인 구현체를 찾는 경우를 위해 추가합니다.
+     */
+    @MockBean
+    lateinit var javaMailSenderImpl: JavaMailSenderImpl
 
     /**
      * 테스트 중 실제 이메일 전송을 방지하기 위한 Mock EmailService입니다.

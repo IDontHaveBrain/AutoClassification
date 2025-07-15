@@ -46,7 +46,6 @@ class NoticeServiceImpl(
             val notice = modelMapper.map(create, Notice::class.java);
             val savedNotice = noticeRepository.save(notice);
             
-            // Send SSE notification to trigger frontend table refresh
             val message = SseMessageDto(
                 id = savedNotice.id.toString(),
                 type = SseEventType.NOTICE,
@@ -62,7 +61,6 @@ class NoticeServiceImpl(
         modelMapper.map(update, notice)
         noticeRepository.save(notice)
         
-        // Send SSE notification to trigger frontend table refresh
         val message = SseMessageDto(
             id = id.toString(),
             type = SseEventType.NOTICE,
@@ -75,14 +73,12 @@ class NoticeServiceImpl(
     override suspend fun deleteNotice(id: Long) {
         noticeRepository.deleteById(id)
         
-        // Send SSE notification to trigger frontend table refresh
         val message = SseMessageDto(
             id = id.toString(),
             type = SseEventType.NOTICE,
             data = "{\"action\":\"deleted\",\"id\":$id}"
         )
         
-        // Broadcast to all users since notices are public announcements
         sseHandler.broadcastEvent(message)
     }
 }

@@ -56,8 +56,7 @@ import java.time.Duration
     properties = [
         "spring.jpa.show-sql=false", // 테스트 로그 간소화
         "logging.level.org.hibernate.SQL=warn",
-        "logging.level.org.hibernate.type.descriptor.sql.BasicBinder=warn",
-        "management.health.mail.enabled=false" // 메일 헬스 체크 비활성화 (MockBean 충돌 방지)
+        "logging.level.org.hibernate.type.descriptor.sql.BasicBinder=warn"
     ],
     classes = [UserServerApplication::class, TestSecurityConfig::class]
 )

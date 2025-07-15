@@ -71,7 +71,7 @@ spring:
       max-request-size: 10MB
 
   mail:
-    test-connection: false
+    test-connection: true
     host: localhost
     port: 25
     username: test
@@ -91,6 +91,21 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: trace
     org.springframework.web: info
     org.springframework.amqp: warn
+
+# 테스트용 관리 엔드포인트 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  health:
+    # H2 기반 테스트에서 사용할 수 없는 서비스의 상태 찍지기 비활성화
+    rabbit:
+      enabled: false
+    redis:
+      enabled: false
+    mail:
+      enabled: false
     
 app:
   url:

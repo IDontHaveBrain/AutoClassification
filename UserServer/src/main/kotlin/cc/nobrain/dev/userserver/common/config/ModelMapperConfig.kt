@@ -17,7 +17,6 @@ class ModelMapperConfig {
                 .setFieldMatchingEnabled(true)
                 .setMatchingStrategy(MatchingStrategies.STRICT)
                 .setSkipNullEnabled(true)
-        // .setPreferNestedProperties(false) // 순환참조 무시 옵션.
 
         return modelMapper
     }

@@ -64,7 +64,7 @@ spring:
   servlet:
     multipart:
       max-file-size: 200MB
-      max-request-size: 2GB  # 12 images * 200MB + overhead
+      max-request-size: 1GB  # 6 images * 200MB + overhead
       file-size-threshold: 10MB  # Write to disk after 10MB
       location: /tmp/uploads
 
@@ -93,7 +93,7 @@ server:
     max-connections: 2000  # Increased from 1000 for concurrent testing
     accept-count: 100  # Increased from 50 for concurrent testing
     max-parameter-count: 50000
-    max-http-form-post-size: 2GB  # Match max-request-size
+    max-http-form-post-size: 1GB  # Match max-request-size
     # Thread pool configuration for concurrent processing
     threads:
       max: 150  # Balanced for test environment

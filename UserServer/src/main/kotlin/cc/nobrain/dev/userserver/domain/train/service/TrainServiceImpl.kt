@@ -82,7 +82,6 @@ class TrainServiceImpl(
                     .bodyToFlux(LabelAndIds::class.java)
                     .collectList()
                     .block(java.time.Duration.ofMinutes(10)) ?: emptyList()
-                println(response);
                 saveTestResult(classfiy.id!!, response);
                 alarmService.sendAlarmToMember(member.id!!, "테스트 결과가 도착했습니다.", "테스트 결과가 도착했습니다.");
             } catch (e: java.util.concurrent.TimeoutException) {

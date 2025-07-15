@@ -7,12 +7,12 @@ spring:
     username: ${DB_USERNAME:jnj}
     password: ${DB_PASSWORD:sqisoft}
     hikari:
-      maximum-pool-size: 50  # Increased for concurrent image processing
-      minimum-idle: 25  # Increased proportionally
+      maximum-pool-size: 50  # 동시 이미지 처리를 위한 증가된 풀 크기
+      minimum-idle: 25  # 풀 크기에 비례하여 증가
       idle-timeout: 60000
       connection-timeout: 30000
-      max-lifetime: 1800000  # 30 minutes
-      leak-detection-threshold: 60000  # 60 seconds
+      max-lifetime: 1800000  # 30분
+      leak-detection-threshold: 60000  # 60초
 
   jpa:
     hibernate:
@@ -42,8 +42,8 @@ spring:
     password: ${RABBITMQ_PASSWORD:guest}
     listener:
       simple:
-        concurrency: 20  # Increased for concurrent processing
-        max-concurrency: 40  # Increased for concurrent processing
+        concurrency: 20  # 동시 처리를 위한 증가된 동시성
+        max-concurrency: 40  # 동시 처리를 위한 최대 동시성
         prefetch: 5
     connection-timeout: 5000
     requested-heartbeat: 60
@@ -88,8 +88,8 @@ spring:
   servlet:
     multipart:
       max-file-size: 200MB
-      max-request-size: 2GB  # 12 images * 200MB + overhead
-      file-size-threshold: 10MB  # Write to disk after 10MB
+      max-request-size: 1GB  # 6개 이미지 * 200MB + 오버헤드
+      file-size-threshold: 10MB  # 10MB 이후 디스크에 쓰기
       location: /tmp/uploads
 
 logging:
@@ -120,16 +120,16 @@ server:
     accept-count: 200
     max-part-count: 1000
     max-part-header-size: 10KB
-    max-http-form-post-size: 1GB  # Match max-request-size
-    # Thread pool configuration for concurrent processing
+    max-http-form-post-size: 1GB  # max-request-size와 맞춤
+    # 동시 처리를 위한 스레드 풀 설정
     threads:
-      max: 300  # Increased from default 200
-      min-spare: 20  # Increased from default 10
-    # Connection management
+      max: 300  # 기본값 200에서 증가
+      min-spare: 20  # 기본값 10에서 증가
+    # 연결 관리
     connection-timeout: 30000
     keep-alive-timeout: 30000
     max-keep-alive-requests: 100
-    # Additional multipart limits
+    # 추가 multipart 제한
     max-swallow-size: 2GB
 
 management:

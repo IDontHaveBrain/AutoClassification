@@ -1,5 +1,6 @@
 package cc.nobrain.dev.userserver.common
 
+import cc.nobrain.dev.userserver.UserServerApplication
 import cc.nobrain.dev.userserver.fixture.TestDataFactory
 import cc.nobrain.dev.userserver.domain.member.repository.MemberRepository
 import cc.nobrain.dev.userserver.domain.workspace.repository.WorkspaceRepository
@@ -49,6 +50,7 @@ import java.time.Duration
  */
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = [UserServerApplication::class, TestSecurityConfig::class],
     properties = [
         "spring.profiles.active=docker",
         "spring.jpa.show-sql=false", // 테스트 로그 간소화
@@ -56,7 +58,8 @@ import java.time.Duration
         "logging.level.org.hibernate.type.descriptor.sql.BasicBinder=warn",
         "spring.jpa.hibernate.ddl-auto=create-drop", // Docker 환경에서는 create-drop 사용
         "spring.datasource.hikari.maximum-pool-size=5", // 테스트용 풀 크기 조정
-        "spring.datasource.hikari.minimum-idle=2"
+        "spring.datasource.hikari.minimum-idle=2",
+        "management.health.mail.enabled=false" // 이메일 헬스체크 비활성화
     ]
 )
 @ActiveProfiles("docker")

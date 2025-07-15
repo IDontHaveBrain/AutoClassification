@@ -46,12 +46,11 @@ class WorkspaceServiceImpl(
         workspace.owner = member;
         workspace.addMember(member);
         
-        // Add additional members if provided
         create.memberIds?.forEach { memberId ->
             val memberToAdd = memberService.findMemberById(memberId)
                 ?: throw CustomException(ErrorInfo.TARGET_NOT_FOUND)
             
-            // Don't add owner again
+            // 소유자는 중복 추가하지 않음
             if (memberToAdd.id != member.id) {
                 workspace.addMember(memberToAdd)
             }
@@ -78,9 +77,7 @@ class WorkspaceServiceImpl(
 
         update.classes?.let { workspace.changeClasses(it) };
         
-        // Handle members update properly using member IDs
         update.memberIds?.let { memberIds ->
-            // Clear current members (except owner)
             val currentMembers = workspace.members.toList()
             currentMembers.forEach { member ->
                 if (member.id != workspace.owner.id) {
@@ -88,12 +85,11 @@ class WorkspaceServiceImpl(
                 }
             }
             
-            // Add new members by fetching actual Member entities
             memberIds.forEach { memberId ->
                 val member = memberService.findMemberById(memberId)
                     ?: throw CustomException(ErrorInfo.TARGET_NOT_FOUND)
                 
-                // Don't add owner again (already added)
+                // 소유자는 중복 추가하지 않음
                 if (member.id != workspace.owner.id) {
                     workspace.addMember(member)
                 }
