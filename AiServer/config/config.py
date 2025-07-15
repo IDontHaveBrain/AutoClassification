@@ -22,6 +22,23 @@ class Config:
     DATABASE_URI: str = os.getenv('DATABASE_URI', 'sqlite:///dev.db')
     LOG_LEVEL: str = os.getenv('LOG_LEVEL', 'DEBUG')
     
+    # Library-specific log levels (to reduce noise from third-party libraries)
+    LIBRARY_LOG_LEVELS: dict = {
+        'pika': os.getenv('PIKA_LOG_LEVEL', 'WARNING'),
+        'pika.adapters': os.getenv('PIKA_LOG_LEVEL', 'WARNING'),
+        'pika.channel': os.getenv('PIKA_LOG_LEVEL', 'WARNING'),
+        'pika.connection': os.getenv('PIKA_LOG_LEVEL', 'WARNING'),
+        'urllib3': os.getenv('URLLIB3_LOG_LEVEL', 'WARNING'),
+        'urllib3.connectionpool': os.getenv('URLLIB3_LOG_LEVEL', 'WARNING'),
+        'amqp': os.getenv('AMQP_LOG_LEVEL', 'WARNING'),
+        'httpx': os.getenv('HTTPX_LOG_LEVEL', 'WARNING'),
+        'httpcore': os.getenv('HTTPCORE_LOG_LEVEL', 'INFO'),
+    }
+    
+    # DataProcessor configuration
+    DATA_PROCESSOR_CHUNK_SIZE: int = int(os.getenv('DATA_PROCESSOR_CHUNK_SIZE', '8'))
+    DATA_PROCESSOR_MAX_CONCURRENT_CHUNKS: int = int(os.getenv('DATA_PROCESSOR_MAX_CONCURRENT_CHUNKS', '10'))
+    
     # API 키 우선순위 순서
     OPENROUTER_API_KEY: str = os.getenv('OPENROUTER_API_KEY', '')
     GEMINI_API_KEY: str = os.getenv('GEMINI_API_KEY', '')

@@ -5,10 +5,12 @@ spring:
     username: ${DB_USERNAME:jnj}
     password: ${DB_PASSWORD:sqisoft}
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
+      maximum-pool-size: 30  # Increased for concurrent image processing
+      minimum-idle: 15  # Increased proportionally
       idle-timeout: 60000
       connection-timeout: 30000
+      max-lifetime: 1800000  # 30 minutes
+      leak-detection-threshold: 60000  # 60 seconds
 
   data:
     redis:
@@ -21,9 +23,21 @@ spring:
     port: 5672
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        concurrency: 12  # Increased for concurrent processing
+        max-concurrency: 20  # Increased for concurrent processing
+        prefetch: 4
 
   mail:
     test-connection: false
+
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 2GB  # 12 images * 200MB + overhead
+      file-size-threshold: 10MB  # Write to disk after 10MB
+      location: /tmp/uploads
 
   web:
     resources:
@@ -38,4 +52,21 @@ app:
   storage:
     path: /data/docker/toy/resource/
     resourcePath: public/
-    maxFileSize: 104857600
+    maxFileSize: 209715200  # 200MB
+
+server:
+  tomcat:
+    max-connections: 3000  # Balanced for local development
+    accept-count: 100  # Standard for local
+    max-parameter-count: 50000
+    max-http-form-post-size: 2GB  # Match max-request-size
+    # Thread pool configuration for concurrent processing
+    threads:
+      max: 200  # Standard for local development
+      min-spare: 10  # Standard for local
+    # Connection management
+    connection-timeout: 30000
+    keep-alive-timeout: 30000
+    max-keep-alive-requests: 100
+    # Additional multipart limits
+    max-swallow-size: 2GB

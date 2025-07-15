@@ -1,4 +1,4 @@
-version: '3'
+# AutoClassification Docker Compose Configuration
 services:
  UserServer:
   build:
@@ -24,7 +24,10 @@ services:
    RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
    # Email Configuration
    MAIL_USERNAME: ${MAIL_USERNAME:-jonamjun.dev@gmail.com}
-   MAIL_PASSWORD: ${MAIL_PASSWORD}
+   MAIL_PASSWORD: ${MAIL_PASSWORD:-dummy-password}
+   MAIL_TEST_CONNECTION: ${MAIL_TEST_CONNECTION:-false}
+   # AI Service Configuration
+   AI_URL: ${AI_URL:-http://AiServer:5000}
 
  AiServer:
   build:

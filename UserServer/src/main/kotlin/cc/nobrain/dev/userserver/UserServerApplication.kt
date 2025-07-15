@@ -12,7 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling
 @ConfigurationPropertiesScan(basePackages = ["cc.nobrain.dev.userserver"])
 @EnableCaching
 @EnableScheduling
-class UserServerApplication
+open class UserServerApplication
 
 fun main(args: Array<String>) {
     runApplication<UserServerApplication>(*args)

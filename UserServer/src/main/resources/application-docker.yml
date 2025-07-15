@@ -3,10 +3,12 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 5  # 테스트용 작은 풀 크기
-      minimum-idle: 2
+      maximum-pool-size: 35  # 배치 파일 처리를 위한 충분한 풀 크기 (12개 이미지 동시 처리)
+      minimum-idle: 15  # Increased proportionally
       idle-timeout: 60000
       connection-timeout: 30000
+      max-lifetime: 1800000  # 30 minutes
+      leak-detection-threshold: 60000  # 60 seconds
 
   jpa:
     hibernate:
@@ -16,7 +18,7 @@ spring:
         format_sql: false
         show_sql: false      # 테스트에서 SQL 로깅 비활성화
         jdbc:
-          batch_size: 10     # 테스트용 작은 배치 크기
+          batch_size: 20     # 배치 처리 최적화
         order_inserts: true
         order_updates: true
 
@@ -29,9 +31,9 @@ spring:
   rabbitmq:
     listener:
       simple:
-        concurrency: 2       # 테스트용 동시성 감소
-        max-concurrency: 5
-        prefetch: 1
+        concurrency: 15      # 증가된 테스트용 동시성 (12개 이미지 동시 처리)
+        max-concurrency: 25  # Increased for concurrent processing
+        prefetch: 3
     connection-timeout: 5000
     requested-heartbeat: 60
     cache:
@@ -58,11 +60,13 @@ spring:
   mail:
     test-connection: false
 
-  # 파일 업로드 설정 (테스트용 감소)
+  # 파일 업로드 설정 (테스트용 - 12개 이미지 동시 처리 지원)
   servlet:
     multipart:
-      max-file-size: 50MB
-      max-request-size: 50MB
+      max-file-size: 200MB
+      max-request-size: 2GB  # 12 images * 200MB + overhead
+      file-size-threshold: 10MB  # Write to disk after 10MB
+      location: /tmp/uploads
 
 # 테스트용 로깅 설정
 logging:
@@ -77,19 +81,29 @@ logging:
 # 테스트용 애플리케이션 설정
 app:
   url:
-    ai: http://localhost:5000
+    ai: ${AI_URL:http://localhost:5000}
 
   # 스토리지 설정 - DockerIntegrationTest에 의해 재정의됨
   storage:
-    maxFileSize: 52428800  # 테스트용 50MB
+    maxFileSize: 209715200  # 200MB
 
-# 서버 설정
+# 서버 설정 (테스트용 - 12개 이미지 동시 처리 지원)
 server:
   tomcat:
-    max-threads: 50        # 테스트용 감소
-    min-spare-threads: 5
-    max-connections: 1000
-    accept-count: 50
+    max-connections: 2000  # Increased from 1000 for concurrent testing
+    accept-count: 100  # Increased from 50 for concurrent testing
+    max-parameter-count: 50000
+    max-http-form-post-size: 2GB  # Match max-request-size
+    # Thread pool configuration for concurrent processing
+    threads:
+      max: 150  # Balanced for test environment
+      min-spare: 10  # Standard for test
+    # Connection management
+    connection-timeout: 30000
+    keep-alive-timeout: 30000
+    max-keep-alive-requests: 100
+    # Additional multipart limits
+    max-swallow-size: 2GB
 
 # 테스트용 관리 엔드포인트
 management:
@@ -97,7 +111,3 @@ management:
     web:
       exposure:
         include: health,info
-  metrics:
-    export:
-      prometheus:
-        enabled: false  # 테스트용 비활성화

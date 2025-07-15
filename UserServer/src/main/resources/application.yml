@@ -1,14 +1,18 @@
 spring:
+  profiles:
+    default: local
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://autoclassify_postgres:5432/postgres
     username: ${DB_USERNAME:jnj}
     password: ${DB_PASSWORD:sqisoft}
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
+      maximum-pool-size: 50  # Increased for concurrent image processing
+      minimum-idle: 25  # Increased proportionally
       idle-timeout: 60000
       connection-timeout: 30000
+      max-lifetime: 1800000  # 30 minutes
+      leak-detection-threshold: 60000  # 60 seconds
 
   jpa:
     hibernate:
@@ -38,9 +42,9 @@ spring:
     password: ${RABBITMQ_PASSWORD:guest}
     listener:
       simple:
-        concurrency: 5
-        max-concurrency: 10
-        prefetch: 1
+        concurrency: 20  # Increased for concurrent processing
+        max-concurrency: 40  # Increased for concurrent processing
+        prefetch: 5
     connection-timeout: 5000
     requested-heartbeat: 60
     cache:
@@ -79,12 +83,14 @@ spring:
           auth: true
           starttls:
             enable: true
-    test-connection: true
+    test-connection: ${MAIL_TEST_CONNECTION:false}
 
   servlet:
     multipart:
-      max-file-size: 100MB
-      max-request-size: 100MB
+      max-file-size: 200MB
+      max-request-size: 2GB  # 12 images * 200MB + overhead
+      file-size-threshold: 10MB  # Write to disk after 10MB
+      location: /tmp/uploads
 
 logging:
   level:
@@ -100,27 +106,34 @@ logging:
 
 app:
   url:
-    ai: http://localhost:5000
+    ai: ${AI_URL:http://localhost:5000}
 
   storage:
     path: C:/Work/test/
     resourcePath: public/
-    maxFileSize: 104857600
+    maxFileSize: 209715200  # 200MB
 
 
 server:
   tomcat:
-    max-threads: 200
-    min-spare-threads: 20
     max-connections: 10000
-    accept-count: 100
+    accept-count: 200
+    max-part-count: 1000
+    max-part-header-size: 10KB
+    max-http-form-post-size: 1GB  # Match max-request-size
+    # Thread pool configuration for concurrent processing
+    threads:
+      max: 300  # Increased from default 200
+      min-spare: 20  # Increased from default 10
+    # Connection management
+    connection-timeout: 30000
+    keep-alive-timeout: 30000
+    max-keep-alive-requests: 100
+    # Additional multipart limits
+    max-swallow-size: 2GB
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
-  metrics:
-    export:
-      prometheus:
-        enabled: true
+        include: health,info,metrics
