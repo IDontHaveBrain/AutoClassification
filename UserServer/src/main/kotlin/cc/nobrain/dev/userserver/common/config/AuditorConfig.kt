@@ -19,7 +19,6 @@ class AuditorConfig {
         return UserAuditorAware()
     }
 
-    // your AuditorAware bean goes here...
     @Bean
     fun dateTimeProvider(): DateTimeProvider {
         return DateTimeProvider { Optional.of(OffsetDateTime.now().truncatedTo(ChronoUnit.MILLIS)) }

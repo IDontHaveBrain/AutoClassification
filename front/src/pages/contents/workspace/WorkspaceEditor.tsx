@@ -1,27 +1,36 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { createWorkspace, updateWorkspace } from "service/Apis/WorkspaceApi";
-import { onAlert } from "component/modal/AlertModal";
-import { Strings } from "utils/strings";
-import { WorkspaceModel } from "model/WorkspaceModel";
-import { Member } from "model/GlobalModel";
-import { 
-    Grid, Dialog, Divider, Button, Box, CircularProgress, Snackbar, 
-    Paper, Typography, IconButton, Tooltip, DialogActions, DialogContent, DialogContentText, DialogTitle,
-    Tabs, Tab
-} from "@mui/material";
-import SaveIcon from '@mui/icons-material/Save';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
-import BaseEditor from "component/baseEditor/BaseEditor";
-import WorkspaceClass from "pages/contents/workspace/editor/WorkspaceClass";
-import WorkspaceDropZone from "./editor/WorkspaceDropZone";
-import WorkspaceDataSet from "pages/contents/workspace/editor/WorkspaceDataSet";
-import WorkspaceMember from "pages/contents/workspace/editor/WorkspaceMember";
-import MemberSearchModal from "component/modal/MemberSearchModal";
+import SaveIcon from '@mui/icons-material/Save';
+import {
+Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+Divider,     Grid, IconButton,     Paper, Snackbar,
+Tab,
+    Tabs, Tooltip, Typography } from '@mui/material';
+import { useTranslation } from 'hooks/useTranslation';
+import { type Member } from 'model/GlobalModel';
+import { SseType } from 'model/GlobalModel';
+import { type WorkspaceModel } from 'model/WorkspaceModel';
+import WorkspaceClass from 'pages/contents/workspace/editor/WorkspaceClass';
+import WorkspaceDataSet from 'pages/contents/workspace/editor/WorkspaceDataSet';
+import WorkspaceMember from 'pages/contents/workspace/editor/WorkspaceMember';
+import { createWorkspace, updateWorkspace } from 'service/Apis/WorkspaceApi';
+
+import BaseEditor from 'components/baseEditor/BaseEditor';
+import MemberSearchModal from 'components/modal/MemberSearchModal';
+import { onAlert } from 'utils/alert';
+import { eventBus } from 'utils/eventBus';
+
+import WorkspaceDropZone from './editor/WorkspaceDropZone';
+
+interface CustomFile extends File {
+    preview: string;
+}
 
 const WorkspaceEditor = () => {
+    const { t } = useTranslation('workspace');
     const [workspace, setWorkspace] = useState<WorkspaceModel>();
-    const [newFiles, setNewFiles] = useState<any>([]);
+    const [newFiles, setNewFiles] = useState<CustomFile[]>([]);
     const [isEdit, setIsEdit] = useState(false);
     const [openMemberModal, setOpenMemberModal] = useState(false);
     const [tabValue, setTabValue] = useState(0);
@@ -40,12 +49,12 @@ const WorkspaceEditor = () => {
         }
     }, [location]);
 
-    const handleSave = async () => {
+    const handleSave = () => {
         if (!editorRef.current) return;
         const editorState = editorRef.current.getEditorState();
 
         if (!editorState.title.trim() || !editorState.content.trim()) {
-            setError("Title and description are required.");
+            setError(t('editor.validation.titleAndDescriptionRequired'));
             return;
         }
 
@@ -59,17 +68,17 @@ const WorkspaceEditor = () => {
 
         const formData = new FormData();
         formData.append(
-            "update",
+            'update',
             new Blob(
                 [
                     JSON.stringify({
                         name: editorState.title,
                         description: editorState.content,
                         classes: workspace?.classes,
-                        members: workspace?.members,
+                        memberIds: workspace?.members?.map(member => member.id),
                     }),
                 ],
-                { type: "application/json" },
+                { type: 'application/json' },
             ),
         );
 
@@ -82,16 +91,19 @@ const WorkspaceEditor = () => {
 
         try {
             if (isEdit) {
-                await updateWorkspace(workspace.id, formData);
-                onAlert(Strings.Workspace.update);
+                const response = await updateWorkspace(workspace.id, formData);
+                // Publish event to trigger workspace updates
+                eventBus.publish(SseType.WORKSPACE_UPDATE, response.data);
+                onAlert(t('messages.update'));
             } else {
-                await createWorkspace(formData);
-                onAlert(Strings.Workspace.add);
+                const response = await createWorkspace(formData);
+                // Publish event to trigger workspace updates
+                eventBus.publish(SseType.WORKSPACE_UPDATE, response.data);
+                onAlert(t('messages.add'));
             }
             navigate(-1);
-        } catch (err) {
-            console.error(err);
-            setError(isEdit ? Strings.Workspace.updateFailed : Strings.Workspace.addFailed);
+        } catch (_err) {
+            setError(isEdit ? t('messages.updateFailed') : t('messages.addFailed'));
         } finally {
             setIsLoading(false);
         }
@@ -100,17 +112,17 @@ const WorkspaceEditor = () => {
     const addMember = (member) => {
         if (!member) return;
         const newMembers = Array.isArray(workspace?.members) ? [...workspace.members, member] : [member];
-        setWorkspace({...workspace, members: newMembers});
-    }
+        setWorkspace({ ...workspace, members: newMembers });
+    };
 
     const onClassesChange = (classes) => {
-        setWorkspace({...workspace, classes});
-    }
+        setWorkspace({ ...workspace, classes });
+    };
 
     const removeMember = (member) => {
         const newMembers = workspace?.members.filter((m: Member) => m.id !== member.id);
-        setWorkspace({...workspace, members: newMembers});
-    }
+        setWorkspace({ ...workspace, members: newMembers });
+    };
 
     const handleFilesChange = (files) => {
         setNewFiles(files);
@@ -123,28 +135,28 @@ const WorkspaceEditor = () => {
     return (
         <Paper elevation={3} sx={{ p: 3, m: 2 }}>
             <Grid container direction="column" spacing={3}>
-                <Grid item container justifyContent="space-between" alignItems="center">
+                <Grid size="auto" container justifyContent="space-between" alignItems="center">
                     <Typography variant="h4" component="h1">
-                        {isEdit ? 'Edit Workspace' : 'Create Workspace'}
+                        {isEdit ? t('general.editWorkspace') : t('general.createWorkspace')}
                     </Typography>
                     <Box>
-                        <Tooltip title="Save">
+                        <Tooltip title={t('editor.tooltips.save')}>
                             <IconButton color="primary" onClick={handleSave} disabled={isLoading}>
                                 <SaveIcon />
                             </IconButton>
                         </Tooltip>
-                        <Tooltip title="Close">
+                        <Tooltip title={t('editor.tooltips.close')}>
                             <IconButton color="secondary" onClick={() => navigate(-1)}>
                                 <CloseIcon />
                             </IconButton>
                         </Tooltip>
                     </Box>
                 </Grid>
-                <Grid item container justifyContent="center">
+                <Grid size="auto" container justifyContent="center">
                     <Box sx={{ width: '100%', maxWidth: 600 }}>
-                        <Tabs 
-                            value={tabValue} 
-                            onChange={handleTabChange} 
+                        <Tabs
+                            value={tabValue}
+                            onChange={handleTabChange}
                             variant="fullWidth"
                             sx={{
                                 backgroundColor: 'primary.main',
@@ -164,14 +176,14 @@ const WorkspaceEditor = () => {
                                 },
                             }}
                         >
-                            <Tab label="Details" />
-                            <Tab label="Classes" />
-                            <Tab label="Files" />
-                            <Tab label="Members" />
+                            <Tab label={t('editor.tabs.details')} />
+                            <Tab label={t('editor.tabs.classes')} />
+                            <Tab label={t('editor.tabs.files')} />
+                            <Tab label={t('editor.tabs.members')} />
                         </Tabs>
                     </Box>
                 </Grid>
-                <Grid item>
+                <Grid size="auto">
                     {isLoading ? (
                         <Box display="flex" justifyContent="center" alignItems="center" height="200px">
                             <CircularProgress />
@@ -189,8 +201,8 @@ const WorkspaceEditor = () => {
                                 )}
                             </Box>
                             <Box hidden={tabValue !== 1}>
-                                <WorkspaceClass 
-                                    classes={workspace?.classes} 
+                                <WorkspaceClass
+                                    classes={workspace?.classes}
                                     onClassesChange={onClassesChange}
                                     isLoading={isLoading}
                                     error={error}
@@ -201,22 +213,21 @@ const WorkspaceEditor = () => {
                                 <Divider sx={{ my: 2 }} />
                                 <WorkspaceDataSet
                                     imgs={workspace?.files || []}
-                                    setState={setWorkspace}
                                     isLoading={isLoading}
                                     error={error}
-                                    classes={workspace?.classes} 
+                                    classes={workspace?.classes}
                                 />
                             </Box>
                             <Box hidden={tabValue !== 3}>
-                                <WorkspaceMember 
-                                    workspace={workspace} 
+                                <WorkspaceMember
+                                    workspace={workspace}
                                     removeMember={removeMember}
                                     isLoading={isLoading}
                                     error={error}
                                 />
                                 <Grid container justifyContent="center" sx={{ mt: 2 }}>
                                     <Button variant="contained" color="primary" onClick={() => setOpenMemberModal(true)}>
-                                        Add Member
+                                        {t('members.addMember')}
                                     </Button>
                                 </Grid>
                             </Box>
@@ -233,18 +244,18 @@ const WorkspaceEditor = () => {
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
             >
-                <DialogTitle id="alert-dialog-title">{"Confirm Save"}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{t('editor.dialogs.confirmSave')}</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        Are you sure you want to save these changes?
+                        {t('editor.dialogs.confirmSaveMessage')}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenConfirmDialog(false)} color="primary">
-                        Cancel
+                        {t('actions.cancel')}
                     </Button>
-                    <Button onClick={confirmSave} color="primary" autoFocus>
-                        Confirm
+                    <Button onClick={confirmSave} color="primary">
+                        {t('editor.dialogs.confirm')}
                     </Button>
                 </DialogActions>
             </Dialog>

@@ -28,7 +28,7 @@ object WorkspaceSpecs {
             if (CommonUtil.isEmpty(ownerEmail)) {
                 null
             } else {
-                query.distinct(true)
+                query?.distinct(true)
                 val owner = root.join(Workspace_.owner, JoinType.LEFT)
                 builder.like(builder.lower(owner.get(Member_.email)), "%${ownerEmail?.lowercase()}%")
             }
@@ -64,7 +64,7 @@ object WorkspaceSpecs {
             if (memberIds.isEmpty()) {
                 null
             } else {
-                query.distinct(true)
+                query?.distinct(true)
                 val members: Join<Workspace, Member> = root.join(Workspace_.members, JoinType.LEFT)
                 members.get(Member_.id).`in`(memberIds)
             }

@@ -9,15 +9,15 @@ def validate_model():
     """
     YOLO 모델을 로드하고 검증하는 함수입니다.
     """
-    logger.info("YOLO 모델 검증 시작")
+    logger.info("YOLO model validation started")
     model = YOLO(f"{config.BASE_DIR}/runs/classify/train4/weights/best.pt")
-    logger.info(f"모델 정보: {model.info()}")
+    logger.info(f"Model info: {model.info()}")
 
     metrics = model.val()  # 데이터셋과 설정이 기억됨
-    logger.info(f"Top-1 정확도: {metrics.top1:.4f}")
-    logger.info(f"Top-5 정확도: {metrics.top5:.4f}")
-    logger.info(f"전체 메트릭스: {metrics}")
-    logger.info("YOLO 모델 검증 완료")
+    logger.info(f"Top-1 accuracy: {metrics.top1:.4f}")
+    logger.info(f"Top-5 accuracy: {metrics.top5:.4f}")
+    logger.info(f"Full metrics: {metrics}")
+    logger.info("YOLO model validation completed")
 
 if __name__ == "__main__":
     validate_model()

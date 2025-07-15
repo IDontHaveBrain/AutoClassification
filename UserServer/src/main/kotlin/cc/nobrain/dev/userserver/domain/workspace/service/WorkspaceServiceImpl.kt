@@ -45,6 +45,17 @@ class WorkspaceServiceImpl(
 
         workspace.owner = member;
         workspace.addMember(member);
+        
+        create.memberIds?.forEach { memberId ->
+            val memberToAdd = memberService.findMemberById(memberId)
+                ?: throw CustomException(ErrorInfo.TARGET_NOT_FOUND)
+            
+            // 소유자는 중복 추가하지 않음
+            if (memberToAdd.id != member.id) {
+                workspace.addMember(memberToAdd)
+            }
+        }
+        
         workspaceRepository.save(workspace);
 
         if (!files.isNullOrEmpty()) {
@@ -65,7 +76,26 @@ class WorkspaceServiceImpl(
         }
 
         update.classes?.let { workspace.changeClasses(it) };
-        workspace.members = update.members as MutableList<Member>;
+        
+        update.memberIds?.let { memberIds ->
+            val currentMembers = workspace.members.toList()
+            currentMembers.forEach { member ->
+                if (member.id != workspace.owner.id) {
+                    workspace.removeMember(member)
+                }
+            }
+            
+            memberIds.forEach { memberId ->
+                val member = memberService.findMemberById(memberId)
+                    ?: throw CustomException(ErrorInfo.TARGET_NOT_FOUND)
+                
+                // 소유자는 중복 추가하지 않음
+                if (member.id != workspace.owner.id) {
+                    workspace.addMember(member)
+                }
+            }
+        }
+        
         workspaceRepository.save(workspace);
 
         return modelMapper.map(workspace, WorkspaceRes::class.java);

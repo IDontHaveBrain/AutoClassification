@@ -10,7 +10,7 @@ import jakarta.persistence.criteria.*
 
 object AlarmSpecs {
     fun findAlarmByMemberId(memberId: Long?): Specification<AlarmMessage> {
-        return Specification { root: Root<AlarmMessage>, query: CriteriaQuery<*>, builder: CriteriaBuilder ->
+        return Specification { root: Root<AlarmMessage>, query: CriteriaQuery<*>?, builder: CriteriaBuilder ->
 
             if (memberId == null) {
                 return@Specification null

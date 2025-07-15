@@ -1,0 +1,83 @@
+{
+  "general": {
+    "title": "Notice",
+    "noticeList": "Notice List",
+    "noticeDetail": "Notice Detail",
+    "noticeEditor": "Notice Editor",
+    "createNotice": "Create Notice",
+    "editNotice": "Edit Notice",
+    "deleteNotice": "Delete Notice",
+    "noticeTitle": "Notice Title",
+    "noticeContent": "Notice Content",
+    "author": "Author",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "viewCount": "View Count"
+  },
+  "actions": {
+    "create": "Create",
+    "update": "Update",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "publish": "Publish",
+    "unpublish": "Unpublish",
+    "pin": "Pin",
+    "unpin": "Unpin"
+  },
+  "messages": {
+    "update": "Notice has been updated successfully.",
+    "add": "Notice has been created successfully.",
+    "updateFailed": "Notice update failed.",
+    "addFailed": "Notice creation failed.",
+    "deleteFailed": "Notice deletion failed.",
+    "deleteSuccess": "Notice has been deleted.",
+    "deleteConfirm": "Are you sure you want to delete this notice?",
+    "deleteConfirmTitle": "Confirm Delete",
+    "noNotices": "No notices available.",
+    "loadingNotices": "Loading notices...",
+    "savingNotice": "Saving notice...",
+    "published": "Notice has been published.",
+    "unpublished": "Notice has been unpublished.",
+    "pinned": "Notice has been pinned.",
+    "unpinned": "Notice has been unpinned."
+  },
+  "status": {
+    "published": "Published",
+    "unpublished": "Unpublished",
+    "draft": "Draft",
+    "pinned": "Pinned",
+    "normal": "Normal"
+  },
+  "form": {
+    "titlePlaceholder": "Enter notice title",
+    "contentPlaceholder": "Enter notice content",
+    "titleRequired": "Please enter a title",
+    "contentRequired": "Please enter content",
+    "attachments": "Attachments",
+    "addAttachment": "Add Attachment",
+    "removeAttachment": "Remove Attachment",
+    "maxFileSize": "Maximum file size: 10MB",
+    "allowedFileTypes": "Allowed file types: jpg, png, pdf, doc, docx"
+  },
+  "search": {
+    "searchNotices": "Search Notices",
+    "searchPlaceholder": "Enter search term",
+    "searchResults": "Search Results",
+    "noSearchResults": "No search results found.",
+    "searchBy": "Search By",
+    "searchByTitle": "Search by Title",
+    "searchByContent": "Search by Content",
+    "searchByAuthor": "Search by Author",
+    "title": "Title",
+    "creator": "Creator",
+    "content": "Content"
+  },
+  "table": {
+    "title": "Title",
+    "creator": "Creator",
+    "createdAt": "Created At",
+    "updater": "Updater",
+    "updatedAt": "Updated At"
+  }
+}

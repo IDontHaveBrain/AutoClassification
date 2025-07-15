@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
+import org.springframework.core.env.Environment
 import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -34,6 +35,8 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings
 import org.springframework.security.oauth2.server.authorization.token.*
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2RefreshTokenAuthenticationProvider
+import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2RefreshTokenAuthenticationConverter
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.web.cors.CorsConfigurationSource
 import java.nio.charset.StandardCharsets
@@ -51,7 +54,8 @@ import java.util.*
 @EnableWebSecurity
 class SecurityConfig(
     private val corsConfigurationSource: CorsConfigurationSource,
-    private val customUserDetailService: CustomUserDetailService
+    private val customUserDetailService: CustomUserDetailService,
+    private val environment: Environment
 ) {
 
     @Value("\${spring.security.jwt.privateKey}")
@@ -78,10 +82,9 @@ class SecurityConfig(
         rsaHelper: RsaHelper,
         jwtDecoder: JwtDecoder
     ): SecurityFilterChain {
-//        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http)
-//        http.getConfigurer(OAuth2AuthorizationServerConfigurer::class.java)
         val authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer()
         http
+            .securityMatcher("/auth/**", "/authorize")
             .with(authorizationServerConfigurer) { oauth2 ->
                 oauth2
                     .tokenGenerator(tokenGenerator)
@@ -95,6 +98,7 @@ class SecurityConfig(
                     .tokenEndpoint { tokenEndpoint ->
                         tokenEndpoint.accessTokenRequestConverters { converters ->
                             converters.add(PasswordConverter())
+                            converters.add(OAuth2RefreshTokenAuthenticationConverter())
                         }
                             .authenticationProviders { providers ->
                                 providers.add(
@@ -103,6 +107,12 @@ class SecurityConfig(
                                         tokenGenerator,
                                         customUserDetailService,
                                         rsaHelper
+                                    )
+                                )
+                                providers.add(
+                                    OAuth2RefreshTokenAuthenticationProvider(
+                                        authorizationService,
+                                        tokenGenerator
                                     )
                                 )
                             }
@@ -125,27 +135,75 @@ class SecurityConfig(
             }}
             .authorizeHttpRequests { authorize ->
                 authorize
+                    // OAuth2 및 인증 엔드포인트만 처리 - 공개
                     .requestMatchers("/auth/**").permitAll()
-                    .requestMatchers("/api/**").permitAll()
                     .requestMatchers("/authorize").permitAll()
-                    .requestMatchers("/public/**").permitAll()
-                    .requestMatchers("/workspace/**").permitAll()
-                    .requestMatchers("/swagger-ui/**").permitAll()
-                    .requestMatchers("/v3/api-docs/**").permitAll()
-                    .requestMatchers("/swagger-resources/**").permitAll()
+                    
+                    // 기본값 - 인증 필요
                     .anyRequest().authenticated()
-            };
+            }
 
         return http.build();
     }
 
     @Bean
+    @Order(2)
+    @Throws(Exception::class)
+    fun defaultSecurityFilterChain(http: HttpSecurity, jwtDecoder: JwtDecoder): SecurityFilterChain {
+        http
+            .securityMatcher("/**")
+            .cors { cors -> cors.configurationSource(corsConfigurationSource) }
+            .csrf { csrf -> csrf.disable() }
+            .formLogin { form -> form.disable() }
+            .httpBasic { httpBasic -> httpBasic.disable() }
+            .sessionManagement { session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .oauth2ResourceServer { oauth2 ->
+                oauth2.jwt { jwt ->
+                    jwt.decoder(jwtDecoder)
+                    jwt.jwtAuthenticationConverter(CustomJwtAuthenticationConverter(customUserDetailService))
+                }
+            }
+            .authorizeHttpRequests { authorize ->
+                authorize
+                    // 공개 API 엔드포인트 - 인증 불필요
+                    .requestMatchers("/api/health").permitAll()
+                    .requestMatchers("/api/member/register").permitAll()
+                    .requestMatchers("/api/member/duplicate").permitAll()
+                    .requestMatchers("/api/member/verify").permitAll()
+                    
+                    // 문서 및 공개 리소스 - 공개
+                    .requestMatchers("/public/**").permitAll()
+                    .requestMatchers("/swagger-ui/**").permitAll()
+                    .requestMatchers("/v3/api-docs/**").permitAll()
+                    .requestMatchers("/swagger-resources/**").permitAll()
+                    .requestMatchers("/actuator/health").permitAll()
+                    
+                    // 기타 모든 API 엔드포인트는 인증 필요
+                    .requestMatchers("/api/**").authenticated()
+                    .requestMatchers("/workspace/**").authenticated()
+                    
+                    // 기본값 - 인증 필요
+                    .anyRequest().authenticated()
+            }
+        
+        return http.build()
+    }
+
+    @Bean
+    @org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
     fun registeredClientRepository(passwordEncoder: PasswordEncoder): RegisteredClientRepository {
+        
+        // 테스트 환경용, BCrypt 문제 회피를 위해 평문 클라이언트 시크릿 사용
+        val clientSecret = if (environment.acceptsProfiles("test")) {
+            "{noop}public"  // 테스트 프로필용 NoOpPasswordEncoder 접두사
+        } else {
+            passwordEncoder.encode("public")
+        }
 
         val registeredClientRepository = RegisteredClient.withId("public")
             .clientId("public")
             .clientName("public")
-            .clientSecret("\$2a\$10\$d5nJ4FfbF0yLD2sgQ3EbpOqOBEQJn5rX2v/Fv/nGHPjfurbGl9tXy")
+            .clientSecret(clientSecret)
             .clientAuthenticationMethods { methods ->
                 methods.add(ClientAuthenticationMethod.CLIENT_SECRET_POST)
                 methods.add(ClientAuthenticationMethod.NONE)
@@ -246,6 +304,7 @@ class SecurityConfig(
         return TokenSettings.builder()
             .accessTokenTimeToLive(Duration.ofSeconds(accessTokenValiditySeconds.toLong()))
             .refreshTokenTimeToLive(Duration.ofSeconds(refreshTokenValiditySeconds.toLong()))
+            .reuseRefreshTokens(false)  // 토큰 순환 활성화
             .build()
     }
 }

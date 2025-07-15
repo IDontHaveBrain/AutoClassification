@@ -1,3 +1,7 @@
+import { useNavigate } from 'react-router-dom';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Collapse,
   List,
@@ -5,18 +9,16 @@ import {
   ListItemIcon,
   ListItemText,
   Tooltip,
-} from "@mui/material";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import { useNavigate } from "react-router-dom";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import { MenuInfo } from "service/commons/MenuItem";
+} from '@mui/material';
+import { type MenuInfo } from 'service/commons/MenuItem';
+
+type MenuState = Record<string, boolean>;
 
 interface RenderMenuProps {
   open: boolean;
   item: MenuInfo;
-  openSubMenus: any;
-  setOpenSubMenus: any;
+  openSubMenus: MenuState;
+  setOpenSubMenus: React.Dispatch<React.SetStateAction<MenuState>>;
   level?: number;
 }
 
@@ -45,49 +47,58 @@ const RenderMenu = ({
 
   return (
     <>
-      <ListItemButton
-        onClick={handleOnClickMenuItem}
-        style={{ paddingLeft: `${level * 16}px` }}
+      <Tooltip
+        title={!open ? item.name : ''}
+        placement="right"
+        arrow
+        enterDelay={500}
+        leaveDelay={200}
+        disableHoverListener={open}
       >
-        <Tooltip title={item.name}>
-          <ListItemIcon style={{ marginRight: "-16px" }}>
+        <ListItemButton
+          onClick={handleOnClickMenuItem}
+          style={{ paddingLeft: `${level * 16}px` }}
+        >
+          <ListItemIcon style={{ marginRight: '-16px' }}>
             {item.icon ? item.icon : <AssignmentIcon />}
           </ListItemIcon>
-        </Tooltip>
-        <Tooltip title={item.name}>
           <ListItemText
             primary={item.name}
             primaryTypographyProps={{
               noWrap: true,
               style: {
-                textOverflow: "ellipsis",
-                overflow: "hidden",
-                display: open ? "block" : "none",
+                textOverflow: 'ellipsis',
+                overflow: 'hidden',
+                display: open ? 'block' : 'none',
               },
             }}
           />
-        </Tooltip>
-        {item.subMenu?.length && open && ( !item.path || !item.element ||
-            item.subMenu.some(subItem => !subItem.invisible)) ? (
-          isSubMenuOpen ? (
-            <ExpandLessIcon />
-          ) : (
-            <ExpandMoreIcon />
-          )
-        ) : null}
-      </ListItemButton>
+          {(() => {
+            const shouldShowExpandIcon =
+              item.subMenu?.length &&
+              open &&
+              (!item.path || !item.element || item.subMenu.some(subItem => !subItem.invisible));
+
+            if (!shouldShowExpandIcon) {
+              return null;
+            }
+
+            return isSubMenuOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />;
+          })()}
+        </ListItemButton>
+      </Tooltip>
 
       {item.subMenu?.length ? (
         <Collapse in={isSubMenuOpen} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
-            {item.subMenu.map((subItem, index) => (
+            {item.subMenu.map((subItem) => (
               <RenderMenu
                 open={open}
                 item={subItem}
                 openSubMenus={openSubMenus}
                 setOpenSubMenus={setOpenSubMenus}
                 level={level + 1}
-                key={`${item.name}_sub_${index}`}
+                key={subItem.path || `${item.name}_${subItem.name}`}
               />
             ))}
           </List>

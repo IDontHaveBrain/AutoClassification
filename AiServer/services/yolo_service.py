@@ -5,6 +5,7 @@ import logging
 import json
 from datetime import datetime
 import torch
+from exceptions.custom_exceptions import ModelNotFoundError, ExportError
 
 logger = logging.getLogger(__name__)
 
@@ -149,14 +150,22 @@ class YOLOService:
             str: 모델 파일 경로.
 
         Raises:
-            ValueError: 모델을 찾을 수 없는 경우.
+            ModelNotFoundError: 모델을 찾을 수 없는 경우.
         """
         if version is None:
             version = self._get_latest_version(workspace_id)
 
         model_path = os.path.join(self.models_dir, f"model_{workspace_id}_{version}.pt")
         if not os.path.exists(model_path):
-            raise ValueError(f"버전 {version}의 모델을 찾을 수 없습니다.")
+            raise ModelNotFoundError(
+                f"버전 {version}의 모델을 찾을 수 없습니다.",
+                model_name=f"model_{workspace_id}_{version}",
+                version=version,
+                details={
+                    'workspace_id': workspace_id,
+                    'model_path': model_path
+                }
+            )
         return model_path
 
     def _get_latest_version(self, workspace_id):
@@ -170,11 +179,18 @@ class YOLOService:
             str: 최신 모델 버전.
 
         Raises:
-            ValueError: 훈련된 모델이 없는 경우.
+            ModelNotFoundError: 훈련된 모델이 없는 경우.
         """
         model_files = [f for f in os.listdir(self.models_dir) if f.startswith(f"model_{workspace_id}_")]
         if not model_files:
-            raise ValueError(f"작업 공간 {workspace_id}에 대한 훈련된 모델이 없습니다.")
+            raise ModelNotFoundError(
+                f"작업 공간 {workspace_id}에 대한 훈련된 모델이 없습니다.",
+                model_name=f"model_{workspace_id}",
+                details={
+                    'workspace_id': workspace_id,
+                    'models_dir': self.models_dir
+                }
+            )
         return max(model_files).split('_')[2].split('.')[0]
 
     def get_model_versions(self, workspace_id):
@@ -204,43 +220,25 @@ class YOLOService:
             str: 내보낸 모델 파일의 경로.
 
         Raises:
-            ValueError: 지원되지 않는 형식이 지정된 경우.
+            ExportError: 지원되지 않는 형식이 지정된 경우.
         """
         model_path = self._get_model_path(workspace_id, version)
         self.model = YOLO(model_path)
 
         if format.lower() not in ['onnx', 'torchscript', 'tflite']:
-            raise ValueError(f"지원되지 않는 내보내기 형식: {format}")
+            raise ExportError(
+                f"지원되지 않는 내보내기 형식: {format}",
+                model_name=f"model_{workspace_id}_{version or 'latest'}",
+                export_format=format,
+                details={
+                    'workspace_id': workspace_id,
+                    'supported_formats': ['onnx', 'torchscript', 'tflite']
+                }
+            )
 
         export_path = os.path.join(self.models_dir, f"exported_{workspace_id}_{version or 'latest'}.{format.lower()}")
         self.model.export(format=format, save_dir=os.path.dirname(export_path), filename=os.path.basename(export_path))
 
-        logger.info(f"모델 내보내기 성공: {export_path}")
+        logger.info(f"Model export successful: {export_path}")
         return export_path
 
-    def export_model(self, workspace_id, version=None, format='onnx'):
-        """
-        훈련된 모델을 지정된 형식으로 내보냅니다.
-
-        Args:
-            workspace_id (int): 작업 공간 ID.
-            version (str, optional): 내보낼 모델의 버전. 기본값은 None (최신 버전 사용).
-            format (str, optional): 내보낼 모델의 형식. 기본값은 'onnx'.
-
-        Returns:
-            str: 내보낸 모델 파일의 경로.
-
-        Raises:
-            ValueError: 지원되지 않는 형식이 지정된 경우.
-        """
-        model_path = self._get_model_path(workspace_id, version)
-        self.model = YOLO(model_path)
-
-        if format.lower() not in ['onnx', 'torchscript', 'tflite']:
-            raise ValueError(f"Unsupported export format: {format}")
-
-        export_path = os.path.join(self.models_dir, f"exported_{workspace_id}_{version or 'latest'}.{format.lower()}")
-        self.model.export(format=format, save_dir=os.path.dirname(export_path), filename=os.path.basename(export_path))
-
-        logger.info(f"Model exported successfully: {export_path}")
-        return export_path
