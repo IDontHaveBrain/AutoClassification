@@ -6,6 +6,7 @@ import SseManager from '../service/commons/SseManager';
 
 import errorMiddleware from './rootMiddleware';
 import { alertReducer, sseReducer, userInfoReducer } from './rootSlice';
+import { i18nReducer } from './i18nSlice';
 
 const persistConfig = {
   key: 'root',
@@ -17,6 +18,7 @@ const reducers = combineReducers({
   userInfo: userInfoReducer,
   alert: alertReducer,
   sse: sseReducer,
+  i18n: i18nReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, reducers);

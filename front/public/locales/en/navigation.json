@@ -1,0 +1,99 @@
+{
+  "menu": {
+    "home": "Home",
+    "notice": "Notice",
+    "workspace": "Workspace",
+    "service": "Service",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "settings": "Settings",
+    "profile": "Profile",
+    "about": "About",
+    "help": "Help",
+    "contact": "Contact",
+    "dashboard": "Dashboard",
+    "admin": "Admin",
+    "reports": "Reports",
+    "analytics": "Analytics",
+    "tools": "Tools",
+    "resources": "Resources"
+  },
+  "submenu": {
+    "noticeList": "Notice List",
+    "noticeWrite": "Write Notice",
+    "workspaceList": "Workspace List",
+    "workspaceEditor": "Workspace Editor",
+    "autoLabel": "Auto Label",
+    "training": "Training",
+    "testClassify": "Test Classify",
+    "testResult": "Test Result",
+    "classify": "Classify",
+    "result": "Result",
+    "userManagement": "User Management",
+    "systemSettings": "System Settings",
+    "backupRestore": "Backup/Restore",
+    "logs": "Logs",
+    "monitoring": "Monitoring"
+  },
+  "breadcrumb": {
+    "home": "Home",
+    "current": "Current Page",
+    "separator": ">"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "details": "Details",
+    "settings": "Settings",
+    "members": "Members",
+    "history": "History",
+    "statistics": "Statistics",
+    "permissions": "Permissions",
+    "advanced": "Advanced"
+  },
+  "footer": {
+    "copyright": "Copyright",
+    "allRightsReserved": "All Rights Reserved",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "support": "Support",
+    "documentation": "Documentation",
+    "version": "Version"
+  },
+  "sidebar": {
+    "collapse": "Collapse Sidebar",
+    "expand": "Expand Sidebar",
+    "quickAccess": "Quick Access",
+    "recentItems": "Recent Items",
+    "favorites": "Favorites",
+    "bookmarks": "Bookmarks"
+  },
+  "toolbar": {
+    "search": "Search",
+    "notifications": "Notifications",
+    "messages": "Messages",
+    "profile": "Profile",
+    "logout": "Logout",
+    "settings": "Settings",
+    "help": "Help",
+    "fullscreen": "Fullscreen",
+    "theme": "Theme",
+    "language": "Language"
+  },
+  "actions": {
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "share": "Share",
+    "copy": "Copy",
+    "move": "Move",
+    "rename": "Rename",
+    "duplicate": "Duplicate",
+    "archive": "Archive",
+    "restore": "Restore",
+    "export": "Export",
+    "import": "Import",
+    "print": "Print",
+    "download": "Download",
+    "upload": "Upload"
+  }
+}
