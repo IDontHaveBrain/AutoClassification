@@ -1,14 +1,11 @@
-import React, { useCallback, useEffect,useState } from 'react';
-import { type FileRejection } from 'react-dropzone';
+import React, { useCallback, useState } from "react";
+import FileDropzone from "component/FileDropzone";
+import { Avatar, Chip, LinearProgress, Typography, Box, Button } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Avatar, Box, Button,Chip, LinearProgress, Typography } from '@mui/material';
-import { useTranslation } from 'hooks/useTranslation';
-
-import ExpandComp from 'components/ExpandComp';
-import FileDropzone from 'components/FileDropzone';
+import ExpandComp from "component/ExpandComp";
 
 interface WorkspaceDropZoneProps {
-    onFilesChange: (_files: CustomFile[]) => void;
+    onFilesChange: (files: CustomFile[]) => void;
 }
 
 interface CustomFile extends File {
@@ -16,40 +13,21 @@ interface CustomFile extends File {
 }
 
 const WorkspaceDropZone: React.FC<WorkspaceDropZoneProps> = ({ onFilesChange }) => {
-    const { t } = useTranslation('workspace');
     const [newFiles, setNewFiles] = useState<CustomFile[]>([]);
     const [uploadProgress, setUploadProgress] = useState<number>(0);
 
-    // 컴포넌트 언마운트 시 메모리 누수를 방지하기 위한 정리 작업
-    useEffect(() => {
-        return () => {
-            newFiles.forEach((file) => {
-                if (file.preview) {
-                    URL.revokeObjectURL(file.preview);
-                }
-            });
-        };
-    }, [newFiles]);
-
     const onDrop = useCallback(
-        (acceptedFiles: File[], _fileRejections: FileRejection[]) => {
-            if (_fileRejections.length > 0) {
-                // 거부된 파일 조용히 처리
-            }
-
-            const updatedFiles = acceptedFiles.map((file) =>
+        (files: File[]) => {
+            const updatedFiles = files.map((file) =>
                 Object.assign(file, {
                     preview: URL.createObjectURL(file),
-                }) as CustomFile,
+                }) as CustomFile
             );
 
-            setNewFiles((prevFiles) => {
-                const combinedFiles = [...prevFiles, ...updatedFiles];
-                onFilesChange(combinedFiles);
-                return combinedFiles;
-            });
+            setNewFiles((prevFiles) => [...prevFiles, ...updatedFiles]);
+            onFilesChange([...newFiles, ...updatedFiles]);
 
-            // 업로드 진행률 시뮬레이션
+            // Simulating upload progress
             let progress = 0;
             const interval = setInterval(() => {
                 progress += 10;
@@ -60,25 +38,16 @@ const WorkspaceDropZone: React.FC<WorkspaceDropZoneProps> = ({ onFilesChange }) 
                 }
             }, 200);
         },
-        [onFilesChange],
+        [onFilesChange, newFiles]
     );
 
     const handleRemoveFile = (index: number) => {
-        const fileToRemove = newFiles[index];
-        if (fileToRemove?.preview) {
-            URL.revokeObjectURL(fileToRemove.preview);
-        }
         const updatedFiles = newFiles.filter((_, i) => i !== index);
         setNewFiles(updatedFiles);
         onFilesChange(updatedFiles);
     };
 
     const handleClearAll = () => {
-        newFiles.forEach((file) => {
-            if (file.preview) {
-                URL.revokeObjectURL(file.preview);
-            }
-        });
         setNewFiles([]);
         onFilesChange([]);
     };
@@ -89,42 +58,42 @@ const WorkspaceDropZone: React.FC<WorkspaceDropZoneProps> = ({ onFilesChange }) 
     };
 
     return (
-        <ExpandComp title={t('editor.dropzone.title')}>
-            <FileDropzone
+        <ExpandComp title="Add Images">
+            <FileDropzone 
                 onDrop={onDrop}
                 accept={{
-                    'image/*': ['.jpeg', '.png', '.gif'],
+                    'image/*': ['.jpeg', '.png', '.gif']
                 }}
             />
             {uploadProgress > 0 && (
                 <Box sx={{ width: '100%', mt: 2 }}>
-                    <LinearProgress
-                        variant="determinate"
-                        value={uploadProgress}
-                        sx={{
-                            height: 10,
+                    <LinearProgress 
+                        variant="determinate" 
+                        value={uploadProgress} 
+                        sx={{ 
+                            height: 10, 
                             borderRadius: 5,
                             '& .MuiLinearProgress-bar': {
                                 borderRadius: 5,
-                            },
-                        }}
+                            }
+                        }} 
                     />
                 </Box>
             )}
             <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                 {newFiles.map((file, index) => (
                     <Chip
-                        key={`${file.name}-${file.size}-${file.lastModified}`}
+                        key={index}
                         label={file.name}
                         onDelete={() => handleRemoveFile(index)}
                         avatar={<Avatar alt={file.name} src={file.preview} />}
-                        color={isValidFileType(file) ? 'primary' : 'error'}
-                        sx={{
+                        color={isValidFileType(file) ? "primary" : "error"}
+                        sx={{ 
                             m: 0.5,
                             '& .MuiChip-avatar': {
                                 width: 24,
                                 height: 24,
-                            },
+                            }
                         }}
                     />
                 ))}
@@ -137,12 +106,12 @@ const WorkspaceDropZone: React.FC<WorkspaceDropZoneProps> = ({ onFilesChange }) 
                         startIcon={<DeleteIcon />}
                         onClick={handleClearAll}
                     >
-                        {t('editor.dropzone.clearAll')}
+                        Clear All
                     </Button>
                 </Box>
             )}
             <Typography variant="caption" color="textSecondary" sx={{ mt: 2, display: 'block' }}>
-                {t('editor.dropzone.allowedFileTypes')}
+                Allowed file types: JPEG, PNG, GIF. Max size: 5MB
             </Typography>
         </ExpandComp>
     );

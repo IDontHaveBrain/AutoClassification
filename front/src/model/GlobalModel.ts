@@ -1,6 +1,4 @@
-import { type WorkspaceModel } from './WorkspaceModel';
-
-export { type WorkspaceModel };
+import { WorkspaceModel } from "./WorkspaceModel";
 
 export interface AlarmModel {
     id: number;
@@ -13,7 +11,7 @@ export interface AlarmModel {
 export interface AlertDetail {
     message: string;
     open?: boolean;
-    callback?: () => void;
+    callback?: () => any;
 }
 
 export interface GroupPermission {
@@ -53,11 +51,13 @@ export interface MemberInfo {
 }
 
 export enum SseType {
-    HEARTBEAT = 'HEARTBEAT',
-    ALARM = 'ALARM',
-    NOTICE = 'NOTICE',
-    WORKSPACE_UPDATE = 'WORKSPACE_UPDATE',
-    USER_UPDATE = 'USER_UPDATE',
+    HEARTBEAT = "HEARTBEAT",
+    ALARM = "ALARM",
+    NOTICE = "NOTICE",
+    MESSAGE = "MESSAGE",
+    WORKSPACE_UPDATE = "WORKSPACE_UPDATE",
+    NOTICE_UPDATE = "NOTICE_UPDATE",
+    USER_UPDATE = "USER_UPDATE",
 }
 
 export interface SseEvent {
@@ -96,14 +96,14 @@ export interface Page<T> {
 export interface Pageable {
     page: number;
     size: number;
-    sort?: string | string[];
+    sort?: any;
 }
 
 export const initPageable = (size: number): Pageable => {
     return {
         page: 0,
         size: size,
-        sort: 'id,desc',
+        sort: "id,desc"
     };
 };
 

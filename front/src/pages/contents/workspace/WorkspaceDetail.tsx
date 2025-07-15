@@ -1,32 +1,28 @@
-import React, { useCallback,useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { WorkspaceModel } from "model/WorkspaceModel";
 import {
-    Avatar,
     Box,
-    Button,
-    Chip,
+    Typography,
     CircularProgress,
-    Dialog,
     DialogActions,
     DialogContent,
-    DialogContentText,
-    DialogTitle,
+    Button,
     Grid,
+    Avatar,
+    Chip,
     ImageList,
     ImageListItem,
-    Modal,
     Paper,
-    Tab,
+    Modal,
     Tabs,
-    Typography,
-} from '@mui/material';
-import { useTranslation } from 'hooks/useTranslation';
-import { SseType } from 'model/GlobalModel';
-import { type WorkspaceModel } from 'model/WorkspaceModel';
-import { deleteWorkspace, getWorkspace } from 'service/Apis/WorkspaceApi';
-
-import { onAlert } from 'utils/alert';
-import { eventBus } from 'utils/eventBus';
+    Tab,
+} from "@mui/material";
+import { deleteWorkspace, getWorkspace } from "service/Apis/WorkspaceApi";
+import { onAlert } from "component/modal/AlertModal";
+import { Strings } from "utils/strings";
+import { eventBus } from "layouts/BackGround";
+import { SseEvent, SseType } from "model/GlobalModel";
 
 interface Props {
     data: WorkspaceModel;
@@ -35,13 +31,9 @@ interface Props {
 }
 
 const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }) => {
-    const { t: commonT } = useTranslation('common');
-    const { t: workspaceT } = useTranslation('workspace');
-
     const [detail, setDetail] = useState<WorkspaceModel | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
-    const [selectedTab, setSelectedTab] = useState<string>(workspaceT('detail.all'));
-    const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+    const [selectedTab, setSelectedTab] = useState<string>("All");
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue);
@@ -49,9 +41,9 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
 
     const filteredFiles = () => {
         if (!detail.files) return [];
-        if (selectedTab === workspaceT('detail.all')) {
-            return detail.files;
-        } else if (selectedTab === workspaceT('detail.none')) {
+        if (selectedTab === 'All') {
+            return detail.files; // 모든 파일 표시
+        } else if (selectedTab === 'None') {
             return detail.files.filter(file => !file.label || file.label.toLowerCase() === 'none');
         } else if (detail.classes?.includes(selectedTab)) {
             return detail.files.filter(file => file.label === selectedTab);
@@ -64,18 +56,22 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
         try {
             const res = await getWorkspace(id);
             setDetail(res.data);
-        } catch (_err) {
-            onAlert(commonT('messages.apiFailed'));
+        } catch (err) {
+            console.error(err);
+            onAlert(Strings.Common.apiFailed);
         }
-    }, [commonT]);
+    }, []);
 
     useEffect(() => {
         if (data && data.id) {
             fetchWorkspaceDetail(data.id);
 
-            const handleSseMessage = (updatedWorkspace: WorkspaceModel) => {
-                if (updatedWorkspace.id === data.id) {
-                    fetchWorkspaceDetail(data.id);
+            const handleSseMessage = (event: SseEvent) => {
+                if (event.type === SseType.WORKSPACE_UPDATE) {
+                    const updatedWorkspace = JSON.parse(event.data);
+                    if (updatedWorkspace.id === data.id) {
+                        fetchWorkspaceDetail(data.id);
+                    }
                 }
             };
 
@@ -88,26 +84,20 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
     }, [data, fetchWorkspaceDetail]);
 
     const handleEdit = () => {
-        navigate('/workspace/editor', { state: { data: detail } });
+        navigate("/workspace/editor", { state: { data: detail } });
     };
 
     const handleDelete = () => {
-        setOpenConfirmDialog(true);
-    };
-
-    const confirmDelete = () => {
-        setOpenConfirmDialog(false);
         if (detail) {
             deleteWorkspace(detail.id.toString())
                 .then(() => {
                     handleClose();
                     onDeleteSuccess();
-                    // Publish event to trigger workspace updates
-                    eventBus.publish(SseType.WORKSPACE_UPDATE, detail);
-                    onAlert(commonT('messages.apiSuccess'));
+                    onAlert(Strings.Common.apiSuccess);
                 })
-                .catch((_err) => {
-                    onAlert(commonT('messages.apiFailed'));
+                .catch((err) => {
+                    console.error(err);
+                    onAlert(Strings.Common.apiFailed);
                 });
         }
     };
@@ -128,18 +118,18 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                         {detail.name}
                     </Typography>
                     <Typography variant="subtitle1" color="textSecondary">
-                        {workspaceT('members.owner')}: {detail.owner.name} ({detail.owner.email})
+                        Owner: {detail.owner.name} ({detail.owner.email})
                     </Typography>
                 </Box>
 
                 <Paper elevation={3} sx={{ p: 2, mb: 3 }}>
                     <Typography variant="h6" gutterBottom>
-                        {workspaceT('detail.description')}
+                        Description
                     </Typography>
                     <Typography
                         variant="body1"
                         dangerouslySetInnerHTML={{
-                            __html: detail.description || workspaceT('detail.noDescription'),
+                            __html: detail.description || "No description available.",
                         }}
                     />
                 </Paper>
@@ -147,11 +137,11 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                 {detail.classes && detail.classes.length > 0 && (
                     <Paper elevation={3} sx={{ p: 2, mb: 3 }}>
                         <Typography variant="h6" gutterBottom>
-                            {workspaceT('classification.classTitle')}
+                            Classes
                         </Typography>
                         <Box display="flex" flexWrap="wrap" gap={1}>
-                            {detail.classes.map((cls) => (
-                                <Chip key={cls} label={cls} color="primary" variant="outlined" />
+                            {detail.classes.map((cls, index) => (
+                                <Chip key={index} label={cls} color="primary" variant="outlined" />
                             ))}
                         </Box>
                     </Paper>
@@ -160,11 +150,11 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                 {detail.files && detail.files.length > 0 && (
                     <Paper elevation={3} sx={{ p: 2, mb: 3 }}>
                         <Typography variant="h6" gutterBottom>
-                            {workspaceT('detail.images')}
+                            Images
                         </Typography>
                         <Tabs value={selectedTab} onChange={handleTabChange} aria-label="image tabs">
-                            <Tab label={workspaceT('detail.all')} value={workspaceT('detail.all')} />
-                            <Tab label={workspaceT('detail.none')} value={workspaceT('detail.none')} />
+                            <Tab label="All" value="All" /> {/* 모든 파일 탭 */}
+                            <Tab label="None" value="None" /> {/* 분류되지 않은 파일 탭 */}
                             {detail.classes?.map((className) => (
                                 <Tab key={className} label={className} value={className} />
                             ))}
@@ -198,7 +188,7 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                             }}>
                                 <img
                                     src={selectedImage}
-                                    alt={workspaceT('detail.expandedView')}
+                                    alt="Expanded view"
                                     style={{
                                         maxWidth: '100%',
                                         maxHeight: '90vh',
@@ -213,11 +203,11 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                 {detail.members && detail.members.length > 0 && (
                     <Paper elevation={3} sx={{ p: 2, mb: 3 }}>
                         <Typography variant="h6" gutterBottom>
-                            {workspaceT('members.title')}
+                            Members
                         </Typography>
                         <Grid container spacing={2}>
                             {detail.members.map((member) => (
-                                <Grid size="auto" key={member.id}>
+                                <Grid item key={member.id}>
                                     <Box display="flex" alignItems="center">
                                         <Avatar sx={{ mr: 1 }}>{member.name[0]}</Avatar>
                                         <Typography variant="body2">{member.name}</Typography>
@@ -230,36 +220,15 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleDelete} color="error">
-                    {workspaceT('actions.delete')}
+                    Delete
                 </Button>
                 <Button onClick={handleEdit} color="primary">
-                    {commonT('buttons.edit')}
+                    Edit
                 </Button>
-                <Button onClick={handleClose} color="primary">
-                    {commonT('buttons.close')}
+                <Button onClick={handleClose} color="primary" autoFocus>
+                    Close
                 </Button>
             </DialogActions>
-            <Dialog
-                open={openConfirmDialog}
-                onClose={() => setOpenConfirmDialog(false)}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogTitle id="alert-dialog-title">{workspaceT('detail.confirmDelete')}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        {workspaceT('detail.deleteConfirmMessage')}
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenConfirmDialog(false)} color="primary">
-                        {commonT('buttons.cancel')}
-                    </Button>
-                    <Button onClick={confirmDelete} color="error">
-                        {workspaceT('actions.delete')}
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </>
     );
 };

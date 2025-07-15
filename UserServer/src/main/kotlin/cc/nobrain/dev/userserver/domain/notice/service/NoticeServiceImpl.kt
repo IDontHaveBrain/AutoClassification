@@ -8,9 +8,6 @@ import cc.nobrain.dev.userserver.domain.notice.repository.NoticeSpecs
 import cc.nobrain.dev.userserver.domain.notice.repository.NoticeRepository
 import cc.nobrain.dev.userserver.domain.notice.service.dto.NoticeReq
 import cc.nobrain.dev.userserver.domain.notice.service.dto.NoticeRes
-import cc.nobrain.dev.userserver.domain.sse.enums.SseEventType
-import cc.nobrain.dev.userserver.domain.sse.handler.SseHandler
-import cc.nobrain.dev.userserver.domain.sse.service.dto.SseMessageDto
 import kotlinx.coroutines.withContext
 import org.modelmapper.ModelMapper
 import org.springframework.data.domain.Page
@@ -23,8 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional(readOnly = true)
 class NoticeServiceImpl(
     private val noticeRepository: NoticeRepository,
-    private val modelMapper: ModelMapper,
-    private val sseHandler: SseHandler
+    private val modelMapper: ModelMapper
 ) : NoticeService {
 
     override suspend fun searchNoticeList(search: NoticeReq.Search?, pageable: Pageable): Page<NoticeRes> {
@@ -44,14 +40,7 @@ class NoticeServiceImpl(
         withContext(CoroutineUtil.securedIO) {
             if (create == null) throw CustomException(ErrorInfo.INVALID_DATA);
             val notice = modelMapper.map(create, Notice::class.java);
-            val savedNotice = noticeRepository.save(notice);
-            
-            val message = SseMessageDto(
-                id = savedNotice.id.toString(),
-                type = SseEventType.NOTICE,
-                data = "{\"action\":\"created\",\"id\":${savedNotice.id}}"
-            )
-            sseHandler.broadcastEvent(message)
+            noticeRepository.save(notice);
         }
     }
 
@@ -60,25 +49,10 @@ class NoticeServiceImpl(
         val notice = noticeRepository.findById(id).orElseThrow { CustomException(ErrorInfo.INVALID_DATA) }
         modelMapper.map(update, notice)
         noticeRepository.save(notice)
-        
-        val message = SseMessageDto(
-            id = id.toString(),
-            type = SseEventType.NOTICE,
-            data = "{\"action\":\"updated\",\"id\":$id}"
-        )
-        sseHandler.broadcastEvent(message)
     }
 
     @Transactional
-    override suspend fun deleteNotice(id: Long) {
+    override suspend fun deleteNotice(id: Long) = withContext(CoroutineUtil.securedIO) {
         noticeRepository.deleteById(id)
-        
-        val message = SseMessageDto(
-            id = id.toString(),
-            type = SseEventType.NOTICE,
-            data = "{\"action\":\"deleted\",\"id\":$id}"
-        )
-        
-        sseHandler.broadcastEvent(message)
     }
 }

@@ -15,9 +15,8 @@ class Notice(
     @Column(nullable = false)
     var title: String,
 
-    @NotNull
-    @Column(columnDefinition = "TEXT", length = 2000, nullable = false)
-    var content: String,
+    @Column(columnDefinition = "TEXT", length = 2000)
+    var content: String? = null,
 
     @Column(columnDefinition = "boolean default false")
     var sticky: Boolean = false,

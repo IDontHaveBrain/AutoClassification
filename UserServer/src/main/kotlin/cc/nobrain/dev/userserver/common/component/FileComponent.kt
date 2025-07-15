@@ -43,6 +43,7 @@ class FileComponent(
             Files.delete(filePath)
             fileRepository.delete(file)
         } else {
+            println("File not found")
             fileRepository.delete(file)
         }
         fileRepository.delete(file)
@@ -72,6 +73,7 @@ class FileComponent(
                 val content = zis.readAllBytes()
                 val uploadStream = ByteArrayInputStream(content)
 
+//                val extension = FileUtil.getExtension(entry.name)
                 val path = Paths.get(entry.name)
                 val contentType = Files.probeContentType(path)
 

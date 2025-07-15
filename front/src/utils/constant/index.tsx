@@ -1,5 +1,5 @@
-import COLOR from './color';
-import CONSTANT from './constant';
-import URLS from './urlInfo';
+import COLOR from "./color";
+import CONSTANT from "./constant";
+import URLS from "./urlInfo";
 
-export { COLOR, CONSTANT, URLS };
+export { CONSTANT, COLOR, URLS };

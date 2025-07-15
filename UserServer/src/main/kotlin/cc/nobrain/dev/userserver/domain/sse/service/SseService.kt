@@ -75,22 +75,4 @@ class SseService(
             logger.warn("Invalid broadcast message")
         }
     }
-
-    fun handleHeartbeatResponse(userId: String, payload: Map<String, Any>) {
-        logger.debug("Processing heartbeat response from user: $userId")
-        
-        try {
-            val timestamp = payload["timestamp"] as? Number
-            if (timestamp != null) {
-                val responseTime = System.currentTimeMillis() - timestamp.toLong()
-                logger.debug("Heartbeat round-trip time for user $userId: ${responseTime}ms")
-                
-                sseHandler.updateUserActivity(userId)
-            } else {
-                logger.warn("Heartbeat response from user $userId missing timestamp")
-            }
-        } catch (e: Exception) {
-            logger.error("Error processing heartbeat response from user $userId", e)
-        }
-    }
 }

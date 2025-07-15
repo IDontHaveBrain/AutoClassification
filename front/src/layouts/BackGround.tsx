@@ -1,14 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { type SseEvent, SseType } from 'model/GlobalModel';
-import { closeSnackbar, SnackbarProvider, type SnackbarProviderProps,useSnackbar } from 'notistack';
-import SseManager, { type ErrorHandler } from 'service/commons/SseManager';
-import { useAppSelector } from 'stores/rootHook';
+import React, { useCallback, useEffect, useState } from "react";
+import { SseEvent, SseType } from "model/GlobalModel";
+import SseManager, { ErrorHandler } from "service/commons/SseManager";
+import { CONSTANT, URLS } from "utils/constant";
+import AlertModal from "component/modal/AlertModal";
+import { useSnackbar, closeSnackbar, SnackbarProvider, SnackbarProviderProps, SnackbarContent } from "notistack";
+import { useAppSelector } from "stores/rootHook";
 
-import AlertModal from 'components/modal/AlertModal';
-import { CONSTANT, URLS } from 'utils/constant';
-import { eventBus } from 'utils/eventBus';
-
-const DEFAULT_SNACKBAR_DURATION = 3000;
+const DEFAULT_SNACKBAR_DURATION = 3000; // 3 seconds in milliseconds
 
 export const CustomSnackbarProvider: React.FC<SnackbarProviderProps> = (props) => (
     <SnackbarProvider
@@ -17,26 +15,52 @@ export const CustomSnackbarProvider: React.FC<SnackbarProviderProps> = (props) =
     />
 );
 
+const eventBus = {
+    listeners: new Map<SseType, ((data: any) => void)[]>(),
+    subscribe(event: SseType, callback: (data: any) => void) {
+        if (!this.listeners.has(event)) {
+            this.listeners.set(event, []);
+        }
+        this.listeners.get(event)?.push(callback);
+    },
+    unsubscribe(event: SseType, callback: (data: any) => void) {
+        const listeners = this.listeners.get(event);
+        if (listeners) {
+            const index = listeners.indexOf(callback);
+            if (index > -1) {
+                listeners.splice(index, 1);
+            }
+        }
+    },
+    publish(event: SseType, data: any) {
+        if (this.listeners.has(event)) {
+            this.listeners.get(event)?.forEach((callback) => callback(data));
+        }
+    }
+};
+
 const BackGround: React.FC = () => {
     const { enqueueSnackbar } = useSnackbar();
-    const [, setIsConnected] = useState(false);
-    const [showReconnectingMessage, setShowReconnectingMessage] = useState(false);
-    const [reconnectMessageTimeout, setReconnectMessageTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
+    const [isConnected, setIsConnected] = useState(false);
     const isAuthenticated = useAppSelector((state) => !!state.userInfo.access_token);
 
     const handleSseMessage = useCallback((event: SseEvent) => {
+        console.log("Received SSE message in BackGround:", event);
         try {
             if (event.type === SseType.ALARM) {
+                console.log("Received ALARM event in BackGround");
                 let alarmData;
                 try {
                     alarmData = JSON.parse(event.data);
-                } catch (_parseError) {
+                    console.log("Parsed Alarm data in BackGround:", alarmData);
+                } catch (parseError) {
+                    console.error("Error parsing alarm data:", parseError);
                     return;
                 }
-
+                
                 if (alarmData && alarmData.title) {
                     enqueueSnackbar(alarmData.title, {
-                        variant: 'success',
+                        variant: "success",
                         autoHideDuration: 6000, // 6초 유지
                         anchorOrigin: {
                             vertical: 'top',
@@ -49,56 +73,38 @@ const BackGround: React.FC = () => {
                         },
                     });
                     eventBus.publish(SseType.ALARM, alarmData);
+                } else {
+                    console.error("Invalid alarm data structure:", alarmData);
                 }
             }
-            // Parse string data to appropriate type based on event type
-            try {
-                const parsedData = JSON.parse(event.data);
-                eventBus.publish(event.type, parsedData);
-            } catch (_parseError) {
-                // If parsing fails, only publish for HEARTBEAT type with timestamp
-                if (event.type === SseType.HEARTBEAT) {
-                    eventBus.publish(event.type, { timestamp: event.timestamp });
-                }
-            }
-        } catch (_error) {
-            // 메시지 처리 중 오류 무시
+            eventBus.publish(event.type, event.data);
+        } catch (error) {
+            console.error("Error processing SSE message in BackGround:", error);
         }
     }, [enqueueSnackbar]);
 
-    const handleSseError = useCallback<ErrorHandler>((_error: Error) => {
-        enqueueSnackbar('SSE connection error. Attempting to reconnect...', { variant: 'error' });
+    const handleSseError = useCallback<ErrorHandler>((error: Error) => {
+        console.error("SSE Error:", error);
+        // eventBus.publish("sseError", error);
+        enqueueSnackbar("SSE connection error. Attempting to reconnect...", { variant: "error" });
     }, [enqueueSnackbar]);
 
     const handleConnectionStatus = useCallback((status: boolean) => {
+        console.log("SSE connection status changed:", status);
         setIsConnected(status);
-
-        if (reconnectMessageTimeout) {
-            clearTimeout(reconnectMessageTimeout);
-            setReconnectMessageTimeout(null);
-        }
-
         if (status) {
-            setShowReconnectingMessage(false);
-            enqueueSnackbar('SSE connection established', { variant: 'success' });
+            enqueueSnackbar("SSE connection established", { variant: "success" });
         } else {
-            // Connection lost - show reconnecting message after 3 seconds delay
-            const timeout = setTimeout(() => {
-                if (isAuthenticated) {
-                    setShowReconnectingMessage(true);
-                    enqueueSnackbar('SSE connection lost. Attempting to reconnect...', { variant: 'warning' });
-                }
-            }, 3000);
-
-            setReconnectMessageTimeout(timeout);
+            enqueueSnackbar("SSE connection lost. Attempting to reconnect...", { variant: "warning" });
         }
-    }, [enqueueSnackbar, isAuthenticated, reconnectMessageTimeout]);
+    }, [enqueueSnackbar]);
 
     useEffect(() => {
         const initializeSSE = () => {
             const tok = sessionStorage.getItem(CONSTANT.ACCESS_TOKEN);
             const sseManager = SseManager.getInstance();
             if (tok && !sseManager.isConnected) {
+                console.log("Connecting to SSE...");
                 sseManager.connect(CONSTANT.API_URL + URLS.API.SSE.SUBSCRIBE);
                 sseManager.addMessageHandler(handleSseMessage);
                 sseManager.addErrorHandler(handleSseError);
@@ -115,10 +121,7 @@ const BackGround: React.FC = () => {
         window.addEventListener('userLoggedIn', initializeSSE);
 
         return () => {
-            if (reconnectMessageTimeout) {
-                clearTimeout(reconnectMessageTimeout);
-            }
-
+            console.log("Cleaning up SSE connection...");
             const sseManager = SseManager.getInstance();
             sseManager.removeMessageHandler(handleSseMessage);
             sseManager.removeErrorHandler(handleSseError);
@@ -126,18 +129,18 @@ const BackGround: React.FC = () => {
             sseManager.disconnect();
             window.removeEventListener('userLoggedIn', initializeSSE);
         };
-    }, [handleSseMessage, handleSseError, handleConnectionStatus, reconnectMessageTimeout]);
+    }, [handleSseMessage, handleSseError, handleConnectionStatus]);
 
     return (
         <>
             <AlertModal />
-            {showReconnectingMessage && isAuthenticated && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, backgroundColor: 'orange', color: 'white', textAlign: 'center', padding: '8px', zIndex: 9999, fontSize: '14px', fontWeight: 'bold' }}>
-                    ⚠️ Connection lost. Reconnecting to server...
+            {!isConnected && isAuthenticated && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, backgroundColor: 'yellow', color: 'black', textAlign: 'center', padding: '5px' }}>
+                    Reconnecting to server...
                 </div>
             )}
         </>
     );
 };
 
-export default BackGround;
+export { BackGround as default, eventBus };

@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from .config import Config
 
-# .env 파일에서 환경 변수 로드
+# Load environment variables from .env file
 load_dotenv()
 
 def get_config():
@@ -18,5 +18,5 @@ def get_config():
     }
     return Config(**config_dict)
 
-# config 객체 생성
+# Create a config object
 config = get_config()

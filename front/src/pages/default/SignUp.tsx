@@ -1,25 +1,22 @@
-import * as React from 'react';
-import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Avatar from '@mui/material/Avatar';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Container from '@mui/material/Container';
-import CssBaseline from '@mui/material/CssBaseline';
-import Grid from '@mui/material/Grid';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
-import TextField from '@mui/material/TextField';
-import Typography, { type TypographyProps } from '@mui/material/Typography';
-import { useTranslation } from 'hooks/useTranslation';
-import { signUp } from 'service/Apis/AuthApi';
+import * as React from "react";
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import CssBaseline from "@mui/material/CssBaseline";
+import TextField from "@mui/material/TextField";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
+import {Link, useNavigate} from "react-router-dom";
+import { useState } from "react";
+import {signUp} from "service/Apis/AuthApi";
+import {onAlert} from "component/modal/AlertModal";
+import {Strings} from "utils/strings";
 
-import { onAlert } from 'utils/alert';
-
-function Copyright(props: TypographyProps) {
-    const { t } = useTranslation('common');
+function Copyright(props: any) {
     return (
         <Typography
             variant="body2"
@@ -27,31 +24,23 @@ function Copyright(props: TypographyProps) {
             align="center"
             {...props}
         >
-            {t('copyright')}
+            {"Copyright © "}
             {new Date().getFullYear()}
-            {'.'}
+            {"."}
         </Typography>
     );
 }
 
 export default function SignUp() {
     const [form, setForm] = useState({
-        name: '',
-        email: '',
-        password: '',
+        name: "",
+        email: "",
+        password: "",
+        // allowExtraEmails: false,
     });
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const navigate = useNavigate();
-    const nameInputRef = useRef<HTMLInputElement>(null);
-    const { t: authT } = useTranslation('auth');
-
-    useEffect(() => {
-        // 컴포넌트 마운트 시 이름 입력에 포커스
-        if (nameInputRef.current) {
-            nameInputRef.current.focus();
-        }
-    }, []);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
@@ -63,7 +52,7 @@ export default function SignUp() {
         if (name === 'email') {
             const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
             if (!emailValid) {
-                setEmailError(authT('register.invalidEmailAddress'));
+                setEmailError('Please enter a valid email address');
             } else {
                 setEmailError('');
             }
@@ -72,7 +61,7 @@ export default function SignUp() {
         if (name === 'password') {
             const passwordValid = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,}$/.test(value);
             if (!passwordValid) {
-                setPasswordError(authT('password.validationError'));
+                setPasswordError('Password must be at least 6 characters, include at least one number and one special character');
             } else {
                 setPasswordError('');
             }
@@ -81,10 +70,15 @@ export default function SignUp() {
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        signUp(form).then((_res) => {
-            onAlert(authT('register.registerSuccess'), () => navigate('/sign-in'));
-        }).catch((_err) => {
-            onAlert(authT('register.registerFailed'));
+        const data = new FormData(event.currentTarget);
+        console.log(form);
+
+        signUp(form).then((res) => {
+            console.log(res);
+            onAlert(Strings.Common.apiSuccess, navigate('/sign-in'));
+        }).catch((err) => {
+            console.error(err);
+            onAlert(Strings.Common.apiFailed);
         });
     };
 
@@ -95,16 +89,16 @@ export default function SignUp() {
                 <Box
                     sx={{
                         marginTop: 8,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
                     }}
                 >
-                    <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                    <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
                         <LockOutlinedIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        {authT('register.title')}
+                        Sign up
                     </Typography>
                     <Box
                         component="form"
@@ -113,24 +107,24 @@ export default function SignUp() {
                         sx={{ mt: 3 }}
                     >
                         <Grid container spacing={2}>
-                            <Grid size={{ xs: 12 }}>
+                            <Grid item xs={12}>
                                 <TextField
                                     autoComplete="given-name"
                                     name="name"
                                     required
-                                    fullWidth
+                                    fullWidth={true}
                                     id="name"
-                                    label={authT('register.fullName')}
-                                    inputRef={nameInputRef}
+                                    label="Full Name"
+                                    autoFocus
                                     onChange={handleChange}
                                 />
                             </Grid>
-                            <Grid size={{ xs: 12 }}>
+                            <Grid item xs={12}>
                                 <TextField
                                     required
-                                    fullWidth
+                                    fullWidth={true}
                                     id="email"
-                                    label={authT('register.email')}
+                                    label="Email Address"
                                     name="email"
                                     autoComplete="email"
                                     onChange={handleChange}
@@ -138,37 +132,12 @@ export default function SignUp() {
                                     helperText={emailError}
                                 />
                             </Grid>
-                            <Grid size={{ xs: 12 }}>
-                                <Box sx={{ mb: 2 }}>
-                                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                                        {authT('password.requirements')}
-                                    </Typography>
-                                    <List dense sx={{ py: 0 }}>
-                                        <ListItem sx={{ py: 0, px: 0 }}>
-                                            <ListItemText
-                                                primary={authT('password.minLength')}
-                                                primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
-                                            />
-                                        </ListItem>
-                                        <ListItem sx={{ py: 0, px: 0 }}>
-                                            <ListItemText
-                                                primary={authT('password.mustHaveNumber')}
-                                                primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
-                                            />
-                                        </ListItem>
-                                        <ListItem sx={{ py: 0, px: 0 }}>
-                                            <ListItemText
-                                                primary={authT('password.mustHaveSpecial')}
-                                                primaryTypographyProps={{ variant: 'body2', color: 'text.secondary' }}
-                                            />
-                                        </ListItem>
-                                    </List>
-                                </Box>
+                            <Grid item xs={12}>
                                 <TextField
                                     required
-                                    fullWidth
+                                    fullWidth={true}
                                     name="password"
-                                    label={authT('register.password')}
+                                    label="Password"
                                     type="password"
                                     id="password"
                                     autoComplete="new-password"
@@ -177,20 +146,30 @@ export default function SignUp() {
                                     helperText={passwordError}
                                 />
                             </Grid>
-                            <Grid size={{ xs: 12 }} />
+                            <Grid item xs={12}>
+                                {/*<FormControlLabel*/}
+                                {/*    control={*/}
+                                {/*        <Checkbox*/}
+                                {/*            value="allowExtraEmails"*/}
+                                {/*            color="primary"*/}
+                                {/*        />*/}
+                                {/*    }*/}
+                                {/*    label="I want to receive inspiration, marketing promotions and updates via email."*/}
+                                {/*/>*/}
+                            </Grid>
                         </Grid>
                         <Button
                             type="submit"
-                            fullWidth
+                            fullWidth={true}
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
                         >
-                            {authT('register.signUpButton')}
+                            Sign Up
                         </Button>
                         <Grid container justifyContent="flex-end">
-                            <Grid size="auto">
+                            <Grid item>
                                 <Link to="/sign-in">
-                                    {authT('register.alreadyHaveAccount')} {authT('register.signIn')}
+                                    Already have an account? Sign in
                                 </Link>
                             </Grid>
                         </Grid>

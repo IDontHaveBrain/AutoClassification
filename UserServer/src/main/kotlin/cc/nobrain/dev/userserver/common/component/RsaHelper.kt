@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component
 import java.security.KeyFactory
 import java.security.interfaces.RSAPrivateKey
 import java.security.spec.PKCS8EncodedKeySpec
-import java.security.spec.X509EncodedKeySpec
 import java.util.Base64
 import javax.crypto.Cipher
 import org.slf4j.LoggerFactory
@@ -43,8 +42,8 @@ class RsaHelper(private val authProps: AuthProps) {
         return try {
             val keyFactory = KeyFactory.getInstance("RSA")
             val decodedKey = Base64.getDecoder().decode(authProps.signKey)
-            val keySpec = X509EncodedKeySpec(decodedKey)
-            val pubKey = keyFactory.generatePublic(keySpec)
+            val keySpec = PKCS8EncodedKeySpec(decodedKey)
+            val pubKey = keyFactory.generatePrivate(keySpec) as RSAPrivateKey
 
             val cipher = Cipher.getInstance("RSA/ECB/PKCS1PADDING")
             cipher.init(Cipher.ENCRYPT_MODE, pubKey)

@@ -1,7 +1,6 @@
-import { type AxiosPromise } from 'axios';
-import { UserApi } from 'service/commons/ApiClient';
-
-import { URLS } from 'utils/constant';
+import { AxiosPromise } from "axios";
+import { UserApi } from "service/commons/ApiClient";
+import { URLS } from "utils/constant";
 
 export const testUploadImg = (params): AxiosPromise => {
     return UserApi.post(URLS.API.FREETEST.POST, params);
@@ -9,12 +8,12 @@ export const testUploadImg = (params): AxiosPromise => {
 
 export const testGetResult = (params?): AxiosPromise => {
     return UserApi.get(URLS.API.FREETEST.GET, { params });
-};
+}
 
 export const requestAutoLabel = (workspaceId): AxiosPromise => {
     return UserApi.post(`${URLS.API.TRAIN.LABEL}/${workspaceId}`);
-};
+}
 
 export const requestTrain = (workspaceId): AxiosPromise => {
     return UserApi.post(`${URLS.API.TRAIN.POST}/${workspaceId}`);
-};
+}

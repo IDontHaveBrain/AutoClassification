@@ -1,32 +1,27 @@
-import React, { useState } from 'react';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { Autocomplete, Chip, CircularProgress, Grid, IconButton, TextField, Typography } from '@mui/material';
-import { useTranslation } from 'hooks/useTranslation';
-
-import ExpandComp from 'components/ExpandComp';
+import React, { useState } from "react";
+import { Grid, IconButton, TextField, Chip, Autocomplete, CircularProgress, Typography } from "@mui/material";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import ExpandComp from "component/ExpandComp";
 
 interface Props {
   classes?: string[];
-  onClassesChange: (_classes: string[]) => void;
+  onClassesChange: (classes: string[]) => void;
   isLoading?: boolean;
   error?: string | null;
 }
 
-const WorkspaceClass: React.FC<Props> = ({ classes = [], onClassesChange, isLoading = false, error = null }) => {
-  const { t } = useTranslation('workspace');
+const WorkspaceClass: React.FC<Props> = ({ classes, onClassesChange, isLoading = false, error = null }) => {
   const [newClass, setNewClass] = useState<string>('');
 
   const handleAdd = () => {
-    const safeClasses = classes ?? [];
-    if (newClass && !safeClasses.includes(newClass)) {
-      onClassesChange([...safeClasses, newClass]);
+    if (newClass && !classes.includes(newClass)) {
+      onClassesChange([...classes, newClass]);
       setNewClass('');
     }
   };
 
   const handleRemove = (classToRemove: string) => {
-    const safeClasses = classes ?? [];
-    onClassesChange(safeClasses.filter((c) => c !== classToRemove));
+    onClassesChange(classes.filter((c) => c !== classToRemove));
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,7 +30,7 @@ const WorkspaceClass: React.FC<Props> = ({ classes = [], onClassesChange, isLoad
 
   if (isLoading) {
     return (
-      <ExpandComp title={t('editor.class.title')}>
+      <ExpandComp title="Classify">
         <Grid container justifyContent="center">
           <CircularProgress />
         </Grid>
@@ -45,23 +40,23 @@ const WorkspaceClass: React.FC<Props> = ({ classes = [], onClassesChange, isLoad
 
   if (error) {
     return (
-      <ExpandComp title={t('editor.class.title')}>
+      <ExpandComp title="Classify">
         <Typography color="error" align="center">{error}</Typography>
       </ExpandComp>
     );
   }
 
   return (
-    <ExpandComp title={t('editor.class.title')}>
+    <ExpandComp title="Classify">
       <Grid container direction="column" spacing={2}>
-        <Grid size="auto">
+        <Grid item>
           <Autocomplete
             freeSolo
-            options={classes ?? []}
+            options={classes}
             renderInput={(params) => (
               <TextField
                 {...params}
-                label={t('editor.class.addNewClass')}
+                label="Add new class"
                 variant="outlined"
                 value={newClass}
                 onChange={handleInputChange}
@@ -74,15 +69,15 @@ const WorkspaceClass: React.FC<Props> = ({ classes = [], onClassesChange, isLoad
             }
           />
         </Grid>
-        <Grid size="auto">
+        <Grid item>
           <IconButton onClick={handleAdd} color="primary">
             <AddCircleOutlineIcon />
           </IconButton>
         </Grid>
-        <Grid size="auto">
+        <Grid item>
           <Grid container spacing={1}>
-            {classes && classes.map((item) => (
-              <Grid size="auto" key={item}>
+            {classes && classes.map((item, index) => (
+              <Grid item key={index}>
                 <Chip
                   label={item}
                   onDelete={() => handleRemove(item)}

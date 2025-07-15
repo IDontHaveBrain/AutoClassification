@@ -19,7 +19,7 @@ object ClassfiySpecs {
     fun fetchFiles(): Specification<Classfiy> {
         return Specification { root, query, builder ->
             root.fetch(Classfiy_.testFiles)
-            query?.distinct(true)
+            query.distinct(true)
             builder.conjunction()
         }
     }

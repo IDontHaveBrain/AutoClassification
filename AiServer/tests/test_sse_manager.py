@@ -73,7 +73,7 @@ class TestSSEManager(unittest.TestCase):
         client_id = "timeout_client"
         SSEManager.register_client(client_id)
         
-        # 타임아웃 시뮬레이션
+        # Simulate a timeout
         time.sleep(2)
         
         generator = SSEManager.event_stream(client_id)
@@ -83,7 +83,7 @@ class TestSSEManager(unittest.TestCase):
         self.assertNotIn(client_id, self.sse_manager.clients)
 
     def tearDown(self):
-        # 등록된 모든 클라이언트 정리
+        # Clean up all registered clients
         for client_id in list(self.sse_manager.clients.keys()):
             SSEManager.unregister_client(client_id)
 

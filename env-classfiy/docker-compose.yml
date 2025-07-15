@@ -1,3 +1,4 @@
+version: '3.8'
 services:
   base-img:
     image: nobrain/base
@@ -29,8 +30,8 @@ services:
     networks:
       - share-net
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-jnj}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sqisoft}
+      POSTGRES_USER: "jnj"
+      POSTGRES_PASSWORD: "sqisoft"
       TZ: "Asia/Seoul"
 
   jenkins:
@@ -69,8 +70,8 @@ services:
       - share-net
     expose:
       - 7081
-    ports:
-      - 8087:7081
+    #    ports:
+    #      - 8087:8087
     environment:
       TZ: "Asia/Seoul"
 
@@ -84,8 +85,6 @@ services:
       - 5672:5672
       - 15672:15672
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
       TZ: "Asia/Seoul"
 
 networks:

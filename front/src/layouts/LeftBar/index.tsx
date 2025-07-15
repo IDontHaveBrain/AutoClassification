@@ -1,16 +1,16 @@
-import { type ReactNode, useState } from 'react';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import {
   Divider,
-  type DrawerProps,
+  DrawerProps,
   IconButton,
   List,
   styled,
   Toolbar,
-} from '@mui/material';
-import MuiDrawer from '@mui/material/Drawer';
-import RenderMenu from 'layouts/LeftBar/renderMenu';
-import { type MenuInfo } from 'service/commons/MenuItem';
+} from "@mui/material";
+import MuiDrawer from "@mui/material/Drawer";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import { ReactNode, useState } from "react";
+import { MenuInfo } from "service/commons/MenuItem";
+import RenderMenu from "layouts/LeftBar/renderMenu";
 
 interface MenuBarProps extends DrawerProps {
   drawerwidth: number;
@@ -34,12 +34,12 @@ const LeftBar = ({
   const [openSubMenu, setOpenSubMenu] = useState({});
 
   return (
-    <MenuBar variant={'permanent'} open={open} drawerwidth={width}>
+    <MenuBar variant={"permanent"} open={open} drawerwidth={width}>
       <Toolbar
         sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'flex-end',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-end",
           px: [1],
         }}
       >
@@ -50,9 +50,9 @@ const LeftBar = ({
       </Toolbar>
       <Divider />
       <List>
-        {menu?.map((menu) => (
+        {menu?.map((menu, index) => (
           <RenderMenu
-            key={menu.path || menu.name}
+            key={index}
             item={menu}
             open={open}
             openSubMenus={openSubMenu}
@@ -65,25 +65,25 @@ const LeftBar = ({
 };
 
 const MenuBar = styled(MuiDrawer, {
-  shouldForwardProp: (prop) => prop !== 'open',
+  shouldForwardProp: (prop) => prop !== "open",
 })<MenuBarProps>(({ theme, open, drawerwidth }) => ({
-  '& .MuiDrawer-paper': {
-    position: 'relative',
-    whiteSpace: 'nowrap',
+  "& .MuiDrawer-paper": {
+    position: "relative",
+    whiteSpace: "nowrap",
     width: drawerwidth,
-    transition: theme.transitions.create('width', {
+    transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
-    boxSizing: 'border-box',
+    boxSizing: "border-box",
     ...(!open && {
-      overflowX: 'hidden',
-      transition: theme.transitions.create('width', {
+      overflowX: "hidden",
+      transition: theme.transitions.create("width", {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
       }),
       width: theme.spacing(5),
-      [theme.breakpoints.up('sm')]: {
+      [theme.breakpoints.up("sm")]: {
         width: theme.spacing(7),
       },
     }),

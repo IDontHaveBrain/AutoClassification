@@ -1,6 +1,6 @@
 {
-  "short_name": "AutoClassification",
-  "name": "AI-powered Image Classification Platform",
+  "short_name": "React App",
+  "name": "Create React App Sample",
   "icons": [
     {
       "src": "favicon.ico",

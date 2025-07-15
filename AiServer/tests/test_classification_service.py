@@ -10,7 +10,7 @@ class TestClassificationService(unittest.TestCase):
 
     @patch('services.classification_service.AsyncOpenAI')
     async def test_classify_images(self, mock_openai):
-        # OpenAI API 응답 모킹
+        # Mock the OpenAI API response
         mock_response = MagicMock()
         mock_response.choices[0].message.tool_calls[0].function.name = "classify_images"
         mock_response.choices[0].message.tool_calls[0].function.arguments = '{"classifications": [{"index": 0, "category": "cat"}, {"index": 1, "category": "dog"}]}'
@@ -68,7 +68,7 @@ class TestImageService(unittest.TestCase):
         result = ImageService.encode_image(url)
         
         self.assertTrue(isinstance(result, str))
-        self.assertTrue(result.startswith('ZmFrZSBpbWFnZSBjb250ZW50'))  # Base64로 인코딩된 '가짜 이미지 콘텐츠'
+        self.assertTrue(result.startswith('ZmFrZSBpbWFnZSBjb250ZW50'))  # Base64 encoded 'fake image content'
 
     @patch('services.image_service.requests.head')
     def test_is_url_image(self, mock_head):
@@ -93,7 +93,7 @@ class TestImageService(unittest.TestCase):
         result = ImageService.resize_image(url)
 
         self.assertTrue(isinstance(result, str))
-        self.assertEqual(result, "cmVzaXplZCBpbWFnZSBjb250ZW50")  # Base64로 인코딩된 '리사이즈된 이미지 콘텐츠'
+        self.assertEqual(result, "cmVzaXplZCBpbWFnZSBjb250ZW50")  # Base64 encoded 'resized image content'
 
     def test_prepare_images_for_ai(self):
         images = ["http://example.com/image1.jpg", "http://example.com/image2.jpg"]

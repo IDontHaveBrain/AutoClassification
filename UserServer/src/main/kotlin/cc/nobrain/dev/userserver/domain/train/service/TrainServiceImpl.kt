@@ -81,21 +81,14 @@ class TrainServiceImpl(
                     .retrieve()
                     .bodyToFlux(LabelAndIds::class.java)
                     .collectList()
-                    .block(java.time.Duration.ofMinutes(10)) ?: emptyList()
+                    .block() ?: emptyList()
+                println(response);
                 saveTestResult(classfiy.id!!, response);
                 alarmService.sendAlarmToMember(member.id!!, "테스트 결과가 도착했습니다.", "테스트 결과가 도착했습니다.");
-            } catch (e: java.util.concurrent.TimeoutException) {
-                e.printStackTrace();
-                saveTestResult(classfiy.id!!, emptyList());
-                alarmService.sendAlarmToMember(member.id!!, "테스트 시간이 초과되었습니다.", "AI 처리 시간이 10분을 초과하여 테스트가 실패하였습니다.");
-            } catch (e: org.springframework.web.reactive.function.client.WebClientRequestException) {
-                e.printStackTrace();
-                saveTestResult(classfiy.id!!, emptyList());
-                alarmService.sendAlarmToMember(member.id!!, "AI 서버 연결에 실패하였습니다.", "AI 서버와의 연결이 실패하여 테스트가 중단되었습니다.");
             } catch (e: Exception) {
                 e.printStackTrace();
                 saveTestResult(classfiy.id!!, emptyList());
-                alarmService.sendAlarmToMember(member.id!!, "테스트가 실패하였습니다.", "예상치 못한 오류로 인해 테스트가 실패하였습니다: ${e.message}");
+                alarmService.sendAlarmToMember(member.id!!, "테스트가 실패하였습니다.", "테스트가 실패하였습니다.");
             }
         }
 

@@ -1,10 +1,12 @@
-import { type AxiosPromise } from 'axios';
-
-import { URLS } from '../../utils/constant';
-import { UserApi } from '../commons/ApiClient';
+import { AxiosPromise } from "axios";
+import { UserApi } from "../commons/ApiClient";
+import { URLS } from "../../utils/constant";
+import qs from "qs";
 
 export const getMyWorkspaceList = (search?): AxiosPromise => {
-  return UserApi.get(URLS.API.WORKSPACE.MYLIST, { params: search });
+  const queryString = qs.stringify(search);
+  return UserApi.get(`${URLS.API.WORKSPACE.MYLIST}?${queryString}`);
+  // return UserApi.get(URLS.API.WORKSPACE.MYLIST, { params: search });
 };
 
 export const createWorkspace = (data): AxiosPromise => {

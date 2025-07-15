@@ -32,7 +32,7 @@ class Workspace (
     @OneToMany(mappedBy = "ownerIndex", cascade = [CascadeType.ALL])
     var files: MutableList<TrainFile> = ArrayList(),
 
-    @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @ManyToMany
     @JoinTable(
         name = "workspace_member",
         joinColumns = [JoinColumn(name = "workspace_id")],
@@ -44,11 +44,8 @@ class Workspace (
         if (members.isNullOrEmpty()) {
             members = ArrayList()
         }
-        // 중복 멤버 방지
-        if (!members.contains(member)) {
-            members.add(member)
-            member.workspace.add(this)
-        }
+        members.add(member)
+        member.workspace.add(this)
     }
 
     fun removeMember(member: Member) {

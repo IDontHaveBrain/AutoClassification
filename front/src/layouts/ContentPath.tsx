@@ -1,6 +1,6 @@
-import { Link as RouterLink } from 'react-router-dom';
-import { Breadcrumbs, Link, type SxProps, Typography } from '@mui/material';
-import { type MenuInfo } from 'service/commons/MenuItem';
+import { Link as RouterLink } from "react-router-dom";
+import { Breadcrumbs, Link, SxProps, Typography } from "@mui/material";
+import { MenuInfo } from "service/commons/MenuItem";
 
 type Props = {
   path: MenuInfo[];
@@ -10,8 +10,9 @@ type Props = {
 const ContentPath = ({ path, sx }: Props) => {
   return (
     <Breadcrumbs aria-label="breadcrumb" sx={sx}>
-      {path.map((menu, _index) => {
-        const textStyle = { fontSize: '0.875rem' };
+      {path.map((menu, index) => {
+        const isLast = index === path.length - 1;
+        const textStyle = { fontSize: "0.875rem" };
 
         if (!menu.path) {
           return (
@@ -24,7 +25,7 @@ const ContentPath = ({ path, sx }: Props) => {
             <Link
               color="inherit"
               component={RouterLink}
-              to={menu.path || ''}
+              to={menu.path || ""}
               key={menu.name}
               sx={textStyle}
             >

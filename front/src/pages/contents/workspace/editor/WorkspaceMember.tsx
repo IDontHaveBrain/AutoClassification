@@ -1,25 +1,21 @@
-import React from 'react';
-import CloseIcon from '@mui/icons-material/Close';
-import { Avatar, Box, CircularProgress,Grid, IconButton, Tooltip, Typography } from '@mui/material';
-import { useTranslation } from 'hooks/useTranslation';
-import { type Member } from 'model/GlobalModel';
-import { type WorkspaceModel } from 'model/WorkspaceModel';
-
-import ExpandComp from 'components/ExpandComp';
+import React from "react";
+import ExpandComp from "component/ExpandComp";
+import { WorkspaceModel } from "model/WorkspaceModel";
+import { Avatar, Box, Grid, IconButton, Tooltip, Typography, CircularProgress } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import { Member } from "model/GlobalModel";
 
 interface Props {
     workspace: WorkspaceModel;
-    removeMember: (_member: Member) => void;
+    removeMember: (member: Member) => void;
     isLoading?: boolean;
     error?: string | null;
 }
 
 const WorkspaceMember: React.FC<Props> = ({ workspace, removeMember, isLoading = false, error = null }) => {
-    const { t } = useTranslation('workspace');
-
     if (isLoading) {
         return (
-            <ExpandComp title={t('editor.member.title')}>
+            <ExpandComp title="Members">
                 <Box display="flex" justifyContent="center" alignItems="center" height="200px">
                     <CircularProgress />
                 </Box>
@@ -29,17 +25,17 @@ const WorkspaceMember: React.FC<Props> = ({ workspace, removeMember, isLoading =
 
     if (error) {
         return (
-            <ExpandComp title={t('editor.member.title')}>
+            <ExpandComp title="Members">
                 <Typography color="error" align="center">{error}</Typography>
             </ExpandComp>
         );
     }
 
     return (
-        <ExpandComp title={t('editor.member.title')}>
+        <ExpandComp title="Members">
             <Grid container spacing={2}>
-                {workspace?.members?.map((member) => (
-                    <Grid size={{ xs: 6, sm: 4, md: 3, lg: 2 }} key={member.email}>
+                {workspace?.members?.map((member, index) => (
+                    <Grid item key={index} xs={6} sm={4} md={3} lg={2}>
                         <Tooltip title={`${member.name} (${member.email})`}>
                             <Box
                                 sx={{

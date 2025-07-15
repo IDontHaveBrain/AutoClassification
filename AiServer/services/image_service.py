@@ -15,36 +15,6 @@ class ImageService:
     """
 
     @staticmethod
-    def _convert_url_for_docker(url):
-        """
-        Docker 환경에서 localhost URL을 컨테이너 네트워크 URL로 변환합니다.
-        
-        Args:
-            url (str): 변환할 URL
-            
-        Returns:
-            str: Docker 네트워크에서 사용할 수 있는 URL
-        """
-        if not url or url is None:
-            return url
-            
-        # Handle localhost:8080 -> UserServer:8080 for Docker networking
-        if "localhost:8080" in url:
-            converted_url = url.replace("localhost:8080", "UserServer:8080")
-            import logging
-            logging.info(f"URL converted for Docker networking: {url} -> {converted_url}")
-            return converted_url
-            
-        # Handle 127.0.0.1:8080 -> UserServer:8080 as well
-        if "127.0.0.1:8080" in url:
-            converted_url = url.replace("127.0.0.1:8080", "UserServer:8080")
-            import logging
-            logging.info(f"URL converted for Docker networking: {url} -> {converted_url}")
-            return converted_url
-            
-        return url
-
-    @staticmethod
     def encode_image(image_url):
         """
         URL에서 이미지를 가져와 base64로 인코딩합니다.
@@ -58,8 +28,7 @@ class ImageService:
         Raises:
             requests.RequestException: 이미지 다운로드 중 오류 발생 시.
         """
-        converted_url = ImageService._convert_url_for_docker(image_url)
-        response = requests.get(converted_url)
+        response = requests.get(image_url)
         response.raise_for_status()  # 요청이 실패하면 예외를 발생시킵니다.
         image_content = response.content
         base64_image = base64.b64encode(image_content)
@@ -80,21 +49,10 @@ class ImageService:
             이 메서드는 HEAD 요청을 사용하여 콘텐츠 타입을 확인합니다.
         """
         image_formats = ("image/png", "image/jpeg", "image/jpg")
-        
-        # Convert localhost URLs for Docker networking
-        check_url = ImageService._convert_url_for_docker(image_url)
-            
         try:
-            import logging
-            logging.info(f"Checking image URL: {check_url}")
-            r = requests.head(check_url)
-            content_type = r.headers.get("content-type", "")
-            is_valid = content_type in image_formats
-            logging.info(f"URL: {check_url} - Status: {r.status_code} - Content-Type: {content_type} - Valid: {is_valid}")
-            return is_valid
-        except requests.RequestException as e:
-            import logging
-            logging.error(f"Error checking URL {check_url}: {e}")
+            r = requests.head(image_url)
+            return r.headers.get("content-type", "") in image_formats
+        except requests.RequestException:
             return False
 
     @staticmethod
@@ -113,8 +71,7 @@ class ImageService:
             requests.RequestException: 이미지 다운로드 중 오류 발생 시.
             PIL.UnidentifiedImageError: 이미지 형식을 인식할 수 없는 경우.
         """
-        converted_url = ImageService._convert_url_for_docker(image_url)
-        response = requests.get(converted_url)
+        response = requests.get(image_url)
         response.raise_for_status()
         img = Image.open(io.BytesIO(response.content))
         img.thumbnail(max_size)
@@ -145,8 +102,7 @@ class ImageService:
         os.makedirs(label_dir, exist_ok=True)
 
         image_path = os.path.join(label_dir, f"{file_name}.jpg")
-        converted_url = ImageService._convert_url_for_docker(image_url)
-        response = requests.get(converted_url)
+        response = requests.get(image_url)
         response.raise_for_status()
         with open(image_path, "wb") as img_file:
             img_file.write(response.content)
@@ -203,17 +159,13 @@ class ImageService:
                     "text": f"Image {index}:",
                 }
             )
-            
-            # Convert localhost URLs to container network URLs for Docker environments
-            processed_url = ImageService._convert_url_for_docker(url)
-            
             images_for_ai.append(
                 {
                     "type": "image_url",
                     "image_url": {
-                        "url": f"data:image/jpeg;base64,{ImageService.resize_image(processed_url)}"
-                        if "localhost" in url or "UserServer" in processed_url
-                        else url
+                        "url": url
+                        if "localhost" not in url
+                        else f"data:image/jpeg;base64,{ImageService.resize_image(url)}"
                     },
                 }
             )

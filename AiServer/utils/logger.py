@@ -50,26 +50,7 @@ def setup_logging():
     root_logger.addHandler(error_file_handler)
 
     # 로깅 설정 확인
-    root_logger.info("Logging configuration completed. Log level: %s", logging.getLevelName(log_level))
-    
-    # 특정 라이브러리의 로그 레벨 조정
-    # config에서 정의된 라이브러리별 로그 레벨 적용
-    if hasattr(config, 'LIBRARY_LOG_LEVELS'):
-        for lib_name, lib_log_level in config.LIBRARY_LOG_LEVELS.items():
-            lib_logger = logging.getLogger(lib_name)
-            lib_logger.setLevel(getattr(logging, lib_log_level.upper(), logging.WARNING))
-            root_logger.debug(f"Set {lib_name} log level to {lib_log_level}")
-    else:
-        # 기본 설정 (config에 LIBRARY_LOG_LEVELS가 없는 경우)
-        logging.getLogger('pika').setLevel(logging.WARNING)
-        logging.getLogger('pika.adapters').setLevel(logging.WARNING)
-        logging.getLogger('pika.channel').setLevel(logging.WARNING)
-        logging.getLogger('pika.connection').setLevel(logging.WARNING)
-        logging.getLogger('urllib3').setLevel(logging.WARNING)
-        logging.getLogger('urllib3.connectionpool').setLevel(logging.WARNING)
-        logging.getLogger('amqp').setLevel(logging.WARNING)
-        logging.getLogger('httpx').setLevel(logging.WARNING)
-        logging.getLogger('httpcore').setLevel(logging.INFO)
+    root_logger.info("로깅 설정이 완료되었습니다. 로그 레벨: %s", logging.getLevelName(log_level))
 
 def get_logger(name):
     """

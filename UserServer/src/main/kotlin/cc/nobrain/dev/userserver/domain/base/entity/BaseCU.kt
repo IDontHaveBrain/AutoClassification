@@ -28,4 +28,18 @@ abstract class BaseCU {
 
     @LastModifiedDate
     var updateDateTime: OffsetDateTime? = null
+
+    // @PrePersist
+    // protected fun onCreate() {
+    //     createDateTime = OffsetDateTime.now()
+    //     updateDateTime = OffsetDateTime.now()
+    //     createMember = MemberUtil.getCurrentUserEmail()
+    //     updateMember = MemberUtil.getCurrentUserEmail()
+    // }
+
+    // @PreUpdate
+    // protected fun onUpdate() {
+    //     updateDateTime = OffsetDateTime.now()
+    //     updateMember = MemberUtil.getCurrentUserEmail()
+    // }
 }

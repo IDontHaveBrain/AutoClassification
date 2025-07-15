@@ -42,6 +42,10 @@ class RedisConfig(
         /**
          * Lettuce 설정 커스터마이징 필요시 하단 코드 사용.
          */
+//        RedisProperties.Lettuce lettuceConfig = redisProperties.getLettuce();
+//        LettuceClientConfiguration.LettuceClientConfigurationBuilder lettuceConfigBuilder = LettuceClientConfiguration.builder();
+//        return new LettuceConnectionFactory(redisStandaloneConfiguration, lettuceConfigBuilder.build());
+
         return LettuceConnectionFactory(redisStandaloneConfiguration);
     }
 

@@ -23,9 +23,9 @@ class SseHandler(private val objectMapper: ObjectMapper) {
     private val messageQueue = ConcurrentHashMap<String, ArrayDeque<SseMessageDto>>()
     private val lastActivityTime = ConcurrentHashMap<String, ConcurrentHashMap<UUID, Instant>>()
     private val MAX_QUEUE_SIZE = 100
-    private val CONNECTION_TIMEOUT = Duration.ofMinutes(10)
-    private val CLEANUP_INTERVAL = Duration.ofMinutes(1)
-    private val HEARTBEAT_INTERVAL = Duration.ofSeconds(25)
+    private val CONNECTION_TIMEOUT = Duration.ofMinutes(30)
+    private val CLEANUP_INTERVAL = Duration.ofMinutes(3)
+    private val HEARTBEAT_INTERVAL = Duration.ofSeconds(30)
 
     @PostConstruct
     fun init() {
@@ -89,7 +89,8 @@ class SseHandler(private val objectMapper: ObjectMapper) {
             sinks.forEach { sink ->
                 val result = sink.tryEmitNext(serverSentEvent)
                 if (result.isSuccess) {
-                    lastActivityTime[userId]?.values?.forEach { it.plusSeconds(0) }
+                    lastActivityTime[userId]?.values?.forEach { it.plusSeconds(0) } // Update last activity time for all connections
+//                    logger.debug("Event sent to user $userId: ${event.type}")
                 } else {
                     logger.warn("Failed to send event to user $userId, queueing message")
                     queueMessage(userId, event)
@@ -169,24 +170,13 @@ class SseHandler(private val objectMapper: ObjectMapper) {
 
     private fun sendHeartbeat() {
         val heartbeatEvent = SseMessageDto(
-            id = "heartbeat-${System.currentTimeMillis()}",
+            id = "heartbeat",
             type = SseEventType.HEARTBEAT,
-            data = objectMapper.writeValueAsString(mapOf(
-                "timestamp" to System.currentTimeMillis(),
-                "serverTime" to Instant.now().toString()
-            ))
+            data = "Heartbeat"
         )
         userConnections.keys.forEach { userId ->
             sendEvent(userId, heartbeatEvent)
         }
-        logger.debug("Heartbeat sent to ${userConnections.size} connected users")
-    }
-
-    fun updateUserActivity(userId: String) {
-        lastActivityTime[userId]?.keys?.forEach { connectionId ->
-            lastActivityTime[userId]?.put(connectionId, Instant.now())
-        }
-        logger.debug("Updated activity for user: $userId")
     }
 
     private fun serializeMessage(data: Any): String {

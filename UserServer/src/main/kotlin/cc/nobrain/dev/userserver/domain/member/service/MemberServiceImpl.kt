@@ -10,7 +10,6 @@ import cc.nobrain.dev.userserver.domain.member.service.dto.MemberDto
 import cc.nobrain.dev.userserver.domain.member.service.dto.MemberReq
 import jakarta.servlet.http.HttpServletRequest
 import org.modelmapper.ModelMapper
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -28,8 +27,6 @@ class MemberServiceImpl(
     private val memberRepository: MemberRepository,
     private val modelMapper: ModelMapper,
     private val emailService: EmailService,
-    @Value("\${spring.mail.test-connection:true}")
-    private val mailTestConnection: Boolean,
 ) : MemberService {
 
     @Transactional
@@ -39,38 +36,26 @@ class MemberServiceImpl(
         }
 
         var newMember: Member = modelMapper.map(req, Member::class.java)
-        
-        // 개발 환경에서 메일 연결 테스트가 비활성화된 경우 이메일 인증 생략
-        if (!mailTestConnection) {
-            // 메일 인증 생략 - 즉시 계정 활성화
-            newMember.verify()
-        } else {
-            // 운영 환경 - 이메일 인증 필요
-            newMember.generateTempToken()
-        }
-        
+        newMember.generateTempToken();
         newMember = memberRepository.save(newMember)
 
-        // 메일 연결 테스트가 활성화된 경우에만 이메일 발송
-        if (mailTestConnection) {
-            val url = UriComponentsBuilder.newInstance()
-                .scheme(request.scheme)
-                .host(request.serverName)
-                .port(request.serverPort)
-                .path("/api/member/verify")
-                .queryParam("token", newMember.getTempToken())
-                .build()
-                .toString()
+        val url = UriComponentsBuilder.newInstance()
+            .scheme(request.scheme)
+            .host(request.serverName)
+            .port(request.serverPort)
+            .path("/api/member/verify")
+            .queryParam("token", newMember.getTempToken())
+            .build()
+            .toString()
 
-            var linkText = "회원가입 완료"
-            var htmlMessage = "<p>회원가입을 완료하려면 아래 링크를 클릭하세요.</p><br/><a href=\"$url\">$linkText</a>"
+        var linkText = "회원가입 완료"
+        var htmlMessage = "<p>회원가입을 완료하려면 아래 링크를 클릭하세요.</p><br/><a href=\"$url\">$linkText</a>"
 
-            emailService.send(
-                newMember.email,
-                "회원가입 인증",
-                htmlMessage
-            )
-        }
+        emailService.send(
+            newMember.email,
+            "회원가입 인증",
+            htmlMessage
+        )
 
         return modelMapper.map(newMember, MemberDto::class.java)
     }
@@ -105,7 +90,6 @@ class MemberServiceImpl(
             .orElseThrow { CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND) }
 
         member = findMemberByEmail(member!!.username)
-            ?: throw CustomException(ErrorInfo.LOGIN_USER_NOT_FOUND)
 
         return modelMapper.map(member, MemberDto::class.java)
     }
