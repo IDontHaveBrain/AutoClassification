@@ -1,13 +1,13 @@
-import React from "react";
-import ExpandComp from "component/ExpandComp";
-import { WorkspaceModel } from "model/WorkspaceModel";
-import { Avatar, Box, Grid, IconButton, Tooltip, Typography, CircularProgress } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import { Member } from "model/GlobalModel";
+import React from 'react';
+import CloseIcon from '@mui/icons-material/Close';
+import { Avatar, Box, CircularProgress,Grid, IconButton, Tooltip, Typography } from '@mui/material';
+import ExpandComp from 'component/ExpandComp';
+import { type Member } from 'model/GlobalModel';
+import { type WorkspaceModel } from 'model/WorkspaceModel';
 
 interface Props {
     workspace: WorkspaceModel;
-    removeMember: (member: Member) => void;
+    removeMember: (_member: Member) => void;
     isLoading?: boolean;
     error?: string | null;
 }
@@ -34,8 +34,8 @@ const WorkspaceMember: React.FC<Props> = ({ workspace, removeMember, isLoading =
     return (
         <ExpandComp title="Members">
             <Grid container spacing={2}>
-                {workspace?.members?.map((member, index) => (
-                    <Grid item key={index} xs={6} sm={4} md={3} lg={2}>
+                {workspace?.members?.map((member) => (
+                    <Grid item key={member.email} xs={6} sm={4} md={3} lg={2}>
                         <Tooltip title={`${member.name} (${member.email})`}>
                             <Box
                                 sx={{

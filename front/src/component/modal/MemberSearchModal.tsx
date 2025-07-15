@@ -1,17 +1,18 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { initPageable, Member, Pageable } from "model/GlobalModel";
-import { getMemberList } from "service/Apis/MemberApi";
-import { GridColDef, GridRowParams } from "@mui/x-data-grid";
-import BaseTable from "component/baseBoard/BaseTable";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import { DialogActions, DialogContent, DialogTitle, CircularProgress } from "@mui/material";
-import { onAlert } from "component/modal/AlertModal";
-import { Strings } from "utils/strings";
+import React, { useCallback, useEffect, useState } from 'react';
+import { CircularProgress,DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import { type GridColDef, type GridRowParams } from '@mui/x-data-grid';
+import BaseTable from 'component/baseBoard/BaseTable';
+import { initPageable, type Member, type Pageable } from 'model/GlobalModel';
+import { getMemberList } from 'service/Apis/MemberApi';
+
+import { onAlert } from 'utils/alert';
+import { Strings } from 'utils/strings';
 
 interface Props {
     close: () => void;
-    setData: (member: Member) => void;
+    setData: (_member: Member) => void;
 }
 
 interface SearchParams {
@@ -19,20 +20,20 @@ interface SearchParams {
 }
 
 const MemberSearchModal: React.FC<Props> = ({ close, setData }) => {
-    const [search, setSearch] = useState<SearchParams>({ email: "" });
+    const [search, setSearch] = useState<SearchParams>({ email: '' });
     const [pageable, setPageable] = useState<Pageable>(initPageable(10));
     const [members, setMembers] = useState<Member[]>([]);
     const [totalMembers, setTotalMembers] = useState(0);
     const [loading, setLoading] = useState(false);
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearch(prevSearch => ({...prevSearch, [e.target.name]: e.target.value}));
+        setSearch(prevSearch => ({ ...prevSearch, [e.target.name]: e.target.value }));
     };
 
     const columns: GridColDef[] = [
-        { field: "id", headerName: "ID", width: 70 },
-        { field: "email", headerName: "Email", width: 130 },
-        { field: "name", headerName: "Name", width: 130 },
+        { field: 'id', headerName: 'ID', width: 70 },
+        { field: 'email', headerName: 'Email', width: 130 },
+        { field: 'name', headerName: 'Name', width: 130 },
     ];
 
     const handleRowClick = (params: GridRowParams) => {
@@ -50,8 +51,7 @@ const MemberSearchModal: React.FC<Props> = ({ close, setData }) => {
                 setMembers(response.data.content || []);
                 setTotalMembers(response.data.totalElements);
             })
-            .catch((error) => {
-                console.error(error);
+            .catch((_error) => {
                 onAlert(Strings.Common.apiFailed);
             })
             .finally(() => {

@@ -1,19 +1,20 @@
-import { Badge, IconButton, Popover } from "@mui/material";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import { useCallback, useEffect, useState } from "react";
-import { AlarmModel, SseType } from "model/GlobalModel";
-import { getMyAlarms } from "service/Apis/AlarmApi";
-import AlarmDetail from "component/notification/AlarmDetail";
-import { eventBus } from "layouts/BackGround";
+import { useCallback, useEffect, useState } from 'react';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import { Badge, IconButton, Popover } from '@mui/material';
+import AlarmDetail from 'component/notification/AlarmDetail';
+import { type AlarmModel, SseType } from 'model/GlobalModel';
+import { getMyAlarms } from 'service/Apis/AlarmApi';
+
+import { eventBus } from 'utils/eventBus';
 
 const POPOVER_ANCHOR_ORIGIN = {
-    vertical: "bottom" as const,
-    horizontal: "center" as const
+    vertical: 'bottom' as const,
+    horizontal: 'center' as const,
 };
 
 const POPOVER_TRANSFORM_ORIGIN = {
-    vertical: "top" as const,
-    horizontal: "center" as const
+    vertical: 'top' as const,
+    horizontal: 'center' as const,
 };
 
 const sortAlarms = (alarms: AlarmModel[]) =>
@@ -26,28 +27,23 @@ const Notification = () => {
 
     const fetchAlarm = useCallback(async () => {
         try {
-            console.log("Fetching alarms...");
             const response = await getMyAlarms();
-            console.log("Alarms fetched:", response.data);
             setAlarmList(sortAlarms([...response.data]));
-        } catch (error) {
-            console.error("Failed to fetch alarms:", error);
+        } catch (_error) {
+            // 오류를 조용히 처리
         }
     }, []);
 
     useEffect(() => {
-        console.log("Notification component mounted");
         fetchAlarm();
 
         const handleAlarmUpdate = () => {
-            console.log("Received alarm update in Notification component");
             fetchAlarm();
         };
 
         eventBus.subscribe(SseType.ALARM, handleAlarmUpdate);
 
         return () => {
-            console.log("Notification component unmounting");
             eventBus.unsubscribe(SseType.ALARM, handleAlarmUpdate);
         };
     }, [fetchAlarm]);

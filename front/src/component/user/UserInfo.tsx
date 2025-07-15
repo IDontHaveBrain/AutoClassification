@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { IconButton, Popover, Typography, Box } from '@mui/material';
+import React, { useEffect,useState } from 'react';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { Member, SseEvent, SseType } from 'model/GlobalModel';
-import { eventBus } from 'layouts/BackGround';
+import { Box,IconButton, Popover, Typography } from '@mui/material';
+import { type Member, SseType } from 'model/GlobalModel';
+
+import { eventBus } from 'utils/eventBus';
 
 interface UserInfoProps {
   user: Member;

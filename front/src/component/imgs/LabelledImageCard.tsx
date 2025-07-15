@@ -1,16 +1,16 @@
-import React from "react";
-import Grid from "@mui/material/Grid";
-import ImageCard from "component/imgs/ImageCard";
-import Typography from "@mui/material/Typography";
-import Paper from "@mui/material/Paper";
-import Button from "@mui/material/Button";
+import React from 'react';
 import GetAppIcon from '@mui/icons-material/GetApp';
-import Box from "@mui/material/Box";
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import ImageCard from 'component/imgs/ImageCard';
 
 interface LabelledImageCardProps {
     label: string;
     images: { id?: string; url: string; originalFileName?: string }[];
-    onImageClick: (imageUrl: string) => void;
+    onImageClick: (_imageUrl: string) => void;
     imageSize?: 'tiny' | 'small' | 'medium' | 'large';
 }
 
@@ -66,30 +66,30 @@ const LabelledImageCard = ({ label, images, onImageClick, imageSize = 'tiny' }: 
                     Download All
                 </Button>
             </Box>
-            <Grid 
-                container 
+            <Grid
+                container
                 spacing={getGridSpacing()}
-                role="list" 
+                role="list"
                 aria-label={`Images for ${label}`}
             >
                 {images.map((image) => (
-                    <Grid 
-                        item 
+                    <Grid
+                        item
                         {...getGridItemSize()}
-                        key={image.id} 
+                        key={image.id}
                         role="listitem"
                     >
-                        <ImageCard 
-                            id={image.id} 
-                            url={image.url} 
+                        <ImageCard
+                            url={image.url}
                             originalFileName={image.originalFileName}
                             onClick={() => onImageClick(image.url)}
+                            size={imageSize}
                         />
                     </Grid>
                 ))}
             </Grid>
         </Paper>
     );
-}
+};
 
 export default LabelledImageCard;

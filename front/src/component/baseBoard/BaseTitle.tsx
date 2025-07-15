@@ -1,18 +1,12 @@
-import { Card, CardActions, CardContent, CardHeader } from "@mui/material";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import { ReactNode } from "react";
+import Typography from '@mui/material/Typography';
 
 interface Props {
   title: string;
-  content?: string;
-  additionalInfo?: string;
-  children?: ReactNode;
 }
 
-export const BaseTitle = ({ title, content, additionalInfo }: Props) => {
+export const BaseTitle = ({ title }: Props) => {
   return (
-    <Typography fontSize={"1.5rem"} gutterBottom fontWeight={"bold"}>
+    <Typography fontSize={'1.5rem'} gutterBottom fontWeight={'bold'}>
       {title}
     </Typography>
   );

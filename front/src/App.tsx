@@ -1,13 +1,12 @@
-import { RouterProvider } from "react-router-dom";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Provider } from "react-redux";
-import { PersistGate } from "redux-persist/integration/react";
-import { persistor, rootStore } from "stores/rootStore";
-import { Loading } from "pages/default/Loading";
-import { baseRouter } from "Routers";
-import BackGround from "layouts/BackGround";
-import { CustomSnackbarProvider } from "layouts/BackGround";
-import React from "react";
+import React from 'react';
+import { Provider } from 'react-redux';
+import { RouterProvider } from 'react-router-dom';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import BackGround, { CustomSnackbarProvider } from 'layouts/BackGround';
+import { Loading } from 'pages/default/Loading';
+import { PersistGate } from 'redux-persist/integration/react';
+import { baseRouter } from 'Routers';
+import { persistor, rootStore } from 'stores/rootStore';
 
 const defaultTheme = createTheme();
 

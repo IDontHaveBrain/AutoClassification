@@ -1,35 +1,35 @@
-import React, { useCallback, useMemo, useState } from "react";
-import Box from "@mui/material/Box";
-import { DataGrid, GridColDef, GridRowParams, GridSortModel, GridRenderCellParams } from "@mui/x-data-grid";
-import { DataGridProps } from "@mui/x-data-grid/models/props/DataGridProps";
-import { GridPaginationModel } from "@mui/x-data-grid/models/gridPaginationProps";
-import { Pageable } from "model/GlobalModel";
-import { CommonUtil } from "utils/CommonUtil";
-import Tooltip from "@mui/material/Tooltip";
+import React, { useCallback, useMemo, useState } from 'react';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
+import { DataGrid, type GridColDef, type GridRenderCellParams,type GridRowParams, type GridSortModel } from '@mui/x-data-grid';
+import { type GridPaginationModel } from '@mui/x-data-grid/models/gridPaginationProps';
+import { type DataGridProps } from '@mui/x-data-grid/models/props/DataGridProps';
+import { type Pageable } from 'model/GlobalModel';
 
-interface BaseTableProps {
-  rows: any[];
+import { CommonUtil } from 'utils/CommonUtil';
+
+interface BaseTableProps<T = unknown> {
+  rows: T[];
   total: number;
   columns: GridColDef[];
   pageable: Pageable;
-  loadRows: (page: number, pageSize: number, sortModel: string) => void;
-  onClick?: (params: GridRowParams) => void;
+  loadRows: (_page: number, _pageSize: number, _sortModel: string) => void;
+  onClick?: (_params: GridRowParams<T>) => void;
   dataGridProps?: Omit<DataGridProps, 'rows' | 'columns' | 'paginationModel' | 'onPaginationModelChange' | 'onSortModelChange' | 'onRowClick'>;
   children?: React.ReactNode;
-  getTooltipContent?: (row: any) => string;
-  getExpandedContent?: (row: any) => React.ReactNode;
+  getTooltipContent?: (_row: T) => string;
 }
 
-const BaseTable = React.forwardRef<HTMLDivElement, BaseTableProps>(({ 
-  rows = [], 
-  total, 
-  columns, 
-  pageable, 
-  loadRows, 
-  onClick, 
-  dataGridProps, 
+const BaseTable = React.forwardRef<HTMLDivElement, BaseTableProps>(({
+  rows = [],
+  total,
+  columns,
+  pageable,
+  loadRows,
+  onClick,
+  dataGridProps,
   children,
-  getTooltipContent
+  getTooltipContent,
 }, ref) => {
   const [sortModel, setSortModel] = useState<GridSortModel>([]);
 
@@ -80,7 +80,5 @@ const BaseTable = React.forwardRef<HTMLDivElement, BaseTableProps>(({
     </Box>
   );
 });
-
-BaseTable.displayName = 'BaseTable';
 
 export default BaseTable;

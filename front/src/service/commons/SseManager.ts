@@ -1,10 +1,13 @@
-import { EventSourcePolyfill } from "event-source-polyfill";
-import { CONSTANT } from "../../utils/constant";
-import { SseEvent, SseType } from "model/GlobalModel";
+import { EventSourcePolyfill } from 'event-source-polyfill';
+import { type SseEvent, SseType } from 'model/GlobalModel';
 
-type MessageHandler = (data: SseEvent) => void;
-export type ErrorHandler = (err: Error) => void;
-type ConnectionStatusHandler = (isConnected: boolean) => void;
+import { CONSTANT } from '../../utils/constant';
+
+import { UserApi } from './ApiClient';
+
+type MessageHandler = (_data: SseEvent) => void;
+export type ErrorHandler = (_err: Error) => void;
+type ConnectionStatusHandler = (_isConnected: boolean) => void;
 
 class SseManager {
     private static instance: SseManager;
@@ -15,9 +18,9 @@ class SseManager {
     private messageHandlers: Set<MessageHandler> = new Set();
     private errorHandlers: Set<ErrorHandler> = new Set();
     private connectionStatusHandlers: Set<ConnectionStatusHandler> = new Set();
-    private url: string = "";
-    private reconnectTimeout: NodeJS.Timeout | null = null;
-    private heartbeatMonitorTimeout: NodeJS.Timeout | null = null;
+    private url: string = '';
+    private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
+    private heartbeatMonitorTimeout: ReturnType<typeof setInterval> | null = null;
     private lastHeartbeatReceived: number = 0;
     private readonly MAX_RECONNECT_ATTEMPTS = 10;
     private readonly INITIAL_RECONNECT_DELAY = 1000;
@@ -49,48 +52,43 @@ class SseManager {
             const accessToken = sessionStorage.getItem(CONSTANT.ACCESS_TOKEN);
             this.eventSource = new EventSourcePolyfill(this.url, {
                 headers: {
-                    Authorization: `Bearer ${accessToken}`
+                    Authorization: `Bearer ${accessToken}`,
                 },
-                heartbeatTimeout: this.HEARTBEAT_TIMEOUT, // 60 seconds
-                withCredentials: true
+                heartbeatTimeout: this.HEARTBEAT_TIMEOUT,
+                withCredentials: true,
             });
 
             this.eventSource.onopen = this.handleOpen;
             this.eventSource.onerror = this.handleError;
             this.eventSource.onmessage = this.handleMessage;
 
-        } catch (error) {
-            this.handleError(error instanceof Error ? error : new Error('Unknown error occurred'));
+        } catch (_error) {
+            this.handleError(_error instanceof Error ? _error : new Error('Unknown error occurred'));
         }
     }
 
-    private handleOpen = (event: Event): void => {
-        console.log("SSE connection opened", event);
+    private handleOpen = (_event: Event): void => {
         this.isConnected = true;
         this.reconnectAttempts = 0;
         this.lastHeartbeatReceived = Date.now();
         this.startHeartbeatMonitoring();
         this.processMessageQueue();
         this.notifyConnectionStatusChange(true);
-    }
+    };
 
     private handleError = (event: Event | Error): void => {
         const error = event instanceof Error ? event : new Error('SSE connection error');
-        console.error("SSE error:", error);
         this.isConnected = false;
         this.notifyConnectionStatusChange(false);
         this.errorHandlers.forEach(handler => handler(error));
         this.reconnect();
-    }
+    };
 
     private handleMessage = (event: MessageEvent): void => {
-        console.log("Received SSE event:", event);
         try {
             const parsedData: SseEvent = JSON.parse(event.data);
-            console.log("Parsed SSE data:", parsedData);
 
             if (parsedData.type === SseType.HEARTBEAT) {
-                console.log("Received heartbeat");
                 this.lastHeartbeatReceived = Date.now();
                 this.sendHeartbeatResponse();
                 return;
@@ -101,14 +99,14 @@ class SseManager {
                 id: parsedData.id,
                 type: parsedData.type as SseType,
                 data: parsedData.data,
-                timestamp: parsedData.timestamp
+                timestamp: parsedData.timestamp,
             };
 
             this.messageHandlers.forEach(handler => handler(sseEvent));
-        } catch (error) {
-            console.error("Error handling SSE message:", error);
+        } catch (_error) {
+            // 에러 처리
         }
-    }
+    };
 
     public disconnect(): void {
         if (this.eventSource) {
@@ -150,7 +148,7 @@ class SseManager {
 
     public sendMessage(message: SseEvent): void {
         if (this.isConnected) {
-            console.log("Sending message:", message);
+            // 메시지 전송 처리
         } else {
             this.messageQueue.push(message);
         }
@@ -160,19 +158,18 @@ class SseManager {
         if (this.reconnectAttempts < this.MAX_RECONNECT_ATTEMPTS) {
             this.reconnectAttempts++;
             const delay = this.calculateReconnectDelay();
-            console.log(`Attempting to reconnect (attempt ${this.reconnectAttempts}) in ${delay}ms...`);
             this.reconnectTimeout = setTimeout(() => {
                 this.establishConnection();
             }, delay);
         } else {
-            console.error("Max reconnection attempts reached");
+            // 최대 재연결 시도 횟수 초과
         }
     }
 
     private calculateReconnectDelay(): number {
         return Math.min(
             this.INITIAL_RECONNECT_DELAY * Math.pow(2, this.reconnectAttempts),
-            30000 // Max delay of 30 seconds
+            30000,
         );
     }
 
@@ -202,13 +199,12 @@ class SseManager {
         this.stopHeartbeatMonitoring();
         this.heartbeatMonitorTimeout = setInterval(() => {
             const now = Date.now();
-            if (this.isConnected && 
-                this.lastHeartbeatReceived > 0 && 
+            if (this.isConnected &&
+                this.lastHeartbeatReceived > 0 &&
                 now - this.lastHeartbeatReceived > this.HEARTBEAT_TIMEOUT) {
-                console.warn("Heartbeat timeout detected, reconnecting...");
-                this.handleError(new Error("Heartbeat timeout"));
+                this.handleError(new Error('Heartbeat timeout'));
             }
-        }, 30000) as NodeJS.Timeout; // Check every 30 seconds
+        }, 30000);
     }
 
     private stopHeartbeatMonitoring(): void {
@@ -220,19 +216,13 @@ class SseManager {
 
     private sendHeartbeatResponse(): void {
         try {
-            const accessToken = sessionStorage.getItem(CONSTANT.ACCESS_TOKEN);
-            fetch('/api/sse/heartbeat-response', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ timestamp: Date.now() })
-            }).catch(error => {
-                console.error("Failed to send heartbeat response:", error);
+            UserApi.post('/sse/heartbeat-response', {
+                timestamp: Date.now(),
+            }).catch(_error => {
+                // 에러 처리
             });
-        } catch (error) {
-            console.error("Error preparing heartbeat response:", error);
+        } catch (_error) {
+            // 에러 처리
         }
     }
 }

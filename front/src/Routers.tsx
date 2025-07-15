@@ -1,18 +1,18 @@
-import {createBrowserRouter, RouteObject} from "react-router-dom";
-import SignIn from "pages/default/SignIn";
-import SignUp from "pages/default/SignUp";
-import {Layout} from "layouts/Layout";
-import {NotFound} from "pages/default/NotFound";
-import {MenuInfo, MenuItems} from "service/commons/MenuItem";
-import {useState} from "react";
+import { useState } from 'react';
+import { createBrowserRouter, type RouteObject } from 'react-router-dom';
+import { Layout } from 'layouts/Layout';
+import { NotFound } from 'pages/default/NotFound';
+import SignIn from 'pages/default/SignIn';
+import SignUp from 'pages/default/SignUp';
+import { type MenuInfo, MenuItems } from 'service/commons/MenuItem';
 
-const MenuComponent = ({menu}: {menu: MenuInfo}) => {
+const MenuComponent = ({ menu }: {menu: MenuInfo}) => {
     let element = null;
     const [state, setState] = useState();
 
     if (menu.context) {
         element = (
-            <menu.context.Provider value={{state, setState}}>
+            <menu.context.Provider value={{ state, setState }}>
                 {menu.element}
             </menu.context.Provider>
         );
@@ -53,20 +53,20 @@ MenuItems.forEach((menu) => {
 
 const routes: RouteObject[] = [
     {
-        path: "/sign-in",
+        path: '/sign-in',
         element: <SignIn/>,
     },
     {
-        path: "/sign-up",
+        path: '/sign-up',
         element: <SignUp/>,
     },
     {
-        path: "/",
+        path: '/',
         element: <Layout/>,
         children: [...childRoutes],
     },
     {
-        path: "*",
+        path: '*',
         element: <NotFound/>,
     },
 ];

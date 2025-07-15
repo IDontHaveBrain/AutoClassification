@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import ExpandComp from "component/ExpandComp";
-import LabelledImageCard from "component/imgs/LabelledImageCard";
-import { FileModel } from "model/GlobalModel";
-import { Modal, Box } from "@mui/material";
+import React, { useState } from 'react';
+import { Box,Modal } from '@mui/material';
+import ExpandComp from 'component/ExpandComp';
+import LabelledImageCard from 'component/imgs/LabelledImageCard';
+import { type FileModel } from 'model/GlobalModel';
 
 interface Props {
     files: FileModel[];
@@ -42,7 +42,7 @@ const LabelledImages = ({ files }: Props) => {
                         images={files.map(file => ({
                             id: file.id.toString(),
                             url: file.url,
-                            originalFileName: file.originalFileName
+                            originalFileName: file.originalFileName,
                         }))}
                         onImageClick={handleImageClick}
                     />
@@ -66,7 +66,9 @@ const LabelledImages = ({ files }: Props) => {
                     maxHeight: '90%',
                     overflow: 'auto',
                 }}>
-                    <img src={selectedImage!} alt="Enlarged view" style={{ width: '100%', height: 'auto' }} />
+                    {selectedImage && (
+                        <img src={selectedImage} alt="Enlarged view" style={{ width: '100%', height: 'auto' }} />
+                    )}
                 </Box>
             </Modal>
         </>

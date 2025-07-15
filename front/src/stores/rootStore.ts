@@ -1,14 +1,16 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import { persistReducer, persistStore } from "redux-persist";
-import { alertReducer, sseReducer, userInfoReducer } from "./rootSlice";
-import sessionStorage from "redux-persist/es/storage/session";
-import errorMiddleware from "./rootMiddleware";
-import SseManager from "../service/commons/SseManager";
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { persistReducer, persistStore } from 'redux-persist';
+import sessionStorage from 'redux-persist/es/storage/session';
+
+import SseManager from '../service/commons/SseManager';
+
+import errorMiddleware from './rootMiddleware';
+import { alertReducer, sseReducer, userInfoReducer } from './rootSlice';
 
 const persistConfig = {
-  key: "root",
+  key: 'root',
   storage: sessionStorage,
-  whitelist: ["userInfo"],
+  whitelist: ['userInfo'],
 };
 
 const reducers = combineReducers({
@@ -32,7 +34,7 @@ SseManager.getInstance().onConnectionStatusChange((isConnected) => {
   rootStore.dispatch({ type: 'sse/setConnectionStatus', payload: isConnected });
 });
 
-export { rootStore, persistor };
+export { persistor,rootStore };
 
 export type RootState = ReturnType<typeof rootStore.getState>;
 export type AppDispatch = typeof rootStore.dispatch;
