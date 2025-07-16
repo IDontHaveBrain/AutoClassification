@@ -3,23 +3,9 @@ def sendSlackBuildMessage(color, message){
     slackSend(channel: '젠킨스-로그', color: color, message: message)
 }
 
+// UserServer 빌드 및 배포를 위한 Jenkins 파이프라인
 pipeline {
     agent any
-
-//     triggers {
-//         GenericTrigger(
-//             genericVariables: [
-//                 [key: 'ref', value: '$.ref'],
-//                 [key: 'target', value: '$.data.target']
-//             ],
-//             token: 'asd',
-//             causeString: 'Triggered on $ref',
-//             regexpFilterText: '$ref $target',
-//             regexpFilterExpression: 'refs/heads/main userBe',
-//             printContributedVariables: true,
-//             printPostContent: true
-//         )
-//     }
 
     environment {
         USER_SERVER_DIR = 'UserServer'
@@ -29,8 +15,6 @@ pipeline {
         stage('Check Diff') {
             steps {
                 slackSend(color: '#0000FF', message: "START: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
-//                 git 'https://github.com/IDontHaveBrain/AutoClassification.git'
-//                 lastChanges since: 'LAST_SUCCESSFUL_BUILD', format:'SIDE',matching: 'LINE'
             }
         }
         stage('Setup') {
@@ -86,6 +70,7 @@ def grantExecutePermission(path){
 }
 
 def gradleBuild(){
+    // 배포 빌드 시 테스트 실행 시간 단축을 위해 테스트 제외
     sh './gradlew build --exclude-task test'
 }
 

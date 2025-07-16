@@ -1,28 +1,29 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { WorkspaceModel } from "model/WorkspaceModel";
+import React, { useCallback,useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import {
+    Avatar,
     Box,
-    Typography,
+    Button,
+    Chip,
     CircularProgress,
     DialogActions,
     DialogContent,
-    Button,
     Grid,
-    Avatar,
-    Chip,
     ImageList,
     ImageListItem,
-    Paper,
     Modal,
-    Tabs,
+    Paper,
     Tab,
-} from "@mui/material";
-import { deleteWorkspace, getWorkspace } from "service/Apis/WorkspaceApi";
-import { onAlert } from "component/modal/AlertModal";
-import { Strings } from "utils/strings";
-import { eventBus } from "layouts/BackGround";
-import { SseEvent, SseType } from "model/GlobalModel";
+    Tabs,
+    Typography,
+} from '@mui/material';
+import { SseType } from 'model/GlobalModel';
+import { type WorkspaceModel } from 'model/WorkspaceModel';
+import { deleteWorkspace, getWorkspace } from 'service/Apis/WorkspaceApi';
+
+import { onAlert } from 'utils/alert';
+import { eventBus } from 'utils/eventBus';
 
 interface Props {
     data: WorkspaceModel;
@@ -33,17 +34,19 @@ interface Props {
 const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }) => {
     const [detail, setDetail] = useState<WorkspaceModel | null>(null);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
-    const [selectedTab, setSelectedTab] = useState<string>("All");
+    const [selectedTab, setSelectedTab] = useState<string>('All');
+    const { t: tCommon } = useTranslation('common');
+    const { t: tApi } = useTranslation('api');
 
-    const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+    const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue);
     };
 
     const filteredFiles = () => {
-        if (!detail.files) return [];
-        if (selectedTab === 'All') {
-            return detail.files; // 모든 파일 표시
-        } else if (selectedTab === 'None') {
+        if (!detail?.files) return [];
+        if (selectedTab === tCommon('common.all')) {
+            return detail.files;
+        } else if (selectedTab === tCommon('common.none')) {
             return detail.files.filter(file => !file.label || file.label.toLowerCase() === 'none');
         } else if (detail.classes?.includes(selectedTab)) {
             return detail.files.filter(file => file.label === selectedTab);
@@ -56,22 +59,18 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
         try {
             const res = await getWorkspace(id);
             setDetail(res.data);
-        } catch (err) {
-            console.error(err);
-            onAlert(Strings.Common.apiFailed);
+        } catch (_err) {
+            onAlert(tApi('api.requestFailed'));
         }
-    }, []);
+    }, [tApi]);
 
     useEffect(() => {
         if (data && data.id) {
             fetchWorkspaceDetail(data.id);
 
-            const handleSseMessage = (event: SseEvent) => {
-                if (event.type === SseType.WORKSPACE_UPDATE) {
-                    const updatedWorkspace = JSON.parse(event.data);
-                    if (updatedWorkspace.id === data.id) {
-                        fetchWorkspaceDetail(data.id);
-                    }
+            const handleSseMessage = (updatedWorkspace: WorkspaceModel) => {
+                if (updatedWorkspace.id === data.id) {
+                    fetchWorkspaceDetail(data.id);
                 }
             };
 
@@ -81,10 +80,11 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                 eventBus.unsubscribe(SseType.WORKSPACE_UPDATE, handleSseMessage);
             };
         }
+        return undefined;
     }, [data, fetchWorkspaceDetail]);
 
     const handleEdit = () => {
-        navigate("/workspace/editor", { state: { data: detail } });
+        navigate('/workspace/editor', { state: { data: detail } });
     };
 
     const handleDelete = () => {
@@ -93,11 +93,10 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                 .then(() => {
                     handleClose();
                     onDeleteSuccess();
-                    onAlert(Strings.Common.apiSuccess);
+                    onAlert(tApi('api.requestSuccess'));
                 })
-                .catch((err) => {
-                    console.error(err);
-                    onAlert(Strings.Common.apiFailed);
+                .catch((_err) => {
+                    onAlert(tApi('api.requestFailed'));
                 });
         }
     };
@@ -118,18 +117,18 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                         {detail.name}
                     </Typography>
                     <Typography variant="subtitle1" color="textSecondary">
-                        Owner: {detail.owner.name} ({detail.owner.email})
+                        {tCommon('common.owner')}: {detail.owner.name} ({detail.owner.email})
                     </Typography>
                 </Box>
 
                 <Paper elevation={3} sx={{ p: 2, mb: 3 }}>
                     <Typography variant="h6" gutterBottom>
-                        Description
+                        {tCommon('common.description')}
                     </Typography>
                     <Typography
                         variant="body1"
                         dangerouslySetInnerHTML={{
-                            __html: detail.description || "No description available.",
+                            __html: detail.description || tCommon('common.noDescriptionAvailable'),
                         }}
                     />
                 </Paper>
@@ -137,11 +136,11 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                 {detail.classes && detail.classes.length > 0 && (
                     <Paper elevation={3} sx={{ p: 2, mb: 3 }}>
                         <Typography variant="h6" gutterBottom>
-                            Classes
+                            {tCommon('common.classes')}
                         </Typography>
                         <Box display="flex" flexWrap="wrap" gap={1}>
-                            {detail.classes.map((cls, index) => (
-                                <Chip key={index} label={cls} color="primary" variant="outlined" />
+                            {detail.classes.map((cls) => (
+                                <Chip key={cls} label={cls} color="primary" variant="outlined" />
                             ))}
                         </Box>
                     </Paper>
@@ -150,11 +149,11 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                 {detail.files && detail.files.length > 0 && (
                     <Paper elevation={3} sx={{ p: 2, mb: 3 }}>
                         <Typography variant="h6" gutterBottom>
-                            Images
+                            {tCommon('common.images')}
                         </Typography>
                         <Tabs value={selectedTab} onChange={handleTabChange} aria-label="image tabs">
-                            <Tab label="All" value="All" /> {/* 모든 파일 탭 */}
-                            <Tab label="None" value="None" /> {/* 분류되지 않은 파일 탭 */}
+                            <Tab label={tCommon('common.all')} value={tCommon('common.all')} />
+                            <Tab label={tCommon('common.none')} value={tCommon('common.none')} />
                             {detail.classes?.map((className) => (
                                 <Tab key={className} label={className} value={className} />
                             ))}
@@ -187,8 +186,8 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                                 outline: 'none',
                             }}>
                                 <img
-                                    src={selectedImage}
-                                    alt="Expanded view"
+                                    src={selectedImage || ''}
+                                    alt={tCommon('common.expandedView')}
                                     style={{
                                         maxWidth: '100%',
                                         maxHeight: '90vh',
@@ -203,11 +202,11 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
                 {detail.members && detail.members.length > 0 && (
                     <Paper elevation={3} sx={{ p: 2, mb: 3 }}>
                         <Typography variant="h6" gutterBottom>
-                            Members
+                            {tCommon('common.members')}
                         </Typography>
                         <Grid container spacing={2}>
                             {detail.members.map((member) => (
-                                <Grid item key={member.id}>
+                                <Grid size="auto" key={member.id}>
                                     <Box display="flex" alignItems="center">
                                         <Avatar sx={{ mr: 1 }}>{member.name[0]}</Avatar>
                                         <Typography variant="body2">{member.name}</Typography>
@@ -220,13 +219,13 @@ const WorkspaceDetail: React.FC<Props> = ({ data, handleClose, onDeleteSuccess }
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleDelete} color="error">
-                    Delete
+                    {tCommon('common.delete')}
                 </Button>
                 <Button onClick={handleEdit} color="primary">
-                    Edit
+                    {tCommon('common.edit')}
                 </Button>
-                <Button onClick={handleClose} color="primary" autoFocus>
-                    Close
+                <Button onClick={handleClose} color="primary">
+                    {tCommon('common.close')}
                 </Button>
             </DialogActions>
         </>

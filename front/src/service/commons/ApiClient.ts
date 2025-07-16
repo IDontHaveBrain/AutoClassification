@@ -1,50 +1,77 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
-import qs from "qs";
-import { CONSTANT } from "utils/constant";
+import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
+
+import AuthUtils from 'utils/authUtils';
+import { CONSTANT } from 'utils/constant';
 
 export const AuthApi: AxiosInstance = axios.create({
   baseURL: CONSTANT.AUTH_API_URL,
   headers: {
-    Accept: "application/json",
+    Accept: 'application/json',
   },
 });
+
+AuthApi.interceptors.request.use(
+  (config) => {
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
+
+AuthApi.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
 
 export const UserApi: AxiosInstance = axios.create({
   baseURL: CONSTANT.API_URL,
   headers: {
-    Accept: "application/json",
+    Accept: 'application/json',
   },
 });
 
 export const PublicApi: AxiosInstance = axios.create({
   baseURL: CONSTANT.PUBLIC_FILES_URL,
   headers: {
-    Accept: "application/json",
+    Accept: 'application/json',
   },
 });
 
-const checkToken = async (config: InternalAxiosRequestConfig) => {
-  const access_token = sessionStorage.getItem(CONSTANT.ACCESS_TOKEN);
+const checkToken = (config: InternalAxiosRequestConfig) => {
+  const access_token = AuthUtils.getValidAccessToken();
 
   if (access_token) {
-    // config.headers = config.headers || {};
-    config.headers.Authorization = "Bearer " + access_token;
+    if (AuthUtils.willTokenExpireSoon(access_token, 2)) {
+      // TODO: 토큰 갱신 로직 구현
+    }
+
+    config.headers.Authorization = `Bearer ${access_token}`;
+  } else {
+    const error = new Error('No valid authentication token available');
+    error.name = 'AuthenticationError';
+    throw error;
   }
 
   return config;
 };
 
-// axios.defaults.withCredentials = true;
-UserApi.interceptors.request.use(checkToken);
+UserApi.interceptors.request.use(
+  checkToken,
+  (error) => {
+    return Promise.reject(error);
+  },
+);
+
 UserApi.interceptors.response.use(
   (response) => {
     return response;
   },
   (error) => {
-    if (error.response && error.response.status === 401) {
-      sessionStorage.setItem(CONSTANT.ACCESS_TOKEN, "");
-      window.location.href = "/sign-in";
-    }
     return Promise.reject(error);
   },
 );

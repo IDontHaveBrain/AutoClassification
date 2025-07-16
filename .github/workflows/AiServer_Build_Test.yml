@@ -50,12 +50,3 @@ jobs:
           echo "Health check passed successfully."
           kill $SERVER_PID
 
-      - if: github.ref == 'refs/heads/main'
-        name: 'Deploy'
-        uses: distributhor/workflow-webhook@v3
-        with:
-          webhook_url: ${{ secrets.WEBHOOK_URL }}
-          data: '{ "target": "${{ secrets.AITARGET }}" }'
-          webhook_type: 'json-extended'
-          verbose: true
-          verify_ssl: false

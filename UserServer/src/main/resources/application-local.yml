@@ -1,0 +1,72 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/postgres
+    username: ${DB_USERNAME:jnj}
+    password: ${DB_PASSWORD:sqisoft}
+    hikari:
+      maximum-pool-size: 30  # 동시 이미지 처리를 위한 증가된 풀 크기
+      minimum-idle: 15  # 풀 크기에 비례하여 증가
+      idle-timeout: 60000
+      connection-timeout: 30000
+      max-lifetime: 1800000  # 30분
+      leak-detection-threshold: 60000  # 60초
+
+  data:
+    redis:
+      host: localhost
+      port: 6378
+      timeout: 5000
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        concurrency: 12  # 동시 처리를 위한 증가된 동시성
+        max-concurrency: 20  # 동시 처리를 위한 최대 동시성
+        prefetch: 4
+
+  mail:
+    test-connection: false
+
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 1GB  # 6개 이미지 * 200MB + 오버헤드
+      file-size-threshold: 10MB  # 10MB 이후 디스크에 쓰기
+      location: /tmp/uploads
+
+  web:
+    resources:
+      static-locations:
+        - file:/data/docker/toy/resource/public/
+        - file:/data/docker/toy/resource/
+
+app:
+  url:
+    ai: http://localhost:5000
+
+  storage:
+    path: /data/docker/toy/resource/
+    resourcePath: public/
+    maxFileSize: 209715200  # 200MB
+
+server:
+  tomcat:
+    max-connections: 3000  # 로컬 개발용으로 균형잡힌 값
+    accept-count: 100  # 로컬 개발용 표준값
+    max-parameter-count: 50000
+    max-http-form-post-size: 1GB  # max-request-size와 맞춤
+    # 동시 처리를 위한 스레드 풀 설정
+    threads:
+      max: 200  # 로컬 개발용 표준값
+      min-spare: 10  # 로컬 개발용 표준값
+    # 연결 관리
+    connection-timeout: 30000
+    keep-alive-timeout: 30000
+    max-keep-alive-requests: 100
+    # 추가 multipart 제한
+    max-swallow-size: 2GB

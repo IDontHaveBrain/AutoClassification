@@ -1,4 +1,4 @@
-version: '3'
+# AutoClassification Docker Compose Configuration
 services:
  UserServer:
   build:
@@ -16,6 +16,18 @@ services:
    - share-net
   environment:
    TZ: "Asia/Seoul"
+   # Database Configuration
+   DB_USERNAME: ${POSTGRES_USER:-jnj}
+   DB_PASSWORD: ${POSTGRES_PASSWORD:-sqisoft}
+   # RabbitMQ Configuration
+   RABBITMQ_USERNAME: ${RABBITMQ_USER:-guest}
+   RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+   # Email Configuration
+   MAIL_USERNAME: ${MAIL_USERNAME:-jonamjun.dev@gmail.com}
+   MAIL_PASSWORD: ${MAIL_PASSWORD:-dummy-password}
+   MAIL_TEST_CONNECTION: ${MAIL_TEST_CONNECTION:-false}
+   # AI Service Configuration
+   AI_URL: ${AI_URL:-http://AiServer:5000}
 
  AiServer:
   build:
@@ -32,7 +44,16 @@ services:
    - share-net
   environment:
    TZ: "Asia/Seoul"
+   # RabbitMQ Configuration
+   RABBITMQ_HOST: ${RABBITMQ_HOST:-autoclassify-rabbit}
+   RABBITMQ_PORT: ${RABBITMQ_PORT:-5672}
+   RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+   RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
+   # AI API Keys
+   OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+   GEMINI_API_KEY: ${GEMINI_API_KEY}
    OPENAI_API_KEY: ${OPENAI_API_KEY}
+   ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
 
 networks:
  share-net:

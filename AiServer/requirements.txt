@@ -1,8 +1,20 @@
-Flask
-Flask-Limiter
-openai
-requests
-ultralytics
-pika
-python-dotenv
-black
+# Production Requirements - AiServer
+# Only dependencies needed for running the application in production
+
+# Web Framework
+Flask==3.1.1
+Flask-Limiter==3.12
+
+# AI/LLM Core
+litellm==1.74.0
+openai==1.91.0
+
+# YOLO/Computer Vision
+ultralytics==8.3.40
+
+# Message Queue
+pika==1.3.2
+
+# Utilities
+requests==2.31.0
+python-dotenv==1.1.1

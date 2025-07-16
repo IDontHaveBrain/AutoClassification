@@ -2,6 +2,7 @@ package cc.nobrain.dev.userserver.domain.sse.controller
 
 import cc.nobrain.dev.userserver.domain.member.entity.Member
 import cc.nobrain.dev.userserver.domain.sse.service.SseService
+import org.springframework.http.ResponseEntity
 import org.springframework.http.codec.ServerSentEvent
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -42,5 +43,12 @@ class SseController(private val sseService: SseService) {
         } ?: run {
             logger.warn("User ${member.id} attempted to send a group message but has no group")
         }
+    }
+
+    @PostMapping("/heartbeat-response")
+    fun heartbeatResponse(@AuthenticationPrincipal member: Member, @RequestBody payload: Map<String, Any>): ResponseEntity<Map<String, String>> {
+        logger.debug("Heartbeat response received from user: ${member.id}")
+        sseService.handleHeartbeatResponse(member.id.toString(), payload)
+        return ResponseEntity.ok(mapOf("status" to "acknowledged"))
     }
 }

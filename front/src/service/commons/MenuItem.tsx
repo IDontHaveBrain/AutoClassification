@@ -1,17 +1,20 @@
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import {Context, ReactNode} from "react";
-import {Home} from "pages/default/Home";
-import SignIn from "pages/default/SignIn";
-import SignUp from "pages/default/SignUp";
-import NoticeEditor from "pages/contents/notice/NoticeEditor";
-import NoticeList from "pages/contents/notice/NoticeList";
-import TestClassfiy from "pages/contents/freetest/TestClassfiy";
-import WorkspaceList from "../../pages/contents/workspace/WorkspaceList";
-import WorkspaceEditor from "pages/contents/workspace/WorkspaceEditor";
-import {NoticeContext, WorkspaceContext} from "utils/ContextManager";
-import Train from "pages/contents/workspace/training/Train";
-import TestResultList from "pages/contents/freetest/TestResultList";
-import AutoLabel from "pages/contents/workspace/autolabel/AutoLabel";
+import { type Context, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import TestClassfiy from 'pages/contents/freetest/TestClassfiy';
+import TestResultList from 'pages/contents/freetest/TestResultList';
+import NoticeEditor from 'pages/contents/notice/NoticeEditor';
+import NoticeList from 'pages/contents/notice/NoticeList';
+import AutoLabel from 'pages/contents/workspace/autolabel/AutoLabel';
+import Train from 'pages/contents/workspace/training/Train';
+import WorkspaceEditor from 'pages/contents/workspace/WorkspaceEditor';
+import Home from 'pages/default/Home';
+import SignIn from 'pages/default/SignIn';
+import SignUp from 'pages/default/SignUp';
+
+import { type ContextType,NoticeContext, WorkspaceContext } from 'utils/ContextManager';
+
+import WorkspaceList from '../../pages/contents/workspace/WorkspaceList';
 
 export interface MenuInfo {
     name: string;
@@ -19,143 +22,128 @@ export interface MenuInfo {
     invisible?: boolean;
     icon?: ReactNode;
     element?: ReactNode;
-    context?: Context<any>;
+    context?: Context<ContextType<unknown> | null>;
     subMenu?: MenuInfo[];
     subTabMenu?: MenuInfo[];
 }
 
-export const MenuItems: MenuInfo[] = [
-    {
-        name: "Home",
-        path: "/",
-        icon: <AssignmentIcon/>,
-        element: <Home/>,
-        subTabMenu: [
-            {
-                name: "Sign In",
-                path: "/sign-in",
-                element: <SignIn/>,
-            },
-            {
-                name: "Sign Up",
-                path: "/sign-up",
-                element: <SignUp/>,
-            },
-        ],
-    },
-    {
-        name: "공지사항",
-        path: "/notice",
-        element: <NoticeList/>,
-        context: NoticeContext,
-        subMenu: [
-            {
-                name: "공지사항 작성",
-                path: "/notice/write",
-                element: <NoticeEditor/>,
-                context: NoticeContext,
-                invisible: true,
-            },
-        ],
-    },
-    {
-        name: "Workspace",
-        context: WorkspaceContext,
-        subMenu: [
-            {
-                name: "Workspace List",
-                path: "/workspace",
-                element: <WorkspaceList/>,
-                context: WorkspaceContext,
-            },
-            {
-                name: "Workspace Editor",
-                path: "/workspace/editor",
-                element: <WorkspaceEditor/>,
-                context: WorkspaceContext,
-                invisible: true,
-            },
-            {
-                name: "Auto Label",
-                path: "/workspace/auto-label",
-                element: <AutoLabel/>,
-            },
-            {
-                name: "Training",
-                path: "/workspace/training",
-                element: <Train/>,
-            },
-        ],
-        subTabMenu: [
-            {
-                name: "Workspace List",
-                path: "/workspace",
-                element: <WorkspaceList/>,
-            },
-            {
-                name: "Auto Label",
-                path: "/workspace/auto-label",
-                element: <AutoLabel/>,
-            },
-            {
-                name: "Training",
-                path: "/workspace/training",
-                element: <Train/>,
-            },
-        ],
-    },
-    {
-        name: "Service",
-        subMenu: [
-            {
-                name: "TestClassfiy",
-                path: "/test/classfiy",
-                element: <TestClassfiy/>,
-            },
-            {
-                name: "TestResult",
-                path: "/test/result",
-                element: <TestResultList/>,
-            }
-        ],
-        subTabMenu: [
-            {
-                name: "Classfiy",
-                path: "/test/classfiy",
-                element: <TestClassfiy/>,
-            },
-            {
-                name: "Result",
-                path: "/test/result",
-                element: <TestResultList/>,
-            }
-        ],
-    },
-    // {
-    //     name: "My Page",
-    //     subMenu: [
-    //         {
-    //             name: "Not Found",
-    //             path: "/not-found",
-    //             element: <NotFound/>,
-    //         },
-    //         {
-    //             name: "Test Submenu2",
-    //             subMenu: [
-    //                 {
-    //                     name: "Test Submenu3",
-    //                     subMenu: [
-    //                         {
-    //                             name: "Test Submenu4",
-    //                             path: "/test-submenu4",
-    //                         },
-    //                     ],
-    //                 },
-    //             ],
-    //         },
-    //     ],
-    // },
-];
+export const useMenuItems = (): MenuInfo[] => {
+    const { t: tNavigation } = useTranslation('navigation');
+    const { t: tCommon } = useTranslation('common');
+
+    return [
+        {
+            name: tNavigation('menu.home'),
+            path: '/',
+            icon: <AssignmentIcon/>,
+            element: <Home/>,
+            subTabMenu: [
+                {
+                    name: tCommon('signIn'),
+                    path: '/sign-in',
+                    element: <SignIn/>,
+                },
+                {
+                    name: tCommon('signUp'),
+                    path: '/sign-up',
+                    element: <SignUp/>,
+                },
+            ],
+        },
+        {
+            name: tNavigation('menu.notice'),
+            path: '/notice',
+            element: <NoticeList/>,
+            context: NoticeContext,
+            subMenu: [
+                {
+                    name: tNavigation('submenu.noticeWrite'),
+                    path: '/notice/write',
+                    element: <NoticeEditor/>,
+                    context: NoticeContext,
+                    invisible: true,
+                },
+            ],
+        },
+        {
+            name: tNavigation('menu.workspace'),
+            context: WorkspaceContext,
+            subMenu: [
+                {
+                    name: tNavigation('submenu.workspaceList'),
+                    path: '/workspace',
+                    element: <WorkspaceList/>,
+                    context: WorkspaceContext,
+                },
+                {
+                    name: tNavigation('submenu.workspaceEditor'),
+                    path: '/workspace/editor',
+                    element: <WorkspaceEditor/>,
+                    context: WorkspaceContext,
+                    invisible: true,
+                },
+                {
+                    name: tNavigation('submenu.autoLabel'),
+                    path: '/workspace/auto-label',
+                    element: <AutoLabel/>,
+                },
+                {
+                    name: tNavigation('submenu.training'),
+                    path: '/workspace/training',
+                    element: <Train/>,
+                },
+            ],
+            subTabMenu: [
+                {
+                    name: tNavigation('submenu.workspaceList'),
+                    path: '/workspace',
+                    element: <WorkspaceList/>,
+                },
+                {
+                    name: tNavigation('submenu.autoLabel'),
+                    path: '/workspace/auto-label',
+                    element: <AutoLabel/>,
+                },
+                {
+                    name: tNavigation('submenu.training'),
+                    path: '/workspace/training',
+                    element: <Train/>,
+                },
+            ],
+        },
+        {
+            name: tNavigation('menu.service'),
+            subMenu: [
+                {
+                    name: tNavigation('submenu.testClassify'),
+                    path: '/test/classfiy',
+                    element: <TestClassfiy/>,
+                },
+                {
+                    name: tNavigation('submenu.testResult'),
+                    path: '/test/result',
+                    element: <TestResultList/>,
+                },
+            ],
+            subTabMenu: [
+                {
+                    name: tNavigation('submenu.classify'),
+                    path: '/test/classfiy',
+                    element: <TestClassfiy/>,
+                },
+                {
+                    name: tNavigation('submenu.result'),
+                    path: '/test/result',
+                    element: <TestResultList/>,
+                },
+            ],
+        },
+    ];
+};
+
+// 레거시 정적 MenuItems 배열 - 사용 중단됨, useMenuItems 훅 사용 권장
+// @deprecated 다국어 지원을 위해 useMenuItems 훅을 사용하세요
+export const MenuItems: MenuInfo[] = [];
 
 export const findMenuPath = (menus: MenuInfo[], path: string): MenuInfo[] => {
     for (const menu of menus) {
@@ -233,7 +221,7 @@ export const findSiblingTabs = (menus: MenuInfo[], path: string): MenuInfo[] => 
 
         if (menu.subMenu) {
             const found = findSiblingTabs(menu.subMenu, path);
-            if (found) {
+            if (found.length > 0) {
                 return found;
             }
         }

@@ -1,13 +1,13 @@
 plugins {
-    id 'org.springframework.boot' version '3.2.10'
-    id 'io.spring.dependency-management' version '1.1.6'
+    id 'org.springframework.boot' version '3.5.3'
+    id 'io.spring.dependency-management' version '1.1.7'
     id 'org.asciidoctor.jvm.convert' version '3.3.2'
-    id 'org.jetbrains.kotlin.jvm' version '1.9.25'
-    id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25'
-    id 'org.jetbrains.kotlin.plugin.jpa' version '1.9.25'
-    id 'org.jetbrains.kotlin.plugin.allopen' version '1.9.25'
-    id 'org.jetbrains.kotlin.plugin.noarg' version '1.9.25'
-    id 'org.jetbrains.kotlin.kapt' version '1.9.25'
+    id 'org.jetbrains.kotlin.jvm' version '2.1.21'
+    id 'org.jetbrains.kotlin.plugin.spring' version '2.1.21'
+    id 'org.jetbrains.kotlin.plugin.jpa' version '2.1.21'
+    id 'org.jetbrains.kotlin.plugin.allopen' version '2.1.21'
+    id 'org.jetbrains.kotlin.plugin.noarg' version '2.1.21'
+    id 'org.jetbrains.kotlin.kapt' version '2.1.21'
 }
 
 group = 'cc.nobrain.dev'
@@ -23,6 +23,7 @@ allOpen {
     annotation('jakarta.persistence.Entity')
     annotation('jakarta.persistence.MappedSuperclass')
     annotation('jakarta.persistence.Embeddable')
+    annotation('org.springframework.transaction.annotation.Transactional')
 }
 
 configurations {
@@ -68,17 +69,39 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
-    implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.5.0'
-    implementation 'org.modelmapper:modelmapper:3.2.0'
-    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
-    testImplementation 'com.github.gavlyukovskiy:datasource-proxy-spring-boot-starter:1.9.1'
+    // 도커 기반 통합 테스트를 위한 TestContainers
+    testImplementation platform('org.testcontainers:testcontainers-bom:1.20.3')
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:postgresql'
+    testImplementation 'org.testcontainers:rabbitmq'
+
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
+    implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.9'
+    implementation 'org.modelmapper:modelmapper:3.2.4'
+    testImplementation 'com.github.gavlyukovskiy:datasource-proxy-spring-boot-starter:1.11.0'
+    testRuntimeOnly 'com.h2database:h2'
 }
 
 def snippetsDir = file('build/generated-snippets')
+
 test {
     outputs.dir snippetsDir
-            useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags 'docker'
+    }
+    description = 'Run fast H2-based unit and integration tests'
+    group = 'verification'
+}
+
+task dockerTest(type: Test) {
+    outputs.dir snippetsDir
+    useJUnitPlatform()
+    systemProperty 'spring.profiles.active', 'docker'
+    description = 'Run all tests with Docker infrastructure (PostgreSQL, Redis, RabbitMQ)'
+    group = 'verification'
+
+    maxHeapSize = '2048m'
+    systemProperty 'junit.jupiter.execution.timeout.default', '5m'
 }
 
 asciidoctor {
@@ -86,10 +109,6 @@ asciidoctor {
             dependsOn test
 }
 
-//task buildWithoutTest {
-//    dependsOn 'clean', 'build'
-//    test.enabled = false
-//}
 
 clean {
     doLast {

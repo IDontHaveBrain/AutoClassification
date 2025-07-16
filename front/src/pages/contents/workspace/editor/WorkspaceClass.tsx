@@ -1,27 +1,32 @@
-import React, { useState } from "react";
-import { Grid, IconButton, TextField, Chip, Autocomplete, CircularProgress, Typography } from "@mui/material";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import ExpandComp from "component/ExpandComp";
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { Autocomplete, Chip, CircularProgress, Grid, IconButton, TextField, Typography } from '@mui/material';
+
+import ExpandComp from 'components/ExpandComp';
 
 interface Props {
   classes?: string[];
-  onClassesChange: (classes: string[]) => void;
+  onClassesChange: (_classes: string[]) => void;
   isLoading?: boolean;
   error?: string | null;
 }
 
-const WorkspaceClass: React.FC<Props> = ({ classes, onClassesChange, isLoading = false, error = null }) => {
+const WorkspaceClass: React.FC<Props> = ({ classes = [], onClassesChange, isLoading = false, error = null }) => {
+  const { t } = useTranslation('common');
   const [newClass, setNewClass] = useState<string>('');
 
   const handleAdd = () => {
-    if (newClass && !classes.includes(newClass)) {
-      onClassesChange([...classes, newClass]);
+    const safeClasses = classes ?? [];
+    if (newClass && !safeClasses.includes(newClass)) {
+      onClassesChange([...safeClasses, newClass]);
       setNewClass('');
     }
   };
 
   const handleRemove = (classToRemove: string) => {
-    onClassesChange(classes.filter((c) => c !== classToRemove));
+    const safeClasses = classes ?? [];
+    onClassesChange(safeClasses.filter((c) => c !== classToRemove));
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,7 +35,7 @@ const WorkspaceClass: React.FC<Props> = ({ classes, onClassesChange, isLoading =
 
   if (isLoading) {
     return (
-      <ExpandComp title="Classify">
+      <ExpandComp title={t('classify')}>
         <Grid container justifyContent="center">
           <CircularProgress />
         </Grid>
@@ -40,44 +45,49 @@ const WorkspaceClass: React.FC<Props> = ({ classes, onClassesChange, isLoading =
 
   if (error) {
     return (
-      <ExpandComp title="Classify">
+      <ExpandComp title={t('classify')}>
         <Typography color="error" align="center">{error}</Typography>
       </ExpandComp>
     );
   }
 
   return (
-    <ExpandComp title="Classify">
+    <ExpandComp title={t('classify')}>
       <Grid container direction="column" spacing={2}>
-        <Grid item>
+        <Grid size="auto">
           <Autocomplete
             freeSolo
-            options={classes}
+            options={classes ?? []}
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Add new class"
+                label={t('addNewClass')}
                 variant="outlined"
                 value={newClass}
                 onChange={handleInputChange}
               />
             )}
             renderTags={(value: string[], getTagProps) =>
-              value.map((option: string, index: number) => (
-                <Chip key={option} variant="outlined" label={option} {...getTagProps({ index })} />
-              ))
+              value.map((option: string, index: number) => {
+                const existingCount = value.slice(0, index).filter(item => item === option).length;
+                const stableKey = `chip-${option}${existingCount > 0 ? `-${existingCount}` : ''}`;
+                const { key: _key, ...tagProps } = getTagProps({ index });
+                return (
+                  <Chip key={stableKey} variant="outlined" label={option} {...tagProps} />
+                );
+              })
             }
           />
         </Grid>
-        <Grid item>
+        <Grid size="auto">
           <IconButton onClick={handleAdd} color="primary">
             <AddCircleOutlineIcon />
           </IconButton>
         </Grid>
-        <Grid item>
+        <Grid size="auto">
           <Grid container spacing={1}>
-            {classes && classes.map((item, index) => (
-              <Grid item key={index}>
+            {classes && classes.map((item) => (
+              <Grid size="auto" key={item}>
                 <Chip
                   label={item}
                   onDelete={() => handleRemove(item)}

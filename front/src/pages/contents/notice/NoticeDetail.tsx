@@ -1,15 +1,16 @@
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import {
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-} from "@mui/material";
-import Button from "@mui/material/Button";
-import { NoticeModel } from "model/GlobalModel";
-import { useNavigate } from "react-router-dom";
-import { deleteNotice } from "service/Apis/NoticeApi";
-import { onAlert } from "component/modal/AlertModal";
-import { Strings } from "utils/strings";
+} from '@mui/material';
+import Button from '@mui/material/Button';
+import { type NoticeModel } from 'model/GlobalModel';
+import { deleteNotice } from 'service/Apis/NoticeApi';
+
+import { onAlert } from 'utils/alert';
 
 interface Props {
   data: NoticeModel;
@@ -17,21 +18,21 @@ interface Props {
 }
 
 const NoticeDetail = ({ data, handleClose }: Props) => {
+  const { t } = useTranslation('notice');
   const navigate = useNavigate();
 
   const handleEdit = () => {
-    navigate("/notice/write", { state: { data } });
+    navigate('/notice/write', { state: { data } });
   };
 
   const handleDelete = () => {
     deleteNotice(data.id)
-      .then((res) => {
+      .then(() => {
         handleClose();
-        onAlert(Strings.Common.apiSuccess);
+        onAlert(t('messages.deleteSuccess'));
       })
-      .catch((err) => {
-        console.log(err);
-        onAlert(Strings.Common.apiFailed);
+      .catch((_err) => {
+        onAlert(t('messages.deleteFailed'));
       });
   };
 
@@ -40,14 +41,14 @@ const NoticeDetail = ({ data, handleClose }: Props) => {
       <DialogTitle>{data.title}</DialogTitle>
       <DialogContent>
         <DialogContentText
-          dangerouslySetInnerHTML={{ __html: data?.content || "" }}
+          dangerouslySetInnerHTML={{ __html: data?.content || '' }}
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleDelete}>삭제</Button>
-        <Button onClick={handleEdit}>수정</Button>
-        <Button onClick={handleClose} autoFocus>
-          닫기
+        <Button onClick={handleDelete}>{t('detail.deleteButton')}</Button>
+        <Button onClick={handleEdit}>{t('detail.editButton')}</Button>
+        <Button onClick={handleClose}>
+          {t('detail.backToList')}
         </Button>
       </DialogActions>
     </>

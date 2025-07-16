@@ -208,12 +208,17 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.venv
+.venv/
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+
+# uv (Python package manager)
+.uv/
+# uv.lock (typically committed for reproducible builds, uncomment to ignore)
+#uv.lock
 
 # Spyder project settings
 .spyderproject
@@ -238,6 +243,18 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# 환경 변수 파일 제외 (보안상 중요)
+# Environment variable files exclusion (security critical)
+.env
+.env.local
+.env.*.local
+*.env
+.env.development
+.env.production
+.env.test
+.env.staging
+.env.example.local
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
