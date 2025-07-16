@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
@@ -31,6 +32,30 @@ const RenderMenu = ({
 }: RenderMenuProps) => {
   const isSubMenuOpen = openSubMenus[item.name];
   const navigate = useNavigate();
+  const { t } = useTranslation('navigation');
+
+  // Helper function to get translation key from menu name
+  const getTranslationKey = (menuName: string, isSubMenu: boolean = false): string => {
+    const prefix = isSubMenu ? 'submenu' : 'menu';
+    const keyMap: Record<string, string> = {
+      'Home': `${prefix}.home`,
+      'Notice': `${prefix}.notice`,
+      'Notice Write': `${prefix}.noticeWrite`,
+      'Workspace': `${prefix}.workspace`,
+      'Workspace List': `${prefix}.workspaceList`,
+      'Workspace Editor': `${prefix}.workspaceEditor`,
+      'Auto Label': `${prefix}.autoLabel`,
+      'Training': `${prefix}.training`,
+      'Service': `${prefix}.service`,
+      'TestClassfiy': `${prefix}.testClassify`,
+      'TestResult': `${prefix}.testResult`,
+      'Classify': `${prefix}.classify`,
+      'Result': `${prefix}.result`,
+    };
+    return keyMap[menuName] || menuName;
+  };
+
+  const translatedName = t(getTranslationKey(item.name, level > 1), item.name);
 
   if (item.invisible) return null;
 
@@ -48,7 +73,7 @@ const RenderMenu = ({
   return (
     <>
       <Tooltip
-        title={!open ? item.name : ''}
+        title={!open ? translatedName : ''}
         placement="right"
         arrow
         enterDelay={500}
@@ -63,7 +88,7 @@ const RenderMenu = ({
             {item.icon ? item.icon : <AssignmentIcon />}
           </ListItemIcon>
           <ListItemText
-            primary={item.name}
+            primary={translatedName}
             primaryTypographyProps={{
               noWrap: true,
               style: {

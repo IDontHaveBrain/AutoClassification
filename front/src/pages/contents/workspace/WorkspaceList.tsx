@@ -1,20 +1,20 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Box, CircularProgress, Dialog, Grid, Paper, TextField, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
-import { type GridColDef, type GridRowParams } from '@mui/x-data-grid';
-import BaseSearch from 'component/baseBoard/BaseSearch';
-import BaseTable from 'component/baseBoard/BaseTable';
-import BaseTitle from 'component/baseBoard/BaseTitle';
+import { type GridColDef, type GridRowParams, type GridValidRowModel } from '@mui/x-data-grid';
 import { initPageable, type Pageable } from 'model/GlobalModel';
 import { type WorkspaceModel } from 'model/WorkspaceModel';
 import WorkspaceDetail from 'pages/contents/workspace/WorkspaceDetail';
 import { getMyWorkspaceList } from 'service/Apis/WorkspaceApi';
 
+import BaseSearch from 'components/baseBoard/BaseSearch';
+import BaseTable from 'components/baseBoard/BaseTable';
+import BaseTitle from 'components/baseBoard/BaseTitle';
 import { onAlert } from 'utils/alert';
 import { CommonUtil } from 'utils/CommonUtil';
 import { WorkspaceContext } from 'utils/ContextManager';
-import { Strings } from 'utils/strings';
 
 interface Search {
     ownerEmail: string;
@@ -22,6 +22,9 @@ interface Search {
 }
 
 const WorkspaceList: React.FC = () => {
+    const { t: tApi } = useTranslation('api');
+    const { t: tWorkspace } = useTranslation('workspace');
+    const { t: tCommon } = useTranslation('common');
     const [pageable, setPageable] = useState<Pageable>(initPageable(10));
     const [search, setSearch] = useState<Search>({ ownerEmail: '', name: '' });
     const [openDetail, setOpenDetail] = useState(false);
@@ -30,7 +33,8 @@ const WorkspaceList: React.FC = () => {
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const { setState } = useContext(WorkspaceContext);
+    const context = useContext(WorkspaceContext);
+    const setState = context?.setState;
 
     const normalizeSort = (sort: string | string[] | undefined): string => {
         if (!sort) return '';
@@ -45,11 +49,11 @@ const WorkspaceList: React.FC = () => {
             setRows(res.data.content);
             setTotal(res.data.totalElements);
         } catch (_error) {
-            onAlert(Strings.Common.apiFailed);
+            onAlert(tApi('requestFailed'));
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [tApi]);
 
     useEffect(() => {
         fetchWorkspaces(pageable.page, pageable.size, normalizeSort(pageable.sort), search);
@@ -79,8 +83,8 @@ const WorkspaceList: React.FC = () => {
     };
     const handleRowClick = (params: GridRowParams) => {
         const workspace = params.row as WorkspaceModel;
-        setState((prevState) => ({
-            ...prevState,
+        setState?.((prevState: unknown) => ({
+            ...(prevState as object),
             selectedData: workspace,
         }));
         handleClickOpen(workspace);
@@ -91,28 +95,29 @@ const WorkspaceList: React.FC = () => {
     };
 
     const handleSearch = () => {
-        setPageable(prevPageable => ({ ...prevPageable, page: 0 })); // 검색 시 첫 페이지로 이동
+        setPageable(prevPageable => ({ ...prevPageable, page: 0 }));
         fetchWorkspaces(0, pageable.size, normalizeSort(pageable.sort), search);
     };
 
     const columns: GridColDef[] = [
-        { field: 'name', headerName: '제목', flex: 2 },
-        { field: 'createMember', headerName: '생성자', flex: 2 },
+        { field: 'name', headerName: tWorkspace('item.title'), flex: 2 },
+        { field: 'createMember', headerName: tWorkspace('item.creator'), flex: 2 },
         {
             field: 'createDateTime',
-            headerName: '생성일',
+            headerName: tWorkspace('item.createdDate'),
             flex: 2,
-            valueFormatter: CommonUtil.dateFormat,
+            valueFormatter: (value: string | number | Date) => CommonUtil.dateFormat({ value }),
         },
     ];
 
-    const getTooltipContent = (row: WorkspaceModel) => {
-        return `Name: ${row.name}\nDescription: ${row.description}\nCreated by: ${row.createMember}\nCreated at: ${CommonUtil.dateFormat({ value: row.createDateTime })}`;
+    const getTooltipContent = (row: GridValidRowModel) => {
+        const workspace = row as WorkspaceModel;
+        return `${tCommon('common.name')}: ${workspace.name}\n${tCommon('common.description')}: ${workspace.description}\n${tCommon('common.createdBy')}: ${workspace.createMember}\n${tCommon('common.createdAt')}: ${workspace.createDateTime ? CommonUtil.dateFormat({ value: workspace.createDateTime }) : 'N/A'}`;
     };
 
     return (
         <Paper elevation={3} sx={{ p: 4, m: 2, borderRadius: 2 }}>
-            <BaseTitle title={'MyWorkspace'} />
+            <BaseTitle title={tWorkspace('list.myWorkspace')} />
 
             <Box sx={{ mb: 4, mt: 3 }}>
                 <BaseSearch>
@@ -120,7 +125,7 @@ const WorkspaceList: React.FC = () => {
                         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <TextField
                                 name="name"
-                                label="Workspace Name"
+                                label={tWorkspace('list.workspaceNameField')}
                                 variant="outlined"
                                 fullWidth
                                 value={search.name}
@@ -135,7 +140,7 @@ const WorkspaceList: React.FC = () => {
                         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <TextField
                                 name="ownerEmail"
-                                label="Owner Email"
+                                label={tWorkspace('list.ownerEmailField')}
                                 variant="outlined"
                                 fullWidth
                                 value={search.ownerEmail}
@@ -165,7 +170,7 @@ const WorkspaceList: React.FC = () => {
                                     transition: 'all 0.2s ease-in-out',
                                 }}
                             >
-                                Search
+                                {tCommon('search')}
                             </Button>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
@@ -189,7 +194,7 @@ const WorkspaceList: React.FC = () => {
                                     transition: 'all 0.2s ease-in-out',
                                 }}
                             >
-                                추가
+                                {tWorkspace('list.addWorkspace')}
                             </Button>
                         </Grid>
                     </Grid>
@@ -206,7 +211,7 @@ const WorkspaceList: React.FC = () => {
                         mb: 2,
                     }}
                 >
-                    Workspace List
+                    {tWorkspace('list.workspaceListTitle')}
                 </Typography>
                 <Box sx={{
                     border: '1px solid',
@@ -233,7 +238,7 @@ const WorkspaceList: React.FC = () => {
                 </Box>
             </Box>
 
-            <Dialog open={openDetail} onClose={handleClose} maxWidth="md" fullWidth>
+            <Dialog open={openDetail} onClose={handleClose} closeAfterTransition={false} maxWidth="md" fullWidth>
                 {selectedWorkspace && (
                     <WorkspaceDetail
                         handleClose={handleClose}

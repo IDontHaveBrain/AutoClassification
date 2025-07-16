@@ -5,6 +5,7 @@ import SseManager from 'service/commons/SseManager';
 export interface LoginData {
   username: string;
   password: string;
+  remember?: boolean;
   client_id?: string;
   client_secret?: string;
   grant_type?: string;
@@ -31,7 +32,6 @@ export const signIn = (loginData: LoginData): AxiosPromise => {
   formData.append('password', params.password);
 
   return AuthApi.post('/token', formData).then(response => {
-    // 로그인 성공 시 이벤트 발생
     window.dispatchEvent(new CustomEvent('userLoggedIn'));
     return response;
   });
@@ -46,7 +46,6 @@ export const signUp = (data: SignUpData): AxiosPromise => {
 };
 
 export const signOut = (): void => {
-  // 로그아웃 시 SSE 연결 종료
   const sseManager = SseManager.getInstance();
   sseManager.disconnect();
 };

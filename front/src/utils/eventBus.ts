@@ -1,6 +1,5 @@
 import { type AlarmModel, type Member,type NoticeModel, type SseType, type WorkspaceModel } from 'model/GlobalModel';
 
-// SSE 이벤트 타입별 데이터 구조 정의
 interface SseDataMap {
     [SseType.HEARTBEAT]: { timestamp: number };
     [SseType.ALARM]: AlarmModel;
@@ -22,7 +21,7 @@ export const eventBus = {
     unsubscribe<T extends SseType>(event: T, callback: (_data: SseData<T>) => void) {
         const listeners = this.listeners.get(event);
         if (listeners) {
-            const index = listeners.indexOf(callback);
+            const index = listeners.indexOf(callback as (_data: unknown) => void);
             if (index > -1) {
                 listeners.splice(index, 1);
             }

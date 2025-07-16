@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect,useState } from 'react';
 import { type FileRejection } from 'react-dropzone';
+import { useTranslation } from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Avatar, Box, Button,Chip, LinearProgress, Typography } from '@mui/material';
-import ExpandComp from 'component/ExpandComp';
-import FileDropzone from 'component/FileDropzone';
+
+import ExpandComp from 'components/ExpandComp';
+import FileDropzone from 'components/FileDropzone';
 
 interface WorkspaceDropZoneProps {
     onFilesChange: (_files: CustomFile[]) => void;
@@ -14,10 +16,11 @@ interface CustomFile extends File {
 }
 
 const WorkspaceDropZone: React.FC<WorkspaceDropZoneProps> = ({ onFilesChange }) => {
+    const { t } = useTranslation('common');
     const [newFiles, setNewFiles] = useState<CustomFile[]>([]);
     const [uploadProgress, setUploadProgress] = useState<number>(0);
 
-    // 컴포넌트 언마운트 시 메모리 누수를 방지하기 위한 정리 작업
+    // 컴포넌트 언마운트 시 URL 객체 메모리 누수 방지를 위한 정리
     useEffect(() => {
         return () => {
             newFiles.forEach((file) => {
@@ -31,7 +34,6 @@ const WorkspaceDropZone: React.FC<WorkspaceDropZoneProps> = ({ onFilesChange }) 
     const onDrop = useCallback(
         (acceptedFiles: File[], _fileRejections: FileRejection[]) => {
             if (_fileRejections.length > 0) {
-                // 거부된 파일 조용히 처리
             }
 
             const updatedFiles = acceptedFiles.map((file) =>
@@ -46,7 +48,7 @@ const WorkspaceDropZone: React.FC<WorkspaceDropZoneProps> = ({ onFilesChange }) 
                 return combinedFiles;
             });
 
-            // 업로드 진행률 시뮬레이션
+            // 업로드 진행상황 시각적 피드백을 위한 진행률 시뮬레이션
             let progress = 0;
             const interval = setInterval(() => {
                 progress += 10;
@@ -86,7 +88,7 @@ const WorkspaceDropZone: React.FC<WorkspaceDropZoneProps> = ({ onFilesChange }) 
     };
 
     return (
-        <ExpandComp title="Add Images">
+        <ExpandComp title={t('addImages')}>
             <FileDropzone
                 onDrop={onDrop}
                 accept={{
@@ -134,12 +136,12 @@ const WorkspaceDropZone: React.FC<WorkspaceDropZoneProps> = ({ onFilesChange }) 
                         startIcon={<DeleteIcon />}
                         onClick={handleClearAll}
                     >
-                        Clear All
+{t('clearAll')}
                     </Button>
                 </Box>
             )}
             <Typography variant="caption" color="textSecondary" sx={{ mt: 2, display: 'block' }}>
-                Allowed file types: JPEG, PNG, GIF. Max size: 5MB
+                {t('allowedFileTypes', { types: t('allowedImageFormats'), size: '5MB' })}
             </Typography>
         </ExpandComp>
     );

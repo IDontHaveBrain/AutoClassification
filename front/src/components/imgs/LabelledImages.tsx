@@ -1,19 +1,22 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box,Modal } from '@mui/material';
-import ExpandComp from 'component/ExpandComp';
-import LabelledImageCard from 'component/imgs/LabelledImageCard';
 import { type FileModel } from 'model/GlobalModel';
+
+import ExpandComp from 'components/ExpandComp';
+import LabelledImageCard from 'components/imgs/LabelledImageCard';
 
 interface Props {
     files: FileModel[];
 }
 
 const LabelledImages = ({ files }: Props) => {
+    const { t } = useTranslation('common');
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
     const groupByLabel = (files: FileModel[]) => {
         return files.reduce((groups, file) => {
-            const label = file.label || 'none';
+            const label = file.label || t('noLabel');
             if (!groups[label]) {
                 groups[label] = [];
             }
@@ -34,7 +37,7 @@ const LabelledImages = ({ files }: Props) => {
 
     return (
         <>
-            <ExpandComp title="Labelled Images">
+            <ExpandComp title={t('labelledImages')}>
                 {Object.entries(filesByLabel).map(([label, files]) => (
                     <LabelledImageCard
                         key={label}
@@ -67,7 +70,7 @@ const LabelledImages = ({ files }: Props) => {
                     overflow: 'auto',
                 }}>
                     {selectedImage && (
-                        <img src={selectedImage} alt="Enlarged view" style={{ width: '100%', height: 'auto' }} />
+                        <img src={selectedImage} alt={t('enlargedView')} style={{ width: '100%', height: 'auto' }} />
                     )}
                 </Box>
             </Modal>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
   DialogActions,
@@ -10,7 +11,6 @@ import { type NoticeModel } from 'model/GlobalModel';
 import { deleteNotice } from 'service/Apis/NoticeApi';
 
 import { onAlert } from 'utils/alert';
-import { Strings } from 'utils/strings';
 
 interface Props {
   data: NoticeModel;
@@ -18,6 +18,7 @@ interface Props {
 }
 
 const NoticeDetail = ({ data, handleClose }: Props) => {
+  const { t } = useTranslation('notice');
   const navigate = useNavigate();
 
   const handleEdit = () => {
@@ -28,10 +29,10 @@ const NoticeDetail = ({ data, handleClose }: Props) => {
     deleteNotice(data.id)
       .then(() => {
         handleClose();
-        onAlert(Strings.Common.apiSuccess);
+        onAlert(t('messages.deleteSuccess'));
       })
       .catch((_err) => {
-        onAlert(Strings.Common.apiFailed);
+        onAlert(t('messages.deleteFailed'));
       });
   };
 
@@ -44,10 +45,10 @@ const NoticeDetail = ({ data, handleClose }: Props) => {
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleDelete}>삭제</Button>
-        <Button onClick={handleEdit}>수정</Button>
+        <Button onClick={handleDelete}>{t('detail.deleteButton')}</Button>
+        <Button onClick={handleEdit}>{t('detail.editButton')}</Button>
         <Button onClick={handleClose}>
-          닫기
+          {t('detail.backToList')}
         </Button>
       </DialogActions>
     </>

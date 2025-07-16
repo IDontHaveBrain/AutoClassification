@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
     "target": "es2024",
-    "baseUrl": "src",
+    "baseUrl": ".",
     "paths": {
-      "*": ["*"]
+      "@/*": ["src/*"],
+      "src/*": ["src/*"],
+      "*": ["src/*"]
     },
     "lib": [
       "dom",
@@ -14,11 +16,16 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": false,
-    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
+    "forceConsistentCasingInFileNames": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,

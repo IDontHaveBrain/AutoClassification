@@ -1,14 +1,12 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
-import { DataGrid, type GridColDef, type GridRenderCellParams,type GridRowParams, type GridSortModel } from '@mui/x-data-grid';
-import { type GridPaginationModel } from '@mui/x-data-grid/models/gridPaginationProps';
-import { type DataGridProps } from '@mui/x-data-grid/models/props/DataGridProps';
+import { DataGrid, type DataGridProps, type GridColDef, type GridPaginationModel, type GridRenderCellParams, type GridRowParams, type GridSortModel, type GridValidRowModel } from '@mui/x-data-grid';
 import { type Pageable } from 'model/GlobalModel';
 
 import { CommonUtil } from 'utils/CommonUtil';
 
-interface BaseTableProps<T = unknown> {
+interface BaseTableProps<T extends GridValidRowModel = GridValidRowModel> {
   rows: T[];
   total: number;
   columns: GridColDef[];

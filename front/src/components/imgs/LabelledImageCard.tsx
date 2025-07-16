@@ -1,11 +1,12 @@
-import React from 'react';
+import { useTranslation } from 'react-i18next';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
-import ImageCard from 'component/imgs/ImageCard';
+
+import ImageCard from 'components/imgs/ImageCard';
 
 interface LabelledImageCardProps {
     label: string;
@@ -15,6 +16,7 @@ interface LabelledImageCardProps {
 }
 
 const LabelledImageCard = ({ label, images, onImageClick, imageSize = 'tiny' }: LabelledImageCardProps) => {
+    const { t } = useTranslation('common');
     const downloadImages = () => {
         images.forEach(image => {
             const link = document.createElement('a');
@@ -52,7 +54,7 @@ const LabelledImageCard = ({ label, images, onImageClick, imageSize = 'tiny' }: 
                 <Box>
                     <Typography variant="h6" color="primary">{label}</Typography>
                     <Typography variant="body2" color="textSecondary">
-                        Total images: {images.length}
+                        {t('totalImages', { count: images.length })}
                     </Typography>
                 </Box>
                 <Button
@@ -61,16 +63,16 @@ const LabelledImageCard = ({ label, images, onImageClick, imageSize = 'tiny' }: 
                     startIcon={<GetAppIcon />}
                     onClick={downloadImages}
                     size="small"
-                    aria-label={`Download all images for ${label}`}
+                    aria-label={t('downloadAllImages', { label })}
                 >
-                    Download All
+                    {t('downloadAll')}
                 </Button>
             </Box>
             <Grid
                 container
                 spacing={getGridSpacing()}
                 role="list"
-                aria-label={`Images for ${label}`}
+                aria-label={t('imagesFor', { label })}
             >
                 {images.map((image) => (
                     <Grid

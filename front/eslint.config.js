@@ -9,7 +9,6 @@ import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import globals from 'globals';
 
 export default [
-  // 기본 JavaScript 설정
   js.configs.recommended,
   
   // 무시할 패턴들 - 성능을 위해 먼저 정의
@@ -49,10 +48,8 @@ export default [
         ...globals.browser,
         ...globals.es2024,
         ...globals.node,
-        // React 전역 변수
         React: 'readonly',
         JSX: 'readonly',
-        // 테스트 전역 변수
         describe: 'readonly',
         it: 'readonly',
         test: 'readonly',
@@ -62,7 +59,7 @@ export default [
         beforeAll: 'readonly',
         afterAll: 'readonly',
         jest: 'readonly',
-        vi: 'readonly', // Vitest 전역 변수
+        vi: 'readonly',
       },
     },
     plugins: {
@@ -91,15 +88,7 @@ export default [
       // TypeScript 규칙 - 현대적 베스트 프랙티스
       ...typescript.configs.recommended.rules,
       '@typescript-eslint/no-explicit-any': 'warn', // 개발자 친화적 - 경고로 설정
-      '@typescript-eslint/no-unused-vars': [
-        'warn',
-        {
-          argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
-          caughtErrorsIgnorePattern: '^_',
-          destructuredArrayIgnorePattern: '^_',
-        },
-      ],
+      '@typescript-eslint/no-unused-vars': 'off', // TypeScript compiler handles this with noUnusedLocals/noUnusedParameters
       '@typescript-eslint/consistent-type-imports': [
         'error',
         {
@@ -143,10 +132,9 @@ export default [
       'react/no-array-index-key': 'warn',
       'react/jsx-pascal-case': ['error', { allowAllCaps: true, ignore: [] }],
       
-      // React Hooks 규칙
       ...reactHooks.configs.recommended.rules,
       'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'warn', // 경고로 설정
+      'react-hooks/exhaustive-deps': 'warn', // 개발 시 유연성을 위해 경고로 설정
       
       // 접근성 규칙 - 포용성 있는 앱을 위해 중요
       ...jsxA11y.configs.recommended.rules,
@@ -155,7 +143,6 @@ export default [
       'jsx-a11y/click-events-have-key-events': 'warn',
       'jsx-a11y/no-static-element-interactions': 'warn',
       
-      // Import 규칙 및 정리
       'import/no-unresolved': 'error',
       'import/named': 'error',
       'import/default': 'error',
@@ -192,7 +179,7 @@ export default [
       'simple-import-sort/exports': 'error',
       
       // 일반 JavaScript 규칙 - 개발자 친화적
-      'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
+      'no-console': ['warn', { allow: ['warn', 'error', 'info', 'log'] }], // 개발 시 console.log 허용
       'no-debugger': 'warn',
       'no-alert': 'warn',
       'no-unused-vars': 'off', // Using TypeScript version instead
@@ -212,7 +199,6 @@ export default [
       'no-unneeded-ternary': 'error',
       'no-mixed-operators': 'warn',
       
-      // ES6+ 기능
       'prefer-arrow-callback': 'error',
       'prefer-template': 'warn',
       'no-useless-concat': 'error',
@@ -220,7 +206,6 @@ export default [
       'prefer-destructuring': ['warn', { object: true, array: false }],
       'no-duplicate-imports': 'off', // import/no-duplicates 사용
       
-      // 베스트 프랙티스
       'no-eval': 'error',
       'no-implied-eval': 'error',
       'no-extend-native': 'error',
@@ -251,7 +236,6 @@ export default [
     },
   },
   
-  // 테스트 파일을 위한 특정 오버라이드
   {
     files: ['**/*.test.{js,jsx,ts,tsx}', '**/*.spec.{js,jsx,ts,tsx}'],
     rules: {

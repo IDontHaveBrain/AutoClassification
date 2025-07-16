@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { Autocomplete, Chip, CircularProgress, Grid, IconButton, TextField, Typography } from '@mui/material';
-import ExpandComp from 'component/ExpandComp';
+
+import ExpandComp from 'components/ExpandComp';
 
 interface Props {
   classes?: string[];
@@ -11,6 +13,7 @@ interface Props {
 }
 
 const WorkspaceClass: React.FC<Props> = ({ classes = [], onClassesChange, isLoading = false, error = null }) => {
+  const { t } = useTranslation('common');
   const [newClass, setNewClass] = useState<string>('');
 
   const handleAdd = () => {
@@ -32,7 +35,7 @@ const WorkspaceClass: React.FC<Props> = ({ classes = [], onClassesChange, isLoad
 
   if (isLoading) {
     return (
-      <ExpandComp title="Classify">
+      <ExpandComp title={t('classify')}>
         <Grid container justifyContent="center">
           <CircularProgress />
         </Grid>
@@ -42,14 +45,14 @@ const WorkspaceClass: React.FC<Props> = ({ classes = [], onClassesChange, isLoad
 
   if (error) {
     return (
-      <ExpandComp title="Classify">
+      <ExpandComp title={t('classify')}>
         <Typography color="error" align="center">{error}</Typography>
       </ExpandComp>
     );
   }
 
   return (
-    <ExpandComp title="Classify">
+    <ExpandComp title={t('classify')}>
       <Grid container direction="column" spacing={2}>
         <Grid size="auto">
           <Autocomplete
@@ -58,16 +61,21 @@ const WorkspaceClass: React.FC<Props> = ({ classes = [], onClassesChange, isLoad
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Add new class"
+                label={t('addNewClass')}
                 variant="outlined"
                 value={newClass}
                 onChange={handleInputChange}
               />
             )}
             renderTags={(value: string[], getTagProps) =>
-              value.map((option: string, index: number) => (
-                <Chip key={option} variant="outlined" label={option} {...getTagProps({ index })} />
-              ))
+              value.map((option: string, index: number) => {
+                const existingCount = value.slice(0, index).filter(item => item === option).length;
+                const stableKey = `chip-${option}${existingCount > 0 ? `-${existingCount}` : ''}`;
+                const { key: _key, ...tagProps } = getTagProps({ index });
+                return (
+                  <Chip key={stableKey} variant="outlined" label={option} {...tagProps} />
+                );
+              })
             }
           />
         </Grid>

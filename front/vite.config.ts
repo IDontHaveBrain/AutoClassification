@@ -6,19 +6,17 @@ import path from 'path'
 export default defineConfig({
   plugins: [
     react(),
-    tsconfigPaths() // TypeScript 경로 매핑 활성화
+    tsconfigPaths()
   ],
   
-  // 개발 서버 설정
   server: {
     port: 3000,
     open: true,
     host: true
   },
   
-  // 빌드 설정
   build: {
-    outDir: 'build', // CRA와 동일한 출력 디렉터리 유지
+    outDir: 'build',
     sourcemap: true,
     rollupOptions: {
       output: {
@@ -31,7 +29,6 @@ export default defineConfig({
     }
   },
   
-  // 경로 해석 설정
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -39,10 +36,8 @@ export default defineConfig({
     }
   },
   
-  // 환경 변수 설정
   envPrefix: 'VITE_',
   
-  // 최적화 설정
   optimizeDeps: {
     include: [
       'react',
@@ -54,7 +49,6 @@ export default defineConfig({
     ]
   },
   
-  // 호환성을 위한 전역 변수 정의
   define: {
     global: 'globalThis'
   }

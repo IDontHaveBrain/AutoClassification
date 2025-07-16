@@ -1,26 +1,26 @@
 import { useState } from 'react';
 import { createBrowserRouter, type RouteObject } from 'react-router-dom';
+import { type MenuInfo } from 'hooks/useMenuItems';
 import { Layout } from 'layouts/Layout';
+import TestClassfiy from 'pages/contents/freetest/TestClassfiy';
+import TestResultList from 'pages/contents/freetest/TestResultList';
+import NoticeEditor from 'pages/contents/notice/NoticeEditor';
+import NoticeList from 'pages/contents/notice/NoticeList';
+import AutoLabel from 'pages/contents/workspace/autolabel/AutoLabel';
+import Train from 'pages/contents/workspace/training/Train';
+import WorkspaceEditor from 'pages/contents/workspace/WorkspaceEditor';
+import WorkspaceList from 'pages/contents/workspace/WorkspaceList';
+// Import the component elements directly for static route generation
+import Home from 'pages/default/Home';
 import { NotFound } from 'pages/default/NotFound';
 import SignIn from 'pages/default/SignIn';
 import SignUp from 'pages/default/SignUp';
-import { type MenuInfo } from 'hooks/useMenuItems';
 
-// Import the component elements directly for static route generation
-import { Home } from 'pages/default/Home';
-import NoticeList from 'pages/contents/notice/NoticeList';
-import NoticeEditor from 'pages/contents/notice/NoticeEditor';
-import WorkspaceList from 'pages/contents/workspace/WorkspaceList';
-import WorkspaceEditor from 'pages/contents/workspace/WorkspaceEditor';
-import AutoLabel from 'pages/contents/workspace/autolabel/AutoLabel';
-import Train from 'pages/contents/workspace/training/Train';
-import TestClassfiy from 'pages/contents/freetest/TestClassfiy';
-import TestResultList from 'pages/contents/freetest/TestResultList';
 import { NoticeContext, WorkspaceContext } from 'utils/ContextManager';
 
 const MenuComponent = ({ menu }: {menu: MenuInfo}) => {
     let element = null;
-    const [state, setState] = useState();
+    const [state, setState] = useState<unknown>();
 
     const resetState = () => {
         setState(undefined);
@@ -158,7 +158,7 @@ const staticMenuItems: MenuInfo[] = [
 
 const generateChildRoutes = (menuItems: MenuInfo[]): RouteObject[] => {
     const childRoutes: RouteObject[] = [];
-    
+
     menuItems.forEach((menu) => {
         if (menu.path && menu.element) {
             childRoutes.push(createRouteFromMenu(menu));
@@ -178,7 +178,7 @@ const generateChildRoutes = (menuItems: MenuInfo[]): RouteObject[] => {
             });
         }
     });
-    
+
     return childRoutes;
 };
 

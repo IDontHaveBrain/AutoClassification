@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { Badge, IconButton, Popover } from '@mui/material';
-import AlarmDetail from 'component/notification/AlarmDetail';
 import { type AlarmModel, SseType } from 'model/GlobalModel';
 import { getMyAlarms } from 'service/Apis/AlarmApi';
 
+import AlarmDetail from 'components/notification/AlarmDetail';
 import { eventBus } from 'utils/eventBus';
 
 const POPOVER_ANCHOR_ORIGIN = {
@@ -21,6 +22,7 @@ const sortAlarms = (alarms: AlarmModel[]) =>
     alarms.sort((a, b) => b.id - a.id);
 
 const Notification = () => {
+    const { t } = useTranslation('common');
     const [alarmList, setAlarmList] = useState<AlarmModel[]>([]);
     const [target, setTarget] = useState<HTMLElement | null>(null);
     const [open, setOpen] = useState(false);
@@ -30,7 +32,7 @@ const Notification = () => {
             const response = await getMyAlarms();
             setAlarmList(sortAlarms([...response.data]));
         } catch (_error) {
-            // 오류를 조용히 처리
+            // 알람 목록 조회 실패 시 사용자 알림 없이 처리하여 UX 연속성 유지
         }
     }, []);
 
@@ -63,7 +65,7 @@ const Notification = () => {
             <IconButton
                 color="inherit"
                 onClick={handleOpenAlarmDetail}
-                aria-label="알림"
+                aria-label={t('alert')}
             >
                 <Badge badgeContent={alarmList.length} color="secondary">
                     <NotificationsIcon />

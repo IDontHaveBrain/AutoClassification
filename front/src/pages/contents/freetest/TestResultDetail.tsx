@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect,useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import CloseIcon from '@mui/icons-material/Close';
 import GetAppIcon from '@mui/icons-material/GetApp';
 import { Alert, Box, Button, Card, CardContent, CircularProgress, DialogActions, DialogContent, DialogTitle, Divider,FormControl, Grid, IconButton, InputLabel, MenuItem, Modal, Select, type SelectChangeEvent, Stack, Tab, Tabs, Typography, useMediaQuery, useTheme } from '@mui/material';
-import BaseTable from 'component/baseBoard/BaseTable';
-import BaseTitle from 'component/baseBoard/BaseTitle';
-import BaseInputField from 'component/BaseInputField';
-import LabelledImageCard from 'component/imgs/LabelledImageCard';
 
+import BaseTable from 'components/baseBoard/BaseTable';
+import BaseTitle from 'components/baseBoard/BaseTitle';
+import BaseInputField from 'components/BaseInputField';
+import LabelledImageCard from 'components/imgs/LabelledImageCard';
 import { CommonUtil } from 'utils/CommonUtil';
 
 interface TestFile {
@@ -67,6 +68,8 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
+    const { t: tTest } = useTranslation('test');
+    const { t: tCommon } = useTranslation('common');
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [result, setResult] = useState<TestResultItem[] | null>(null);
@@ -91,21 +94,20 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
 
                 if (parsedResult && data?.testFiles) {
                     const allImgs = parsedResult.flatMap((item: TestResultItem) =>
-                        item.ids.map(id => data.testFiles?.find(img => img.id === id)),
-                    ).filter((img): img is TestFile => img !== undefined);
+                        item.ids.map(id => data.testFiles?.find((img: TestFile) => img.id === id)),
+                    ).filter((img: TestFile | undefined): img is TestFile => img !== undefined);
                     setAllImages(allImgs);
                 } else {
-                    // 파싱된 결과가 없으면 일관성 유지를 위해 빈 배열로 설정
                     setAllImages([]);
                 }
             } catch (_err) {
-                setError('Failed to load test result data. Please try again.');
+                setError(tTest('messages.loadDataFailed'));
             } finally {
                 setLoading(false);
             }
         };
         loadData();
-    }, [data]);
+    }, [data, tTest]);
 
     const handleImageClick = (imageUrl: string) => {
         setSelectedImage(imageUrl);
@@ -116,8 +118,8 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
     };
 
     const columns = [
-        { field: 'label', headerName: 'Label', flex: 1 },
-        { field: 'count', headerName: 'Count', flex: 1 },
+        { field: 'label', headerName: tCommon('label'), flex: 1 },
+        { field: 'count', headerName: tCommon('count'), flex: 1 },
     ];
 
     const rows = result?.map((item, index) => ({
@@ -152,7 +154,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
         });
     };
 
-    const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
         setTabValue(newValue);
     };
 
@@ -168,7 +170,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                     gap={2}
                 >
                     <CircularProgress />
-                    <Typography variant="body1">Loading test result data...</Typography>
+                    <Typography variant="body1">{tTest('messages.loadingTestData')}</Typography>
                 </Box>
             </DialogContent>
         );
@@ -212,30 +214,29 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                 },
             }}>
                 <Grid container spacing={{ xs: 2, sm: 3 }}>
-                    {/* Metadata Section */}
                     <Grid size={{ xs: 12, lg: 4 }}>
                         <Card elevation={2} sx={{ height: 'fit-content' }}>
                             <CardContent sx={{ pb: '16px !important' }}>
                                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
-                                    Metadata
+                                    {tCommon('metadata')}
                                 </Typography>
                                 <Stack spacing={2}>
                                     <BaseInputField
-                                        label="Classes"
+                                        label={tCommon('classes')}
                                         value={data?.classes.join(', ')}
-                                        aria-label="Classes"
+                                        aria-label={tCommon('classes')}
                                         readOnly
                                     />
                                     <BaseInputField
-                                        label="Created At"
+                                        label={tCommon('createdAt')}
                                         value={CommonUtil.dateFormat({ value: data?.createDateTime })}
-                                        aria-label="Created At"
+                                        aria-label={tCommon('createdAt')}
                                         readOnly
                                     />
                                     <BaseInputField
-                                        label="Total Images"
+                                        label={tCommon('totalImages')}
                                         value={allImages?.length.toString()}
-                                        aria-label="Total Images"
+                                        aria-label={tCommon('totalImages')}
                                         readOnly
                                     />
                                 </Stack>
@@ -243,12 +244,11 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                         </Card>
                     </Grid>
 
-                    {/* Result Summary Section */}
                     <Grid size={{ xs: 12, lg: 8 }}>
                         <Card elevation={2} sx={{ height: 'fit-content' }}>
                             <CardContent sx={{ pb: '16px !important' }}>
                                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 2 }}>
-                                    Result Summary
+                                    {tCommon('resultSummary')}
                                 </Typography>
                                 <Box sx={{
                                     minHeight: '160px',
@@ -260,7 +260,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                                     },
                                 }}>
                                     <BaseTable
-                                        rows={rows}
+                                        rows={rows || []}
                                         columns={columns}
                                         total={rows?.length || 0}
                                         pageable={{ page: 0, size: 10 }}
@@ -279,30 +279,28 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                         </Card>
                     </Grid>
 
-                    {/* Detailed Results Section */}
                     <Grid size={{ xs: 12 }}>
                         <Card elevation={2}>
                             <CardContent sx={{ pb: '16px !important' }}>
                                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
-                                    Detailed Results
+                                    {tCommon('detailedResults')}
                                 </Typography>
 
-                                {/* Controls Section */}
                                 <Box sx={{ mb: 3 }}>
                                     <Grid container spacing={2} alignItems="center">
                                         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                                             <FormControl fullWidth size="small">
-                                                <InputLabel id="sort-select-label">Sort Images</InputLabel>
+                                                <InputLabel id="sort-select-label">{tCommon('sortImages')}</InputLabel>
                                                 <Select
                                                     labelId="sort-select-label"
                                                     value={sortOption}
                                                     onChange={handleSortChange}
-                                                    aria-label="Sort images"
-                                                    label="Sort Images"
+                                                    aria-label={tCommon('sortImagesAriaLabel')}
+                                                    label={tCommon('sortImages')}
                                                 >
-                                                    <MenuItem value="default">Default</MenuItem>
-                                                    <MenuItem value="name">By Name</MenuItem>
-                                                    <MenuItem value="size">By Size</MenuItem>
+                                                    <MenuItem value="default">{tCommon('default')}</MenuItem>
+                                                    <MenuItem value="name">{tCommon('byName')}</MenuItem>
+                                                    <MenuItem value="size">{tCommon('bySize')}</MenuItem>
                                                 </Select>
                                             </FormControl>
                                         </Grid>
@@ -312,11 +310,11 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                                                 color="primary"
                                                 startIcon={<GetAppIcon />}
                                                 onClick={() => downloadImages(images)}
-                                                aria-label="Download all images"
+                                                aria-label={tCommon('downloadAllImagesAriaLabel')}
                                                 fullWidth={isMobile}
                                                 size="small"
                                             >
-                                                Download All Images
+                                                {tCommon('downloadAllImages')}
                                             </Button>
                                         </Grid>
                                     </Grid>
@@ -324,7 +322,6 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
 
                                 <Divider sx={{ mb: 2 }} />
 
-                                {/* Tabs Section - Only show if there are results */}
                                 {result && result.length > 0 ? (
                                     <>
                                         <Box sx={{
@@ -341,7 +338,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                                                 allowScrollButtonsMobile
                                             >
                                                 <Tab
-                                                    label="ALL"
+                                                    label={tCommon('all').toUpperCase()}
                                                     id="simple-tab-all"
                                                     aria-controls="simple-tabpanel-all"
                                                     sx={{ minWidth: { xs: 'auto', sm: 120 } }}
@@ -357,11 +354,10 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                                                 ))}
                                             </Tabs>
                                         </Box>
-                                        {/* Tab Content */}
                                         <TabPanel value={tabValue} index={0}>
                                             <LabelledImageCard
-                                                label="All Images"
-                                                images={sortImages(allImages).map(img => ({ ...img, id: img.id.toString() }))}
+                                                label={tCommon('allImages')}
+                                                images={sortImages(allImages || []).map(img => ({ ...img, id: img.id.toString() }))}
                                                 onImageClick={handleImageClick}
                                                 imageSize="tiny"
                                             />
@@ -388,10 +384,10 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                                         gap: 2,
                                     }}>
                                         <Typography variant="h6" color="textSecondary">
-                                            No classification results available
+                                            {tTest('result.noResults')}
                                         </Typography>
                                         <Typography variant="body2" color="textSecondary">
-                                            This test may not have completed successfully or no objects were detected in the uploaded images.
+                                            {tTest('result.noResultsDescription')}
                                         </Typography>
                                     </Box>
                                 )}
@@ -412,13 +408,12 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                     onClick={handleClose}
                     color="primary"
                     variant="contained"
-                    aria-label="Close dialog"
+                    aria-label={tCommon('closeDialog')}
                     sx={{ minWidth: 100 }}
                 >
-                    Close
+                    {tCommon('close')}
                 </Button>
             </DialogActions>
-            {/* Enhanced Image Modal */}
             <Modal
                 open={!!selectedImage}
                 onClose={handleCloseModal}
@@ -442,7 +437,6 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                     display: 'flex',
                     flexDirection: 'column',
                 }}>
-                    {/* Close Button */}
                     <IconButton
                         onClick={handleCloseModal}
                         sx={{
@@ -456,12 +450,11 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                                 bgcolor: 'rgba(0, 0, 0, 0.7)',
                             },
                         }}
-                        aria-label="Close image"
+                        aria-label={tCommon('closeImage')}
                     >
                         <CloseIcon />
                     </IconButton>
 
-                    {/* Image Container */}
                     <Box sx={{
                         display: 'flex',
                         justifyContent: 'center',
@@ -471,7 +464,7 @@ const TestResultDetail: React.FC<Props> = ({ data, handleClose }) => {
                     }}>
                         <img
                             src={selectedImage || ''}
-                            alt="Enlarged view"
+                            alt={tCommon('enlargedViewAlt')}
                             style={{
                                 maxWidth: '100%',
                                 maxHeight: '100%',

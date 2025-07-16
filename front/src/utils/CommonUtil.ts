@@ -1,7 +1,7 @@
 import {
   type GridSortDirection,
   type GridSortModel,
-} from '@mui/x-data-grid/models/gridSortModel';
+} from '@mui/x-data-grid';
 import dayjs from 'dayjs';
 
 export const CommonUtil = {
@@ -10,7 +10,7 @@ export const CommonUtil = {
   },
   convertSort(sortModel: GridSortModel): string {
     return sortModel
-      .map((sortItem) => `${sortItem.field},${sortItem.sort}`)
+      .map((sortItem: { field: string; sort: GridSortDirection }) => `${sortItem.field},${sortItem.sort}`)
       .join('&sort=');
   },
   convertSortModel: (sort: string): GridSortModel => {

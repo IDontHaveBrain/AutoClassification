@@ -1,5 +1,19 @@
 {
   "list": {
+    "noticeTitle": "Notice",
+    "noticeListTitle": "Notice List",
+    "writeNotice": "Write Notice",
+    "titleField": "Title",
+    "creatorField": "Creator",
+    "contentField": "Content",
+    "authorField": "Author",
+    "modifierField": "Modifier",
+    "modifiedDateField": "Modified Date",
+    "titleColumn": "Title",
+    "authorColumn": "Author",
+    "createdDateColumn": "Created Date",
+    "modifierColumn": "Modifier",
+    "modifiedDateColumn": "Modified Date",
     "title": "Notice",
     "subtitle": "Check the latest notices",
     "createButton": "Create Notice",
@@ -11,6 +25,11 @@
     "showing": "Showing {{start}} - {{end}} of {{total}}"
   },
   "item": {
+    "id": "ID",
+    "writer": "Writer",
+    "writeDate": "Write Date",
+    "modifier": "Modifier",
+    "modifiedDate": "Modified Date",
     "title": "Title",
     "content": "Content",
     "author": "Author",

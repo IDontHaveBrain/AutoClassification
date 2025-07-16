@@ -1,19 +1,19 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { CircularProgress, Dialog, Grid, Paper, TextField, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import { type GridColDef, type GridRowParams } from '@mui/x-data-grid';
-import BaseSearch from 'component/baseBoard/BaseSearch';
-import BaseTable from 'component/baseBoard/BaseTable';
-import BaseTitle from 'component/baseBoard/BaseTitle';
+import { type GridColDef, type GridRowParams, type GridValidRowModel } from '@mui/x-data-grid';
 import { initPageable, type NoticeModel, type Pageable, SseType } from 'model/GlobalModel';
 import { getNoticeList } from 'service/Apis/NoticeApi';
 
+import BaseSearch from 'components/baseBoard/BaseSearch';
+import BaseTable from 'components/baseBoard/BaseTable';
+import BaseTitle from 'components/baseBoard/BaseTitle';
 import { onAlert } from 'utils/alert';
 import { CommonUtil } from 'utils/CommonUtil';
 import { eventBus } from 'utils/eventBus';
-import { Strings } from 'utils/strings';
 
 import NoticeDetail from './NoticeDetail';
 
@@ -24,6 +24,9 @@ interface SearchParams {
 }
 
 const NoticeList: React.FC = () => {
+    const { t: tApi } = useTranslation('api');
+    const { t: tCommon } = useTranslation('common');
+    const { t: tNotice } = useTranslation('notice');
     const [search, setSearch] = useState<SearchParams>({ title: '', createMember: '', content: '' });
     const [openDetail, setOpenDetail] = useState(false);
     const [selectedData, setSelectedData] = useState<NoticeModel | undefined>();
@@ -46,11 +49,11 @@ const NoticeList: React.FC = () => {
             setRows(res.data.content);
             setTotal(res.data.totalElements);
         } catch (_error) {
-            onAlert(Strings.Common.apiFailed);
+            onAlert(tApi('requestFailed'));
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [tApi]);
 
     useEffect(() => {
         fetchNotices(pageable.page, pageable.size, normalizeSort(pageable.sort), search);
@@ -89,33 +92,34 @@ const NoticeList: React.FC = () => {
     };
 
     const columns: GridColDef[] = [
-        { field: 'id', headerName: 'ID', flex: 1 },
-        { field: 'title', headerName: '제목', flex: 2 },
-        { field: 'createMember', headerName: '작성자', flex: 2 },
+        { field: 'id', headerName: tCommon('id'), flex: 1 },
+        { field: 'title', headerName: tNotice('list.titleColumn'), flex: 2 },
+        { field: 'createMember', headerName: tNotice('list.authorColumn'), flex: 2 },
         {
             field: 'createDateTime',
-            headerName: '작성일',
+            headerName: tNotice('list.createdDateColumn'),
             flex: 2,
-            valueFormatter: CommonUtil.dateFormat,
+            valueFormatter: (value: string | number | Date) => CommonUtil.dateFormat({ value }),
         },
-        { field: 'updateMember', headerName: '수정자', flex: 2 },
+        { field: 'updateMember', headerName: tNotice('list.modifierColumn'), flex: 2 },
         {
             field: 'updateDateTime',
-            headerName: '수정일',
+            headerName: tNotice('list.modifiedDateColumn'),
             flex: 2,
-            valueFormatter: CommonUtil.dateFormat,
+            valueFormatter: (value: string | number | Date) => CommonUtil.dateFormat({ value }),
         },
     ];
 
     const onClickWrite = () => navigate('/notice/write');
 
-    const getTooltipContent = (row: NoticeModel) => {
-        return `Title: ${row.title}\nCreated by: ${row.createMember}\nCreated at: ${CommonUtil.dateFormat({ value: row.createDateTime })}\nUpdated by: ${row.updateMember}\nUpdated at: ${CommonUtil.dateFormat({ value: row.updateDateTime })}`;
+    const getTooltipContent = (row: GridValidRowModel) => {
+        const notice = row as NoticeModel;
+        return `${tCommon('common.title')}: ${notice.title || 'N/A'}\n${tCommon('common.createdBy')}: ${notice.createMember || 'N/A'}\n${tCommon('common.createdAt')}: ${notice.createDateTime ? CommonUtil.dateFormat({ value: notice.createDateTime }) : 'N/A'}\n${tCommon('common.updatedBy')}: ${notice.updateMember || 'N/A'}\n${tCommon('common.updatedAt')}: ${notice.updateDateTime ? CommonUtil.dateFormat({ value: notice.updateDateTime }) : 'N/A'}`;
     };
 
     return (
         <Paper elevation={3} sx={{ p: 4, m: 2, borderRadius: 2 }}>
-            <BaseTitle title={'공지사항'} />
+            <BaseTitle title={tNotice('list.title')} />
 
             <Box sx={{ mb: 4, mt: 3 }}>
                 <BaseSearch>
@@ -123,7 +127,7 @@ const NoticeList: React.FC = () => {
                         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <TextField
                                 name="title"
-                                label="Title"
+                                label={tNotice('list.titleField')}
                                 variant="outlined"
                                 fullWidth
                                 value={search.title}
@@ -138,7 +142,7 @@ const NoticeList: React.FC = () => {
                         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <TextField
                                 name="createMember"
-                                label="Creator"
+                                label={tNotice('list.creatorField')}
                                 variant="outlined"
                                 fullWidth
                                 value={search.createMember}
@@ -153,7 +157,7 @@ const NoticeList: React.FC = () => {
                         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                             <TextField
                                 name="content"
-                                label="Content"
+                                label={tNotice('list.contentField')}
                                 variant="outlined"
                                 fullWidth
                                 value={search.content}
@@ -183,7 +187,7 @@ const NoticeList: React.FC = () => {
                                     transition: 'all 0.2s ease-in-out',
                                 }}
                             >
-                                Search
+                                {tCommon('search')}
                             </Button>
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6, md: 1.5 }}>
@@ -207,7 +211,7 @@ const NoticeList: React.FC = () => {
                                     transition: 'all 0.2s ease-in-out',
                                 }}
                             >
-                                작성하기
+                                {tNotice('list.createButton')}
                             </Button>
                         </Grid>
                     </Grid>
@@ -223,7 +227,7 @@ const NoticeList: React.FC = () => {
                         mb: 2,
                     }}
                 >
-                    Notice List
+                    {tNotice('list.noticeListTitle')}
                 </Typography>
                 <Box sx={{
                     border: '1px solid',
@@ -250,8 +254,8 @@ const NoticeList: React.FC = () => {
                 </Box>
             </Box>
 
-            <Dialog open={openDetail} onClose={handleClose}>
-                <NoticeDetail handleClose={handleClose} data={selectedData} />
+            <Dialog open={openDetail} onClose={handleClose} closeAfterTransition={false}>
+                {selectedData && <NoticeDetail handleClose={handleClose} data={selectedData} />}
             </Dialog>
         </Paper>
     );

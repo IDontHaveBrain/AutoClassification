@@ -1,4 +1,5 @@
 import { forwardRef, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Backdrop, css, Dialog,styled } from '@mui/material';
 import Button from '@mui/material/Button';
 import { blue, grey } from '@mui/material/colors';
@@ -6,9 +7,6 @@ import { animated, useSpring } from '@react-spring/web';
 import { useAppDispatch, useAppSelector } from 'stores/rootHook';
 import { closeAlert, openAlert } from 'stores/rootSlice';
 
-import { Strings } from 'utils/strings';
-
-// Alert용 커스텀 이벤트 타입
 interface AlertEventDetail {
   message: string;
   callback?: () => void;
@@ -25,6 +23,7 @@ const style = {
 };
 
 const AlertModal = () => {
+  const { t } = useTranslation('common');
   const dispatch = useAppDispatch();
   const alert = useAppSelector((state) => state.alert);
 
@@ -79,12 +78,13 @@ const AlertModal = () => {
       aria-describedby="spring-modal-description"
       open={alert.open}
       onClose={onClose}
+      closeAfterTransition={false}
       BackdropComponent={StyledBackdrop}
     >
       <Fade in={alert.open}>
         <ModalContent sx={style}>
           <h2 id="spring-modal-title" className="modal-title">
-            Alert
+            {t('alert')}
           </h2>
           <p id="spring-modal-description" className="modal-description">
             {alert.message}
@@ -101,7 +101,7 @@ const AlertModal = () => {
               },
             }}
           >
-            {Strings.Common.ok}
+            {t('ok')}
           </Button>
         </ModalContent>
       </Fade>
@@ -109,8 +109,7 @@ const AlertModal = () => {
   );
 };
 
-export default AlertModal;
-
+// HMR 문제를 피하기 위해 훅을 먼저 익스포트
 export const useAlert = () => {
   const dispatch = useAppDispatch();
   const alert = useCallback(
@@ -121,6 +120,8 @@ export const useAlert = () => {
   );
   return alert;
 };
+
+export default AlertModal;
 
 const ModalContent = styled('div')(
   ({ theme }) => css`

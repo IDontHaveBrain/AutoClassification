@@ -1,27 +1,29 @@
-import React, { Component, ReactNode, Suspense } from 'react';
+import React, { Component, type ReactNode, Suspense, useEffect, useState } from 'react';
 import { Provider } from 'react-redux';
 import { RouterProvider } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { initI18n } from 'i18n/init';
+import { I18nProvider } from 'i18n/provider';
 import BackGround, { CustomSnackbarProvider } from 'layouts/BackGround';
 import { Loading } from 'pages/default/Loading';
 import { PersistGate } from 'redux-persist/integration/react';
 import { baseRouter } from 'Routers';
 import { persistor, rootStore } from 'stores/rootStore';
-import { I18nProvider } from 'i18n/provider';
+
+import { withTranslation, type WithTranslationProps } from 'components/withTranslation';
 
 const defaultTheme = createTheme();
 
-// App Error Boundary Component
 interface AppErrorBoundaryState {
     hasError: boolean;
     error: Error | null;
 }
 
 class AppErrorBoundary extends Component<
-    { children: ReactNode },
+    { children: ReactNode } & WithTranslationProps,
     AppErrorBoundaryState
 > {
-    constructor(props: { children: ReactNode }) {
+    constructor(props: { children: ReactNode } & WithTranslationProps) {
         super(props);
         this.state = { hasError: false, error: null };
     }
@@ -36,45 +38,46 @@ class AppErrorBoundary extends Component<
 
     render() {
         if (this.state.hasError) {
+            const { t } = this.props;
             return (
-                <div style={{ 
-                    padding: '20px', 
-                    textAlign: 'center', 
+                <div style={{
+                    padding: '20px',
+                    textAlign: 'center',
                     minHeight: '100vh',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
-                    alignItems: 'center'
+                    alignItems: 'center',
                 }}>
-                    <h1>Something went wrong</h1>
-                    <p>The application encountered an unexpected error.</p>
+                    <h1>{t('somethingWentWrong', 'Something went wrong')}</h1>
+                    <p>{t('unexpectedError', 'An unexpected error occurred')}</p>
                     <details style={{ marginTop: '20px', maxWidth: '600px' }}>
-                        <summary>Error Details</summary>
-                        <pre style={{ 
-                            textAlign: 'left', 
+                        <summary>{t('errorDetails', 'Error Details')}</summary>
+                        <pre style={{
+                            textAlign: 'left',
                             whiteSpace: 'pre-wrap',
                             background: '#f5f5f5',
                             padding: '10px',
                             borderRadius: '4px',
-                            overflow: 'auto'
+                            overflow: 'auto',
                         }}>
-                            {this.state.error?.message || 'Unknown error'}
-                            {this.state.error?.stack && '\n\nStack trace:\n' + this.state.error.stack}
+                            {this.state.error?.message || t('api.unknownError', 'Unknown error')}
+                            {this.state.error?.stack && `\n\nStack trace:\n${  this.state.error.stack}`}
                         </pre>
                     </details>
-                    <button 
+                    <button
                         onClick={() => window.location.reload()}
-                        style={{ 
+                        style={{
                             marginTop: '20px',
                             padding: '10px 20px',
                             backgroundColor: '#1976d2',
                             color: 'white',
                             border: 'none',
                             borderRadius: '4px',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
                         }}
                     >
-                        Reload Application
+                        {t('reload', 'Reload')}
                     </button>
                 </div>
             );
@@ -84,39 +87,70 @@ class AppErrorBoundary extends Component<
     }
 }
 
-// Loading fallback component for Suspense
 const TranslationLoadingFallback = () => (
-    <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh' 
+    <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
     }}>
         <Loading />
     </div>
 );
 
+const TranslatedAppErrorBoundary = withTranslation(AppErrorBoundary);
+
+const AppInitializer: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const [isI18nInitialized, setIsI18nInitialized] = useState(false);
+    const [initError, setInitError] = useState<Error | null>(null);
+
+    useEffect(() => {
+        const initialize = async () => {
+            try {
+                await initI18n();
+                setIsI18nInitialized(true);
+            } catch (error) {
+                console.error('Failed to initialize i18n:', error);
+                setInitError(error instanceof Error ? error : new Error('Unknown error'));
+                // Still set as initialized to prevent infinite loading
+                setIsI18nInitialized(true);
+            }
+        };
+
+        initialize();
+    }, []);
+
+    if (!isI18nInitialized) {
+        return <TranslationLoadingFallback />;
+    }
+
+    if (initError) {
+        // I18n initialization failed, but proceeding with app startup
+    }
+
+    return <>{children}</>;
+};
+
 function App() {
     return (
-        <AppErrorBoundary>
-            <Suspense fallback={<TranslationLoadingFallback />}>
-                <ThemeProvider theme={defaultTheme}>
-                    <Provider store={rootStore}>
-                        <PersistGate persistor={persistor} loading={<Loading />}>
-                            <I18nProvider store={rootStore}>
-                                <CustomSnackbarProvider maxSnack={3}>
-                                    <RouterProvider
-                                        router={baseRouter}
-                                        fallbackElement={<Loading />}
-                                    />
-                                    <BackGround />
-                                </CustomSnackbarProvider>
-                            </I18nProvider>
-                        </PersistGate>
-                    </Provider>
-                </ThemeProvider>
-            </Suspense>
-        </AppErrorBoundary>
+        <Provider store={rootStore}>
+            <PersistGate persistor={persistor} loading={<Loading />}>
+                <AppInitializer>
+                    <I18nProvider>
+                        <TranslatedAppErrorBoundary>
+                            <Suspense fallback={<TranslationLoadingFallback />}>
+                                <ThemeProvider theme={defaultTheme}>
+                                    <CustomSnackbarProvider maxSnack={3}>
+                                        <RouterProvider router={baseRouter} />
+                                        <BackGround />
+                                    </CustomSnackbarProvider>
+                                </ThemeProvider>
+                            </Suspense>
+                        </TranslatedAppErrorBoundary>
+                    </I18nProvider>
+                </AppInitializer>
+            </PersistGate>
+        </Provider>
     );
 }
 

@@ -39,13 +39,13 @@ const alertSlice = createSlice({
   initialState: {
     message: '',
     open: false,
-    callback: null,
+    callback: null as (() => void) | null,
   },
   reducers: {
     openAlert: (state, action: PayloadAction<AlertDetail>) => {
       state.message = action.payload.message;
       state.open = true;
-      state.callback = action.payload?.callback;
+      state.callback = action.payload.callback ?? null;
     },
     closeAlert: (state) => {
       state.message = '';

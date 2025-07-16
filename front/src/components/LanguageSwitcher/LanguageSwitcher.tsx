@@ -1,41 +1,27 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
+  Check as CheckIcon,
+  ExpandMore as ExpandMoreIcon,
+} from '@mui/icons-material';
+import {
+  Box,
   Button,
+  Fade,
   IconButton,
-  Menu,
-  MenuItem,
   ListItemIcon,
   ListItemText,
-  Box,
-  Typography,
-  Popover,
-  Fade,
+  Menu,
+  MenuItem,
   styled,
-  useTheme,
+  Typography,
   useMediaQuery,
+  useTheme,
 } from '@mui/material';
-import {
-  Language as LanguageIcon,
-  ExpandMore as ExpandMoreIcon,
-  Check as CheckIcon,
-} from '@mui/icons-material';
-import { useAppDispatch, useAppSelector } from '../../stores/rootHook';
-import { setLanguage, initializeLanguage } from '../../stores/i18nSlice';
 
-// Language Configuration
-export interface LanguageConfig {
-  code: string;
-  name: string;
-  flag: string;
-  nativeName: string;
-}
+import { type LanguageInfo,useLanguage } from '../../hooks/useLanguage';
+import { type SupportedLanguage } from '../../types/i18n';
 
-const LANGUAGES: LanguageConfig[] = [
-  { code: 'en', name: 'English', flag: '🇺🇸', nativeName: 'English' },
-  { code: 'ko', name: 'Korean', flag: '🇰🇷', nativeName: '한국어' },
-];
-
-// Component Props Interfaces
 export interface LanguageSwitcherProps {
   variant?: 'button' | 'menu' | 'compact';
   showLabel?: boolean;
@@ -60,15 +46,14 @@ export interface MobileLanguageSwitcherProps {
   onLanguageChange?: (language: string) => void;
 }
 
-// Styled Components
 const StyledLanguageButton = styled(Button, {
-  shouldForwardProp: (prop) => prop !== 'variant' && prop !== 'size',
-})<{ variant?: string; size?: string }>(({ theme, variant, size }) => ({
-  minWidth: variant === 'compact' ? '48px' : '80px',
-  padding: theme.spacing(size === 'small' ? 0.5 : size === 'large' ? 1.5 : 1),
+  shouldForwardProp: (prop) => prop !== 'layoutVariant' && prop !== 'customSize',
+})<{ layoutVariant?: 'button' | 'menu' | 'compact'; customSize?: string }>(({ theme, layoutVariant, customSize }) => ({
+  minWidth: layoutVariant === 'compact' ? '48px' : '80px',
+  padding: theme.spacing(getPaddingValue(customSize)),
   borderRadius: theme.shape.borderRadius,
   textTransform: 'none',
-  fontSize: size === 'small' ? '0.75rem' : size === 'large' ? '1rem' : '0.875rem',
+  fontSize: getFontSize(customSize),
   '&:hover': {
     backgroundColor: theme.palette.action.hover,
   },
@@ -103,54 +88,22 @@ const LanguageMenuItem = styled(MenuItem)(({ theme }) => ({
   },
 }));
 
-// Utility Functions
-const getLanguageByCode = (code: string): LanguageConfig => {
-  return LANGUAGES.find(lang => lang.code === code) || LANGUAGES[0];
+const getLanguageByCode = (code: string, languages: LanguageInfo[]): LanguageInfo => {
+  return languages.find(lang => lang.code === code) || languages[0];
 };
 
-const saveLanguageToStorage = (language: string) => {
-  try {
-    localStorage.setItem('app-language', language);
-  } catch (error) {
-    console.warn('Failed to save language preference:', error);
-  }
+const getPaddingValue = (customSize?: string) => {
+  if (customSize === 'small') return 0.5;
+  if (customSize === 'large') return 1.5;
+  return 1;
 };
 
-const loadLanguageFromStorage = (): string => {
-  try {
-    return localStorage.getItem('app-language') || 'en';
-  } catch (error) {
-    console.warn('Failed to load language preference:', error);
-    return 'en';
-  }
+const getFontSize = (customSize?: string) => {
+  if (customSize === 'small') return '0.75rem';
+  if (customSize === 'large') return '1rem';
+  return '0.875rem';
 };
 
-// Custom Hook for Language Management
-export const useLanguageManager = () => {
-  const dispatch = useAppDispatch();
-  const currentLanguage = useAppSelector((state) => state.i18n.currentLanguage);
-  const isLoading = useAppSelector((state) => state.i18n.isLoading);
-
-  const changeLanguage = (language: string) => {
-    if (LANGUAGES.find(lang => lang.code === language)) {
-      dispatch(setLanguage(language));
-    }
-  };
-
-  useEffect(() => {
-    dispatch(initializeLanguage());
-  }, [dispatch]);
-
-  return {
-    currentLanguage,
-    changeLanguage,
-    languages: LANGUAGES,
-    currentLanguageConfig: getLanguageByCode(currentLanguage),
-    isLoading,
-  };
-};
-
-// Main LanguageSwitcher Component
 export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   variant = 'button',
   showLabel = true,
@@ -159,9 +112,16 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   className,
   onLanguageChange,
 }) => {
-  const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const { currentLanguage, changeLanguage, languages, currentLanguageConfig } = useLanguageManager();
+  const { currentLanguage, changeLanguage, availableLanguages, isLoading } = useLanguage();
+  const { t } = useTranslation('common');
+
+  const allLanguages = [
+    ...availableLanguages,
+    getLanguageByCode(currentLanguage, availableLanguages),
+  ].filter((lang, index, arr) => arr.findIndex(l => l.code === lang.code) === index);
+
+  const currentLanguageConfig = getLanguageByCode(currentLanguage, allLanguages);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -171,10 +131,14 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
     setAnchorEl(null);
   };
 
-  const handleLanguageSelect = (language: string) => {
-    changeLanguage(language);
-    onLanguageChange?.(language);
-    handleClose();
+  const handleLanguageSelect = async (language: string) => {
+    try {
+      await changeLanguage(language as SupportedLanguage);
+      onLanguageChange?.(language);
+      handleClose();
+    } catch (error) {
+      handleClose();
+    }
   };
 
   const open = Boolean(anchorEl);
@@ -185,8 +149,8 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
         <StyledIconButton
           size={size}
           onClick={handleClick}
-          disabled={disabled}
-          aria-label="Change language"
+          disabled={disabled || isLoading}
+          aria-label={t('changeLanguage', 'Change Language')}
         >
           <FlagIcon>{currentLanguageConfig.flag}</FlagIcon>
         </StyledIconButton>
@@ -204,7 +168,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
             horizontal: 'right',
           }}
         >
-          {languages.map((language) => (
+          {allLanguages.map((language) => (
             <LanguageMenuItem
               key={language.code}
               onClick={() => handleLanguageSelect(language.code)}
@@ -232,9 +196,10 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
       <Box className={className}>
         <StyledLanguageButton
           variant="outlined"
-          size={size}
+          layoutVariant={variant}
+          customSize={size}
           onClick={handleClick}
-          disabled={disabled}
+          disabled={disabled || isLoading}
           startIcon={<Box>{currentLanguageConfig.flag}</Box>}
           endIcon={<ExpandMoreIcon />}
         >
@@ -250,7 +215,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
           onClose={handleClose}
           TransitionComponent={Fade}
         >
-          {languages.map((language) => (
+          {allLanguages.map((language) => (
             <LanguageMenuItem
               key={language.code}
               onClick={() => handleLanguageSelect(language.code)}
@@ -273,14 +238,14 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
     );
   }
 
-  // Default button variant
   return (
     <Box className={className}>
       <StyledLanguageButton
         variant="text"
-        size={size}
+        layoutVariant="button"
+        customSize={size}
         onClick={handleClick}
-        disabled={disabled}
+        disabled={disabled || isLoading}
         startIcon={<Box>{currentLanguageConfig.flag}</Box>}
       >
         {showLabel && (
@@ -295,7 +260,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
         onClose={handleClose}
         TransitionComponent={Fade}
       >
-        {languages.map((language) => (
+        {allLanguages.map((language) => (
           <LanguageMenuItem
             key={language.code}
             onClick={() => handleLanguageSelect(language.code)}
@@ -318,7 +283,6 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   );
 };
 
-// Language Toggle Component (Simple two-language toggle)
 export const LanguageToggle: React.FC<LanguageToggleProps> = ({
   showLabel = true,
   size = 'medium',
@@ -326,21 +290,27 @@ export const LanguageToggle: React.FC<LanguageToggleProps> = ({
   className,
   onLanguageChange,
 }) => {
-  const { currentLanguage, changeLanguage, currentLanguageConfig } = useLanguageManager();
+  const { currentLanguage, changeLanguage, availableLanguages, isLoading } = useLanguage();
+  const currentLanguageConfig = getLanguageByCode(currentLanguage, availableLanguages);
 
-  const handleToggle = () => {
+  const handleToggle = async () => {
     const newLanguage = currentLanguage === 'en' ? 'ko' : 'en';
-    changeLanguage(newLanguage);
-    onLanguageChange?.(newLanguage);
+    try {
+      await changeLanguage(newLanguage);
+      onLanguageChange?.(newLanguage);
+    } catch (error) {
+      // 언어 변경 실패 시 사용자 알림 없이 처리하여 UX 연속성 유지
+    }
   };
 
   return (
     <Box className={className}>
       <StyledLanguageButton
         variant="text"
-        size={size}
+        layoutVariant="button"
+        customSize={size}
         onClick={handleToggle}
-        disabled={disabled}
+        disabled={disabled || isLoading}
         startIcon={<Box>{currentLanguageConfig.flag}</Box>}
       >
         {showLabel && (
@@ -353,7 +323,6 @@ export const LanguageToggle: React.FC<LanguageToggleProps> = ({
   );
 };
 
-// Mobile Language Switcher Component
 export const MobileLanguageSwitcher: React.FC<MobileLanguageSwitcherProps> = ({
   showLabel = true,
   disabled = false,
@@ -363,7 +332,15 @@ export const MobileLanguageSwitcher: React.FC<MobileLanguageSwitcherProps> = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const { currentLanguage, changeLanguage, languages, currentLanguageConfig } = useLanguageManager();
+  const { currentLanguage, changeLanguage, availableLanguages, isLoading } = useLanguage();
+  const { t } = useTranslation('common');
+
+  const allLanguages = [
+    ...availableLanguages,
+    getLanguageByCode(currentLanguage, availableLanguages),
+  ].filter((lang, index, arr) => arr.findIndex(l => l.code === lang.code) === index);
+
+  const currentLanguageConfig = getLanguageByCode(currentLanguage, allLanguages);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -373,10 +350,14 @@ export const MobileLanguageSwitcher: React.FC<MobileLanguageSwitcherProps> = ({
     setAnchorEl(null);
   };
 
-  const handleLanguageSelect = (language: string) => {
-    changeLanguage(language);
-    onLanguageChange?.(language);
-    handleClose();
+  const handleLanguageSelect = async (language: string) => {
+    try {
+      await changeLanguage(language as SupportedLanguage);
+      onLanguageChange?.(language);
+      handleClose();
+    } catch (error) {
+      handleClose();
+    }
   };
 
   const open = Boolean(anchorEl);
@@ -387,8 +368,8 @@ export const MobileLanguageSwitcher: React.FC<MobileLanguageSwitcherProps> = ({
         <StyledIconButton
           size="small"
           onClick={handleClick}
-          disabled={disabled}
-          aria-label="Change language"
+          disabled={disabled || isLoading}
+          aria-label={t('changeLanguage', 'Change Language')}
         >
           <FlagIcon sx={{ marginRight: 0 }}>
             {currentLanguageConfig.flag}
@@ -408,7 +389,7 @@ export const MobileLanguageSwitcher: React.FC<MobileLanguageSwitcherProps> = ({
             horizontal: 'right',
           }}
         >
-          {languages.map((language) => (
+          {allLanguages.map((language) => (
             <LanguageMenuItem
               key={language.code}
               onClick={() => handleLanguageSelect(language.code)}
@@ -431,7 +412,6 @@ export const MobileLanguageSwitcher: React.FC<MobileLanguageSwitcherProps> = ({
     );
   }
 
-  // Desktop fallback
   return (
     <LanguageSwitcher
       variant="compact"

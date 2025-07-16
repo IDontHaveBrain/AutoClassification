@@ -1,17 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Box,Paper, Typography } from '@mui/material';
-import BaseTitle from 'component/baseBoard/BaseTitle';
-import BaseEditor from 'component/baseEditor/BaseEditor';
+import { type NoticeModel } from 'model/GlobalModel';
 import { addNotice, updateNotice } from 'service/Apis/NoticeApi';
 
+import BaseTitle from 'components/baseBoard/BaseTitle';
+import BaseEditor from 'components/baseEditor/BaseEditor';
 import { onAlert } from 'utils/alert';
-import { Strings } from 'utils/strings';
+
+interface EditorHandle {
+  getEditorState: () => { title: string; content: string };
+}
 
 const NoticeEditor = () => {
-  const [notice, setNotice] = useState(null);
+  const { t } = useTranslation('notice');
+  const [notice, setNotice] = useState<NoticeModel | null>(null);
   const [isEdit, setIsEdit] = useState(false);
-  const editorRef = useRef(null);
+  const editorRef = useRef<EditorHandle>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -31,32 +37,31 @@ const NoticeEditor = () => {
       content: editorState.content,
     };
 
-    if (isEdit) {
+    if (isEdit && notice) {
       updateNotice(notice.id, params)
           .then(() => {
-            onAlert(Strings.Notice.update);
+            onAlert(t('messages.updateSuccess'));
             navigate(-1);
           })
           .catch((_err) => {
-            onAlert(Strings.Notice.updateFailed);
+            onAlert(t('messages.updateFailed'));
           });
     } else {
       addNotice(params)
           .then(() => {
-            onAlert(Strings.Notice.add);
+            onAlert(t('messages.createSuccess'));
             navigate(-1);
           })
           .catch((_err) => {
-            onAlert(Strings.Notice.addFailed);
+            onAlert(t('messages.createFailed'));
           });
     }
   };
 
   return (
     <Paper elevation={3} sx={{ p: 4, m: 2, borderRadius: 2 }}>
-      <BaseTitle title={isEdit ? '공지사항 수정' : '공지사항 작성'} />
+      <BaseTitle title={isEdit ? t('editor.editTitle') : t('editor.title')} />
 
-      {/* Editor Section */}
       <Box sx={{ mt: 4 }}>
         <Typography
           variant="h6"
@@ -67,7 +72,7 @@ const NoticeEditor = () => {
             mb: 3,
           }}
         >
-          {isEdit ? 'Edit Notice' : 'Create New Notice'}
+          {isEdit ? t('editor.editTitle') : t('editor.title')}
         </Typography>
 
         <Box sx={{
@@ -81,8 +86,8 @@ const NoticeEditor = () => {
             <BaseEditor
               ref={editorRef}
               handleSave={handleSave}
-              defaultTitle={notice?.title}
-              defaultContent={notice?.content}
+              defaultTitle={notice?.title || ''}
+              defaultContent={notice?.content || ''}
             />
           )}
         </Box>

@@ -1,4 +1,5 @@
 import { type Accept, type FileRejection,useDropzone } from 'react-dropzone';
+import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 
 interface Props {
@@ -28,6 +29,7 @@ const FileDropzone = ({
     multiple,
     disabled,
   });
+  const { t } = useTranslation('common');
 
   return (
     <Box
@@ -45,12 +47,12 @@ const FileDropzone = ({
       <input {...getInputProps()} />
       {(() => {
         if (disabled) {
-          return <p>파일 업로드가 비활성화되었습니다.</p>;
+          return <p>{t('fileUploadDisabled')}</p>;
         }
         if (isDragActive) {
-          return <p>Drop the imgs or zip here...</p>;
+          return <p>{t('dropImagesHere')}</p>;
         }
-        return <p>Drag & drop some imgs or zip here, or click to select imgs</p>;
+        return <p>{t('dragDropOrClick')}</p>;
       })()}
     </Box>
   );

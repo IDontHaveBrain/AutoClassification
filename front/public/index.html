@@ -11,13 +11,12 @@
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <!--
-      manifest.json은 웹앱이 사용자의 모바일 디바이스나 데스크탁에 설치될 때 사용되는 메타데이터를 제공합니다.
+      웹앱 설치 시 필요한 메타데이터를 manifest.json에서 제공합니다.
     -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <!--
-      위 태그들에서 %PUBLIC_URL%의 사용에 주목하세요.
-      빌드 시 `public` 폴더의 URL로 대체됩니다.
-      HTML에서는 `public` 폴더 내의 파일만 참조할 수 있습니다.
+      %PUBLIC_URL%은 빌드 시 public 폴더 URL로 자동 대체됩니다.
+      HTML에서는 public 폴더 내 파일만 접근 가능합니다.
     -->
     <title>AutoClassification</title>
   </head>
@@ -25,8 +24,7 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <!--
-      이 HTML 파일은 템플릿입니다.
-      빌드 단계에서 번들링된 스크립트가 <body> 태그에 삽입됩니다.
+      이 HTML은 템플릿으로, 빌드 시 번들링된 스크립트가 자동 삽입됩니다.
     -->
   </body>
 </html>

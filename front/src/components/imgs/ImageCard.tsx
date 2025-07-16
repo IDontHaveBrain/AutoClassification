@@ -1,4 +1,5 @@
-import React, { useEffect,useState } from 'react';
+import { useEffect,useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import { Box,Card, CardMedia, CircularProgress, IconButton, SvgIcon,Typography  } from '@mui/material';
 
@@ -10,6 +11,7 @@ interface ImageCardProps {
 }
 
 const ImageCard = ({ url, originalFileName, onClick, size = 'medium' }: ImageCardProps) => {
+    const { t } = useTranslation('common');
     const cardStyle = {
         margin: '5px',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
@@ -30,9 +32,9 @@ const ImageCard = ({ url, originalFileName, onClick, size = 'medium' }: ImageCar
         };
         img.onerror = () => {
             setLoading(false);
-            setError('Failed to load image');
+            setError(t('imageLoadFailed'));
         };
-    }, [url]);
+    }, [url, t]);
 
     const sizeStyles = {
         tiny: { height: '80px' },
@@ -71,7 +73,7 @@ const ImageCard = ({ url, originalFileName, onClick, size = 'medium' }: ImageCar
                             backgroundColor: 'rgba(255, 255, 255, 0.9)',
                         },
                     }}
-                    aria-label={`Zoom in ${originalFileName || 'image'}`}
+                    aria-label={t('zoomIn', { fileName: originalFileName || t('image') })}
                 >
                     <SvgIcon component={ZoomInIcon} fontSize="small" />
                 </IconButton>

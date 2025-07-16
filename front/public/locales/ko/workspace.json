@@ -1,5 +1,11 @@
 {
   "list": {
+    "myWorkspace": "내 워크스페이스",
+    "workspaceNameField": "워크스페이스 이름",
+    "ownerEmailField": "소유자 이메일",
+    "workspaceListTitle": "워크스페이스 목록",
+    "addWorkspace": "워크스페이스 추가",
+    "searchToFirstPage": "검색 시 첫 페이지로 이동",
     "title": "워크스페이스",
     "subtitle": "워크스페이스를 관리하세요",
     "createButton": "새 워크스페이스",
@@ -20,6 +26,9 @@
     "archivedWorkspaces": "보관된 워크스페이스"
   },
   "item": {
+    "title": "제목",
+    "creator": "생성자",
+    "createdDate": "생성일",
     "name": "이름",
     "description": "설명",
     "owner": "소유자",
@@ -94,6 +103,7 @@
     "results": "결과",
     "members": "멤버",
     "settings": "설정",
+    "classes": "클래스",
     "activity": "활동",
     "history": "히스토리",
     "analytics": "분석",
@@ -142,7 +152,8 @@
     "reinvite": "재초대",
     "cancel": "취소",
     "accept": "수락",
-    "decline": "거절"
+    "decline": "거절",
+    "memberSearch": "멤버 검색"
   },
   "roles": {
     "owner": "소유자",
@@ -207,7 +218,11 @@
     "saveModel": "모델 저장",
     "loadModel": "모델 불러오기",
     "exportModel": "모델 내보내기",
-    "deployModel": "모델 배포"
+    "deployModel": "모델 배포",
+    "selectWorkspaceError": "워크스페이스를 선택해주세요",
+    "noImagesToLabelError": "라벨링할 이미지가 없습니다",
+    "trainRequest": "학습 요청",
+    "workspaceData": "워크스페이스 데이터"
   },
   "autoLabel": {
     "title": "자동 라벨링",
@@ -242,7 +257,10 @@
     "quality": "품질",
     "validation": "검증",
     "feedback": "피드백",
-    "improvement": "개선"
+    "improvement": "개선",
+    "selectWorkspaceError": "워크스페이스를 선택해주세요",
+    "noImagesToLabel": "라벨링할 이미지가 없습니다",
+    "workspaceData": "워크스페이스 데이터"
   },
   "dataset": {
     "title": "데이터셋 관리",

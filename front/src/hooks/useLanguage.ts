@@ -1,50 +1,44 @@
 import { useCallback, useMemo } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useI18n } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
-import { Language, LANGUAGES } from '../i18n/config';
-import { 
-  selectLanguage, 
-  selectIsLoading, 
-  selectError, 
-  selectIsInitialized,
-  setError,
-  resetError 
-} from '../stores/i18nSlice';
-import { useI18nContext } from '../i18n/provider';
+import 'dayjs/locale/ko';
+import 'dayjs/locale/en';
+
+dayjs.extend(relativeTime);
+
+import { LANGUAGES } from '../i18n/config';
+import { type SupportedLanguage } from '../types/i18n';
 
 export interface LanguageInfo {
-  code: Language;
+  code: SupportedLanguage;
   name: string;
   nativeName: string;
   flag: string;
 }
 
 export interface UseLanguageResult {
-  currentLanguage: Language;
+  currentLanguage: SupportedLanguage;
   availableLanguages: LanguageInfo[];
-  changeLanguage: (language: Language) => Promise<void>;
+  changeLanguage: (language: SupportedLanguage) => Promise<void>;
   isLoading: boolean;
-  error: string | null;
-  isInitialized: boolean;
   formatDate: (date: string | Date, format?: string) => string;
   formatNumber: (number: number, options?: Intl.NumberFormatOptions) => string;
   formatCurrency: (amount: number, currency?: string) => string;
   formatRelativeTime: (date: string | Date) => string;
   isRTL: boolean;
-  clearError: () => void;
 }
 
-const LANGUAGE_INFO: Record<Language, LanguageInfo> = {
-  [LANGUAGES.ko]: {
-    code: LANGUAGES.ko,
+const LANGUAGE_INFO: Record<SupportedLanguage, LanguageInfo> = {
+  ko: {
+    code: 'ko',
     name: 'Korean',
     nativeName: '한국어',
     flag: '🇰🇷',
   },
-  [LANGUAGES.en]: {
-    code: LANGUAGES.en,
+  en: {
+    code: 'en',
     name: 'English',
     nativeName: 'English',
     flag: '🇺🇸',
@@ -52,35 +46,25 @@ const LANGUAGE_INFO: Record<Language, LanguageInfo> = {
 };
 
 /**
- * Hook for language management with formatting utilities
+ * 언어별 포맷팅 함수를 제공하며 현재 언어 컨텍스트를 자동 인식합니다.
+ * i18nUtils의 중복 포맷팅 유틸리티는 이 훅으로 통합되었습니다.
  */
 export const useLanguage = (): UseLanguageResult => {
-  const dispatch = useDispatch();
-  const { i18n } = useI18n();
-  const { changeLanguage: contextChangeLanguage } = useI18nContext();
-  
-  const currentLanguage = useSelector(selectLanguage);
-  const isLoading = useSelector(selectIsLoading);
-  const error = useSelector(selectError);
-  const isInitialized = useSelector(selectIsInitialized);
+  const { i18n } = useTranslation();
+
+  const currentLanguage = i18n.language as SupportedLanguage;
+  const isLoading = !i18n.isInitialized;
 
   const availableLanguages = useMemo(
     () => Object.values(LANGUAGE_INFO),
-    []
+    [],
   );
 
   const changeLanguage = useCallback(
-    async (language: Language) => {
-      try {
-        dispatch(resetError());
-        await contextChangeLanguage(language);
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to change language';
-        dispatch(setError(errorMessage));
-        throw error;
-      }
+    async (language: SupportedLanguage) => {
+      await i18n.changeLanguage(language);
     },
-    [contextChangeLanguage, dispatch]
+    [i18n],
   );
 
   const formatDate = useCallback(
@@ -89,11 +73,10 @@ export const useLanguage = (): UseLanguageResult => {
         const dateObj = typeof date === 'string' ? new Date(date) : date;
         return dayjs(dateObj).locale(currentLanguage).format(format);
       } catch (error) {
-        console.error('Date formatting error:', error);
         return String(date);
       }
     },
-    [currentLanguage]
+    [currentLanguage],
   );
 
   const formatNumber = useCallback(
@@ -101,11 +84,10 @@ export const useLanguage = (): UseLanguageResult => {
       try {
         return new Intl.NumberFormat(currentLanguage, options).format(number);
       } catch (error) {
-        console.error('Number formatting error:', error);
         return String(number);
       }
     },
-    [currentLanguage]
+    [currentLanguage],
   );
 
   const formatCurrency = useCallback(
@@ -116,11 +98,10 @@ export const useLanguage = (): UseLanguageResult => {
           currency,
         }).format(amount);
       } catch (error) {
-        console.error('Currency formatting error:', error);
         return `${amount} ${currency}`;
       }
     },
-    [currentLanguage]
+    [currentLanguage],
   );
 
   const formatRelativeTime = useCallback(
@@ -129,16 +110,16 @@ export const useLanguage = (): UseLanguageResult => {
         const dateObj = typeof date === 'string' ? new Date(date) : date;
         const now = new Date();
         const diff = now.getTime() - dateObj.getTime();
-        
+
         const rtf = new Intl.RelativeTimeFormat(currentLanguage, { numeric: 'auto' });
-        
+
         const seconds = Math.floor(diff / 1000);
         const minutes = Math.floor(seconds / 60);
         const hours = Math.floor(minutes / 60);
         const days = Math.floor(hours / 24);
         const months = Math.floor(days / 30);
         const years = Math.floor(months / 12);
-        
+
         if (years > 0) return rtf.format(-years, 'year');
         if (months > 0) return rtf.format(-months, 'month');
         if (days > 0) return rtf.format(-days, 'day');
@@ -146,79 +127,63 @@ export const useLanguage = (): UseLanguageResult => {
         if (minutes > 0) return rtf.format(-minutes, 'minute');
         return rtf.format(-seconds, 'second');
       } catch (error) {
-        console.error('Relative time formatting error:', error);
         return dayjs(date).fromNow();
       }
     },
-    [currentLanguage]
+    [currentLanguage],
   );
 
   const isRTL = useMemo(() => {
-    // Add RTL languages if needed in the future
-    const RTL_LANGUAGES: Language[] = [];
+    const RTL_LANGUAGES: SupportedLanguage[] = [];
     return RTL_LANGUAGES.includes(currentLanguage);
   }, [currentLanguage]);
-
-  const clearError = useCallback(() => {
-    dispatch(resetError());
-  }, [dispatch]);
 
   return {
     currentLanguage,
     availableLanguages,
     changeLanguage,
     isLoading,
-    error,
-    isInitialized,
     formatDate,
     formatNumber,
     formatCurrency,
     formatRelativeTime,
     isRTL,
-    clearError,
   };
 };
 
-/**
- * Hook for getting language-specific information
- */
-export const useLanguageInfo = (language?: Language): LanguageInfo => {
+export const useLanguageInfo = (language?: SupportedLanguage): LanguageInfo => {
   const { currentLanguage } = useLanguage();
   const targetLanguage = language || currentLanguage;
-  
+
   return useMemo(
     () => LANGUAGE_INFO[targetLanguage],
-    [targetLanguage]
+    [targetLanguage],
   );
 };
 
-/**
- * Hook for language detection utilities
- */
 export const useLanguageDetection = () => {
   const { changeLanguage } = useLanguage();
-  
+
   const detectBrowserLanguage = useCallback(() => {
-    const browserLang = navigator.language.split('-')[0] as Language;
+    const browserLang = navigator.language.split('-')[0] as SupportedLanguage;
     return Object.values(LANGUAGES).includes(browserLang) ? browserLang : LANGUAGES.ko;
   }, []);
-  
+
   const detectSystemLanguage = useCallback(() => {
-    const systemLang = Intl.DateTimeFormat().resolvedOptions().locale.split('-')[0] as Language;
+    const systemLang = Intl.DateTimeFormat().resolvedOptions().locale.split('-')[0] as SupportedLanguage;
     return Object.values(LANGUAGES).includes(systemLang) ? systemLang : LANGUAGES.ko;
   }, []);
-  
+
   const autoDetectAndSet = useCallback(async () => {
     const detectedLanguage = detectBrowserLanguage();
     try {
       await changeLanguage(detectedLanguage);
       return detectedLanguage;
     } catch (error) {
-      console.error('Auto-detection failed:', error);
       return LANGUAGES.ko;
     }
   }, [detectBrowserLanguage, changeLanguage]);
-  
+
   return {
     detectBrowserLanguage,
     detectSystemLanguage,

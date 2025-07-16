@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Box,Card, CardContent, IconButton, TextField } from '@mui/material';
 
@@ -10,6 +11,8 @@ interface ClassInputCardProps {
 }
 
 const ClassInputCard: React.FC<ClassInputCardProps> = ({ value, onChange, onDelete, isRequired }) => {
+  const { t } = useTranslation();
+
   return (
     <Card variant="outlined" sx={{ minWidth: 200, m: 1 }}>
       <CardContent>
@@ -20,7 +23,7 @@ const ClassInputCard: React.FC<ClassInputCardProps> = ({ value, onChange, onDele
             value={value}
             onChange={(e) => onChange(e.target.value)}
             error={isRequired && value.trim() === ''}
-            helperText={isRequired && value.trim() === '' ? '필수 입력입니다' : ''}
+            helperText={isRequired && value.trim() === '' ? t('required', { ns: 'validation' }) : ''}
           />
           <IconButton onClick={onDelete} disabled={isRequired}>
             <DeleteIcon />

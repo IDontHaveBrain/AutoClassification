@@ -1,9 +1,11 @@
 import React, { useEffect,useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, Card, CardContent, CardMedia, Grid, IconButton, Modal, Pagination, Skeleton, Tab,Tabs, Tooltip, Typography } from '@mui/material';
-import ExpandComp from 'component/ExpandComp';
 import { type FileModel } from 'model/GlobalModel';
+
+import ExpandComp from 'components/ExpandComp';
 
 interface Props {
     imgs: FileModel[];
@@ -15,13 +17,13 @@ interface Props {
 }
 
 const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState: _setState, isLoading = false, error = null, onDeleteImage, classes }) => {
+    const { t } = useTranslation('common');
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [page, setPage] = useState(1);
     const [selectedTab, setSelectedTab] = useState<string>('All');
     const imagesPerPage = 12;
 
     useEffect(() => {
-        // 탭 변경 시 페이지를 1로 초기화
         setPage(1);
     }, [selectedTab]);
 
@@ -33,11 +35,11 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState: _setState, isLoadin
         setSelectedImage(null);
     };
 
-    const handleChangePage = (event: React.ChangeEvent<unknown>, value: number) => {
+    const handleChangePage = (_event: React.ChangeEvent<unknown>, value: number) => {
         setPage(value);
     };
 
-    const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+    const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
         setSelectedTab(newValue);
     };
 
@@ -50,7 +52,7 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState: _setState, isLoadin
 
     if (isLoading) {
         return (
-            <ExpandComp title="DataSet">
+            <ExpandComp title={t('dataSet')}>
                 <Grid container spacing={2}>
                     {[...Array(8)].map((_, index) => {
                         const skeletonId = `skeleton-loader-${8 - index}`;
@@ -68,13 +70,12 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState: _setState, isLoadin
 
     if (error) {
         return (
-            <ExpandComp title="DataSet">
+            <ExpandComp title={t('dataSet')}>
                 <Typography color="error" align="center">{error}</Typography>
             </ExpandComp>
         );
     }
 
-    // 선택된 탭에 따라 이미지 필터링
     const filteredImages = imgs.filter((image) => {
         if (selectedTab === 'All') {
             return true;
@@ -90,18 +91,18 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState: _setState, isLoadin
     const displayedImages = filteredImages.slice(startIndex, endIndex);
 
     return (
-        <ExpandComp title="DataSet">
+        <ExpandComp title={t('dataSet')}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs value={selectedTab} onChange={handleTabChange} aria-label="basic tabs example">
-                    <Tab label="All" value="All" />
-                    <Tab label="None" value="None" />
+                    <Tab label={t('all')} value="All" />
+                    <Tab label={t('none')} value="None" />
                     {classes?.map((className) => (
                         <Tab key={className} label={className} value={className} />
                     ))}
                 </Tabs>
             </Box>
             {filteredImages.length === 0 ? (
-                <Typography align="center">No images available</Typography>
+                <Typography align="center">{t('noImagesAvailable')}</Typography>
             ) : (
                 <>
                     <Grid container spacing={2} sx={{ mt: 2 }}>
@@ -132,7 +133,7 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState: _setState, isLoadin
                                         </Typography>
                                     </CardContent>
                                     {onDeleteImage && (
-                                        <Tooltip title="Delete Image">
+                                        <Tooltip title={t('deleteImage')}>
                                             <IconButton
                                                 size="small"
                                                 onClick={(e) => handleDeleteImage(e, image.id)}
@@ -196,8 +197,8 @@ const WorkspaceDataSet: React.FC<Props> = ({ imgs, setState: _setState, isLoadin
                         <CloseIcon />
                     </IconButton>
                     <img
-                        src={selectedImage}
-                        alt="Expanded view"
+                        src={selectedImage || ''}
+                        alt={t('expandedView')}
                         style={{
                             maxWidth: '100%',
                             maxHeight: 'calc(90vh - 48px)',

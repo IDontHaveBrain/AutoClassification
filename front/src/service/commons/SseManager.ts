@@ -24,7 +24,7 @@ class SseManager {
     private lastHeartbeatReceived: number = 0;
     private readonly MAX_RECONNECT_ATTEMPTS = 10;
     private readonly INITIAL_RECONNECT_DELAY = 1000;
-    private readonly HEARTBEAT_TIMEOUT = 60000; // 60 seconds
+    private readonly HEARTBEAT_TIMEOUT = 60000;
 
     private constructor() {}
 
@@ -49,7 +49,7 @@ class SseManager {
         }
 
         try {
-            const accessToken = sessionStorage.getItem(CONSTANT.ACCESS_TOKEN);
+            const accessToken = localStorage.getItem(CONSTANT.ACCESS_TOKEN);
             this.eventSource = new EventSourcePolyfill(this.url, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
@@ -58,16 +58,16 @@ class SseManager {
                 withCredentials: true,
             });
 
-            this.eventSource.onopen = this.handleOpen;
-            this.eventSource.onerror = this.handleError;
-            this.eventSource.onmessage = this.handleMessage;
+            this.eventSource.onopen = this.handleOpen.bind(this);
+            this.eventSource.onerror = this.handleEventSourceError.bind(this);
+            this.eventSource.onmessage = this.handleMessage.bind(this);
 
         } catch (_error) {
             this.handleError(_error instanceof Error ? _error : new Error('Unknown error occurred'));
         }
     }
 
-    private handleOpen = (_event: Event): void => {
+    private handleOpen = (_event: unknown): void => {
         this.isConnected = true;
         this.reconnectAttempts = 0;
         this.lastHeartbeatReceived = Date.now();
@@ -76,15 +76,22 @@ class SseManager {
         this.notifyConnectionStatusChange(true);
     };
 
-    private handleError = (event: Event | Error): void => {
-        const error = event instanceof Error ? event : new Error('SSE connection error');
+    private handleEventSourceError = (_event: unknown): void => {
+        const error = new Error('SSE connection error');
         this.isConnected = false;
         this.notifyConnectionStatusChange(false);
         this.errorHandlers.forEach(handler => handler(error));
         this.reconnect();
     };
 
-    private handleMessage = (event: MessageEvent): void => {
+    private handleError = (error: Error): void => {
+        this.isConnected = false;
+        this.notifyConnectionStatusChange(false);
+        this.errorHandlers.forEach(handler => handler(error));
+        this.reconnect();
+    };
+
+    private handleMessage = (event: { data: string }): void => {
         try {
             const parsedData: SseEvent = JSON.parse(event.data);
 
@@ -94,7 +101,6 @@ class SseManager {
                 return;
             }
 
-            // Create a new SseEvent object with the correct structure
             const sseEvent: SseEvent = {
                 id: parsedData.id,
                 type: parsedData.type as SseType,
@@ -104,7 +110,6 @@ class SseManager {
 
             this.messageHandlers.forEach(handler => handler(sseEvent));
         } catch (_error) {
-            // 에러 처리
         }
     };
 
@@ -148,7 +153,6 @@ class SseManager {
 
     public sendMessage(message: SseEvent): void {
         if (this.isConnected) {
-            // 메시지 전송 처리
         } else {
             this.messageQueue.push(message);
         }
@@ -162,7 +166,6 @@ class SseManager {
                 this.establishConnection();
             }, delay);
         } else {
-            // 최대 재연결 시도 횟수 초과
         }
     }
 
@@ -219,10 +222,8 @@ class SseManager {
             UserApi.post('/sse/heartbeat-response', {
                 timestamp: Date.now(),
             }).catch(_error => {
-                // 에러 처리
             });
         } catch (_error) {
-            // 에러 처리
         }
     }
 }

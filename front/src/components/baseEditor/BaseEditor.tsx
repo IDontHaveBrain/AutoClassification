@@ -1,9 +1,11 @@
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box,Divider } from '@mui/material';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
-import TextEditor from 'component/baseEditor/TextEditor';
-import BaseInputField from 'component/BaseInputField';
+
+import TextEditor from 'components/baseEditor/TextEditor';
+import BaseInputField from 'components/BaseInputField';
 
 interface Props {
     handleSave: () => void;
@@ -11,7 +13,8 @@ interface Props {
     defaultContent: string;
 }
 
-const BaseEditor = ({ handleSave, defaultTitle, defaultContent }: Props, ref) => {
+const BaseEditor = ({ handleSave, defaultTitle, defaultContent }: Props, ref: React.Ref<{ getEditorState: () => { title: string; content: string } }>) => {
+    const { t } = useTranslation('common');
     const [editorTitle, setEditorTitle] = useState(defaultTitle);
     const [editorContent, setEditorContent] = useState(defaultContent);
 
@@ -26,11 +29,10 @@ const BaseEditor = ({ handleSave, defaultTitle, defaultContent }: Props, ref) =>
 
     return (
         <Box>
-            {/* 제목 및 저장 섹션 */}
             <Grid container spacing={3} alignItems="end" sx={{ mb: 3 }}>
                 <Grid size={{ xs: 12, sm: 9, md: 10 }}>
                     <BaseInputField
-                        label="Title : "
+                        label={`${t('title')} : `}
                         value={editorTitle}
                         onChange={(e) => setEditorTitle(e.target.value)}
                         sx={{
@@ -62,14 +64,13 @@ const BaseEditor = ({ handleSave, defaultTitle, defaultContent }: Props, ref) =>
                             transition: 'all 0.2s ease-in-out',
                         }}
                     >
-                        Save
+                        {t('save')}
                     </Button>
                 </Grid>
             </Grid>
 
             <Divider sx={{ mb: 3 }} />
 
-            {/* 콘텐츠 에디터 섹션 */}
             <Box sx={{ mt: 3 }}>
                 <TextEditor value={editorContent} onChange={setEditorContent} />
             </Box>

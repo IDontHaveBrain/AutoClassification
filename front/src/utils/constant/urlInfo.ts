@@ -13,6 +13,7 @@ const URLS = {
       PUT: '/member',
       DELETE: '/member',
       SEARCH: '/member/search',
+      ME: '/member/me',
     },
     NOTICE: {
       GET: '/notice',

@@ -1,11 +1,11 @@
 import { Fragment } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Button, Divider, List, ListItemButton, ListItemText } from '@mui/material';
 import { type AlarmModel } from 'model/GlobalModel';
 import { readAlarm, readAllAlarm } from 'service/Apis/AlarmApi';
 
 import { onAlert } from 'utils/alert';
-import { Strings } from 'utils/strings';
 
 interface Props {
     handleClose: () => void;
@@ -13,6 +13,8 @@ interface Props {
 }
 
 const AlarmDetail = ({ handleClose, alarmList }: Props) => {
+    const { t } = useTranslation('common');
+    const { t: tApi } = useTranslation('api');
     const navigate = useNavigate();
 
     const handleAlarmClick = (alarm: AlarmModel) => {
@@ -24,7 +26,7 @@ const AlarmDetail = ({ handleClose, alarmList }: Props) => {
                 handleClose();
             })
             .catch((_error) => {
-                // 오류를 조용히 처리
+                // 알람 읽기 실패 시 사용자 알림 없이 처리하여 UX 연속성 유지
             });
     };
 
@@ -34,13 +36,13 @@ const AlarmDetail = ({ handleClose, alarmList }: Props) => {
                 handleClose();
             })
             .catch((_error) => {
-                onAlert(Strings.Common.apiFailed);
+                onAlert(tApi('requestFailed'));
             });
     };
 
     return (
         <>
-            <Button onClick={handleReadAll}>Mark all as read</Button>
+            <Button onClick={handleReadAll}>{t('markAllAsRead')}</Button>
             <Divider />
             <List
                 sx={{

@@ -1,4 +1,5 @@
 import { type Context, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import TestClassfiy from 'pages/contents/freetest/TestClassfiy';
 import TestResultList from 'pages/contents/freetest/TestResultList';
@@ -7,10 +8,9 @@ import NoticeList from 'pages/contents/notice/NoticeList';
 import AutoLabel from 'pages/contents/workspace/autolabel/AutoLabel';
 import Train from 'pages/contents/workspace/training/Train';
 import WorkspaceEditor from 'pages/contents/workspace/WorkspaceEditor';
-import { Home } from 'pages/default/Home';
+import Home from 'pages/default/Home';
 import SignIn from 'pages/default/SignIn';
 import SignUp from 'pages/default/SignUp';
-import { useTranslation } from 'hooks/useTranslation';
 
 import { type ContextType,NoticeContext, WorkspaceContext } from 'utils/ContextManager';
 
@@ -27,37 +27,37 @@ export interface MenuInfo {
     subTabMenu?: MenuInfo[];
 }
 
-// Hook to generate menu items with i18n translations
 export const useMenuItems = (): MenuInfo[] => {
-    const { t } = useTranslation();
-    
+    const { t: tNavigation } = useTranslation('navigation');
+    const { t: tCommon } = useTranslation('common');
+
     return [
         {
-            name: t('navigation.menu.home'),
+            name: tNavigation('menu.home'),
             path: '/',
             icon: <AssignmentIcon/>,
             element: <Home/>,
             subTabMenu: [
                 {
-                    name: 'Sign In',
+                    name: tCommon('signIn'),
                     path: '/sign-in',
                     element: <SignIn/>,
                 },
                 {
-                    name: 'Sign Up',
+                    name: tCommon('signUp'),
                     path: '/sign-up',
                     element: <SignUp/>,
                 },
             ],
         },
         {
-            name: t('navigation.menu.notice'),
+            name: tNavigation('menu.notice'),
             path: '/notice',
             element: <NoticeList/>,
             context: NoticeContext,
             subMenu: [
                 {
-                    name: t('navigation.submenu.noticeWrite'),
+                    name: tNavigation('submenu.noticeWrite'),
                     path: '/notice/write',
                     element: <NoticeEditor/>,
                     context: NoticeContext,
@@ -66,73 +66,73 @@ export const useMenuItems = (): MenuInfo[] => {
             ],
         },
         {
-            name: t('navigation.menu.workspace'),
+            name: tNavigation('menu.workspace'),
             context: WorkspaceContext,
             subMenu: [
                 {
-                    name: t('navigation.submenu.workspaceList'),
+                    name: tNavigation('submenu.workspaceList'),
                     path: '/workspace',
                     element: <WorkspaceList/>,
                     context: WorkspaceContext,
                 },
                 {
-                    name: t('navigation.submenu.workspaceEditor'),
+                    name: tNavigation('submenu.workspaceEditor'),
                     path: '/workspace/editor',
                     element: <WorkspaceEditor/>,
                     context: WorkspaceContext,
                     invisible: true,
                 },
                 {
-                    name: t('navigation.submenu.autoLabel'),
+                    name: tNavigation('submenu.autoLabel'),
                     path: '/workspace/auto-label',
                     element: <AutoLabel/>,
                 },
                 {
-                    name: t('navigation.submenu.training'),
+                    name: tNavigation('submenu.training'),
                     path: '/workspace/training',
                     element: <Train/>,
                 },
             ],
             subTabMenu: [
                 {
-                    name: t('navigation.submenu.workspaceList'),
+                    name: tNavigation('submenu.workspaceList'),
                     path: '/workspace',
                     element: <WorkspaceList/>,
                 },
                 {
-                    name: t('navigation.submenu.autoLabel'),
+                    name: tNavigation('submenu.autoLabel'),
                     path: '/workspace/auto-label',
                     element: <AutoLabel/>,
                 },
                 {
-                    name: t('navigation.submenu.training'),
+                    name: tNavigation('submenu.training'),
                     path: '/workspace/training',
                     element: <Train/>,
                 },
             ],
         },
         {
-            name: t('navigation.menu.service'),
+            name: tNavigation('menu.service'),
             subMenu: [
                 {
-                    name: t('navigation.submenu.testClassify'),
+                    name: tNavigation('submenu.testClassify'),
                     path: '/test/classfiy',
                     element: <TestClassfiy/>,
                 },
                 {
-                    name: t('navigation.submenu.testResult'),
+                    name: tNavigation('submenu.testResult'),
                     path: '/test/result',
                     element: <TestResultList/>,
                 },
             ],
             subTabMenu: [
                 {
-                    name: t('navigation.submenu.classify'),
+                    name: tNavigation('submenu.classify'),
                     path: '/test/classfiy',
                     element: <TestClassfiy/>,
                 },
                 {
-                    name: t('navigation.submenu.result'),
+                    name: tNavigation('submenu.result'),
                     path: '/test/result',
                     element: <TestResultList/>,
                 },
@@ -141,8 +141,8 @@ export const useMenuItems = (): MenuInfo[] => {
     ];
 };
 
-// Legacy static MenuItems array - deprecated, use useMenuItems hook instead
-// @deprecated Use useMenuItems hook for i18n support
+// 레거시 정적 MenuItems 배열 - 사용 중단됨, useMenuItems 훅 사용 권장
+// @deprecated 다국어 지원을 위해 useMenuItems 훅을 사용하세요
 export const MenuItems: MenuInfo[] = [];
 
 export const findMenuPath = (menus: MenuInfo[], path: string): MenuInfo[] => {

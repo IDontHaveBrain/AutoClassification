@@ -1,5 +1,19 @@
 {
   "list": {
+    "noticeTitle": "공지사항",
+    "noticeListTitle": "공지사항 목록",
+    "writeNotice": "작성하기",
+    "titleField": "제목",
+    "creatorField": "작성자",
+    "contentField": "내용",
+    "authorField": "작성자",
+    "modifierField": "수정자",
+    "modifiedDateField": "수정일",
+    "titleColumn": "제목",
+    "authorColumn": "작성자",
+    "createdDateColumn": "작성일",
+    "modifierColumn": "수정자",
+    "modifiedDateColumn": "수정일",
     "title": "공지사항",
     "subtitle": "최신 공지사항을 확인하세요",
     "createButton": "공지사항 작성",
@@ -11,6 +25,11 @@
     "showing": "{{start}} - {{end}} of {{total}}개 표시 중"
   },
   "item": {
+    "id": "ID",
+    "writer": "작성자",
+    "writeDate": "작성일",
+    "modifier": "수정자",
+    "modifiedDate": "수정일",
     "title": "제목",
     "content": "내용",
     "author": "작성자",

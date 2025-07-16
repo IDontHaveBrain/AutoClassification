@@ -1,7 +1,5 @@
-// Export all i18n types
 export * from './i18n';
 
-// Import types we need to use in this file
 import type { SupportedLanguage, TranslationError, TranslationFunction } from './i18n';
 
 // Common type guards
@@ -15,8 +13,8 @@ export const isTranslationError = (error: unknown): error is TranslationError =>
     error !== null &&
     'code' in error &&
     'message' in error &&
-    typeof (error as any).code === 'string' &&
-    typeof (error as any).message === 'string'
+    typeof (error as TranslationError).code === 'string' &&
+    typeof (error as TranslationError).message === 'string'
   );
 };
 
@@ -36,7 +34,7 @@ export interface FormErrors {
   [key: string]: string | undefined;
 }
 
-export interface FormState<T = any> {
+export interface FormState<T = Record<string, unknown>> {
   values: T;
   errors: FormErrors;
   touched: Record<string, boolean>;
@@ -45,7 +43,7 @@ export interface FormState<T = any> {
 }
 
 // API response types
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   data: T;
   message: string;
   success: boolean;
@@ -55,7 +53,7 @@ export interface ApiResponse<T = any> {
 export interface ApiError {
   code: string;
   message: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 // Pagination types
@@ -65,7 +63,7 @@ export interface PaginationParams {
   sort?: string;
 }
 
-export interface PaginationResult<T = any> {
+export interface PaginationResult<T = unknown> {
   content: T[];
   totalElements: number;
   totalPages: number;
@@ -144,13 +142,13 @@ export interface Theme {
 }
 
 // Event types
-export interface CustomEvent<T = any> {
+export interface CustomEvent<T = unknown> {
   type: string;
   payload: T;
   timestamp: number;
 }
 
-export interface EventHandler<T = any> {
+export interface EventHandler<T = unknown> {
   (event: CustomEvent<T>): void;
 }
 
@@ -172,7 +170,6 @@ export interface AppConfig {
   i18n: {
     defaultLanguage: SupportedLanguage;
     fallbackLanguage: SupportedLanguage;
-    debug: boolean;
   };
   features: {
     [key: string]: boolean;
@@ -201,18 +198,69 @@ export type Values<T> = Array<T[keyof T]>;
 // Component ref types
 export type ComponentRef<T = HTMLElement> = React.RefObject<T>;
 
-export type ComponentCallback<T = any> = (value: T) => void;
+export type ComponentCallback<T = unknown> = (value: T) => void;
 
-export type ComponentHandler<T = any> = (event: T) => void;
+export type ComponentHandler<T = unknown> = (event: T) => void;
 
 // Validation types
-export interface ValidationRule<T = any> {
+export interface ValidationRule<T = unknown> {
   validator: (value: T) => boolean | string;
   message?: string;
 }
 
-export interface ValidationSchema<T = any> {
+export interface ValidationSchema<_T = unknown> {
   [key: string]: ValidationRule[];
+}
+
+// API specific types
+export interface SearchParams {
+  page?: number;
+  size?: number;
+  sort?: string;
+  search?: string;
+  [key: string]: unknown;
+}
+
+export interface NoticeData {
+  title: string;
+  content: string;
+  [key: string]: unknown;
+}
+
+export interface WorkspaceData {
+  name: string;
+  description?: string;
+  [key: string]: unknown;
+}
+
+// Alternative type to allow FormData for file uploads
+export type WorkspaceUploadData = WorkspaceData | FormData;
+
+export interface TestUploadParams {
+  file?: File;
+  [key: string]: unknown;
+}
+
+// Alternative interface to allow FormData and other upload formats
+export type TestUploadData = TestUploadParams | FormData;
+
+export interface TestResultParams {
+  page?: number;
+  size?: number;
+  [key: string]: unknown;
+}
+
+// Allow for compatibility with Pageable interface used in components
+export interface Pageable {
+  page: number;
+  size: number;
+  sort?: string;
+  [key: string]: unknown;
+}
+
+export interface AlertDetail {
+  message: string;
+  callback?: () => void;
 }
 
 // Default export - commonly used types are already exported via export * from './i18n'

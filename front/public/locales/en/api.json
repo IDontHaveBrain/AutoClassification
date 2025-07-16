@@ -1,0 +1,13 @@
+{
+  "requestSuccess": "Request successful",
+  "requestFailed": "Request failed",
+  "networkError": "Network error",
+  "serverError": "Server error",
+  "timeout": "Request timeout",
+  "unauthorized": "Unauthorized",
+  "forbidden": "Forbidden",
+  "notFound": "Not found",
+  "conflict": "Conflict",
+  "validationError": "Validation error",
+  "unknownError": "Unknown error"
+}

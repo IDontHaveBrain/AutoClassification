@@ -1,5 +1,11 @@
 {
   "list": {
+    "myWorkspace": "My Workspace",
+    "workspaceNameField": "Workspace Name",
+    "ownerEmailField": "Owner Email",
+    "workspaceListTitle": "Workspace List",
+    "addWorkspace": "Add Workspace",
+    "searchToFirstPage": "Navigate to first page when searching",
     "title": "Workspace",
     "subtitle": "Manage your workspaces",
     "createButton": "New Workspace",
@@ -20,6 +26,9 @@
     "archivedWorkspaces": "Archived Workspaces"
   },
   "item": {
+    "title": "Title",
+    "creator": "Creator",
+    "createdDate": "Created Date",
     "name": "Name",
     "description": "Description",
     "owner": "Owner",
@@ -94,6 +103,7 @@
     "results": "Results",
     "members": "Members",
     "settings": "Settings",
+    "classes": "Classes",
     "activity": "Activity",
     "history": "History",
     "analytics": "Analytics",
@@ -142,7 +152,8 @@
     "reinvite": "Reinvite",
     "cancel": "Cancel",
     "accept": "Accept",
-    "decline": "Decline"
+    "decline": "Decline",
+    "memberSearch": "Member Search"
   },
   "roles": {
     "owner": "Owner",
@@ -207,7 +218,11 @@
     "saveModel": "Save Model",
     "loadModel": "Load Model",
     "exportModel": "Export Model",
-    "deployModel": "Deploy Model"
+    "deployModel": "Deploy Model",
+    "selectWorkspaceError": "Please select a workspace",
+    "noImagesToLabelError": "No images available for labeling",
+    "trainRequest": "Train Request",
+    "workspaceData": "Workspace Data"
   },
   "autoLabel": {
     "title": "Auto Labeling",
@@ -242,7 +257,10 @@
     "quality": "Quality",
     "validation": "Validation",
     "feedback": "Feedback",
-    "improvement": "Improvement"
+    "improvement": "Improvement",
+    "selectWorkspaceError": "Please select a workspace",
+    "noImagesToLabel": "No images available for labeling",
+    "workspaceData": "Workspace Data"
   },
   "dataset": {
     "title": "Dataset Management",

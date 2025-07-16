@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
@@ -7,17 +8,20 @@ Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogConte
 Divider,     Grid, IconButton,     Paper, Snackbar,
 Tab,
     Tabs, Tooltip, Typography } from '@mui/material';
-import BaseEditor from 'component/baseEditor/BaseEditor';
-import MemberSearchModal from 'component/modal/MemberSearchModal';
 import { type Member } from 'model/GlobalModel';
 import { type WorkspaceModel } from 'model/WorkspaceModel';
+
+interface EditorHandle {
+  getEditorState: () => { title: string; content: string };
+}
 import WorkspaceClass from 'pages/contents/workspace/editor/WorkspaceClass';
 import WorkspaceDataSet from 'pages/contents/workspace/editor/WorkspaceDataSet';
 import WorkspaceMember from 'pages/contents/workspace/editor/WorkspaceMember';
 import { createWorkspace, updateWorkspace } from 'service/Apis/WorkspaceApi';
 
+import BaseEditor from 'components/baseEditor/BaseEditor';
+import MemberSearchModal from 'components/modal/MemberSearchModal';
 import { onAlert } from 'utils/alert';
-import { Strings } from 'utils/strings';
 
 import WorkspaceDropZone from './editor/WorkspaceDropZone';
 
@@ -26,6 +30,9 @@ interface CustomFile extends File {
 }
 
 const WorkspaceEditor = () => {
+    const { t: tValidation } = useTranslation('validation');
+    const { t: tWorkspace } = useTranslation('workspace');
+    const { t: tCommon } = useTranslation('common');
     const [workspace, setWorkspace] = useState<WorkspaceModel>();
     const [newFiles, setNewFiles] = useState<CustomFile[]>([]);
     const [isEdit, setIsEdit] = useState(false);
@@ -34,7 +41,7 @@ const WorkspaceEditor = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
-    const editorRef = useRef(null);
+    const editorRef = useRef<EditorHandle>(null);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -51,7 +58,7 @@ const WorkspaceEditor = () => {
         const editorState = editorRef.current.getEditorState();
 
         if (!editorState.title.trim() || !editorState.content.trim()) {
-            setError('Title and description are required.');
+            setError(tValidation('required'));
             return;
         }
 
@@ -87,41 +94,43 @@ const WorkspaceEditor = () => {
         setError(null);
 
         try {
-            if (isEdit) {
+            if (isEdit && workspace) {
                 await updateWorkspace(workspace.id, formData);
-                onAlert(Strings.Workspace.update);
+                onAlert(tWorkspace('messages.updateSuccess'));
             } else {
                 await createWorkspace(formData);
-                onAlert(Strings.Workspace.add);
+                onAlert(tWorkspace('messages.createSuccess'));
             }
             navigate(-1);
         } catch (_err) {
-            setError(isEdit ? Strings.Workspace.updateFailed : Strings.Workspace.addFailed);
+            setError(isEdit ? tWorkspace('messages.updateFailed') : tWorkspace('messages.createFailed'));
         } finally {
             setIsLoading(false);
         }
     };
 
-    const addMember = (member) => {
-        if (!member) return;
-        const newMembers = Array.isArray(workspace?.members) ? [...workspace.members, member] : [member];
+    const addMember = (member: Member) => {
+        if (!member || !workspace) return;
+        const newMembers = Array.isArray(workspace.members) ? [...workspace.members, member] : [member];
         setWorkspace({ ...workspace, members: newMembers });
     };
 
-    const onClassesChange = (classes) => {
+    const onClassesChange = (classes: string[]) => {
+        if (!workspace) return;
         setWorkspace({ ...workspace, classes });
     };
 
-    const removeMember = (member) => {
-        const newMembers = workspace?.members.filter((m: Member) => m.id !== member.id);
+    const removeMember = (member: Member) => {
+        if (!workspace?.members) return;
+        const newMembers = workspace.members.filter((m: Member) => m.id !== member.id);
         setWorkspace({ ...workspace, members: newMembers });
     };
 
-    const handleFilesChange = (files) => {
+    const handleFilesChange = (files: CustomFile[]) => {
         setNewFiles(files);
     };
 
-    const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
         setTabValue(newValue);
     };
 
@@ -130,15 +139,15 @@ const WorkspaceEditor = () => {
             <Grid container direction="column" spacing={3}>
                 <Grid size="auto" container justifyContent="space-between" alignItems="center">
                     <Typography variant="h4" component="h1">
-                        {isEdit ? 'Edit Workspace' : 'Create Workspace'}
+                        {isEdit ? tWorkspace('editor.editTitle') : tWorkspace('editor.createTitle')}
                     </Typography>
                     <Box>
-                        <Tooltip title="Save">
+                        <Tooltip title={tCommon('save')}>
                             <IconButton color="primary" onClick={handleSave} disabled={isLoading}>
                                 <SaveIcon />
                             </IconButton>
                         </Tooltip>
-                        <Tooltip title="Close">
+                        <Tooltip title={tCommon('close')}>
                             <IconButton color="secondary" onClick={() => navigate(-1)}>
                                 <CloseIcon />
                             </IconButton>
@@ -169,10 +178,10 @@ const WorkspaceEditor = () => {
                                 },
                             }}
                         >
-                            <Tab label="Details" />
-                            <Tab label="Classes" />
-                            <Tab label="Files" />
-                            <Tab label="Members" />
+                            <Tab label={tWorkspace('editor.basicInfo')} />
+                            <Tab label={tWorkspace('detail.classes')} />
+                            <Tab label={tWorkspace('dataset.title')} />
+                            <Tab label={tWorkspace('detail.members')} />
                         </Tabs>
                     </Box>
                 </Grid>
@@ -187,8 +196,8 @@ const WorkspaceEditor = () => {
                                 {(workspace || !isEdit) && (
                                     <BaseEditor
                                         handleSave={handleSave}
-                                        defaultTitle={workspace?.name}
-                                        defaultContent={workspace?.description}
+                                        defaultTitle={workspace?.name || ''}
+                                        defaultContent={workspace?.description || ''}
                                         ref={editorRef}
                                     />
                                 )}
@@ -212,43 +221,54 @@ const WorkspaceEditor = () => {
                                 />
                             </Box>
                             <Box hidden={tabValue !== 3}>
-                                <WorkspaceMember
-                                    workspace={workspace}
-                                    removeMember={removeMember}
-                                    isLoading={isLoading}
-                                    error={error}
-                                />
-                                <Grid container justifyContent="center" sx={{ mt: 2 }}>
-                                    <Button variant="contained" color="primary" onClick={() => setOpenMemberModal(true)}>
-                                        Add Member
-                                    </Button>
-                                </Grid>
+                                {workspace ? (
+                                    <>
+                                        <WorkspaceMember
+                                            workspace={workspace}
+                                            removeMember={removeMember}
+                                            isLoading={isLoading}
+                                            error={error}
+                                        />
+                                        <Grid container justifyContent="center" sx={{ mt: 2 }}>
+                                            <Button variant="contained" color="primary" onClick={() => setOpenMemberModal(true)}>
+                                                {tWorkspace('members.addMember')}
+                                            </Button>
+                                        </Grid>
+                                    </>
+                                ) : (
+                                    <Box display="flex" justifyContent="center" alignItems="center" height="200px">
+                                        <Typography variant="body1" color="text.secondary">
+                                            {tWorkspace('messages.workspaceRequired')}
+                                        </Typography>
+                                    </Box>
+                                )}
                             </Box>
                         </>
                     )}
                 </Grid>
             </Grid>
-            <Dialog open={openMemberModal} onClose={() => setOpenMemberModal(false)}>
+            <Dialog open={openMemberModal} onClose={() => setOpenMemberModal(false)} closeAfterTransition={false}>
                 <MemberSearchModal close={() => setOpenMemberModal(false)} setData={addMember} />
             </Dialog>
             <Dialog
                 open={openConfirmDialog}
                 onClose={() => setOpenConfirmDialog(false)}
+                closeAfterTransition={false}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
             >
-                <DialogTitle id="alert-dialog-title">{'Confirm Save'}</DialogTitle>
+                <DialogTitle id="alert-dialog-title">{tCommon('confirm')} {tCommon('save')}</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        Are you sure you want to save these changes?
+                        {tWorkspace('messages.saveProgress')}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setOpenConfirmDialog(false)} color="primary">
-                        Cancel
+                        {tCommon('cancel')}
                     </Button>
                     <Button onClick={confirmSave} color="primary">
-                        Confirm
+                        {tCommon('confirm')}
                     </Button>
                 </DialogActions>
             </Dialog>

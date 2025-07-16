@@ -1,12 +1,9 @@
 export {
   LanguageSwitcher,
-  LanguageToggle,
-  MobileLanguageSwitcher,
-  useLanguageManager,
   type LanguageSwitcherProps,
+  LanguageToggle,
   type LanguageToggleProps,
+  MobileLanguageSwitcher,
   type MobileLanguageSwitcherProps,
-  type LanguageConfig,
 } from './LanguageSwitcher';
-
 export { default } from './LanguageSwitcher';

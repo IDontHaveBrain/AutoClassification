@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box, styled } from '@mui/material';
 import { EditorContent,useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -8,7 +9,7 @@ interface TextEditorProps {
     onChange: (_content: string) => void;
 }
 
-// Quill snow 테마 모양을 모방한 스타일 래퍼
+// Quill Editor Snow 테마 스타일을 모방한 TipTap 에디터 컨테이너
 const StyledEditorWrapper = styled(Box)(({ theme }) => ({
     border: `1px solid ${theme.palette.divider}`,
     borderRadius: theme.shape.borderRadius,
@@ -21,7 +22,6 @@ const StyledEditorWrapper = styled(Box)(({ theme }) => ({
         fontSize: '14px',
         lineHeight: 1.5,
 
-        // 기본 텍스트 서식
         '& p': {
             margin: '0 0 8px 0',
         },
@@ -33,7 +33,6 @@ const StyledEditorWrapper = styled(Box)(({ theme }) => ({
         '& h2': { fontSize: '1.5em' },
         '& h3': { fontSize: '1.3em' },
 
-        // 목록
         '& ul, & ol': {
             paddingLeft: '24px',
             margin: '8px 0',
@@ -42,7 +41,6 @@ const StyledEditorWrapper = styled(Box)(({ theme }) => ({
             margin: '4px 0',
         },
 
-        // 기타 서식
         '& blockquote': {
             borderLeft: `3px solid ${theme.palette.primary.main}`,
             paddingLeft: '16px',
@@ -69,20 +67,18 @@ const StyledEditorWrapper = styled(Box)(({ theme }) => ({
             margin: '16px 0',
         },
 
-        // 포커스 상태
         '&:focus': {
             outline: 'none',
         },
     },
 
-    // 래퍼 포커스 상태
     '&:focus-within': {
         borderColor: theme.palette.primary.main,
         boxShadow: `0 0 0 1px ${theme.palette.primary.main}`,
     },
 }));
 
-// 기본 서식 옵션이 있는 툴바 (Quill snow 테마와 유사)
+// Quill Snow 테마와 유사한 디자인의 텍스트 포매팅 툴바
 const ToolbarWrapper = styled(Box)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.divider}`,
     padding: '8px 12px',
@@ -119,10 +115,10 @@ const ToolbarButton = styled('button')(({ theme }) => ({
 }));
 
 const TextEditor = ({ value, onChange }: TextEditorProps) => {
+    const { t } = useTranslation();
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
-                // 포함할 확장 기능 구성
                 heading: {
                     levels: [1, 2, 3],
                 },
@@ -160,21 +156,21 @@ const TextEditor = ({ value, onChange }: TextEditorProps) => {
                 <ToolbarButton
                     onClick={() => editor.chain().focus().toggleBold().run()}
                     className={editor.isActive('bold') ? 'is-active' : ''}
-                    title="Bold"
+                    title={t('editor.bold')}
                 >
                     <strong>B</strong>
                 </ToolbarButton>
                 <ToolbarButton
                     onClick={() => editor.chain().focus().toggleItalic().run()}
                     className={editor.isActive('italic') ? 'is-active' : ''}
-                    title="Italic"
+                    title={t('editor.italic')}
                 >
                     <em>I</em>
                 </ToolbarButton>
                 <ToolbarButton
                     onClick={() => editor.chain().focus().toggleStrike().run()}
                     className={editor.isActive('strike') ? 'is-active' : ''}
-                    title="Strikethrough"
+                    title={t('editor.strikethrough')}
                 >
                     <s>S</s>
                 </ToolbarButton>
@@ -184,21 +180,21 @@ const TextEditor = ({ value, onChange }: TextEditorProps) => {
                 <ToolbarButton
                     onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
                     className={editor.isActive('heading', { level: 1 }) ? 'is-active' : ''}
-                    title="Heading 1"
+                    title={t('editor.heading1')}
                 >
                     H1
                 </ToolbarButton>
                 <ToolbarButton
                     onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
                     className={editor.isActive('heading', { level: 2 }) ? 'is-active' : ''}
-                    title="Heading 2"
+                    title={t('editor.heading2')}
                 >
                     H2
                 </ToolbarButton>
                 <ToolbarButton
                     onClick={() => editor.chain().focus().setParagraph().run()}
                     className={editor.isActive('paragraph') ? 'is-active' : ''}
-                    title="Paragraph"
+                    title={t('editor.paragraph')}
                 >
                     P
                 </ToolbarButton>
@@ -208,14 +204,14 @@ const TextEditor = ({ value, onChange }: TextEditorProps) => {
                 <ToolbarButton
                     onClick={() => editor.chain().focus().toggleBulletList().run()}
                     className={editor.isActive('bulletList') ? 'is-active' : ''}
-                    title="Bullet List"
+                    title={t('editor.bulletList')}
                 >
                     •
                 </ToolbarButton>
                 <ToolbarButton
                     onClick={() => editor.chain().focus().toggleOrderedList().run()}
                     className={editor.isActive('orderedList') ? 'is-active' : ''}
-                    title="Numbered List"
+                    title={t('editor.numberedList')}
                 >
                     1.
                 </ToolbarButton>
@@ -225,14 +221,14 @@ const TextEditor = ({ value, onChange }: TextEditorProps) => {
                 <ToolbarButton
                     onClick={() => editor.chain().focus().toggleBlockquote().run()}
                     className={editor.isActive('blockquote') ? 'is-active' : ''}
-                    title="Quote"
+                    title={t('editor.quote')}
                 >
                     &quot;
                 </ToolbarButton>
                 <ToolbarButton
                     onClick={() => editor.chain().focus().toggleCodeBlock().run()}
                     className={editor.isActive('codeBlock') ? 'is-active' : ''}
-                    title="Code Block"
+                    title={t('editor.codeBlock')}
                 >
                     {'</>'}
                 </ToolbarButton>

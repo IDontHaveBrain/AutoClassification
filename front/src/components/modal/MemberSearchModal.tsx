@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CircularProgress,DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { type GridColDef, type GridRowParams } from '@mui/x-data-grid';
-import BaseTable from 'component/baseBoard/BaseTable';
 import { initPageable, type Member, type Pageable } from 'model/GlobalModel';
 import { getMemberList } from 'service/Apis/MemberApi';
 
+import BaseTable from 'components/baseBoard/BaseTable';
 import { onAlert } from 'utils/alert';
-import { Strings } from 'utils/strings';
 
 interface Props {
     close: () => void;
@@ -20,6 +20,9 @@ interface SearchParams {
 }
 
 const MemberSearchModal: React.FC<Props> = ({ close, setData }) => {
+    const { t } = useTranslation('common');
+    const { t: tWorkspace } = useTranslation('workspace');
+    const { t: tApi } = useTranslation('api');
     const [search, setSearch] = useState<SearchParams>({ email: '' });
     const [pageable, setPageable] = useState<Pageable>(initPageable(10));
     const [members, setMembers] = useState<Member[]>([]);
@@ -31,9 +34,9 @@ const MemberSearchModal: React.FC<Props> = ({ close, setData }) => {
     };
 
     const columns: GridColDef[] = [
-        { field: 'id', headerName: 'ID', width: 70 },
-        { field: 'email', headerName: 'Email', width: 130 },
-        { field: 'name', headerName: 'Name', width: 130 },
+        { field: 'id', headerName: t('id'), width: 70 },
+        { field: 'email', headerName: t('email'), width: 130 },
+        { field: 'name', headerName: t('name'), width: 130 },
     ];
 
     const handleRowClick = (params: GridRowParams) => {
@@ -52,12 +55,12 @@ const MemberSearchModal: React.FC<Props> = ({ close, setData }) => {
                 setTotalMembers(response.data.totalElements);
             })
             .catch((_error) => {
-                onAlert(Strings.Common.apiFailed);
+                onAlert(tApi('requestFailed'));
             })
             .finally(() => {
                 setLoading(false);
             });
-    }, [search]);
+    }, [search, tApi]);
 
     useEffect(() => {
         const sortValue = Array.isArray(pageable.sort) ? pageable.sort.join(',') : (pageable.sort || '');
@@ -66,10 +69,10 @@ const MemberSearchModal: React.FC<Props> = ({ close, setData }) => {
 
     return (
         <>
-            <DialogTitle>Member Search</DialogTitle>
+            <DialogTitle>{tWorkspace('memberSearch')}</DialogTitle>
             <DialogContent>
                 <TextField
-                    label="Email"
+                    label={t('email')}
                     variant="outlined"
                     name="email"
                     value={search.email}
@@ -90,7 +93,7 @@ const MemberSearchModal: React.FC<Props> = ({ close, setData }) => {
                 )}
             </DialogContent>
             <DialogActions>
-                <Button onClick={close}>Close</Button>
+                <Button onClick={close}>{t('close')}</Button>
             </DialogActions>
         </>
     );

@@ -1,5 +1,4 @@
-import TextField from '@mui/material/TextField';
-import { type StandardTextFieldProps } from '@mui/material/TextField/TextField';
+import TextField, { type StandardTextFieldProps } from '@mui/material/TextField';
 
 type BaseFieldProps = StandardTextFieldProps;
 

@@ -1,2 +1,1 @@
-export { useTranslation } from './useTranslation';
-export { default as useTranslationHook } from './useTranslation';
+// 커스텀 useTranslation 훅 제거됨 - react-i18next 직접 사용 권장

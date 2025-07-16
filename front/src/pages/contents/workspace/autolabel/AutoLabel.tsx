@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Autocomplete, Box,Button, CircularProgress, Grid, Paper, TextField, Typography } from '@mui/material';
-import BaseTitle from 'component/baseBoard/BaseTitle';
-import LabelledImages from 'component/imgs/LabelledImages';
 import { type WorkspaceModel } from 'model/WorkspaceModel';
 import WorkspaceDataSet from 'pages/contents/workspace/editor/WorkspaceDataSet';
 import { requestAutoLabel } from 'service/Apis/TrainApi';
 import { getMyWorkspaceList, getWorkspace } from 'service/Apis/WorkspaceApi';
 
+import BaseTitle from 'components/baseBoard/BaseTitle';
+import LabelledImages from 'components/imgs/LabelledImages';
 import { onAlert } from 'utils/alert';
-import { Strings } from 'utils/strings';
 
 const AutoLabel: React.FC = () => {
+    const { t: tWorkspace } = useTranslation('workspace');
+    const { t: tCommon } = useTranslation('common');
+    const { t: tApi } = useTranslation('api');
     const [workspaceList, setWorkspaceList] = useState<WorkspaceModel[]>([]);
     const [selected, setSelected] = useState<WorkspaceModel | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -22,10 +25,10 @@ const AutoLabel: React.FC = () => {
                 setWorkspaceList(res.data.content);
             })
             .catch(_err => {
-                onAlert(Strings.Common.apiFailed);
+                onAlert(tApi('requestFailed'));
             })
             .finally(() => setIsLoading(false));
-    }, []);
+    }, [tApi]);
 
     const handleSelectChange = (_: React.SyntheticEvent, newValue: WorkspaceModel | null) => {
         if (newValue) {
@@ -35,7 +38,7 @@ const AutoLabel: React.FC = () => {
                     setSelected(res.data);
                 })
                 .catch(_err => {
-                    onAlert(Strings.Common.apiFailed);
+                    onAlert(tApi('requestFailed'));
                 })
                 .finally(() => setIsLoading(false));
         } else {
@@ -45,30 +48,29 @@ const AutoLabel: React.FC = () => {
 
     const handleLabelingRequest = () => {
         if (!selected) {
-            onAlert('Select Workspace');
+            onAlert(tWorkspace('autoLabel.selectWorkspaceError'));
             return;
         }
         if (!selected.files || selected.files.length === 0) {
-            onAlert('No images to label');
+            onAlert(tWorkspace('autoLabel.noImagesToLabel'));
             return;
         }
 
         setIsLoading(true);
         requestAutoLabel(selected.id)
             .then(() => {
-                onAlert(Strings.Common.apiSuccess);
+                onAlert(tApi('requestSuccess'));
             })
             .catch(_err => {
-                onAlert(Strings.Common.apiFailed);
+                onAlert(tApi('requestFailed'));
             })
             .finally(() => setIsLoading(false));
     };
 
     return (
         <Paper elevation={3} sx={{ p: 4, m: 2, borderRadius: 2 }}>
-            <BaseTitle title={'AutoLabel'}/>
+            <BaseTitle title={tWorkspace('autoLabel.title')}/>
 
-            {/* Control Section */}
             <Box sx={{ mb: 4, mt: 3 }}>
                 <Grid container spacing={3} alignItems="end">
                     <Grid size={{ xs: 12, sm: 8, md: 7, lg: 6, xl: 5 }}>
@@ -80,7 +82,7 @@ const AutoLabel: React.FC = () => {
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
-                                    label="Select Workspace"
+                                    label={tCommon('selectWorkspace')}
                                     variant="outlined"
                                     fullWidth
                                     sx={{
@@ -191,14 +193,13 @@ const AutoLabel: React.FC = () => {
                             {isLoading ? (
                                 <CircularProgress size={24} color="inherit" />
                             ) : (
-                                'LABELING REQUEST'
+                                tWorkspace('autoLabel.startLabeling').toUpperCase()
                             )}
                         </Button>
                     </Grid>
                 </Grid>
             </Box>
 
-            {/* Content Section */}
             {selected && (
                 <Box sx={{ mt: 4 }}>
                     <Grid container spacing={4}>
@@ -212,7 +213,7 @@ const AutoLabel: React.FC = () => {
                                     mb: 2,
                                 }}
                             >
-                                Workspace Data
+                                {tWorkspace('autoLabel.workspaceData')}
                             </Typography>
                             <Box sx={{
                                 border: '1px solid',
@@ -238,7 +239,7 @@ const AutoLabel: React.FC = () => {
                                     mb: 2,
                                 }}
                             >
-                                Labelled Images
+                                {tCommon('labelledImages')}
                             </Typography>
                             <Box sx={{
                                 border: '1px solid',
