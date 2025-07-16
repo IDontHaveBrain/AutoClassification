@@ -45,7 +45,7 @@ jobs:
       - name : Build with Yarn
         run: |
           cd ./front
-          yarn build --verbose
+          yarn build
         env:
           CI: ""
 
