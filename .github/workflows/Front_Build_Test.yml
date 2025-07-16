@@ -49,12 +49,3 @@ jobs:
         env:
           CI: ""
 
-      - if: github.ref == 'refs/heads/main'
-        name: 'Deploy'
-        uses: distributhor/workflow-webhook@v3
-        with:
-          webhook_url: ${{ secrets.WEBHOOK_URL }}
-          data: '{ "target": "${{ secrets.FETARGET }}" }'
-          webhook_type: 'json-extended'
-          verbose: true
-          verify_ssl: false
